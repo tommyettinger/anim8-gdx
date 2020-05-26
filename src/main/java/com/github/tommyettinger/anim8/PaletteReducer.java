@@ -592,7 +592,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      */
     public void analyze(Array<Pixmap> pixmaps){
-        analyze(pixmaps.items, pixmaps.size, 400, 256);
+        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, 400, 256);
     }
 
     /**
@@ -614,7 +614,7 @@ public class PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 250 and 1000, 400 is a good default
      */
     public void analyze(Array<Pixmap> pixmaps, int threshold){
-        analyze(pixmaps.items, pixmaps.size, threshold, 256);
+        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
     }
 
     /**
@@ -637,7 +637,7 @@ public class PaletteReducer {
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Array<Pixmap> pixmaps, int threshold, int limit){
-        analyze(pixmaps.items, pixmaps.size, threshold, limit);
+        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
     }
     /**
      * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),

@@ -56,4 +56,6 @@ repositories {
 
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
