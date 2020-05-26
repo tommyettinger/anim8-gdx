@@ -1,0 +1,34 @@
+modifyPom {
+    project {
+        name 'anim8-gdx'
+        description 'Support for writing animated GIF and PNG files, plus PNG8, to libGDX.'
+        url 'https://github.com/tommyettinger/anim8-gdx'
+        inceptionYear '2020'
+
+        scm {
+            url 'https://github.com/tommyettinger/anim8-gdx'
+            connection 'scm:https://tommyettinger@github.com/tommyettinger/anim8-gdx.git'
+            developerConnection 'scm:git://github.com/tommyettinger/anim8-gdx.git'
+        }
+
+        licenses {
+            license {
+                name 'Apache Public License'
+                url 'https://www.apache.org/licenses/LICENSE-2.0.html'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'tommyettinger'
+                name 'Tommy Ettinger'
+                email 'tommy.ettinger@gmail.com'
+            }
+        }
+    }
+}
+
+nexusStaging {
+    packageGroup = 'com.github.tommyettinger'
+}
