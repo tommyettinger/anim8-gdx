@@ -37,22 +37,34 @@ public void renderGif() {
 ```
 
 The above code uses AnimatedGif, but could also use AnimatedPNG or PNG8 to write to an animated PNG (with full-color or
-palette-based color, respectively). All of these need a dependency on anim8; a typical Gradle dep uses JitPack for now,
-and Maven Central should be supported soon. To depend on an early working version (this applies to the core module's
-dependencies for a typical libGDX project):
+palette-based color, respectively).
+
+# Install
+
+A typical Gradle dependency on anim8 looks like this (in the core module's dependencies for a typical libGDX project):
 ```groovy
-// add the JitPack repository if you don't already have it
-allprojects { // note, this is NOT the repositories section in buildscript !
-  repositories {
-    //... other repositories are here, like: mavenCentral()
-    maven { url 'https://jitpack.io' }
-  }
-}
 dependencies {
   //... other dependencies are here, like libGDX
-  api 'com.github.tommyettinger:anim8-gdx:356247230b'
+  api 'com.github.tommyettinger:anim8-gdx:0.1.0'
 }
 ```
 
-Updates to the commit version are visible in the commits tab at
-[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/356247230b); a release should happen soon. 
+You can also get a specific commit using JitPack, by following the instructions on
+[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/09eaf9d640). 
+
+# Samples
+Some .gif animations, using 255 colors:
+
+![Yellow Gif](images/AnimatedGif-yellow.gif)
+
+![Green Gif](images/AnimatedGif-green.gif)
+
+And some .png animations, using full color:
+
+![Yellow Full-Color PNG](images/AnimatedPNG-yellow.png)
+
+![Green Full-Color PNG](images/AnimatedPNG-green.png)
+
+Animated PNG can support full alpha as well (though file sizes can be large):
+
+![Full-Color PNG with Alpha](images/AnimatedPNG-alpha.png)
