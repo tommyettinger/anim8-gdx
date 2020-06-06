@@ -220,6 +220,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         AnimatedGif gif = new AnimatedGif();
+        gif.setDitherAlgorithm(AnimatedGif.DitherAlgorithm.PATTERN);
         try {
             gif.write(Gdx.files.local("images/AnimatedGif-" + startTime + ".gif"), pixmaps, 16);
         } catch (IOException e) {

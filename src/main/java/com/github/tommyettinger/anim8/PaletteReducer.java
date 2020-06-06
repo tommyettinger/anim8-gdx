@@ -74,6 +74,16 @@ public class PaletteReducer {
     };
 
     /**
+     * Converts an RGBA8888 int color to the RGB555 format used by {@link #LAB} to look up colors.
+     * @param color an RGBA8888 int color
+     * @return an RGB555 int color
+     */
+    public static int shrink(final int color)
+    {
+        return (color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F);
+    }
+
+    /**
      * Stores CIE LAB components corresponding to RGB555 indices.
      * LAB[0] stores lightness from 0.0 to 100.0 .
      * LAB[1] stores CIE A, which is something like a green-red axis, from roughly -128.0 (green) to 128.0 (red).
@@ -81,7 +91,8 @@ public class PaletteReducer {
      * <br>
      * The indices into each of these double[] values store red in bits 10-14, green in bits 5-9, and blue in bits 0-4.
      * It's usually easier to work with these indices with bitwise operations, as with {@code (r << 10 | g << 5 | b)},
-     * where r, g, and b are all in the 0-31 range inclusive.
+     * where r, g, and b are all in the 0-31 range inclusive. It's usually easiest to convert an RGBA8888 int color to
+     * an RGB555 color with {@link #shrink(int)}.
      */
     public static final double[][] LAB = new double[3][0x8000];
     static {
@@ -115,9 +126,10 @@ public class PaletteReducer {
     }
 
 
-    public byte[] paletteMapping;
-    public final int[] paletteArray = new int[256];
-    ByteArray curErrorRedBytes, nextErrorRedBytes, curErrorGreenBytes, nextErrorGreenBytes, curErrorBlueBytes, nextErrorBlueBytes;
+    byte[] paletteMapping;
+    final int[] paletteArray = new int[256];
+    final int[] gammaArray = new int[256];
+    private ByteArray curErrorRedBytes, nextErrorRedBytes, curErrorGreenBytes, nextErrorGreenBytes, curErrorBlueBytes, nextErrorBlueBytes;
     float ditherStrength = 0.5f, halfDitherStrength = 0.25f;
 
     /**
@@ -343,7 +355,7 @@ public class PaletteReducer {
                 }
             }
         }
-//        generatePreloadCode(paletteMapping);
+        calculateGamma();
     }
 
     /**
@@ -363,6 +375,8 @@ public class PaletteReducer {
         {
             System.arraycopy(AURORA, 0,  paletteArray, 0, 256);
             paletteMapping = ENCODED_AURORA;
+
+            calculateGamma();
             return;
         }
         for (int i = 0; i < 256 & i < palette.length; i++) {
@@ -371,6 +385,8 @@ public class PaletteReducer {
                 paletteArray[i] = color;
         }
         paletteMapping = preload;
+
+        calculateGamma();
     }
 
     /**
@@ -431,6 +447,7 @@ public class PaletteReducer {
                 }
             }
         }
+        calculateGamma();
     }
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
@@ -573,6 +590,7 @@ public class PaletteReducer {
                 }
             }
         }
+        calculateGamma();
     }
 
     /**
@@ -738,6 +756,7 @@ public class PaletteReducer {
                 }
             }
         }
+        calculateGamma();
     }
 
     /**
@@ -751,6 +770,19 @@ public class PaletteReducer {
     public void setDitherStrength(float ditherStrength) {
         this.ditherStrength = Math.max(0f, 0.5f * ditherStrength);
         this.halfDitherStrength = 0.5f * this.ditherStrength;
+        calculateGamma();
+    }
+    
+    void calculateGamma(){
+        double gamma = 2.0 - this.ditherStrength * 1.666;
+        for (int i = 0; i < 256; i++) {
+            int color = paletteArray[i];
+            double r = Math.pow((color >>> 24) / 255.0, gamma);
+            double g = Math.pow((color >>> 16 & 0xFF) / 255.0, gamma);
+            double b = Math.pow((color >>>  8 & 0xFF) / 255.0, gamma);
+            int a = color & 0xFF;
+            gammaArray[i] = (int)(r * 255.999) << 24 | (int)(g * 255.999) << 16 | (int)(b * 255.999) << 8 | a;
+        }
     }
 
     /**
@@ -1048,7 +1080,212 @@ public class PaletteReducer {
         pixmap.setBlending(blending);
         return pixmap;
     }
-    
+
+    /**
+     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
+     */
+    static final int[] thresholdMatrix = {
+            0,  12,   3,  15,
+            8,   4,  11,   7,
+            2,  14,   1,  13,
+            10,  6,   9,   5,
+    };
+
+    final int[] candidates = new int[16];
+
+    /**
+     * Compares items in ints by their luma, looking up items by the indices a and b, and swaps the two given indices if
+     * the item at a has higher luma than the item at b. This is protected rather than private because it's more likely
+     * that this would be desirable to override than a method that uses it, like {@link #reduceKnoll(Pixmap)}. Uses
+     * {@link #LAB} to look up fairly-accurate luma for the given colors in {@code ints} (that contains RGBA8888 colors
+     * while labs uses RGB555, so {@link #shrink(int)} is used to convert).
+     * @param ints an int array than must be able to take a and b as indices; may be modified in place
+     * @param a an index into ints
+     * @param b an index into ints
+     */
+    protected void compareSwap(final int[] ints, final int a, final int b) {
+        if(LAB[0][shrink(ints[a])] > LAB[0][shrink(ints[b])]) {
+            final int t = ints[a];
+            ints[a] = ints[b];
+            ints[b] = t;
+        }
+    }
+
+    /**
+     * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 16.
+     * @param i16 a 16-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
+     */
+    void sort16(final int[] i16)
+    {
+        compareSwap(i16, 0, 1);
+        compareSwap(i16, 2, 3);
+        compareSwap(i16, 4, 5);
+        compareSwap(i16, 6, 7);
+        compareSwap(i16, 8, 9);
+        compareSwap(i16, 10, 11);
+        compareSwap(i16, 12, 13);
+        compareSwap(i16, 14, 15);
+        compareSwap(i16, 0, 2);
+        compareSwap(i16, 4, 6);
+        compareSwap(i16, 8, 10);
+        compareSwap(i16, 12, 14);
+        compareSwap(i16, 1, 3);
+        compareSwap(i16, 5, 7);
+        compareSwap(i16, 9, 11);
+        compareSwap(i16, 13, 15);
+        compareSwap(i16, 0, 4);
+        compareSwap(i16, 8, 12);
+        compareSwap(i16, 1, 5);
+        compareSwap(i16, 9, 13);
+        compareSwap(i16, 2, 6);
+        compareSwap(i16, 10, 14);
+        compareSwap(i16, 3, 7);
+        compareSwap(i16, 11, 15);
+        compareSwap(i16, 0, 8);
+        compareSwap(i16, 1, 9);
+        compareSwap(i16, 2, 10);
+        compareSwap(i16, 3, 11);
+        compareSwap(i16, 4, 12);
+        compareSwap(i16, 5, 13);
+        compareSwap(i16, 6, 14);
+        compareSwap(i16, 7, 15);
+        compareSwap(i16, 5, 10);
+        compareSwap(i16, 6, 9);
+        compareSwap(i16, 3, 12);
+        compareSwap(i16, 13, 14);
+        compareSwap(i16, 7, 11);
+        compareSwap(i16, 1, 2);
+        compareSwap(i16, 4, 8);
+        compareSwap(i16, 1, 4);
+        compareSwap(i16, 7, 13);
+        compareSwap(i16, 2, 8);
+        compareSwap(i16, 11, 14);
+        compareSwap(i16, 2, 4);
+        compareSwap(i16, 5, 6);
+        compareSwap(i16, 9, 10);
+        compareSwap(i16, 11, 13);
+        compareSwap(i16, 3, 8);
+        compareSwap(i16, 7, 12);
+        compareSwap(i16, 6, 8);
+        compareSwap(i16, 10, 12);
+        compareSwap(i16, 3, 5);
+        compareSwap(i16, 7, 9);
+        compareSwap(i16, 3, 4);
+        compareSwap(i16, 5, 6);
+        compareSwap(i16, 7, 8);
+        compareSwap(i16, 9, 10);
+        compareSwap(i16, 11, 12);
+        compareSwap(i16, 6, 7);
+        compareSwap(i16, 8, 9);
+    }
+
+    /**
+     * Reduces a Pixmap to the palette this knows by using Thomas Knoll's pattern dither, which is out-of-patent since
+     * late 2019. The output this produces is very dependent on the palette and this PaletteReducer's dither strength,
+     * which can be set with {@link #setDitherStrength(float)}. At close-up zooms, a strong grid pattern will be visible
+     * on most dithered output (like needlepoint). The algorithm was described in detail by Joel Yliluoma in
+     * <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>; Yliluoma used an 8x8
+     * threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
+     * sorting step (this uses a sorting network, which works well for small input sizes like 16 items).
+     * @see #reduceKnollRoberts(Pixmap) An alternative that uses a similar pattern but skews it to obscure the grid
+     * @param pixmap a Pixmap that will be modified
+     * @return {@code pixmap}, after modifications
+     */
+    public Pixmap reduceKnoll (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used, cr, cg, cb, usedIndex;
+        final float errorMul = ditherStrength * 0.5f;
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    int er = 0, eg = 0, eb = 0;
+                    cr = (color >>> 24);
+                    cg = (color >>> 16 & 0xFF);
+                    cb = (color >>> 8 & 0xFF);
+                    for (int i = 0; i < candidates.length; i++) {
+                        int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
+                        int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
+                        int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
+                        usedIndex = paletteMapping[((rr << 7) & 0x7C00)
+                                | ((gg << 2) & 0x3E0)
+                                | ((bb >>> 3))] & 0xFF;
+                        candidates[i] = paletteArray[usedIndex];
+                        used = gammaArray[usedIndex];
+                        er += cr - (used >>> 24);
+                        eg += cg - (used >>> 16 & 0xFF);
+                        eb += cb - (used >>> 8 & 0xFF);
+                    }
+                    sort16(candidates);
+                    pixmap.drawPixel(px, y, candidates[thresholdMatrix[((px & 3) | (y & 3) << 2)]]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
+     * Reduces a Pixmap to the palette this knows by using a skewed version of Thomas Knoll's pattern dither, which is
+     * out-of-patent since late 2019, using the harmonious numbers rediscovered by Martin Roberts to handle the skew.
+     * The output this produces is very dependent on the palette and this PaletteReducer's dither strength, which can be
+     * set with {@link #setDitherStrength(float)}. A diagonal striping can be visible on many outputs this produces;
+     * this artifact can be mitigated by changing dither strength. The algorithm was described in detail by Joel
+     * Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>; Yliluoma used an
+     * 8x8 threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
+     * sorting step (this uses a sorting network, which works well for small input sizes like 16 items).
+     * @see #reduceKnoll(Pixmap) An alternative that uses a similar pattern but has a more obvious grid
+     * @param pixmap a Pixmap that will be modified
+     * @return {@code pixmap}, after modifications
+     */
+    public Pixmap reduceKnollRoberts (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used, cr, cg, cb,  usedIndex;
+        final float errorMul = ditherStrength * 0.375f;
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    int er = 0, eg = 0, eb = 0;
+                    cr = (color >>> 24);
+                    cg = (color >>> 16 & 0xFF);
+                    cb = (color >>> 8 & 0xFF);
+                    for (int i = 0; i < candidates.length; i++) {
+                        int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
+                        int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
+                        int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
+                        usedIndex = paletteMapping[((rr << 7) & 0x7C00)
+                                | ((gg << 2) & 0x3E0)
+                                | ((bb >>> 3))] & 0xFF;
+                        candidates[i] = paletteArray[usedIndex];
+                        used = gammaArray[usedIndex];
+                        er += cr - (used >>> 24);
+                        eg += cg - (used >>> 16 & 0xFF);
+                        eb += cb - (used >>> 8 & 0xFF);
+                    }
+                    sort16(candidates);
+                    pixmap.drawPixel(px, y, candidates[thresholdMatrix[
+                            ((int) (px * 0x0.C13FA9A902A6328Fp3f + y * 0x0.91E10DA5C79E7B1Dp2f) & 3) ^
+                                    ((px & 3) | (y & 3) << 2)
+                            ]]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+
     /**
      * Retrieves a random non-0 color index for the palette this would reduce to, with a higher likelihood for colors
      * that are used more often in reductions (those with few similar colors). The index is returned as a byte that,
