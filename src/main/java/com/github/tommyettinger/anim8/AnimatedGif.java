@@ -1,5 +1,6 @@
 package com.github.tommyettinger.anim8;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.MathUtils;
@@ -15,11 +16,27 @@ import java.io.OutputStream;
  * Java animated GIF encoder by Kevin Weiner ( http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm ).
  * The original has no copyright asserted, so this file continues that tradition and does not assert copyright either.
  */
-public class AnimatedGif {
-    public void write(FileHandle file, Array<Pixmap> frames) throws IOException {
+public class AnimatedGif implements AnimationWriter {
+    /**
+     * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF at {@code file}. Always writes at
+     * 30 frames per second, so if frames has less than 30 items, this animation will be under a second long.
+     * @param file the FileHandle to write to; should generally not be internal because it must be writable
+     * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
+     */
+    @Override
+    public void write(FileHandle file, Array<Pixmap> frames) {
         write(file, frames, 30);
     }
-    public void write(FileHandle file, Array<Pixmap> frames, int fps) throws IOException {
+
+    /**
+     * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF at {@code file}. The resulting GIF
+     * will play back at {@code fps} frames per second.
+     * @param file the FileHandle to write to; should generally not be internal because it must be writable
+     * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
+     * @param fps how many frames (from {@code frames}) to play back per second
+     */
+    @Override
+    public void write(FileHandle file, Array<Pixmap> frames, int fps) {
         OutputStream output = file.write(false);
         try {
             write(output, frames, fps);
@@ -27,20 +44,28 @@ public class AnimatedGif {
             StreamUtils.closeQuietly(output);
         }
     }
-    
-    public enum DitherAlgorithm {
-        NONE, GRADIENT_NOISE, PATTERN
-    }
 
-    private void write(OutputStream output, Array<Pixmap> frames, int fps) throws IOException {
+    /**
+     * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF in the OutputStream
+     * {@code output}. The resulting GIF will play back at {@code fps} frames per second.
+     * @param output the OutputStream to write to; will not be closed by this method
+     * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
+     * @param fps how many frames (from {@code frames}) to play back per second
+     */
+    @Override
+    public void write(OutputStream output, Array<Pixmap> frames, int fps) {
         if (palette == null)
             palette = new PaletteReducer(frames);
-        start(output);
+        if(!start(output)) return;
         setFrameRate(fps);
         for (int i = 0; i < frames.size; i++) {
             addFrame(frames.get(i));
         }
         finish();
+    }
+
+    public enum DitherAlgorithm {
+        NONE, GRADIENT_NOISE, PATTERN
     }
     
     protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.GRADIENT_NOISE;
@@ -285,6 +310,7 @@ public class AnimatedGif {
             writeString("GIF89a"); // header
         } catch (IOException e) {
             ok = false;
+            Gdx.app.error("anim8", e.getMessage());
         }
         return started = ok;
     }

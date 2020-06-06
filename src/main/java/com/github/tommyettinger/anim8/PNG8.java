@@ -1,5 +1,6 @@
 package com.github.tommyettinger.anim8;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -52,7 +53,7 @@ import java.util.zip.DeflaterOutputStream;
  * @author Matthias Mann
  * @author Nathan Sweet
  * @author Tommy Ettinger (PNG-8 parts only) */
-public class PNG8 implements Disposable {
+public class PNG8 implements AnimationWriter, Disposable {
     static private final byte[] SIGNATURE = {(byte)137, 80, 78, 71, 13, 10, 26, 10};
     static private final int IHDR = 0x49484452, IDAT = 0x49444154, IEND = 0x49454E44,
             PLTE = 0x504C5445, TRNS = 0x74524E53,
@@ -97,9 +98,8 @@ public class PNG8 implements Disposable {
      * used for "fully transparent" and 255 opaque colors will be used.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given file
-     * @throws IOException if file writing fails for any reason
      */
-    public void write (FileHandle file, Pixmap pixmap) throws IOException {
+    public void write (FileHandle file, Pixmap pixmap) {
         write(file, pixmap, true);
     }
 
@@ -113,9 +113,8 @@ public class PNG8 implements Disposable {
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given file
      * @param computePalette if true, this will analyze the Pixmap and use the most common colors
-     * @throws IOException if file writing fails for any reason
      */
-    public void write (FileHandle file, Pixmap pixmap, boolean computePalette) throws IOException {
+    public void write (FileHandle file, Pixmap pixmap, boolean computePalette) {
         OutputStream output = file.write(false);
         try {
             write(output, pixmap, computePalette);
@@ -132,9 +131,8 @@ public class PNG8 implements Disposable {
      * @param pixmap a Pixmap to write to the given output stream
      * @param computePalette if true, this will analyze the Pixmap and use the most common colors
      * @param dither true if this should dither colors that can't be represented exactly
-     * @throws IOException if file writing fails for any reason
      */
-    public void write (FileHandle file, Pixmap pixmap, boolean computePalette, boolean dither) throws IOException {
+    public void write (FileHandle file, Pixmap pixmap, boolean computePalette, boolean dither) {
         OutputStream output = file.write(false);
         try {
             write(output, pixmap, computePalette, dither);
@@ -155,9 +153,8 @@ public class PNG8 implements Disposable {
      * @param computePalette if true, this will analyze the Pixmap and use the most common colors
      * @param dither true if this should dither colors that can't be represented exactly
      * @param threshold the analysis threshold to use if computePalette is true (min 0, practical max is over 100000)
-     * @throws IOException if file writing fails for any reason
      */
-    public void write (FileHandle file, Pixmap pixmap, boolean computePalette, boolean dither, int threshold) throws IOException {
+    public void write (FileHandle file, Pixmap pixmap, boolean computePalette, boolean dither, int threshold) {
         OutputStream output = file.write(false);
         try {
             write(output, pixmap, computePalette, dither, threshold);
@@ -170,7 +167,7 @@ public class PNG8 implements Disposable {
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      */
-    public void write (OutputStream output, Pixmap pixmap) throws IOException {
+    public void write (OutputStream output, Pixmap pixmap) {
         writePrecisely(output, pixmap, true);
     }
 
@@ -182,7 +179,7 @@ public class PNG8 implements Disposable {
      * @param pixmap a Pixmap to write to the given output stream
      * @param computePalette if true, this will analyze the Pixmap and use the most common colors
      */
-    public void write (OutputStream output, Pixmap pixmap, boolean computePalette) throws IOException
+    public void write (OutputStream output, Pixmap pixmap, boolean computePalette)
     {
         if(computePalette)
             writePrecisely(output, pixmap, true);
@@ -199,7 +196,7 @@ public class PNG8 implements Disposable {
      * @param computePalette if true, this will analyze the Pixmap and use the most common colors
      * @param dither true if this should dither colors that can't be represented exactly
      */
-    public void write (OutputStream output, Pixmap pixmap, boolean computePalette, boolean dither) throws IOException
+    public void write (OutputStream output, Pixmap pixmap, boolean computePalette, boolean dither)
     {
         write(output, pixmap, computePalette, dither, 400);
     }
@@ -213,8 +210,7 @@ public class PNG8 implements Disposable {
      * @param dither true if this should dither colors that can't be represented exactly
      * @param threshold the analysis threshold to use if computePalette is true (min 0, practical max is over 100000)
      */
-    public void write (OutputStream output, Pixmap pixmap, boolean computePalette, boolean dither, int threshold) throws IOException
-    {
+    public void write (OutputStream output, Pixmap pixmap, boolean computePalette, boolean dither, int threshold) {
         if(palette == null)
         {
             palette = new PaletteReducer(pixmap, threshold);
@@ -239,9 +235,8 @@ public class PNG8 implements Disposable {
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
-     * @throws IOException if file writing fails for any reason
      */
-    public void writePrecisely (FileHandle file, Pixmap pixmap, boolean ditherFallback) throws IOException {
+    public void writePrecisely (FileHandle file, Pixmap pixmap, boolean ditherFallback) {
         writePrecisely(file, pixmap, ditherFallback, 400);
     }
     /**
@@ -257,9 +252,8 @@ public class PNG8 implements Disposable {
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
      * @param threshold the analysis threshold to use if there are too many colors (min 0, practical max is over 100000)
-     * @throws IOException if file writing fails for any reason
      */
-    public void writePrecisely (FileHandle file, Pixmap pixmap, boolean ditherFallback, int threshold) throws IOException {
+    public void writePrecisely (FileHandle file, Pixmap pixmap, boolean ditherFallback, int threshold) {
         OutputStream output = file.write(false);
         try {
             writePrecisely(output, pixmap, ditherFallback, threshold);
@@ -284,9 +278,8 @@ public class PNG8 implements Disposable {
      * @param exactPalette if non-null, will try to use this palette exactly, in order and including unused colors
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
      * @param threshold the analysis threshold to use if there are too many colors (min 0, practical max is over 100000)
-     * @throws IOException if file writing fails for any reason
      */
-    public void writePrecisely (FileHandle file, Pixmap pixmap, int[] exactPalette, boolean ditherFallback, int threshold) throws IOException {
+    public void writePrecisely (FileHandle file, Pixmap pixmap, int[] exactPalette, boolean ditherFallback, int threshold) {
         OutputStream output = file.write(false);
         try {
             writePrecisely(output, pixmap, exactPalette, ditherFallback, threshold);
@@ -308,7 +301,7 @@ public class PNG8 implements Disposable {
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
      * @throws IOException if OutputStream things fail for any reason
      */
-    public void writePrecisely(OutputStream output, Pixmap pixmap, boolean ditherFallback) throws IOException {
+    public void writePrecisely(OutputStream output, Pixmap pixmap, boolean ditherFallback) {
         writePrecisely(output, pixmap, ditherFallback, 400);
     }
 
@@ -325,9 +318,8 @@ public class PNG8 implements Disposable {
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
      * @param threshold the analysis threshold to use if there are too many colors (min 0, practical max is over 100000)
-     * @throws IOException if OutputStream things fail for any reason
      */
-    public void writePrecisely(OutputStream output, Pixmap pixmap, boolean ditherFallback, int threshold) throws IOException {
+    public void writePrecisely(OutputStream output, Pixmap pixmap, boolean ditherFallback, int threshold) {
         writePrecisely(output, pixmap, null, ditherFallback, threshold);
     }
 
@@ -349,14 +341,14 @@ public class PNG8 implements Disposable {
      * @param threshold the analysis threshold to use if there are too many colors (min 0, practical max is over 100000)
      * @throws IOException if OutputStream things fail for any reason
      */
-    public void writePrecisely(OutputStream output, Pixmap pixmap, int[] exactPalette, boolean ditherFallback, int threshold) throws IOException {
+    public void writePrecisely(OutputStream output, Pixmap pixmap, int[] exactPalette, boolean ditherFallback, int threshold) {
         IntIntMap colorToIndex = new IntIntMap(256);
         colorToIndex.put(0, 0);
         int color;
         int hasTransparent = 0;
         final int w = pixmap.getWidth(), h = pixmap.getHeight();
         int[] paletteArray;
-        if(exactPalette == null) {
+        if (exactPalette == null) {
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -383,9 +375,7 @@ public class PNG8 implements Disposable {
             for (IntIntMap.Entry ent : colorToIndex) {
                 paletteArray[ent.value] = ent.key;
             }
-        }
-        else
-        {
+        } else {
             hasTransparent = (exactPalette[0] == 0) ? 1 : 0;
             paletteArray = exactPalette;
             for (int i = hasTransparent; i < paletteArray.length; i++) {
@@ -394,96 +384,98 @@ public class PNG8 implements Disposable {
         }
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         DataOutputStream dataOutput = new DataOutputStream(output);
-        dataOutput.write(SIGNATURE);
+        try {
+            dataOutput.write(SIGNATURE);
 
-        buffer.writeInt(IHDR);
-        buffer.writeInt(pixmap.getWidth());
-        buffer.writeInt(pixmap.getHeight());
-        buffer.writeByte(8); // 8 bits per component.
-        buffer.writeByte(COLOR_INDEXED);
-        buffer.writeByte(COMPRESSION_DEFLATE);
-        buffer.writeByte(FILTER_NONE);
-        buffer.writeByte(INTERLACE_NONE);
-        buffer.endChunk(dataOutput);
-
-        buffer.writeInt(PLTE);
-        for (int i = 0; i < paletteArray.length; i++) {
-            int p = paletteArray[i];
-            buffer.write(p>>>24);
-            buffer.write(p>>>16);
-            buffer.write(p>>>8);
-        }
-        buffer.endChunk(dataOutput);
-
-        if(hasTransparent == 1) {
-            buffer.writeInt(TRNS);
-            buffer.write(0);
+            buffer.writeInt(IHDR);
+            buffer.writeInt(pixmap.getWidth());
+            buffer.writeInt(pixmap.getHeight());
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
             buffer.endChunk(dataOutput);
-        }
-        buffer.writeInt(IDAT);
-        deflater.reset();
 
-        int lineLen = pixmap.getWidth();
-        byte[] lineOut, curLine, prevLine;
-        if (lineOutBytes == null) {
-            lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
-            curLine = (curLineBytes = new ByteArray(lineLen)).items;
-            prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
-        } else {
-            lineOut = lineOutBytes.ensureCapacity(lineLen);
-            curLine = curLineBytes.ensureCapacity(lineLen);
-            prevLine = prevLineBytes.ensureCapacity(lineLen);
-            for (int i = 0, n = lastLineLen; i < n; i++)
-            {
-                prevLine[i] = 0;
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p >>> 24);
+                buffer.write(p >>> 16);
+                buffer.write(p >>> 8);
             }
-        }
+            buffer.endChunk(dataOutput);
 
-        lastLineLen = lineLen;
-
-        for (int y = 0; y < h; y++) {
-            int py = flipY ? (h - y - 1) : y;
-            for (int px = 0; px < w; px++) {
-                color = pixmap.getPixel(px, py);
-                curLine[px] = (byte) colorToIndex.get(color, 0);
+            if (hasTransparent == 1) {
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
             }
+            buffer.writeInt(IDAT);
+            deflater.reset();
 
-            lineOut[0] = (byte)(curLine[0] - prevLine[0]);
-
-            //Paeth
-            for (int x = 1; x < lineLen; x++) {
-                int a = curLine[x - 1] & 0xff;
-                int b = prevLine[x] & 0xff;
-                int c = prevLine[x - 1] & 0xff;
-                int p = a + b - c;
-                int pa = p - a;
-                if (pa < 0) pa = -pa;
-                int pb = p - b;
-                if (pb < 0) pb = -pb;
-                int pc = p - c;
-                if (pc < 0) pc = -pc;
-                if (pa <= pb && pa <= pc)
-                    c = a;
-                else if (pb <= pc)
-                    c = b;
-                lineOut[x] = (byte)(curLine[x] - c);
+            int lineLen = pixmap.getWidth();
+            byte[] lineOut, curLine, prevLine;
+            if (lineOutBytes == null) {
+                lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
+                curLine = (curLineBytes = new ByteArray(lineLen)).items;
+                prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
+            } else {
+                lineOut = lineOutBytes.ensureCapacity(lineLen);
+                curLine = curLineBytes.ensureCapacity(lineLen);
+                prevLine = prevLineBytes.ensureCapacity(lineLen);
+                for (int i = 0, n = lastLineLen; i < n; i++) {
+                    prevLine[i] = 0;
+                }
             }
 
-            deflaterOutput.write(PAETH);
-            deflaterOutput.write(lineOut, 0, lineLen);
+            lastLineLen = lineLen;
 
-            byte[] temp = curLine;
-            curLine = prevLine;
-            prevLine = temp;
+            for (int y = 0; y < h; y++) {
+                int py = flipY ? (h - y - 1) : y;
+                for (int px = 0; px < w; px++) {
+                    color = pixmap.getPixel(px, py);
+                    curLine[px] = (byte) colorToIndex.get(color, 0);
+                }
+
+                lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+
+                //Paeth
+                for (int x = 1; x < lineLen; x++) {
+                    int a = curLine[x - 1] & 0xff;
+                    int b = prevLine[x] & 0xff;
+                    int c = prevLine[x - 1] & 0xff;
+                    int p = a + b - c;
+                    int pa = p - a;
+                    if (pa < 0) pa = -pa;
+                    int pb = p - b;
+                    if (pb < 0) pb = -pb;
+                    int pc = p - c;
+                    if (pc < 0) pc = -pc;
+                    if (pa <= pb && pa <= pc)
+                        c = a;
+                    else if (pb <= pc)
+                        c = b;
+                    lineOut[x] = (byte) (curLine[x] - c);
+                }
+
+                deflaterOutput.write(PAETH);
+                deflaterOutput.write(lineOut, 0, lineLen);
+
+                byte[] temp = curLine;
+                curLine = prevLine;
+                prevLine = temp;
+            }
+            deflaterOutput.finish();
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
         }
-        deflaterOutput.finish();
-        buffer.endChunk(dataOutput);
-
-        buffer.writeInt(IEND);
-        buffer.endChunk(dataOutput);
-
-        output.flush();
-
     }
     /**
      * Attempts to write the given Pixmap exactly as a PNG-8 image to file; this attempt will only succeed if there
@@ -492,9 +484,8 @@ public class PNG8 implements Disposable {
      * colors exactly.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
-     * @throws IOException if file writing fails for any reason
      */
-    public void writePreciseSection (FileHandle file, Pixmap pixmap, int[] exactPalette, int startX, int startY, int width, int height) throws IOException {
+    public void writePreciseSection (FileHandle file, Pixmap pixmap, int[] exactPalette, int startX, int startY, int width, int height) {
         OutputStream output = file.write(false);
         try {
             writePreciseSection(output, pixmap, exactPalette, startX, startY, width, height);
@@ -516,7 +507,7 @@ public class PNG8 implements Disposable {
      * @param pixmap a Pixmap to write to the given output stream
      * @throws IOException if OutputStream things fail for any reason
      */
-    public void writePreciseSection(OutputStream output, Pixmap pixmap, int[] exactPalette, int startX, int startY, int width, int height) throws IOException {
+    public void writePreciseSection(OutputStream output, Pixmap pixmap, int[] exactPalette, int startX, int startY, int width, int height) {
         IntIntMap colorToIndex = new IntIntMap(256);
         colorToIndex.put(0, 0);
         int color;
@@ -559,6 +550,7 @@ public class PNG8 implements Disposable {
         }
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
         dataOutput.write(SIGNATURE);
 
         buffer.writeInt(IHDR);
@@ -648,14 +640,17 @@ public class PNG8 implements Disposable {
         buffer.endChunk(dataOutput);
 
         output.flush();
-
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
     }
-    private void writeSolid (OutputStream output, Pixmap pixmap) throws IOException{
+    private void writeSolid (OutputStream output, Pixmap pixmap){
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
         dataOutput.write(SIGNATURE);
 
         buffer.writeInt(IHDR);
@@ -758,14 +753,18 @@ public class PNG8 implements Disposable {
         buffer.endChunk(dataOutput);
 
         output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
     }
 
-    private void writeDithered (OutputStream output, Pixmap pixmap) throws IOException{
+    private void writeDithered (OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
         DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
         dataOutput.write(SIGNATURE);
 
         buffer.writeInt(IHDR);
@@ -886,7 +885,24 @@ public class PNG8 implements Disposable {
         buffer.endChunk(dataOutput);
 
         output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
     }
+    /**
+     * Writes the given Pixmaps to the requested FileHandle at 30 frames per second.
+     * If {@link #palette} is null (the default unless it has been assigned a PaletteReducer value), this will
+     * compute a palette from all of the frames given. Otherwise, this uses the colors already in {@link #palette}.
+     * Always dithers the result.
+     *
+     * @param file   a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
+     * @param frames a Pixmap Array to write as a sequence of frames to the given output stream
+     */
+    @Override
+    public void write(FileHandle file, Array<Pixmap> frames) {
+        write(file, frames, 30, true);
+    }
+
     /**
      * Writes the given Pixmaps to the requested FileHandle at the requested frames per second.
      * If {@link #palette} is null (the default unless it has been assigned a PaletteReducer value), this will
@@ -896,9 +912,9 @@ public class PNG8 implements Disposable {
      * @param file   a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param frames a Pixmap Array to write as a sequence of frames to the given output stream
      * @param fps    how many frames per second the animation should run at
-     * @throws IOException if file writing fails for any reason
      */
-    public void write(FileHandle file, Array<Pixmap> frames, int fps) throws IOException {
+    @Override
+    public void write(FileHandle file, Array<Pixmap> frames, int fps) {
         write(file, frames, fps, true);
     }
 
@@ -912,9 +928,8 @@ public class PNG8 implements Disposable {
      * @param frames a Pixmap Array to write as a sequence of frames to the given output stream
      * @param fps    how many frames per second the animation should run at
      * @param dither true if this should dither colors that can't be represented exactly
-     * @throws IOException if file writing fails for any reason
      */
-    public void write(FileHandle file, Array<Pixmap> frames, int fps, boolean dither) throws IOException {
+    public void write(FileHandle file, Array<Pixmap> frames, int fps, boolean dither) {
         OutputStream output = file.write(false);
         try {
             write(output, frames, fps, dither);
@@ -934,22 +949,23 @@ public class PNG8 implements Disposable {
      * @param fps    how many frames per second the animation should run at
      * @param dither true if this should dither colors that can't be represented exactly
      */
-    public void write(OutputStream output, Array<Pixmap> frames, int fps, boolean dither) throws IOException {
+    public void write(OutputStream output, Array<Pixmap> frames, int fps, boolean dither) {
         if (palette == null)
             palette = new PaletteReducer(frames);
         if (dither)
-            writeDithered(output, frames, fps);
+            write(output, frames, fps);
         else
             writeSolid(output, frames, fps);
     }
 
-    private void writeSolid(OutputStream output, Array<Pixmap> frames, int fps) throws IOException {
+    private void writeSolid(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
         dataOutput.write(SIGNATURE);
 
         final int width = pixmap.getWidth();
@@ -1077,15 +1093,20 @@ public class PNG8 implements Disposable {
         buffer.endChunk(dataOutput);
 
         output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
     }
 
-    private void writeDithered(OutputStream output, Array<Pixmap> frames, int fps) throws IOException {
+    @Override
+    public void write(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
         dataOutput.write(SIGNATURE);
 
         final int width = pixmap.getWidth();
@@ -1234,6 +1255,9 @@ public class PNG8 implements Disposable {
         buffer.endChunk(dataOutput);
 
         output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
     }
 
 

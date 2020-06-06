@@ -17,8 +17,6 @@ import com.github.tommyettinger.anim8.AnimatedGif;
 import com.github.tommyettinger.anim8.AnimatedPNG;
 import com.github.tommyettinger.anim8.PNG8;
 
-import java.io.IOException;
-
 /**
  * This is from the NorthernLights demo in SquidLib-Demos, available
  * <a href="https://github.com/tommyettinger/SquidLib-Demos/tree/master/NorthernLights">here</a>.
@@ -179,13 +177,9 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
         AnimatedPNG apng = new AnimatedPNG();
         apng.setCompression(7);
-        try {
-            apng.write(Gdx.files.local("images/AnimatedPNG-" + startTime + ".png"), pixmaps, 16);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        apng.write(Gdx.files.local("images/AnimatedPNG-" + startTime + ".png"), pixmaps, 16);
     }
-
+    
     public void renderPNG8() {
         Array<Pixmap> pixmaps = new Array<>(40);
         for (int i = 1; i <= 40; i++) {
@@ -198,13 +192,9 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             batch.end();
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
-        PNG8 apng = new PNG8();
-        apng.setCompression(7);
-        try {
-            apng.write(Gdx.files.local("images/PNG8-" + startTime + ".png"), pixmaps, 16);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        PNG8 png8 = new PNG8();
+        png8.setCompression(7);
+        png8.write(Gdx.files.local("images/PNG8-" + startTime + ".png"), pixmaps, 16);
     }
 
     public void renderGif() {
@@ -220,12 +210,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         AnimatedGif gif = new AnimatedGif();
-        gif.setDitherAlgorithm(AnimatedGif.DitherAlgorithm.PATTERN);
-        try {
-            gif.write(Gdx.files.local("images/AnimatedGif-" + startTime + ".gif"), pixmaps, 16);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        gif.setDitherAlgorithm(AnimatedGif.DitherAlgorithm.PATTERN);         
+        gif.write(Gdx.files.local("images/AnimatedGif-" + startTime + ".gif"), pixmaps, 16);
     }
 
 	public static void main(String[] args) {
