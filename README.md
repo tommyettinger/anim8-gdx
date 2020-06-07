@@ -23,16 +23,12 @@ public void renderGif() {
     }
     // AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from
     // the given pixmaps and use that for all frames, dithering any colors that don't match.
+    // see Quirks below for visual things to be aware of and choices you can take.
     AnimatedGif gif = new AnimatedGif();
-    try {
-        // you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
-        // here, pixmaps is usually an Array of Pixmap for any of the animated image types.
-        // 16 is how many frames per second the animated GIF should play back at.
-        gif.write(Gdx.files.local("AnimatedGif.gif"), pixmaps, 16);
-    } catch (IOException e) {
-        // not strictly necessary, but useful if there is a problem.
-        e.printStackTrace();
-    }
+    // you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
+    // here, pixmaps is usually an Array of Pixmap for any of the animated image types.
+    // 16 is how many frames per second the animated GIF should play back at.
+    gif.write(Gdx.files.local("AnimatedGif.gif"), pixmaps, 16);
 }
 ```
 
@@ -50,7 +46,7 @@ dependencies {
 ```
 
 You can also get a specific commit using JitPack, by following the instructions on
-[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/09eaf9d640). 
+[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 Although a .gwt.xml file is present in the sources jar (`api 'com.github.tommyettinger:anim8-gdx:0.1.1:sources'`), using
 any file-writing on GWT is a challenge that I haven't tackled yet. There is always a method available that can write to
