@@ -88,8 +88,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 "}\n" +
                 "void main() {\n" +
                 "//  vec3 xyz = vec3(gl_FragCoord.xy, tm);\n" +
-                "  vec2 distort = acos(1.5 * (v_texCoords - 0.5)) * pow(PHI, -2.75 + distance(v_texCoords, vec2(0.5, 0.5))) * 300.0;\n" +
-                "  vec3 xyz = vec3(distort.x, (distort.y + 10.0) * sin(tm * (3.14159265 * 0.02)) * 0.3, (distort.y + 10.0) * cos(tm * (3.14159265 * 0.02)) * 0.3);\n" +
+                "  vec2 distort = acos(1.5 * (v_texCoords - 0.5)) * pow(PHI, -2.75 + distance(v_texCoords, vec2(0.5, 0.75))) * 300.0;\n" +
+                "  vec3 xyz = vec3(distort.x, (distort.y + 4.0) * sin(tm * (3.14159265 * 0.02)) * 0.3, (distort.y + 7.0) * cos(tm * (3.14159265 * 0.02)) * 0.3);\n" +
                 "  vec3 alt = xyz * 0.009 - xyz.yzx * 0.005 + xyz.zxy * 0.003;\n" +
                 "  \n" +
                 "  float yt = (alt.y * PHI + alt.z - alt.x) * 0.5 * (swayRandomized(123.456 + seed, alt.x * 0.2123) + 1.5);\n" +
@@ -121,7 +121,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
         batch.setShader(shader);
 
-        long state = 0x1234567890AL;
+        long state = 0x123456789L;
         // SquidLib's DiverRNG.randomize()
         seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
         startTime -= (state ^ state >>> 11) & 0xFFFFL;
@@ -191,6 +191,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         PNG8 png8 = new PNG8();
+        //png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
         png8.setCompression(7);
         png8.write(Gdx.files.local("images/PNG8-" + startTime + ".png"), pixmaps, 16);
     }
@@ -208,6 +209,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         AnimatedGif gif = new AnimatedGif();
+        //gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
         gif.write(Gdx.files.local("images/AnimatedGif-" + startTime + ".gif"), pixmaps, 16);
     }
 
