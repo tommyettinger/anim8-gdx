@@ -16,7 +16,7 @@ import java.io.OutputStream;
  * Java animated GIF encoder by Kevin Weiner ( http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm ).
  * The original has no copyright asserted, so this file continues that tradition and does not assert copyright either.
  */
-public class AnimatedGif implements AnimationWriter {
+public class AnimatedGif implements AnimationWriter, Dithered {
     /**
      * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF at {@code file}. Always writes at
      * 30 frames per second, so if frames has less than 30 items, this animation will be under a second long.
@@ -64,11 +64,7 @@ public class AnimatedGif implements AnimationWriter {
         finish();
     }
 
-    public enum DitherAlgorithm {
-        NONE, GRADIENT_NOISE, PATTERN
-    }
-    
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.GRADIENT_NOISE;
+    protected Dithered.DitherAlgorithm ditherAlgorithm = Dithered.DitherAlgorithm.PATTERN;
     
     protected int width; // image size
 
@@ -163,17 +159,23 @@ public class AnimatedGif implements AnimationWriter {
     public void setFlipY(boolean flipY) {
         this.flipY = flipY;
     }
-
-    public DitherAlgorithm getDitherAlgorithm() {
+    
+    /**
+     * Gets the {@link Dithered.DitherAlgorithm} this is currently using.
+     * @return which dithering algorithm this currently uses.
+     */
+    public Dithered.DitherAlgorithm getDitherAlgorithm() {
         return ditherAlgorithm;
     }
 
     /**
-     * Sets the dither algorithm (or disables it) using an enum constant from {@link DitherAlgorithm}.
-     * @param ditherAlgorithm which {@link DitherAlgorithm} to use for upcoming GIFs
+     * Sets the dither algorithm (or disables it) using an enum constant from {@link Dithered.DitherAlgorithm}. If this
+     * is given null, it instead does nothing.
+     * @param ditherAlgorithm which {@link Dithered.DitherAlgorithm} to use for upcoming output
      */
-    public void setDitherAlgorithm(DitherAlgorithm ditherAlgorithm) {
-        this.ditherAlgorithm = ditherAlgorithm;
+    public void setDitherAlgorithm(Dithered.DitherAlgorithm ditherAlgorithm) {
+        if(ditherAlgorithm != null)
+            this.ditherAlgorithm = ditherAlgorithm;
     }
 
     /**
@@ -344,12 +346,10 @@ public class AnimatedGif implements AnimationWriter {
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            int rr = ((color >>> 24)       );
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8)  & 0xFF);
-                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))]) & 255] = true;
+                            usedEntry[(indexedPixels[i] = paletteMapping[
+                                      (color >>> 17 & 0x7C00)
+                                    | (color >>> 14 & 0x3E0)
+                                    | ((color >>> 11 & 0x1F))]) & 255] = true;
                             i++;
                         }
                     }
@@ -366,6 +366,7 @@ public class AnimatedGif implements AnimationWriter {
                             indexedPixels[i++] = 0;
                         else {
                             int er = 0, eg = 0, eb = 0;
+                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             cr = (color >>> 24);
                             cg = (color >>> 16 & 0xFF);
                             cb = (color >>> 8 & 0xFF);

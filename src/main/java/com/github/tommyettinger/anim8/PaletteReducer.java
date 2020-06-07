@@ -1260,14 +1260,14 @@ public class PaletteReducer {
                     cr = (color >>> 24);
                     cg = (color >>> 16 & 0xFF);
                     cb = (color >>> 8 & 0xFF);
-                    for (int i = 0; i < candidates.length; i++) {
+                    for (int c = 0; c < candidates.length; c++) {
                         int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
                         int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
                         int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        candidates[i] = paletteArray[usedIndex];
+                        candidates[c] = paletteArray[usedIndex];
                         used = gammaArray[usedIndex];
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);

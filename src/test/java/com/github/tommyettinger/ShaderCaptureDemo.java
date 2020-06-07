@@ -13,9 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.github.tommyettinger.anim8.AnimatedGif;
-import com.github.tommyettinger.anim8.AnimatedPNG;
-import com.github.tommyettinger.anim8.PNG8;
+import com.github.tommyettinger.anim8.*;
 
 /**
  * This is from the NorthernLights demo in SquidLib-Demos, available
@@ -123,7 +121,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
         batch.setShader(shader);
 
-        long state = 0x1234567890L;
+        long state = 0x1234567890AL;
         // SquidLib's DiverRNG.randomize()
         seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
         startTime -= (state ^ state >>> 11) & 0xFFFFL;
@@ -210,7 +208,6 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         AnimatedGif gif = new AnimatedGif();
-        gif.setDitherAlgorithm(AnimatedGif.DitherAlgorithm.PATTERN);         
         gif.write(Gdx.files.local("images/AnimatedGif-" + startTime + ".gif"), pixmaps, 16);
     }
 
