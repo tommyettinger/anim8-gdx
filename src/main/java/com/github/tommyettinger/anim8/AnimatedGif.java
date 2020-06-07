@@ -109,6 +109,28 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     public PaletteReducer palette;
 
     /**
+     * Gets the PaletteReducer this uses to lower the color count in an image. If the PaletteReducer is null, this
+     * should try to assign itself a PaletteReducer when given a new image.
+     *
+     * @return the PaletteReducer this uses; may be null
+     */
+    @Override
+    public PaletteReducer getPalette() {
+        return palette;
+    }
+
+    /**
+     * Sets the PaletteReducer this uses to bring a high-color or different-palette image down to a smaller palette
+     * size. If {@code palette} is null, this should try to assign itself a PaletteReducer when given a new image.
+     *
+     * @param palette a PaletteReducer that is often pre-configured with a specific palette; null is usually allowed
+     */
+    @Override
+    public void setPalette(PaletteReducer palette) {
+        this.palette = palette;
+    }
+
+    /**
      * Sets the delay time between each frame, or changes it for subsequent frames
      * (applies to last frame added).
      *

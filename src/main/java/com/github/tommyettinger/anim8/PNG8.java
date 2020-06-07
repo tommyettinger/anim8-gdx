@@ -74,6 +74,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     
     protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.PATTERN;
 
+    @Override
+    public PaletteReducer getPalette() {
+        return palette;
+    }
+
+    public void setPalette(PaletteReducer palette) {
+        this.palette = palette;
+    }
+
     /**
      * Gets the {@link DitherAlgorithm} this is currently using.
      * @return which dithering algorithm this currently uses.
@@ -261,9 +270,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * are no more than 256 colors in the Pixmap (treating all partially transparent colors as fully transparent).
      * If the attempt fails, this falls back to calling {@link #write(FileHandle, Pixmap, boolean, boolean)}, which
      * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
-     * always analyze the Pixmap to get an accurate-enough palette. All other write() methods in this class will
-     * reduce the color depth somewhat, but as long as the color count stays at 256 or less, this will keep the
-     * non-alpha components of colors exactly.
+     * always analyze the Pixmap to get an accurate-enough palette. The write() methods in this class that don't have
+     * "Precise" in the name will reduce the color depth somewhat, but this will keep the non-alpha components of colors
+     * exactly. For full precision on any color count, use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or
+     * {@link AnimatedPNG} for animations.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
@@ -277,9 +287,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * If the attempt fails, this falls back to calling {@link #write(FileHandle, Pixmap, boolean, boolean)}, which
      * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
      * always analyze the Pixmap to get an accurate-enough palette, using the given threshold for analysis (which is
-     * typically between 1 and 1000, and most often near 200-400). All other write() methods in this class will
-     * reduce the color depth somewhat, but as long as the color count stays at 256 or less, this will keep the
-     * non-alpha components of colors exactly.
+     * typically between 1 and 1000, and most often near 200-400). The write() methods in this class that don't have
+     * "Precise" in the name will reduce the color depth somewhat, but this will keep the non-alpha components of colors
+     * exactly. For full precision on any color count, use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or
+     * {@link AnimatedPNG} for animations.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
@@ -295,16 +306,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
     /**
-     * Attempts to write the given Pixmap exactly as a PNG-8 image to file; this attempt will only succeed if there
+     * Attempts to write the given Pixmap exactly as a PNG-8 image to output; this attempt will only succeed if there
      * are no more than 256 colors in the Pixmap (treating all partially transparent colors as fully transparent).
      * If the colors in the Pixmap can be accurately represented by some or all of {@code exactPalette} (and it is
-     * non-null), then that palette will be used in full and in order.
-     * If the attempt fails, this falls back to calling {@link #write(FileHandle, Pixmap, boolean, boolean)}, which
-     * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
-     * always analyze the Pixmap to get an accurate-enough palette, using the given threshold for analysis (which is
-     * typically between 1 and 1000, and most often near 200-400). All other write() methods in this class will
-     * reduce the color depth somewhat, but as long as the color count stays at 256 or less, this will keep the
-     * non-alpha components of colors exactly.
+     * non-null), then that palette will be used in full and in order. If {@code exactPalette} is null, this scans
+     * through all the colors in pixmap, using the full set of colors if there are 256 or less (including transparent,
+     * if present), or if there are too many colors, this falls back to calling
+     * {@link #write(OutputStream, Pixmap, boolean, boolean)}, which can dither the image to use no more than 255 colors
+     * (plus fully transparent) based on ditherFallback and will always analyze the Pixmap to get an accurate-enough
+     * palette, using the given threshold for analysis (which is typically between 1 and 1000, and most often near
+     * 200-400). The dither algorithm can be configured with {@link #setDitherAlgorithm(DitherAlgorithm)}, if it gets
+     * used at all. The write() methods in this class that don't have "Precise" in the name will reduce the color depth
+     * somewhat, but this will keep the non-alpha components of colors exactly. For full precision on any color count,
+     * use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
      * @param exactPalette if non-null, will try to use this palette exactly, in order and including unused colors
@@ -325,13 +339,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * are no more than 256 colors in the Pixmap (treating all partially transparent colors as fully transparent).
      * If the attempt fails, this falls back to calling {@link #write(OutputStream, Pixmap, boolean, boolean)}, which
      * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
-     * always analyze the Pixmap to get an accurate-enough palette. All other write() methods in this class will
-     * reduce the color depth somewhat, but as long as the color count stays at 256 or less, this will keep the
-     * non-alpha components of colors exactly.
+     * always analyze the Pixmap to get an accurate-enough palette. The write() methods in this class that don't have
+     * "Precise" in the name will reduce the color depth somewhat, but this will keep the non-alpha components of colors
+     * exactly. For full precision on any color count, use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or
+     * {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
-     * @throws IOException if OutputStream things fail for any reason
      */
     public void writePrecisely(OutputStream output, Pixmap pixmap, boolean ditherFallback) {
         writePrecisely(output, pixmap, ditherFallback, 400);
@@ -343,9 +357,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * If the attempt fails, this falls back to calling {@link #write(OutputStream, Pixmap, boolean, boolean)}, which
      * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
      * always analyze the Pixmap to get an accurate-enough palette, using the given threshold for analysis (which is
-     * typically between 1 and 1000, and most often near 200-400). All other write() methods in this class will
-     * reduce the color depth somewhat, but as long as the color count stays at 256 or less, this will keep the
-     * non-alpha components of colors exactly.
+     * typically between 1 and 1000, and most often near 200-400). The write() methods in this class that don't have
+     * "Precise" in the name will reduce the color depth somewhat, but this will keep the non-alpha components of colors
+     * exactly. For full precision on any color count, use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or
+     * {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
@@ -359,19 +374,21 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * Attempts to write the given Pixmap exactly as a PNG-8 image to output; this attempt will only succeed if there
      * are no more than 256 colors in the Pixmap (treating all partially transparent colors as fully transparent).
      * If the colors in the Pixmap can be accurately represented by some or all of {@code exactPalette} (and it is
-     * non-null), then that palette will be used in full and in order.
-     * If the attempt fails, this falls back to calling {@link #write(OutputStream, Pixmap, boolean, boolean)}, which
-     * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
-     * always analyze the Pixmap to get an accurate-enough palette, using the given threshold for analysis (which is
-     * typically between 1 and 1000, and most often near 200-400). All other write() methods in this class will
-     * reduce the color depth somewhat, but as long as the color count stays at 256 or less, this will keep the
-     * non-alpha components of colors exactly.
+     * non-null), then that palette will be used in full and in order. If {@code exactPalette} is null, this scans
+     * through all the colors in pixmap, using the full set of colors if there are 256 or less (including transparent,
+     * if present), or if there are too many colors, this falls back to calling
+     * {@link #write(OutputStream, Pixmap, boolean, boolean)}, which can dither the image to use no more than 255 colors
+     * (plus fully transparent) based on ditherFallback and will always analyze the Pixmap to get an accurate-enough
+     * palette, using the given threshold for analysis (which is typically between 1 and 1000, and most often near
+     * 200-400). The dither algorithm can be configured with {@link #setDitherAlgorithm(DitherAlgorithm)}, if it gets
+     * used at all. The write() methods in this class that don't have "Precise" in the name will reduce the color depth
+     * somewhat, but this will keep the non-alpha components of colors exactly. For full precision on any color count,
+     * use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      * @param exactPalette if non-null, will try to use this palette exactly, in order and including unused colors
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
      * @param threshold the analysis threshold to use if there are too many colors (min 0, practical max is over 100000)
-     * @throws IOException if OutputStream things fail for any reason
      */
     public void writePrecisely(OutputStream output, Pixmap pixmap, int[] exactPalette, boolean ditherFallback, int threshold) {
         IntIntMap colorToIndex = new IntIntMap(256);
@@ -510,12 +527,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
     /**
-     * Attempts to write the given Pixmap exactly as a PNG-8 image to file; this attempt will only succeed if there
-     * are no more than 256 colors in the Pixmap (treating all partially transparent colors as fully transparent).
-     * If the attempt fails, this will throw an IllegalArgumentException. This will keep the non-alpha components of
-     * colors exactly.
+     * Attempts to write a rectangular section of the given Pixmap exactly as a PNG-8 image to file; this attempt will
+     * only succeed if there are no more than 256 colors in the Pixmap (treating all partially transparent colors as
+     * fully transparent). If the attempt fails, this will throw an IllegalArgumentException. The write() methods in
+     * this class that don't have "Precise" in the name will reduce the color depth somewhat, but this will keep the
+     * non-alpha components of colors exactly. For full precision on any color count, use
+     * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
+     * @param exactPalette a palette with no more than 256 RGBA8888 ints in it; the colors will be used exactly if possible
+     * @param startX start x-coordinate of the section in pixmap
+     * @param startY start y-coordinate of the section in pixmap
+     * @param width width of the section, in pixels
+     * @param height height of the section, in pixels
      */
     public void writePreciseSection (FileHandle file, Pixmap pixmap, int[] exactPalette, int startX, int startY, int width, int height) {
         OutputStream output = file.write(false);
@@ -527,17 +551,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
     /**
-     * Attempts to write the given Pixmap exactly as a PNG-8 image to output; this attempt will only succeed if there
-     * are no more than 256 colors in the Pixmap (treating all partially transparent colors as fully transparent).
-     * If the attempt fails, this falls back to calling {@link #write(OutputStream, Pixmap, boolean, boolean)}, which
-     * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
-     * always analyze the Pixmap to get an accurate-enough palette, using the given threshold for analysis (which is
-     * typically between 1 and 1000, and most often near 200-400). All other write() methods in this class will
-     * reduce the color depth somewhat, but as long as the color count stays at 256 or less, this will keep the
-     * non-alpha components of colors exactly.
+     * Attempts to write a rectangular section of the given Pixmap exactly as a PNG-8 image to output; this attempt will
+     * only succeed if there are no more than 256 colors in the Pixmap (treating all partially transparent colors as
+     * fully transparent). If the attempt fails, this will throw an IllegalArgumentException. The write() methods in
+     * this class that don't have "Precise" in the name will reduce the color depth somewhat, but this will keep the
+     * non-alpha components of colors exactly. For full precision on any color count, use
+     * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
-     * @throws IOException if OutputStream things fail for any reason
+     * @param exactPalette a palette with no more than 256 RGBA8888 ints in it; the colors will be used exactly if possible
+     * @param startX start x-coordinate of the section in pixmap
+     * @param startY start y-coordinate of the section in pixmap
+     * @param width width of the section, in pixels
+     * @param height height of the section, in pixels
      */
     public void writePreciseSection(OutputStream output, Pixmap pixmap, int[] exactPalette, int startX, int startY, int width, int height) {
         IntIntMap colorToIndex = new IntIntMap(256);

@@ -6,6 +6,21 @@ package com.github.tommyettinger.anim8;
  * Created by Tommy Ettinger on 6/6/2020.
  */
 public interface Dithered {
+
+    /**
+     * Gets the PaletteReducer this uses to lower the color count in an image. If the PaletteReducer is null, this
+     * should try to assign itself a PaletteReducer when given a new image.
+     * @return the PaletteReducer this uses; may be null
+     */
+    PaletteReducer getPalette();
+
+    /**
+     * Sets the PaletteReducer this uses to bring a high-color or different-palette image down to a smaller palette
+     * size. If {@code palette} is null, this should try to assign itself a PaletteReducer when given a new image.
+     * @param palette a PaletteReducer that is often pre-configured with a specific palette; null is usually allowed
+     */
+    void setPalette(PaletteReducer palette);
+    
     /**
      * Gets the {@link DitherAlgorithm} this is currently using.
      * @return which dithering algorithm this currently uses.
