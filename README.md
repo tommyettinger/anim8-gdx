@@ -41,20 +41,20 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX
-  api 'com.github.tommyettinger:anim8-gdx:0.1.1'
+  api 'com.github.tommyettinger:anim8-gdx:0.1.3'
 }
 ```
 
 You can also get a specific commit using JitPack, by following the instructions on
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
-Although a .gwt.xml file is present in the sources jar (`api 'com.github.tommyettinger:anim8-gdx:0.1.1:sources'`), using
-any file-writing on GWT is a challenge that I haven't tackled yet. There is always a method available that can write to
-an OutputStream, for any of the animated formats here, using:
-```java
-void write(OutputStream output, Array<Pixmap> frames, int fps)
+A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
+`implementation 'com.github.tommyettinger:anim8-gdx:0.1.3:sources'`. The PNG-related code isn't available on GWT because
+it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
+inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
+```xml
+``<inherits name="anim8" />
 ```
-This may be enough to write to a `ByteArrayOutputStream`, and use that somehow on GWT.
 
 # Quirks
 The default dithering algorithm used here is a variant on Thomas Knoll's pattern dither, which has been out-of-patent

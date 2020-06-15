@@ -4,8 +4,12 @@
 <!-- To compile to Gwt, you need to reference this file in your master .gwt.xml
      file (usually called GdxDefinition.gwt.xml) as follows:
 
-     <inherits name="com.github.tommyettinger.anim8" />
+     <inherits name="anim8" />
   -->
 <module>
-    <source path="anim8"/>
+    <source path="com/github/tommyettinger/anim8">
+        <exclude name="**/AnimatedPNG.java"/>
+        <exclude name="**/ChunkBuffer.java"/>
+        <exclude name="**/PNG8.java"/>
+    </source>
 </module>
