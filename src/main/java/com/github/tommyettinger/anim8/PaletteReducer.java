@@ -367,13 +367,27 @@ public class PaletteReducer {
      * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
      */
     public void exact(int[] rgbaPalette) {
-        if (rgbaPalette == null || rgbaPalette.length < 2) {
+        exact(rgbaPalette, 256);
+    }
+    /**
+     * Builds the palette information this PNG8 stores from the RGBA8888 ints in {@code rgbaPalette}, up to 256 colors
+     * or {@code limit}, whichever is less.
+     * Alpha is not preserved except for the first item in rgbaPalette, and only if it is {@code 0} (fully transparent
+     * black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only has one color, or if
+     * limit is less than 2, then this defaults to DawnBringer's Aurora palette with 256 hand-chosen colors (including
+     * transparent).
+     *
+     * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
+     * @param limit       a limit on how many int items to use from rgbaPalette; useful if rgbaPalette is from an IntArray
+     */
+    public void exact(int[] rgbaPalette, int limit) {
+        if (rgbaPalette == null || rgbaPalette.length < 2 || limit < 2) {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
-        final int plen = Math.min(256, rgbaPalette.length);
+        final int plen = Math.min(Math.min(256, limit), rgbaPalette.length);
         int color, c2;
         double dist;
         for (int i = 0; i < plen; i++) {
@@ -451,7 +465,7 @@ public class PaletteReducer {
     
     /**
      * Builds the palette information this PaletteReducer stores from the Color objects in {@code colorPalette}, up to
-     * 256 colors.
+     * 256 colors or {@code limit}, whichever is less.
      * Alpha is not preserved except for the first item in colorPalette, and only if its r, g, b, and a values are all
      * 0f (fully transparent black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, only has
      * one color, or limit is less than 2, then this defaults to DawnBringer's Aurora palette with 256 hand-chosen
@@ -1280,8 +1294,8 @@ public class PaletteReducer {
      * Reduces a Pixmap to the palette this knows by using a skewed version of Thomas Knoll's pattern dither, which is
      * out-of-patent since late 2019, using the harmonious numbers rediscovered by Martin Roberts to handle the skew.
      * The output this produces is very dependent on the palette and this PaletteReducer's dither strength, which can be
-     * set with {@link #setDitherStrength(float)}. A diagonal striping can be visible on many outputs this produces;
-     * this artifact can be mitigated by changing dither strength. The algorithm was described in detail by Joel
+     * set with {@link #setDitherStrength(float)}. A hexagonal pattern can be visible on many outputs this produces;
+     * this artifact can be mitigated by lowering dither strength. The algorithm was described in detail by Joel
      * Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>; Yliluoma used an
      * 8x8 threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
      * sorting step (this uses a sorting network, which works well for small input sizes like 16 items).
@@ -1295,7 +1309,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, cr, cg, cb,  usedIndex;
-        final float errorMul = ditherStrength * 0.375f;
+        final float errorMul = ditherStrength * 0.3f;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -1321,7 +1335,7 @@ public class PaletteReducer {
                     }
                     sort16(candidates);
                     pixmap.drawPixel(px, y, candidates[thresholdMatrix[
-                            ((int) (px * 0x0.C13FA9A902A6328Fp3f + y * 0x0.91E10DA5C79E7B1Dp2f) & 3) ^
+                            ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
                                     ((px & 3) | (y & 3) << 2)
                             ]]);
                 }
