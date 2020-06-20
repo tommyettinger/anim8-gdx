@@ -10,13 +10,14 @@ imitate the PixmapIO.PNG nested class, but supporting a palette needs some new m
 case, here's a `writeGif()` method that calls `render()` 20 times and screenshots each frame:
 
 ```java
-public void renderGif() {
+public void writeGif() {
     final int frameCount = 20;
     Array<Pixmap> pixmaps = new Array<>(frameCount);
     for (int i = 0; i < frameCount; i++) {
         // you could set the proper state for a frame here.
 
         // you don't need to call render() in all cases, especially if you have Pixmaps already.
+        // this assumes you're calling this from a class that uses render() to draw to the screen.
         render();
         // this gets a screenshot of the current window and adds it to the Array of Pixmap.
         pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -41,7 +42,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX
-  api 'com.github.tommyettinger:anim8-gdx:0.1.3'
+  api "com.github.tommyettinger:anim8-gdx:0.1.4"
 }
 ```
 
@@ -49,7 +50,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation 'com.github.tommyettinger:anim8-gdx:0.1.3:sources'`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.1.4:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -68,7 +69,9 @@ the dithering algorithm to an alternative ordered dither, a variant on Jorge Jim
 they aren't usually as noticeable; there is however **Quirk Number Three**: with gradient noise dither, some smooth
 gradients in the source image have rough sections where they move briefly away from the right color before correcting
 their path. Gradient noise dither also tends to be, well, noisier. There's also the `Dithered.DitherAlgorithm.NONE`
-algorithm, but it's only reasonable for some art styles that don't look good with any dither.
+algorithm, but it's only reasonable for some art styles that don't look good with any dither. Using pattern dither can
+also be a little slow if you are writing many large images or long animations; gradient noise dither is much faster, and
+not using dither offers no real performance boost over gradient noise.
 
 # Samples
 Some .gif animations, using 255 colors:

@@ -1005,7 +1005,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
         int color, used;
         int cr, cg, cb,  usedIndex;
-        final float errorMul = palette.ditherStrength * 0.375f;
+        final float errorMul = palette.ditherStrength * 0.3f;
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
@@ -1034,7 +1034,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     palette.sort16(palette.candidates);
                     curLine[px] = paletteMapping[
                             PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix[
-                                    ((int) (px * 0x0.C13FA9A902A6328Fp3f + y * 0x0.91E10DA5C79E7B1Dp2f) & 3) ^
+                                    ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
                                             ((px & 3) | (y & 3) << 2)
                                     ]])];
                 }
@@ -1515,7 +1515,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             int cr, cg, cb,  usedIndex;
-            final float errorMul = palette.ditherStrength * 0.375f;
+            final float errorMul = palette.ditherStrength * 0.3f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -1582,7 +1582,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             palette.sort16(palette.candidates);
                             curLine[px] = paletteMapping[
                                     PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix[
-                                            ((int) (px * 0x0.C13FA9A902A6328Fp3f + y * 0x0.91E10DA5C79E7B1Dp2f) & 3) ^
+                                            ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
                                                     ((px & 3) | (y & 3) << 2)
                                             ]])];
                         }

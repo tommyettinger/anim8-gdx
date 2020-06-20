@@ -89,6 +89,22 @@ public class PaletteReducer {
     }
 
     /**
+     * Converts an RGB555 int color to an approximation of the closest RGBA8888 color. For each 5-bit channel in
+     * {@code color}, this gets an 8-bit value by keeping the original 5 in the most significant 5 places, then copying
+     * the most significant 3 bits of the RGB555 color into the least significant 3 bits of the 8-bit value. In
+     * practice, this means the lowest 5-bit value produces the lowest 8-bit value (00000 to 00000000), and the highest
+     * 5-bit value produces the highest 8-bit value (11111 to 11111111). This always assigns a fully-opaque value to
+     * alpha (255, or 0xFF).
+     * @param color an RGB555 color
+     * @return an approximation of the closest RGBA8888 color; alpha is always fully opaque
+     */
+    public static int stretch(final int color)
+    {
+        return (color << 17 & 0xF8000000) | (color << 12 & 0x07000000) | (color << 14 & 0xF80000) | (color << 9 & 0x070000) | (color << 11 & 0xF800) | (color << 6 & 0x0700) | 0xFF;
+    }
+
+
+    /**
      * Stores CIE LAB components corresponding to RGB555 indices.
      * LAB[0] stores lightness from 0.0 to 100.0 .
      * LAB[1] stores CIE A, which is something like a green-red axis, from roughly -128.0 (green) to 128.0 (red).
