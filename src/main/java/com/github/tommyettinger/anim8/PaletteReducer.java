@@ -323,10 +323,10 @@ public class PaletteReducer {
      * @return the difference between the given colors, as a positive double
      */
     public static double difference(int color1, int color2) {
-        if(((color1 ^ color2) & 0x80) == 0) return Double.POSITIVE_INFINITY;
+        if(((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
         return Math.sqrt(Math.pow(Math.abs((color1 >>> 24) - (color2 >>> 24)), 3.7)
                 + Math.pow(Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF)), 4.0)
-                + Math.pow(Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF)), 3.3));
+                + Math.pow(Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF)), 3.3)) * 0.625;
     }
 
 
@@ -344,23 +344,23 @@ public class PaletteReducer {
         if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
         return Math.sqrt(Math.pow(Math.abs((color1 >>> 24) - r2), 3.7) 
                 + Math.pow(Math.abs((color1 >>> 16 & 0xFF) - g2), 4.0) 
-                + Math.pow(Math.abs((color1 >>> 8 & 0xFF) - b2), 3.3));
+                + Math.pow(Math.abs((color1 >>> 8 & 0xFF) - b2), 3.3)) * 0.625;
     }
 
     /**
      * Color difference metric; returns large numbers even for smallish differences.
      * If this returns 250 or more, the colors may be perceptibly different; 500 or more almost guarantees it.
      *
-     * @param r1 red value from 0 to 31, inclusive
-     * @param g1 green value from 0 to 31, inclusive
-     * @param b1 blue value from 0 to 31, inclusive
-     * @param r2 red value from 0 to 31, inclusive
-     * @param g2 green value from 0 to 31, inclusive
-     * @param b2 blue value from 0 to 31, inclusive
+     * @param r1 red value from 0 to 255, inclusive
+     * @param g1 green value from 0 to 255, inclusive
+     * @param b1 blue value from 0 to 255, inclusive
+     * @param r2 red value from 0 to 255, inclusive
+     * @param g2 green value from 0 to 255, inclusive
+     * @param b2 blue value from 0 to 255, inclusive
      * @return the difference between the given colors, as a positive double
      */
     public static double difference(final int r1, final int g1, final int b1, final int r2, final int g2, final int b2) {
-        return Math.sqrt(Math.pow(Math.abs(r1 - r2), 3.7) + Math.pow(Math.abs(g1 - g2), 4.0) + Math.pow(Math.abs(b1 - b2), 3.3));
+        return Math.sqrt(Math.pow(Math.abs(r1 - r2), 3.7) + Math.pow(Math.abs(g1 - g2), 4.0) + Math.pow(Math.abs(b1 - b2), 3.3)) * 0.625;
     }
 
     /**
@@ -805,6 +805,11 @@ public class PaletteReducer {
                 i++;
             }
         }
+//        for (int i = 0; i < 256; i++) {
+//            System.out.printf("0x%08X, ", paletteArray[i]);
+//            if((i& 7) == 7) System.out.println();
+//        }
+//        System.out.println("\n");
         int c2;
         int rr, gg, bb;
         double dist;
