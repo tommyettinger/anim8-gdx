@@ -42,7 +42,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX
-  api "com.github.tommyettinger:anim8-gdx:0.1.4"
+  api "com.github.tommyettinger:anim8-gdx:0.1.5"
 }
 ```
 
@@ -50,7 +50,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.1.4:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.1.5:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -68,40 +68,70 @@ the dithering algorithm to an alternative ordered dither, a variant on Jorge Jim
 `setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE)`. This still has some diagonal lines that appear in it, but
 they aren't usually as noticeable; there is however **Quirk Number Three**: with gradient noise dither, some smooth
 gradients in the source image have rough sections where they move briefly away from the right color before correcting
-their path. Gradient noise dither also tends to be, well, noisier. There's also the `Dithered.DitherAlgorithm.NONE`
-algorithm, but it's only reasonable for some art styles that don't look good with any dither. Using pattern dither can
-also be a little slow if you are writing many large images or long animations; gradient noise dither is much faster, and
-not using dither offers no real performance boost over gradient noise.
+their path. This has been improved in 0.1.5, by changing how color difference is calculated, but there are still some
+noticeable flaws in the smooth parts of some images. Gradient noise dither also tends to be, well, noisier. There's also
+the `Dithered.DitherAlgorithm.NONE` algorithm, but it's only reasonable for some art styles that don't look good with
+any dither. Using pattern dither can also be a little slow if you are writing many large images or long animations;
+gradient noise dither is much faster, and not using dither offers no real performance boost over gradient noise.
 
 # Samples
 Some .gif animations, using 255 colors:
 
 Pattern dither:
+
 ![Flashy Gif, pattern dither](images/AnimatedGif-flashy-pattern.gif)
 
 Gradient dither:
+
 ![Flashy Gif, gradient dither](images/AnimatedGif-flashy-pattern.gif)
 
 Pattern dither:
-![Contrast Gif, pattern dither](images/AnimatedGif-contrast-pattern.gif)
+
+![Pastel Gif, pattern dither](images/AnimatedGif-pastel-pattern.gif)
 
 Gradient dither:
-![Contrast Gif, gradient dither](images/AnimatedGif-contrast-pattern.gif)
+
+![Pastel Gif, gradient dither](images/AnimatedGif-pastel-pattern.gif)
 
 Pattern dither:
+
 ![Green Gif, pattern dither](images/AnimatedGif-green-pattern.gif)
 
 Gradient dither:
+
 ![Green Gif, gradient dither](images/AnimatedGif-green-gradient.gif)
 
 No dither:
+
 ![Green Gif, no dither](images/AnimatedGif-green-none.gif)
+
+Some .gif animations that reduce the colors of the first two animations shown:
+
+Black and white pattern dither:
+
+![BW Gif, pattern dither](images/AnimatedGif-bw-pattern.gif)
+
+Black and white gradient dither:
+
+![BW Gif, gradient dither](images/AnimatedGif-bw-gradient.gif)
+
+Black and white no dither:
+
+![BW Gif, no dither](images/AnimatedGif-bw-none.gif)
+
+4-color green-scale pattern dither:
+
+![GB Gif, pattern dither](images/AnimatedGif-gb-pattern.gif)
+
+4-color green-scale gradient dither:
+
+![GB Gif, gradient dither](images/AnimatedGif-gb-gradient.gif)
 
 And some .png animations, using full color:
 
 ![Flashy Full-Color PNG](images/AnimatedPNG-flashy.png)
 
-![Contrast Full-Color PNG](images/AnimatedPNG-contrast.png)
+![Pastel Full-Color PNG](images/AnimatedPNG-pastel.png)
 
 ![Green Full-Color PNG](images/AnimatedPNG-green.png)
 

@@ -121,7 +121,10 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
         batch.setShader(shader);
 
-        long state = 0x123456789L;
+//        long state = -1L; // pastel
+        long state = 0x123456789L; // flashy, bw, gb
+//        long state = 0x1234567890L; // green
+        
         // SquidLib's DiverRNG.randomize()
         seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
         startTime -= (state ^ state >>> 11) & 0xFFFFL;
@@ -129,7 +132,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         height = Gdx.graphics.getHeight();
 
         Gdx.files.local("images").mkdirs();
-		renderAPNG();
+		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 		renderPNG8();
         renderGif();
     }
@@ -191,7 +194,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         PNG8 png8 = new PNG8();
-//        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+        // black and white
+//        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
+        // gb palette
+//        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
         png8.setCompression(7);
         png8.write(Gdx.files.local("images/PNG8-" + startTime + ".png"), pixmaps, 16);
     }
@@ -209,7 +216,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         AnimatedGif gif = new AnimatedGif();
-//        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+        // black and white
+//        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
+        // gb palette
+//        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
         gif.write(Gdx.files.local("images/AnimatedGif-" + startTime + ".gif"), pixmaps, 16);
     }
 
