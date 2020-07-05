@@ -111,11 +111,19 @@ public class PaletteReducer {
      * LAB[2] stores CIE B, which is something like a blue-yellow axis, from roughly -128.0 (blue) to 128.0 (yellow).
      * <br>
      * The indices into each of these double[] values store red in bits 10-14, green in bits 5-9, and blue in bits 0-4.
-     * It's usually easier to work with these indices with bitwise operations, as with {@code (r << 10 | g << 5 | b)},
-     * where r, g, and b are all in the 0-31 range inclusive. It's usually easiest to convert an RGBA8888 int color to
-     * an RGB555 color with {@link #shrink(int)}.
+     * It's ideal to work with these indices with bitwise operations, as with {@code (r << 10 | g << 5 | b)}, where r,
+     * g, and b are all in the 0-31 range inclusive. It's usually easiest to convert an RGBA8888 int color to an RGB555
+     * color with {@link #shrink(int)}.
      */
     public static final double[][] LAB = new double[3][0x8000];
+    /**
+     * Used by {@link #difference(int, int)} and its overloads, this stores precalculated exponents for all of the 256
+     * possible differences between color channel values. For how difference() uses this, it needs different powers for
+     * each channel. This stores all red differences (their absolute values, specifically) first, then all green, then
+     * all blue. To get a red difference's power value, look up its absolute value in this; to get a green one or a blue
+     * one, it's the same but with an added 256 or 512.
+     */
+    public static final double[] RGB_POWERS = new double[3 << 8];
     static {
         double r, g, b, x, y, z;
         int idx = 0;
@@ -143,6 +151,12 @@ public class PaletteReducer {
                     idx++;
                 }
             }
+        }
+
+        for (int i = 1; i < 256; i++) {
+            RGB_POWERS[i]     = Math.pow(i, 3.7);
+            RGB_POWERS[i+256] = Math.pow(i, 4.0);
+            RGB_POWERS[i+512] = Math.pow(i, 3.3);
         }
     }
 
@@ -324,9 +338,10 @@ public class PaletteReducer {
      */
     public static double difference(int color1, int color2) {
         if(((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
-        return Math.sqrt(Math.pow(Math.abs((color1 >>> 24) - (color2 >>> 24)), 3.7)
-                + Math.pow(Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF)), 4.0)
-                + Math.pow(Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF)), 3.3)) * 0.625;
+        return //Math.sqrt
+                 (RGB_POWERS[Math.abs((color1 >>> 24) - (color2 >>> 24))]
+                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF))]
+                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-10;
     }
 
 
@@ -342,9 +357,10 @@ public class PaletteReducer {
      */
     public static double difference(int color1, int r2, int g2, int b2) {
         if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
-        return Math.sqrt(Math.pow(Math.abs((color1 >>> 24) - r2), 3.7) 
-                + Math.pow(Math.abs((color1 >>> 16 & 0xFF) - g2), 4.0) 
-                + Math.pow(Math.abs((color1 >>> 8 & 0xFF) - b2), 3.3)) * 0.625;
+        return //Math.sqrt
+                 (RGB_POWERS[Math.abs((color1 >>> 24) - r2)]
+                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - g2)]
+                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-10;
     }
 
     /**
@@ -360,7 +376,10 @@ public class PaletteReducer {
      * @return the difference between the given colors, as a positive double
      */
     public static double difference(final int r1, final int g1, final int b1, final int r2, final int g2, final int b2) {
-        return Math.sqrt(Math.pow(Math.abs(r1 - r2), 3.7) + Math.pow(Math.abs(g1 - g2), 4.0) + Math.pow(Math.abs(b1 - b2), 3.3)) * 0.625;
+        return //Math.sqrt
+                 (RGB_POWERS[Math.abs(r1 - r2)]
+                + RGB_POWERS[256+Math.abs(g1 - g2)]
+                + RGB_POWERS[512+Math.abs(b1 - b2)]) * 0x1p-10;
     }
 
     /**

@@ -54,7 +54,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      */
     @Override
     public void write(OutputStream output, Array<Pixmap> frames, int fps) {
-        if (palette == null)
+        boolean clearPalette;
+        if (clearPalette = (palette == null))
             palette = new PaletteReducer(frames);
         if(!start(output)) return;
         setFrameRate(fps);
@@ -62,6 +63,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             addFrame(frames.get(i));
         }
         finish();
+        if(clearPalette)
+            palette = null;
     }
 
     protected Dithered.DitherAlgorithm ditherAlgorithm = Dithered.DitherAlgorithm.PATTERN;

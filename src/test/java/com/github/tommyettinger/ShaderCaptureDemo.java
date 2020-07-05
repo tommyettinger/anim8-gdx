@@ -191,7 +191,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         PNG8 png8 = new PNG8();
-        //png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+//        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
         png8.setCompression(7);
         png8.write(Gdx.files.local("images/PNG8-" + startTime + ".png"), pixmaps, 16);
     }
@@ -209,7 +209,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         AnimatedGif gif = new AnimatedGif();
-        //gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+//        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
         gif.write(Gdx.files.local("images/AnimatedGif-" + startTime + ".gif"), pixmaps, 16);
     }
 
@@ -223,7 +223,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
 	private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
 		Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-		configuration.setTitle("NorthernLights");
+		configuration.setTitle("Anim8-GDX Shader Capture Demo");
 		configuration.setWindowedMode(256, 256);
 		configuration.useVsync(true);
 		configuration.setIdleFPS(20);

@@ -241,7 +241,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * @param threshold the analysis threshold to use if computePalette is true (min 0, practical max is over 100000)
      */
     public void write (OutputStream output, Pixmap pixmap, boolean computePalette, boolean dither, int threshold) {
-        if(palette == null)
+        boolean clearPalette;
+        if(clearPalette = (palette == null))
         {
             palette = new PaletteReducer(pixmap, threshold);
         }
@@ -263,6 +264,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             }
         }
         else writeSolid(output, pixmap);
+        if(clearPalette) palette = null;
     }
 
     /**
@@ -1142,12 +1144,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * @param dither true if this should use {@link #getDitherAlgorithm()} to dither; false to not dither
      */
     public void write(OutputStream output, Array<Pixmap> frames, int fps, boolean dither) {
-        if (palette == null)
+        boolean clearPalette;
+        if(clearPalette = (palette == null))
             palette = new PaletteReducer(frames);
         if (dither)
             write(output, frames, fps);
         else
             writeSolid(output, frames, fps);
+        if(clearPalette) palette = null;
     }
 
     private void writeSolid(OutputStream output, Array<Pixmap> frames, int fps) {
