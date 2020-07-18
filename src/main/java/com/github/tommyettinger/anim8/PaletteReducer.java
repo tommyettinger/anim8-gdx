@@ -180,7 +180,7 @@ public class PaletteReducer {
      */
     public final int[] paletteArray = new int[256];
     final int[] gammaArray = new int[256];
-    private ByteArray curErrorRedBytes, nextErrorRedBytes, curErrorGreenBytes, nextErrorGreenBytes, curErrorBlueBytes, nextErrorBlueBytes;
+    ByteArray curErrorRedBytes, nextErrorRedBytes, curErrorGreenBytes, nextErrorGreenBytes, curErrorBlueBytes, nextErrorBlueBytes;
     float ditherStrength = 0.5f, halfDitherStrength = 0.25f;
 
     /**
@@ -1064,8 +1064,7 @@ public class PaletteReducer {
                 nextErrorRed[i] = 0;
                 nextErrorGreen[i] = 0;
                 nextErrorBlue[i] = 0;
-            }
-
+            } 
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);

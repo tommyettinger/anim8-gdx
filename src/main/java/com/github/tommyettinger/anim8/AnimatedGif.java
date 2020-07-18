@@ -2,6 +2,7 @@ package com.github.tommyettinger.anim8;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -11,6 +12,28 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ * GIF encoder using standard LZW compression; can write animated and non-animated GIF images.
+ * An instance can be reused to encode multiple GIFs with minimal allocation.
+ * <br>
+ * You can configure the target palette and how this can dither colors via the {@link #palette} field, which is a
+ * {@link PaletteReducer} object that defaults to null and can be reused. If you assign a PaletteReducer to palette, the
+ * methods {@link PaletteReducer#exact(Color[])} or {@link PaletteReducer#analyze(Pixmap)} can be used to make the
+ * target palette match a specific set of colors or the colors in an existing image. If palette is null, this will
+ * compute a palette for each GIF that closely fits its set of given animation frames. If the palette isn't an exact
+ * match for the colors used in an animation (GIF can store at most 256 colors), this will dither pixels so that from a
+ * distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
+ * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is a
+ * skewed and modified version of Thomas Knoll's Pattern Dither, but you can select alternatives with
+ * {@link #setDitherAlgorithm(DitherAlgorithm)}, like a modified version of Jorge Jimenez' Gradient Interleaved Noise
+ * using {@link DitherAlgorithm#GRADIENT_NOISE}, or no dither at all with {@link DitherAlgorithm#NONE}.
+ * <br>
+ * You can write non-animated GIFs with this, but libGDX can't read them back in, so you may want to prefer {@link PNG8}
+ * for images with 256 or fewer colors and no animation (libGDX can read in non-animated PNG files, as well as the first
+ * frame of animated PNG files). If you have an animation that doesn't look good with dithering or has multiple levels
+ * of transparency (GIF only supports one fully transparent color), you can use {@link AnimatedPNG} to output a
+ * full-color animation. If you have a non-animated image that you want to save in lossless full-color, just use
+ * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}; the API is slightly different, but the PNG code here is based on it.
+ * <br>
  * Based on Nick Badal's Android port ( https://github.com/nbadal/android-gif-encoder/blob/master/GifEncoder.java ) of
  * Alessandro La Rossa's J2ME port ( http://www.jappit.com/blog/2008/12/04/j2me-animated-gif-encoder/ ) of this pure
  * Java animated GIF encoder by Kevin Weiner ( http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm ).

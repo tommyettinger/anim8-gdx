@@ -36,15 +36,18 @@ public interface Dithered {
     /**
      * Represents a choice of dithering algorithm to apply when writing a high-color image with a color-limited format.
      * Options are NONE (just using solid blocks of the closest color), GRADIENT_NOISE (using an edit on Jorge Jimenez'
-     * Gradient Interleaved Noise, a kind of ordered dither that adds some visual noise to break up patterns), and PATTERN
-     * (using a skewed variant on Thomas Knoll's Pattern Dithering, with some gamma correction applied). While NONE and
-     * GRADIENT_NOISE maintain the approximate lightness balance of the original image, PATTERN may lighten mid-tones
-     * somewhat to make the gradient smoother. All of these algorithms are suitable for animations; that is, they don't rely
-     * on error diffusion between pixels. NONE is fastest, PATTERN is slowest, and GRADIENT_NOISE is in-between.
+     * Gradient Interleaved Noise, a kind of ordered dither that adds some visual noise to break up patterns), PATTERN
+     * (using a skewed variant on Thomas Knoll's Pattern Dithering, with some gamma correction applied), and DIFFUSION
+     * (an error-diffusing dither using Floyd-Steinberg, which isn't optimal for animations but is very good for still
+     * images). While NONE, GRADIENT_NOISE, and DIFFUSION maintain the approximate lightness balance of the original
+     * image, PATTERN may lighten mid-tones somewhat to make the gradient smoother. All of these algorithms except
+     * DIFFUSION are suitable for animations; using error-diffusion makes tiny changes in some frames disproportionately
+     * affect other pixels in those frames. NONE is fastest, PATTERN is slowest, and GRADIENT_NOISE and DIFFUSION are
+     * in-between.
      * <br>
      * Created by Tommy Ettinger on 6/6/2020.
      */
     enum DitherAlgorithm {
-        NONE, GRADIENT_NOISE, PATTERN
+        NONE, GRADIENT_NOISE, PATTERN, DIFFUSION
     }
 }
