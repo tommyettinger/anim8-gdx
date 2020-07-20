@@ -72,7 +72,11 @@ their path. This has been improved in 0.1.5, by changing how color difference is
 noticeable flaws in the smooth parts of some images. Gradient noise dither also tends to be, well, noisier. There's also
 the `Dithered.DitherAlgorithm.NONE` algorithm, but it's only reasonable for some art styles that don't look good with
 any dither. Using pattern dither can also be a little slow if you are writing many large images or long animations;
-gradient noise dither is much faster, and not using dither offers no real performance boost over gradient noise.
+gradient noise dither is much faster, and not using dither offers no real performance boost over gradient noise. If you
+aren't writing an animation, you can get good results with the `Dithered.DitherAlgorithm.DIFFUSION` algorithm. This
+uses Floyd-Steinberg dithering and preserves lightness while accurately matching shape, but has **Quirk Number Four**,
+that it causes pixels to jitter between frames of an animation due to tiny changes propagating throughout the image.
+The `DIFFUSION` algorithm is being added in version 0.1.6, which should coincide with libGDX 1.9.11. 
 
 # Samples
 Some .gif animations, using 255 colors:
@@ -138,3 +142,31 @@ And some .png animations, using full color:
 Animated PNG can support full alpha as well (though file sizes can be large):
 
 ![Full-Color PNG with Alpha](images/AnimatedPNG-alpha.png)
+
+Anim8 also can be used to support writing non-animated GIF images and indexed-mode PNG images.
+Here's a retouched version of the Mona Lisa,
+[source on Wikimedia Commons here](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif), and
+various 15-color dithers using a palette derived from the most frequent and different colors in the original:
+
+Original (full-color):
+
+![](images/Mona_Lisa-PNG-Full.png)
+
+Pattern:
+
+![](images/Mona_Lisa-Gif-Pattern-16.gif)
+
+Diffusion:
+
+![](images/Mona_Lisa-Gif-Diffusion-16.gif)
+
+Gradient Noise:
+
+![](images/Mona_Lisa-Gif-Gradient-16.gif)
+
+None (no dither):
+
+![](images/Mona_Lisa-Gif-None-16.gif)
+
+(If the Wikimedia Commons source file is deleted, the original is available in the history of
+[this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).

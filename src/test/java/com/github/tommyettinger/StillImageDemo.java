@@ -40,7 +40,7 @@ public class StillImageDemo extends ApplicationAdapter {
         for(String name : new String[]{"Cat", "Frog", "Landscape", "Mona_Lisa"}) {
 			renderPNG8(name);
 			renderGif(name);
-			renderPNG(name);
+//			renderPNG(name);
 		}
         Gdx.app.exit();
     }
@@ -54,14 +54,17 @@ public class StillImageDemo extends ApplicationAdapter {
     public void renderPNG8(String name) {
         PNG8 png8 = new PNG8();
         png8.setFlipY(false);
-        png8.setPalette(new PaletteReducer(palette));
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+        Pixmap pixmap = new Pixmap(Gdx.files.classpath(name+".jpg"));
+		PaletteReducer reducer = new PaletteReducer();
+		reducer.analyze(pixmap, 200, 16);
+		png8.setPalette(reducer);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
         // black and white
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
         // gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
         png8.setCompression(7);
-        png8.write(Gdx.files.local("images/"+name+"-PNG8-" + startTime + ".png"), new Pixmap(Gdx.files.classpath(name+".jpg")), false, true);
+        png8.write(Gdx.files.local("images/"+name+"-PNG8-None-16" /* + startTime*/ + ".png"), pixmap, false, true);
     }
 
     public void renderPNG(String name) {
@@ -79,13 +82,15 @@ public class StillImageDemo extends ApplicationAdapter {
         Array<Pixmap> pixmaps = Array.with(new Pixmap(Gdx.files.classpath(name+".jpg")));
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
-        gif.setPalette(new PaletteReducer(palette));
-        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+        PaletteReducer reducer = new PaletteReducer();
+        reducer.analyze(pixmaps, 200, 16);
+        gif.setPalette(reducer);
+        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
         // black and white
 //        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
         // gb palette
 //        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
-        gif.write(Gdx.files.local("images/"+name+"-Gif-" + startTime + ".gif"), pixmaps, 1);
+        gif.write(Gdx.files.local("images/"+name+"-Gif-None-16"/* + startTime*/ + ".gif"), pixmaps, 1);
     }
 
 	public static void main(String[] args) {
