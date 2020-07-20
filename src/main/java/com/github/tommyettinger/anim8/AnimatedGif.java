@@ -6,10 +6,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ByteArray;
 import com.badlogic.gdx.utils.StreamUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 /**
  * GIF encoder using standard LZW compression; can write animated and non-animated GIF images.
@@ -387,7 +389,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         int color, used, flipped = flipY ? height - 1 : 0, flipDir = flipY ? -1 : 1;
         boolean hasTransparent = paletteArray[0] == 0;
         switch (ditherAlgorithm) {
-            case NONE:  {
+            case NONE: {
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
@@ -404,7 +406,128 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
             break;
-            case PATTERN:  {
+            case GRADIENT_NOISE: {
+                float pos, adj, strength = palette.ditherStrength * 3.333f;
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    for (int px = 0; px < width & i < nPix; px++) {
+                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            color |= (color >>> 5 & 0x07070700) | 0xFE;
+                            int rr = ((color >>> 24));
+                            int gg = ((color >>> 16) & 0xFF);
+                            int bb = ((color >>> 8) & 0xFF);
+                            used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))] & 0xFF];
+                            pos = (px * 0.06711056f + y * 0.00583715f);
+                            pos -= (int) pos;
+                            pos *= 52.9829189f;
+                            pos -= (int) pos;
+                            adj = (pos * pos - 0.3f) * strength;
+                            rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24)))), 0, 0xFF);
+                            gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
+                            bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8 & 0xFF)))), 0, 0xFF);
+                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))]) & 255] = true;
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
+            case DIFFUSION: {
+                final int w = width;
+                int rdiff, gdiff, bdiff;
+                byte er, eg, eb, paletteIndex;
+                final float w1 = palette.ditherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+
+                byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+                if (palette.curErrorRedBytes == null) {
+                    curErrorRed = (palette.curErrorRedBytes = new ByteArray(w)).items;
+                    nextErrorRed = (palette.nextErrorRedBytes = new ByteArray(w)).items;
+                    curErrorGreen = (palette.curErrorGreenBytes = new ByteArray(w)).items;
+                    nextErrorGreen = (palette.nextErrorGreenBytes = new ByteArray(w)).items;
+                    curErrorBlue = (palette.curErrorBlueBytes = new ByteArray(w)).items;
+                    nextErrorBlue = (palette.nextErrorBlueBytes = new ByteArray(w)).items;
+                } else {
+                    curErrorRed = palette.curErrorRedBytes.ensureCapacity(w);
+                    nextErrorRed = palette.nextErrorRedBytes.ensureCapacity(w);
+                    curErrorGreen = palette.curErrorGreenBytes.ensureCapacity(w);
+                    nextErrorGreen = palette.nextErrorGreenBytes.ensureCapacity(w);
+                    curErrorBlue = palette.curErrorBlueBytes.ensureCapacity(w);
+                    nextErrorBlue = palette.nextErrorBlueBytes.ensureCapacity(w);
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+                }
+
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+
+                    int py = flipped + flipDir * y,
+                            ny = y + 1;
+
+                    for (int px = 0; px < width & i < nPix; px++) {
+                        color = image.getPixel(px, py) & 0xF8F8F880;
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            er = curErrorRed[px];
+                            eg = curErrorGreen[px];
+                            eb = curErrorBlue[px];
+                            color |= (color >>> 5 & 0x07070700) | 0xFF;
+                            int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
+                            int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
+                            int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                            usedEntry[(indexedPixels[i] = paletteIndex =
+                                    paletteMapping[((rr << 7) & 0x7C00)
+                                            | ((gg << 2) & 0x3E0)
+                                            | ((bb >>> 3))]) & 255] = true;
+                            used = paletteArray[paletteIndex & 0xFF];
+                            rdiff = (color>>>24)-    (used>>>24);
+                            gdiff = (color>>>16&255)-(used>>>16&255);
+                            bdiff = (color>>>8&255)- (used>>>8&255);
+                            if(px < w - 1)
+                            {
+                                curErrorRed[px+1]   += rdiff * w7;
+                                curErrorGreen[px+1] += gdiff * w7;
+                                curErrorBlue[px+1]  += bdiff * w7;
+                            }
+                            if(ny < height)
+                            {
+                                if(px > 0)
+                                {
+                                    nextErrorRed[px-1]   += rdiff * w3;
+                                    nextErrorGreen[px-1] += gdiff * w3;
+                                    nextErrorBlue[px-1]  += bdiff * w3;
+                                }
+                                if(px < w - 1)
+                                {
+                                    nextErrorRed[px+1]   += rdiff * w1;
+                                    nextErrorGreen[px+1] += gdiff * w1;
+                                    nextErrorBlue[px+1]  += bdiff * w1;
+                                }
+                                nextErrorRed[px]   += rdiff * w5;
+                                nextErrorGreen[px] += gdiff * w5;
+                                nextErrorBlue[px]  += bdiff * w5;
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
+            case PATTERN:
+            default: {
                 int cr, cg, cb,  usedIndex;
                 final float errorMul = palette.ditherStrength * 0.3f;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
@@ -440,39 +563,6 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                     ]) & 255] = true;
                             i++;
 
-                        }
-                    }
-                }
-            }
-            break;
-            case GRADIENT_NOISE:
-            default: {
-                float pos, adj, strength = palette.ditherStrength * 3.333f;
-                for (int y = 0, i = 0; y < height && i < nPix; y++) {
-                    for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
-                        if ((color & 0x80) == 0 && hasTransparent)
-                            indexedPixels[i++] = 0;
-                        else {
-                            color |= (color >>> 5 & 0x07070700) | 0xFE;
-                            int rr = ((color >>> 24));
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8) & 0xFF);
-                            used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))] & 0xFF];
-                            pos = (px * 0.06711056f + y * 0.00583715f);
-                            pos -= (int) pos;
-                            pos *= 52.9829189f;
-                            pos -= (int) pos;
-                            adj = (pos * pos - 0.3f) * strength;
-                            rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24)))), 0, 0xFF);
-                            gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
-                            bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8 & 0xFF)))), 0, 0xFF);
-                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))]) & 255] = true;
-                            i++;
                         }
                     }
                 }
