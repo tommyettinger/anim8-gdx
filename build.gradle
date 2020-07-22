@@ -18,12 +18,12 @@ apply from: 'publish.gradle'
 sourceCompatibility = 1.7
 
 def projectName = 'anim8-gdx'
-version '0.1.6-SNAPSHOT'
+version '0.1.6'
 group 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:anim8-gdx:0.1.5"
 
-def gdxVersion = '1.9.11-SNAPSHOT'
+def gdxVersion = '1.9.11'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 

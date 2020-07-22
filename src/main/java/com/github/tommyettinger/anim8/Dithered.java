@@ -48,6 +48,36 @@ public interface Dithered {
      * Created by Tommy Ettinger on 6/6/2020.
      */
     enum DitherAlgorithm {
-        NONE, GRADIENT_NOISE, PATTERN, DIFFUSION
+        /**
+         * Doesn't dither at all; this generally looks bad unless the palette matches the colors in the image very
+         * closely or exactly.
+         */
+        NONE,
+        /**
+         * Jorge Jimenez' Gradient Interleaved Noise, modified slightly to use as an ordered dither here; this can be,
+         * well, noisy, but doesn't have different amounts of noise on different frames or different parts of an image
+         * (which is a potential problem for {@link #DIFFUSION}). {@link #PATTERN} is mostly an improvement, but doesn't
+         * preserve lightness as well, and is slower to compute.
+         */
+        GRADIENT_NOISE,
+        /**
+         * Thomas Knoll's Pattern Dither (with a skew to obscure grid artifacts), as originally described by Joel
+         * Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Pattern
+         * Dither was patented until late 2019, so Yliluoma had to use an 8x8 matrix instead of the 4x4 used here; the
+         * 4x4, with appropriate skew, is much faster to compute and doesn't have as many artifacts with large enough
+         * palettes. This implementation doesn't have gamma correction working quite correctly, so it tends to lighten
+         * images it dithers slightly. It's an ordered dither, like {@link #GRADIENT_NOISE}, but isn't nearly as noisy.
+         * Pattern Dither is the default for most purposes here; you may want to prefer {@link #DIFFUSION} for still
+         * images, but Pattern Dither still looks quite good for those, albeit not faithful regarding lightness.
+         */
+        PATTERN,
+        /**
+         * Floyd-Steinberg error-diffusion dithering; this is the best option for still images, and it's an OK option
+         * for some animated images. It doesn't lighten the image like {@link #PATTERN}, while still preserving most
+         * details on shapes, but small changes in one part of an animation will affect different frames very
+         * differently (which makes this less well-suited for animations). It may look better even in an animation than
+         * {@link #GRADIENT_NOISE}, depending on the animation.
+         */
+        DIFFUSION
     }
 }

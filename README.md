@@ -42,7 +42,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX
-  api "com.github.tommyettinger:anim8-gdx:0.1.5"
+  api "com.github.tommyettinger:anim8-gdx:0.1.6"
 }
 ```
 
@@ -50,7 +50,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.1.5:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.1.6:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -76,7 +76,7 @@ gradient noise dither is much faster, and not using dither offers no real perfor
 aren't writing an animation, you can get good results with the `Dithered.DitherAlgorithm.DIFFUSION` algorithm. This
 uses Floyd-Steinberg dithering and preserves lightness while accurately matching shape, but has **Quirk Number Four**,
 that it causes pixels to jitter between frames of an animation due to tiny changes propagating throughout the image.
-The `DIFFUSION` algorithm is being added in version 0.1.6, which should coincide with libGDX 1.9.11. 
+The `DIFFUSION` algorithm has been added in version 0.1.6, coinciding with an update to libGDX 1.9.11. 
 
 # Samples
 Some .gif animations, using 255 colors:
