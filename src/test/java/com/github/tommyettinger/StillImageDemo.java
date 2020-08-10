@@ -39,7 +39,7 @@ public class StillImageDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
         for(String name : new String[]{"Cat", "Frog", "Landscape", "Mona_Lisa"}) {
 			renderPNG8(name);
-			renderGif(name);
+//			renderGif(name);
 //			renderPNG(name);
 		}
         Gdx.app.exit();
@@ -58,13 +58,13 @@ public class StillImageDemo extends ApplicationAdapter {
 		PaletteReducer reducer = new PaletteReducer();
 		reducer.analyze(pixmap, 200, 16);
 		png8.setPalette(reducer);
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
         // black and white
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
         // gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
         png8.setCompression(7);
-        png8.write(Gdx.files.local("images/"+name+"-PNG8-None-16" /* + startTime*/ + ".png"), pixmap, false, true);
+        png8.write(Gdx.files.local("images/"+name+"-PNG8-BlueNoise-16" /* + startTime*/ + ".png"), pixmap, false, true);
     }
 
     public void renderPNG(String name) {

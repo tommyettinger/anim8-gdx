@@ -268,6 +268,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 case GRADIENT_NOISE:
                     writeGradientDithered(output, pixmap);
                     break;
+                case BLUE_NOISE:
+                    writeBlueNoiseDithered(output, pixmap);
+                    break;
                 case DIFFUSION:
                     writeDiffusionDithered(output, pixmap);
                     break;
@@ -920,6 +923,134 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
 
+                    }
+                }
+
+                lineOut[0] = (byte)(curLine[0] - prevLine[0]);
+
+                //Paeth
+                for (int x = 1; x < w; x++) {
+                    int a = curLine[x - 1] & 0xff;
+                    int b = prevLine[x] & 0xff;
+                    int c = prevLine[x - 1] & 0xff;
+                    int p = a + b - c;
+                    int pa = p - a;
+                    if (pa < 0) pa = -pa;
+                    int pb = p - b;
+                    if (pb < 0) pb = -pb;
+                    int pc = p - c;
+                    if (pc < 0) pc = -pc;
+                    if (pa <= pb && pa <= pc)
+                        c = a;
+                    else if (pb <= pc)
+                        c = b;
+                    lineOut[x] = (byte)(curLine[x] - c);
+                }
+
+                deflaterOutput.write(PAETH);
+                deflaterOutput.write(lineOut, 0, w);
+
+                byte[] temp = curLine;
+                curLine = prevLine;
+                prevLine = temp;
+            }
+            deflaterOutput.finish();
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+    private void writeBlueNoiseDithered(OutputStream output, Pixmap pixmap) {
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(pixmap.getWidth());
+            buffer.writeInt(pixmap.getHeight());
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p>>>24);
+                buffer.write(p>>>16);
+                buffer.write(p>>>8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if(paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(IDAT);
+            deflater.reset();
+
+            final int w = pixmap.getWidth(), h = pixmap.getHeight();
+            byte[] lineOut, curLine, prevLine;
+            if (lineOutBytes == null) {
+                lineOut = (lineOutBytes = new ByteArray(w)).items;
+                curLine = (curLineBytes = new ByteArray(w)).items;
+                prevLine = (prevLineBytes = new ByteArray(w)).items;
+            } else {
+                lineOut = lineOutBytes.ensureCapacity(w);
+                curLine = curLineBytes.ensureCapacity(w);
+                prevLine = prevLineBytes.ensureCapacity(w);
+                for (int i = 0, n = lastLineLen; i < n; i++)
+                {
+                    prevLine[i] = 0;
+                }
+            }
+
+            lastLineLen = w;
+
+            int color, used;
+
+            byte paletteIndex;
+            float adj;
+            final float strength = palette.ditherStrength;
+            for (int y = 0; y < h; y++) {
+                int py = flipY ? (h - y - 1) : y;
+                for (int px = 0; px < w; px++) {
+                    color = pixmap.getPixel(px, py) & 0xF8F8F880;
+                    if ((color & 0x80) == 0 && hasTransparent)
+                        curLine[px] = 0;
+                    else {
+                        color |= (color >>> 5 & 0x07070700) | 0xFF;
+                        int rr = ((color >>> 24)       );
+                        int gg = ((color >>> 16) & 0xFF);
+                        int bb = ((color >>> 8)  & 0xFF);
+                        paletteIndex =
+                                paletteMapping[((rr << 7) & 0x7C00)
+                                        | ((gg << 2) & 0x3E0)
+                                        | ((bb >>> 3))];
+                        used = paletteArray[paletteIndex & 0xFF];
+                        adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                        adj *= adj * adj * strength;
+                        adj += (px + y & 1) - 0.5f; // makes a checkerboard pattern of +0.5 and -0.5
+                        rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
+                        gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
+                        bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);
+                        curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
+                                | ((gg << 2) & 0x3E0)
+                                | ((bb >>> 3))];
                     }
                 }
 
@@ -1717,7 +1848,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = width;
 
             byte paletteIndex;
-            float pos, adj;
+            float adj;
             final float strength = palette.ditherStrength;
 
             int seq = 0;
@@ -1782,7 +1913,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];
-
                         }
                     }
                     lineOut[0] = (byte) (curLine[0] - prevLine[0]);
