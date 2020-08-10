@@ -271,6 +271,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 case DIFFUSION:
                     writeDiffusionDithered(output, pixmap);
                     break;
+                case PATTERN:
                 default:
                     writePatternDithered(output, pixmap);
             }
@@ -1497,6 +1498,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case DIFFUSION:
                 writeDiffusionDithered(output, frames, fps);
                 break;
+            case PATTERN:
             default:
                 writePatternDithered(output, frames, fps);
         }

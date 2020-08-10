@@ -78,6 +78,19 @@ public interface Dithered {
          * differently (which makes this less well-suited for animations). It may look better even in an animation than
          * {@link #GRADIENT_NOISE}, depending on the animation.
          */
-        DIFFUSION
+        DIFFUSION,
+        /**
+         * An ordered dither that modifies any error in a pixel's color by using a blue-noise pattern and a checkerboard
+         * pattern. If a pixel is perfectly matched by the palette, this won't change it, but otherwise the position
+         * will be used for both the checkerboard and a lookup into a 64x64 blue noise texture (stored as a byte array),
+         * and the resulting value between -1.5 and 1.5 will be multiplied by the error for that pixel. This yields
+         * closer results to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; though it doesn't
+         * preserve soft gradients quite as well, it keeps lightness as well as {@link #DIFFUSION} does, and it doesn't
+         * add as much chaotic noise as {@link #GRADIENT_NOISE}. For reference, the blue noise texture this uses looks
+         * like <a href="https://i.imgur.com/YCSKKGw.png">this small image</a>; it looks different from a purely-random
+         * white noise texture because blue noise has no low frequencies in any direction, while white noise has all
+         * frequencies in equal measure.
+         */
+        BLUE_NOISE
     }
 }
