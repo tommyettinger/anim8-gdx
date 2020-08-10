@@ -1203,7 +1203,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used;
-        double adj, strength = ditherStrength;
+        float adj, strength = ditherStrength;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y) & 0xF8F8F880;
@@ -1228,7 +1228,6 @@ public class PaletteReducer {
                             | ((bb >>> 3))] & 0xFF]);
                 }
             }
-
         }
         pixmap.setBlending(blending);
         return pixmap;
