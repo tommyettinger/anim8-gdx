@@ -133,8 +133,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
         Gdx.files.local("images").mkdirs();
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
-//		renderPNG8();
-        renderGif();
+		renderPNG8();
+//        renderGif();
     }
 
     @Override
@@ -194,7 +194,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         }
         PNG8 png8 = new PNG8();
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
         // black and white
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
         // gb palette
