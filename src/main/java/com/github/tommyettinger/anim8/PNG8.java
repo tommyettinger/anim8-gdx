@@ -1044,7 +1044,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         used = paletteArray[paletteIndex & 0xFF];
                         adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                         adj *= adj * adj * strength;
-                        adj += (px + y & 1) - 0.5f; // makes a checkerboard pattern of +0.5 and -0.5
+                        //// long constants are from R2 sequence by Martin Roberts; they randomize values by position.
+                        adj += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 58) * 0x1p-5f - 1f;
                         rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                         gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                         bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);
@@ -1906,7 +1907,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             used = paletteArray[paletteIndex & 0xFF];
                             adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                             adj *= adj * adj * strength;
-                            adj += (px + y & 1) - 0.5f; // makes a checkerboard pattern of +0.5 and -0.5
+                            //// long constants are from R2 sequence by Martin Roberts; they randomize values by position.
+                            adj += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 58) * 0x1p-5f - 1f;
                             rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                             bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);

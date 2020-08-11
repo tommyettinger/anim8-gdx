@@ -134,7 +134,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 		renderPNG8();
-//        renderGif();
+        renderGif();
     }
 
     @Override

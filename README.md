@@ -142,23 +142,8 @@ And some .png animations, using full color:
 A more intense usage is to encode a high-color video as an indexed-color GIF; why you might do this, I don't know,
 but someone probably wants videos as GIFs. The images here are 90 frames from
 ["Video Of A Market" by Olivier Polome](https://www.pexels.com/video/video-of-a-market-4236787/), which is freely
-licensed without requirements. Note that all of the following animations are limited to 255 colors, and the mp4 video
-they use as a source has some block artifacts.
-
-Market Video, gradient dither:
-![Video of a Market](images/AnimatedGif-market-GradientNoise.gif)
-
-Market Video, pattern dither:
-![Video of a Market](images/AnimatedGif-market-Pattern.gif)
-
-Market Video, Floyd-Steinberg error diffusion dither:
-![Video of a Market](images/AnimatedGif-market-Diffusion.gif)
-
-Market Video, blue noise dither:
-![Video of a Market](images/AnimatedGif-market-BlueNoise.gif)
-
-Market Video, no dither:
-![Video of a Market](images/AnimatedGif-market-None.gif)
+licensed without requirements. Note that the following animations are limited to 255 colors, and the mp4 video
+they use as a source has some block artifacts. [You can see the effects of different dither algorithms on the same video in this folder](images/market/).
 
 Animated PNG can support full alpha as well (though file sizes can be large):
 
