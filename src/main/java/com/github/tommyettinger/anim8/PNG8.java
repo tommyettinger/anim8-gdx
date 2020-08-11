@@ -25,10 +25,10 @@ import java.util.zip.DeflaterOutputStream;
  * compute a palette for each PNG that closely fits its set of given animation frames. If the palette isn't an exact
  * match for the colors used in an animation (indexed mode has at most 256 colors), this will dither pixels so that from
  * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
- * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is a
- * skewed and modified version of Thomas Knoll's Pattern Dither, but you can select alternatives with
- * {@link #setDitherAlgorithm(DitherAlgorithm)}, like a modified version of Jorge Jimenez' Gradient Interleaved Noise
- * using {@link DitherAlgorithm#GRADIENT_NOISE}, or no dither at all with {@link DitherAlgorithm#NONE}.
+ * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is
+ *  * based on blue noise and a quasi-random pattern ({@link DitherAlgorithm#BLUE_NOISE}), but you can select alternatives
+ *  * with {@link #setDitherAlgorithm(DitherAlgorithm)}, like a modified version of Jorge Jimenez' Gradient Interleaved
+ *  * Noise using {@link DitherAlgorithm#GRADIENT_NOISE}, or no dither at all with {@link DitherAlgorithm#NONE}.
  * <br>
  * Note that for many cases where you write a non-animated PNG, you will want to use
  * {@link #writePrecisely(FileHandle, Pixmap, boolean)} instead of {@link #write(FileHandle, Pixmap, boolean, boolean)},
@@ -81,7 +81,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
     public PaletteReducer palette;
     
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.PATTERN;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.BLUE_NOISE;
 
     @Override
     public PaletteReducer getPalette() {

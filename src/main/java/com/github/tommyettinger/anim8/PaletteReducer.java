@@ -28,6 +28,8 @@ import java.util.Random;
  *     <li>TOP TIER</li>
  *     <li>{@link #reduceFloydSteinberg(Pixmap)} (Floyd-Steinberg is a very common error-diffusion dither; it's
  *     excellent for still images and large palette sizes, but not animations.)</li>
+ *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
+ *     the amount of color correction applied to each mismatched pixel; also uses a quasi-random pattern.)</li>
  *     <li>{@link #reduceJimenez(Pixmap)} (This is a modified version of Gradient Interleaved Noise by Jorge Jimenez;
  *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks.)</li>
  *     <li>{@link #reduceKnollRoberts(Pixmap)} (This is a modified version of Thomas Knoll's Pattern Dithering; it skews

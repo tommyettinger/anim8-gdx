@@ -24,10 +24,10 @@ import java.util.Arrays;
  * compute a palette for each GIF that closely fits its set of given animation frames. If the palette isn't an exact
  * match for the colors used in an animation (GIF can store at most 256 colors), this will dither pixels so that from a
  * distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
- * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is a
- * skewed and modified version of Thomas Knoll's Pattern Dither, but you can select alternatives with
- * {@link #setDitherAlgorithm(DitherAlgorithm)}, like a modified version of Jorge Jimenez' Gradient Interleaved Noise
- * using {@link DitherAlgorithm#GRADIENT_NOISE}, or no dither at all with {@link DitherAlgorithm#NONE}.
+ * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is
+ * based on blue noise and a quasi-random pattern ({@link DitherAlgorithm#BLUE_NOISE}), but you can select alternatives
+ * with {@link #setDitherAlgorithm(DitherAlgorithm)}, like a modified version of Jorge Jimenez' Gradient Interleaved
+ * Noise using {@link DitherAlgorithm#GRADIENT_NOISE}, or no dither at all with {@link DitherAlgorithm#NONE}.
  * <br>
  * You can write non-animated GIFs with this, but libGDX can't read them back in, so you may want to prefer {@link PNG8}
  * for images with 256 or fewer colors and no animation (libGDX can read in non-animated PNG files, as well as the first
@@ -92,7 +92,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             palette = null;
     }
 
-    protected Dithered.DitherAlgorithm ditherAlgorithm = Dithered.DitherAlgorithm.PATTERN;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.BLUE_NOISE;
     
     protected int width; // image size
 
@@ -211,19 +211,19 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     }
     
     /**
-     * Gets the {@link Dithered.DitherAlgorithm} this is currently using.
+     * Gets the {@link DitherAlgorithm} this is currently using.
      * @return which dithering algorithm this currently uses.
      */
-    public Dithered.DitherAlgorithm getDitherAlgorithm() {
+    public DitherAlgorithm getDitherAlgorithm() {
         return ditherAlgorithm;
     }
 
     /**
-     * Sets the dither algorithm (or disables it) using an enum constant from {@link Dithered.DitherAlgorithm}. If this
+     * Sets the dither algorithm (or disables it) using an enum constant from {@link DitherAlgorithm}. If this
      * is given null, it instead does nothing.
-     * @param ditherAlgorithm which {@link Dithered.DitherAlgorithm} to use for upcoming output
+     * @param ditherAlgorithm which {@link DitherAlgorithm} to use for upcoming output
      */
-    public void setDitherAlgorithm(Dithered.DitherAlgorithm ditherAlgorithm) {
+    public void setDitherAlgorithm(DitherAlgorithm ditherAlgorithm) {
         if(ditherAlgorithm != null)
             this.ditherAlgorithm = ditherAlgorithm;
     }

@@ -37,13 +37,16 @@ public interface Dithered {
      * Represents a choice of dithering algorithm to apply when writing a high-color image with a color-limited format.
      * Options are NONE (just using solid blocks of the closest color), GRADIENT_NOISE (using an edit on Jorge Jimenez'
      * Gradient Interleaved Noise, a kind of ordered dither that adds some visual noise to break up patterns), PATTERN
-     * (using a skewed variant on Thomas Knoll's Pattern Dithering, with some gamma correction applied), and DIFFUSION
-     * (an error-diffusing dither using Floyd-Steinberg, which isn't optimal for animations but is very good for still
-     * images). While NONE, GRADIENT_NOISE, and DIFFUSION maintain the approximate lightness balance of the original
-     * image, PATTERN may lighten mid-tones somewhat to make the gradient smoother. All of these algorithms except
-     * DIFFUSION are suitable for animations; using error-diffusion makes tiny changes in some frames disproportionately
-     * affect other pixels in those frames. NONE is fastest, PATTERN is slowest, and GRADIENT_NOISE and DIFFUSION are
-     * in-between.
+     * (using a skewed variant on Thomas Knoll's Pattern Dithering, with some gamma correction applied), DIFFUSION (an
+     * error-diffusing dither using Floyd-Steinberg, which isn't optimal for animations but is very good for still
+     * images), and BLUE_NOISE (an ordered dither that corrects mismatched colors by checking a blue noise texture with
+     * no noticeable large patterns, and also using a quasi-random pattern to further break up artifacts; this looks the
+     * best for realistic animations). While NONE, GRADIENT_NOISE, BLUE_NOISE, and DIFFUSION maintain the approximate
+     * lightness balance of the original image, PATTERN may lighten mid-tones somewhat to make the gradient smoother.
+     * All of these algorithms except DIFFUSION are suitable for animations; using error-diffusion makes tiny changes in
+     * some frames disproportionately affect other pixels in those frames, which is compounded by how DIFFUSION can have
+     * large sections of minor artifacts that become very noticeable when they suddenly change between frames. NONE is
+     * fastest, and PATTERN is slowest. GRADIENT_NOISE, BLUE_NOISE, and DIFFUSION are in-between.
      * <br>
      * Created by Tommy Ettinger on 6/6/2020.
      */
@@ -83,13 +86,13 @@ public interface Dithered {
          * An ordered dither that modifies any error in a pixel's color by using a blue-noise pattern and a quasi-random
          * pattern. If a pixel is perfectly matched by the palette, this won't change it, but otherwise the position
          * will be used for both the random part and a lookup into a 64x64 blue noise texture (stored as a byte array),
-         * and the resulting value between -1.5 and 1.5 will be multiplied by the error for that pixel. This yields
-         * closer results to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; though it doesn't
+         * and the resulting value between -2 and 2 will be multiplied by the error for that pixel. This yields closer
+         * results to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; though it doesn't
          * preserve soft gradients quite as well, it keeps lightness as well as {@link #DIFFUSION} does, and it doesn't
          * add as much chaotic noise as {@link #GRADIENT_NOISE}. For reference, the blue noise texture this uses looks
          * like <a href="https://i.imgur.com/YCSKKGw.png">this small image</a>; it looks different from a purely-random
          * white noise texture because blue noise has no low frequencies in any direction, while white noise has all
-         * frequencies in equal measure.
+         * frequencies in equal measure. This has been optimized for quality on animations more so than on still images.
          */
         BLUE_NOISE
     }
