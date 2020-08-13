@@ -187,7 +187,7 @@ public class PaletteReducer {
      * to speed up construction using {@link #PaletteReducer(int[], byte[])}. Editing this field is strongly
      * discouraged; use {@link #exact(int[])} or {@link #analyze(Pixmap)} to set the palette as a whole.
      */
-    public byte[] paletteMapping;
+    public final byte[] paletteMapping = new byte[0x8000];
     /**
      * The RGBA8888 int colors this can reduce an image to use. This is public, and since it is an array you can modify
      * it, but it is strongly encouraged that you instead call {@link #exact(int[])} when you want to change the colors
@@ -256,7 +256,6 @@ public class PaletteReducer {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
-        paletteMapping = new byte[0x8000];
         exact(rgbaPalette);
     }
 
@@ -272,7 +271,6 @@ public class PaletteReducer {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
-        paletteMapping = new byte[0x8000];
         exact(colorPalette);
     }
 
@@ -288,7 +286,6 @@ public class PaletteReducer {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
-        paletteMapping = new byte[0x8000];
         exact(colorPalette, limit);
     }
 
@@ -304,7 +301,6 @@ public class PaletteReducer {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
-        paletteMapping = new byte[0x8000];
         analyze(pixmap);
     }
 
@@ -320,7 +316,6 @@ public class PaletteReducer {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
-        paletteMapping = new byte[0x8000];
         analyze(pixmaps);
     }
     /**
@@ -342,7 +337,6 @@ public class PaletteReducer {
      * @param threshold the minimum difference between colors required to put them in the palette (default 400)
      */
     public PaletteReducer(Pixmap pixmap, int threshold) {
-        paletteMapping = new byte[0x8000];
         analyze(pixmap, threshold);
     }
 
@@ -476,17 +470,13 @@ public class PaletteReducer {
         if(palette == null || preload == null)
         {
             System.arraycopy(AURORA, 0,  paletteArray, 0, 256);
-            paletteMapping = ENCODED_AURORA;
+            System.arraycopy(ENCODED_AURORA, 0,  paletteMapping, 0, 0x8000);
 
             calculateGamma();
             return;
         }
-        for (int i = 0; i < 256 & i < palette.length; i++) {
-            int color = palette[i];
-            if((color & 0x80) != 0)
-                paletteArray[i] = color;
-        }
-        paletteMapping = preload;
+        System.arraycopy(palette, 0,  paletteArray, 0, Math.min(256, palette.length));
+        System.arraycopy(preload, 0,  paletteMapping, 0, 0x8000);
 
         calculateGamma();
     }
