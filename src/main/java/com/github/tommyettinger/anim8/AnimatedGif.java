@@ -408,13 +408,14 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             case BLUE_NOISE: { 
                 float adj, strength = palette.ditherStrength;
+                long s = 0xC13FA9A902A6328FL;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            color |= (color >>> 5 & 0x07070700) | 0xFE;
+                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             int rr = ((color >>> 24)       );
                             int gg = ((color >>> 16) & 0xFF);
                             int bb = ((color >>> 8)  & 0xFF);
@@ -423,8 +424,18 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                     | ((bb >>> 3))] & 0xFF];
                             adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                             adj *= adj * adj * strength;
-                            //// long constants are from R2 sequence by Martin Roberts; they randomize values by position.
-                            adj += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 58) * 0x1p-5f - 1f;
+                            s += color;
+                            //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
+                            //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
+                            ////   different as long as the colors encountered so far were different. The numbers can
+                            ////   each be positive or negative, and are reduced to a manageable size, summed, and
+                            ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
+                            ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
+                            ////   Two of the random numbers use an XLCG, and the last uses an LCG. 
+                            adj += ((px + y & 1) - 0.5f) * 0x1.2p-50f * 
+                                    (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 13) + 
+                                            ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 13) + 
+                                            (((s ^ color) * 0xD1342543DE82EF95L) + 0x91E10DA5C79E7B1DL >> 13));
                             rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
                             bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
