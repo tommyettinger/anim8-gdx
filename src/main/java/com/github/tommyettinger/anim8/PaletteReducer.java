@@ -126,7 +126,7 @@ public class PaletteReducer {
      * all blue. To get a red difference's power value, look up its absolute value in this; to get a green one or a blue
      * one, it's the same but with an added 256 or 512.
      */
-    public static final double[] RGB_POWERS = new double[3 << 8];
+    public static final double[] RGB_POWERS = new double[256];
 
     /**
      * This should always be a 4096-element byte array filled with 64 sections of 64 bytes each. When arranged into a
@@ -172,9 +172,9 @@ public class PaletteReducer {
         }
 
         for (int i = 1; i < 256; i++) {
-            RGB_POWERS[i]     = Math.pow(i, 3.7);
-            RGB_POWERS[i+256] = Math.pow(i, 4.0);
-            RGB_POWERS[i+512] = Math.pow(i, 3.3);
+            RGB_POWERS[i]     = Math.pow(i * 0.5, 3.5);
+            //RGB_POWERS[i+256] = Math.pow(i * 0.25, 4.0);
+            //RGB_POWERS[i+512] = Math.pow(i * 0.25, 3.3);
         }
     }
 
@@ -352,8 +352,8 @@ public class PaletteReducer {
         if(((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
         return //Math.sqrt
                  (RGB_POWERS[Math.abs((color1 >>> 24) - (color2 >>> 24))]
-                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF))]
-                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-10;
+                + RGB_POWERS[Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF))]
+                + RGB_POWERS[Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-8;
     }
 
 
@@ -371,8 +371,8 @@ public class PaletteReducer {
         if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
         return //Math.sqrt
                  (RGB_POWERS[Math.abs((color1 >>> 24) - r2)]
-                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - g2)]
-                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-10;
+                + RGB_POWERS[Math.abs((color1 >>> 16 & 0xFF) - g2)]
+                + RGB_POWERS[Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-8;
     }
 
     /**
@@ -390,8 +390,8 @@ public class PaletteReducer {
     public static double difference(final int r1, final int g1, final int b1, final int r2, final int g2, final int b2) {
         return //Math.sqrt
                  (RGB_POWERS[Math.abs(r1 - r2)]
-                + RGB_POWERS[256+Math.abs(g1 - g2)]
-                + RGB_POWERS[512+Math.abs(b1 - b2)]) * 0x1p-10;
+                + RGB_POWERS[Math.abs(g1 - g2)]
+                + RGB_POWERS[Math.abs(b1 - b2)]) * 0x1p-8;
     }
 
     /**

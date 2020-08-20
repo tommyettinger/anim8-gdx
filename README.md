@@ -79,7 +79,7 @@ that it causes pixels to jitter between frames of an animation due to tiny chang
 The `DIFFUSION` algorithm has been added in version 0.1.6, coinciding with an update to libGDX 1.9.11. 
 
 # Samples
-Some .gif animations, using 255 colors:
+Some .gif animations, using 255 colors taken from the most-used in the animation:
 
 Pattern dither:
 
@@ -89,9 +89,21 @@ Gradient dither:
 
 ![Flashy Gif, gradient dither](images/AnimatedGif-flashy-gradient.gif)
 
+Diffusion dither (Floyd-Steinberg):
+
+![Flashy Gif, diffusion dither](images/AnimatedGif-flashy-diffusion.gif)
+
 Blue Noise dither:
 
-![Flashy Gif, blue noise dither](images/AnimatedGif-flashy-bluenoise.gif)
+![Flashy Gif, blue noise dither](images/AnimatedGif-flashy-blueNoise.gif)
+
+Chaotic Noise dither:
+
+![Flashy Gif, chaotic noise dither](images/AnimatedGif-flashy-chaoticNoise.gif)
+
+No dither:
+
+![Flashy Gif, no dither](images/AnimatedGif-flashy-none.gif)
 
 Pattern dither:
 
@@ -101,17 +113,21 @@ Gradient dither:
 
 ![Pastel Gif, gradient dither](images/AnimatedGif-pastel-gradient.gif)
 
-Pattern dither:
+Diffusion dither (Floyd-Steinberg):
 
-![Green Gif, pattern dither](images/AnimatedGif-green-pattern.gif)
+![Pastel Gif, diffusion dither](images/AnimatedGif-pastel-diffusion.gif)
 
-Gradient dither:
+Blue Noise dither:
 
-![Green Gif, gradient dither](images/AnimatedGif-green-gradient.gif)
+![Pastel Gif, blue noise dither](images/AnimatedGif-pastel-blueNoise.gif)
+
+Chaotic Noise dither:
+
+![Pastel Gif, chaotic noise dither](images/AnimatedGif-pastel-chaoticNoise.gif)
 
 No dither:
 
-![Green Gif, no dither](images/AnimatedGif-green-none.gif)
+![Pastel Gif, no dither](images/AnimatedGif-pastel-none.gif)
 
 Some .gif animations that reduce the colors of the first two animations shown:
 
@@ -122,6 +138,14 @@ Black and white pattern dither:
 Black and white gradient dither:
 
 ![BW Gif, gradient dither](images/AnimatedGif-bw-gradient.gif)
+
+Black and white diffusion dither (Floyd-Steinberg):
+
+![BW Gif, diffusion dither](images/AnimatedGif-bw-diffusion.gif)
+
+Black and white blue noise dither:
+
+![BW Gif, blue noise dither](images/AnimatedGif-bw-blueNoise.gif)
 
 Black and white no dither:
 
@@ -134,6 +158,14 @@ Black and white no dither:
 4-color green-scale gradient dither:
 
 ![GB Gif, gradient dither](images/AnimatedGif-gb-gradient.gif)
+
+4-color green-scale diffusion dither (Floyd-Steinberg):
+
+![GB Gif, diffusion dither](images/AnimatedGif-gb-diffusion.gif)
+
+4-color green-scale blue noise dither:
+
+![GB Gif, blue noise dither](images/AnimatedGif-gb-blueNoise.gif)
 
 And some .png animations, using full color:
 
@@ -178,9 +210,17 @@ Blue Noise:
 
 ![](images/Mona_Lisa-Gif-BlueNoise-16.gif)
 
+Chaotic Noise:
+
+![](images/Mona_Lisa-Gif-ChaoticNoise-16.gif)
+
 None (no dither):
 
 ![](images/Mona_Lisa-Gif-None-16.gif)
+
+The analysis step that PaletteReducer performs prefers the most frequent colors in the image, and the Mona Lisa has
+mostly dark gray, blue, and brown-to-flesh-tone colors. As such, the small amounts of green get forgotten when color
+count is low.
 
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
