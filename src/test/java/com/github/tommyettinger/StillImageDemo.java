@@ -52,20 +52,32 @@ public class StillImageDemo extends ApplicationAdapter {
     }
 
     public void renderPNG8(String name) {
-        PNG8 png8 = new PNG8();
-        png8.setFlipY(false);
-        Pixmap pixmap = new Pixmap(Gdx.files.classpath(name+".jpg"));
-		PaletteReducer reducer = new PaletteReducer();
-		reducer.analyze(pixmap, 200, 16);
-		png8.setPalette(reducer);
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-        // black and white
+		PNG8 png8 = new PNG8();
+		png8.setFlipY(false);
+		png8.setCompression(7);
+		Pixmap pixmap = new Pixmap(Gdx.files.classpath(name + ".jpg"));
+		// black and white
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
-        // gb palette
+		// gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
-        png8.setCompression(7);
-        png8.write(Gdx.files.local("images/"+name+"-PNG8-BlueNoise-16" /* + startTime*/ + ".png"), pixmap, false, true);
-    }
+		PaletteReducer reducer = new PaletteReducer();
+		for (int count : new int[]{3, 5, 8, 16, 32}) {
+			reducer.analyze(pixmap, 1600 / count, count);
+			png8.setPalette(reducer);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-Pattern-" + count + ".png"), pixmap, false, true);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-None-" + count + ".png"), pixmap, false, true);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-Gradient-" + count + ".png"), pixmap, false, true);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-Diffusion-" + count + ".png"), pixmap, false, true);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-BlueNoise-" + count + ".png"), pixmap, false, true);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-ChaoticNoise-" + count + ".png"), pixmap, false, true);
+		}
+	}
 
     public void renderPNG(String name) {
         PixmapIO.PNG png = new PixmapIO.PNG();
@@ -83,14 +95,22 @@ public class StillImageDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
-        reducer.analyze(pixmaps, 200, 16);
-        gif.setPalette(reducer);
-        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-        // black and white
-//        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
-        // gb palette
-//        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
-        gif.write(Gdx.files.local("images/"+name+"-Gif-BlueNoise-16"/* + startTime*/ + ".gif"), pixmaps, 1);
+		for (int count : new int[]{3, 5, 8, 16, 32}) {
+			reducer.analyze(pixmaps, 1600 / count, count);
+			gif.setPalette(reducer);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-Pattern-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-None-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-Gradient-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-Diffusion-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-BlueNoise-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
+		}
     }
 
 	public static void main(String[] args) {
