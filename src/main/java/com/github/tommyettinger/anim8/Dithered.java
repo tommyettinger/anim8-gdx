@@ -94,6 +94,13 @@ public interface Dithered {
          * white noise texture because blue noise has no low frequencies in any direction, while white noise has all
          * frequencies in equal measure. This has been optimized for quality on animations more so than on still images.
          */
-        BLUE_NOISE
+        BLUE_NOISE,
+        /**
+         * Very similar to {@link #BLUE_NOISE} for a still frame, albeit less orderly, but in an animation this will
+         * change wildly from frame to frame, taking an ordered dither and incorporating one of the qualities of an
+         * error-diffusion dither to make each frame dither differently. This can look very good for moving images, but
+         * it is, true to its name, quite chaotic.
+         */
+        CHAOTIC_NOISE
     }
 }

@@ -408,6 +408,39 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             case BLUE_NOISE: { 
                 float adj, strength = palette.ditherStrength;
+                byte bn;
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    for (int px = 0; px < width & i < nPix; px++) {
+                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            color |= (color >>> 5 & 0x07070700) | 0xFF;
+                            int rr = ((color >>> 24)       );
+                            int gg = ((color >>> 16) & 0xFF);
+                            int bb = ((color >>> 8)  & 0xFF);
+                            used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))] & 0xFF];
+                            bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
+                            adj = ((bn + 0.5f) * 0.007843138f);
+                            adj *= adj * adj * strength;
+                            adj += ((px + y & 1 & bn) - 0.5f) + (-0.5f - bn) * 0x1.0p-7f;
+//((y * 0xF7C2EBC08F67F2B5L + 0xC6BC279692B5CC83L >> 56) - (px * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL >> 56))
+                            rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
+                            gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
+                            bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
+                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))]) & 255] = true;
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
+            case CHAOTIC_NOISE: { 
+                float adj, strength = palette.ditherStrength;
                 long s = 0xC13FA9A902A6328FL;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
@@ -435,7 +468,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             adj += ((px + y & 1) - 0.5f) * 0x1.2p-50f * 
                                     (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 13) + 
                                             ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 13) + 
-                                            (((s ^ color) * 0xD1342543DE82EF95L) + 0x91E10DA5C79E7B1DL >> 13));
+                                            ((s ^ color) * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL >> 13));
                             rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
                             bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);

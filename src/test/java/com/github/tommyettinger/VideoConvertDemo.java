@@ -30,7 +30,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 //		renderPNG8();
         renderVideoGif();
-//        renderPixelGif();
+        renderPixelGif();
         Gdx.app.exit();
     }
 
@@ -105,6 +105,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
         gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
         gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
+        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+        gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
     }
 
     public void renderPixelGif() {
@@ -136,6 +138,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 12);
         gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
         gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 12);
+        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+        gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 12);
     }
 
 	public static void main(String[] args) {
