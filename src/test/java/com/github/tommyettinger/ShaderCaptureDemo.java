@@ -122,11 +122,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
         batch.setShader(shader);
 
-        long state = -1L; // pastel
-//        long state = 0x123456789L; // flashy, bw, gb
+//        long state = -1L; // pastel
+        long state = 0x123456789L; // flashy, bw, gb
 //        long state = 0x1234567890L; // green
         
-        name = "pastel";
+        name = "flashy";
         
         // SquidLib's DiverRNG.randomize()
         seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;

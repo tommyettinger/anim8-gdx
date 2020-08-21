@@ -353,7 +353,7 @@ public class PaletteReducer {
         return //Math.sqrt
                  (RGB_POWERS[Math.abs((color1 >>> 24) - (color2 >>> 24))]
                 + RGB_POWERS[Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF))]
-                + RGB_POWERS[Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-8;
+                + RGB_POWERS[Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-5;
     }
 
 
@@ -372,7 +372,7 @@ public class PaletteReducer {
         return //Math.sqrt
                  (RGB_POWERS[Math.abs((color1 >>> 24) - r2)]
                 + RGB_POWERS[Math.abs((color1 >>> 16 & 0xFF) - g2)]
-                + RGB_POWERS[Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-8;
+                + RGB_POWERS[Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-5;
     }
 
     /**
@@ -391,7 +391,7 @@ public class PaletteReducer {
         return //Math.sqrt
                  (RGB_POWERS[Math.abs(r1 - r2)]
                 + RGB_POWERS[Math.abs(g1 - g2)]
-                + RGB_POWERS[Math.abs(b1 - b2)]) * 0x1p-8;
+                + RGB_POWERS[Math.abs(b1 - b2)]) * 0x1p-5;
     }
 
     /**
