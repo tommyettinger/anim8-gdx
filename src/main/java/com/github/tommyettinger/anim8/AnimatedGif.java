@@ -299,6 +299,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         indexedPixels = null;
         colorTab = null;
         closeStream = false;
+        sizeSet = false;
         firstFrame = true;
 
         return ok;
