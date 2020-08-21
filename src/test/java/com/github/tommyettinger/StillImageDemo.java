@@ -61,8 +61,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		// gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
 		PaletteReducer reducer = new PaletteReducer();
-		for (int count : new int[]{3, 5, 8, 16, 32}) {
-			reducer.analyze(pixmap, 2000 / count, count);
+		for (int count : new int[]{3, 5, 8, 16, 32, 64}) {
+			reducer.analyze(pixmap, 400, count);
 			png8.setPalette(reducer);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-Pattern-" + count + ".png"), pixmap, false, true);
@@ -95,8 +95,8 @@ public class StillImageDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
-		for (int count : new int[]{3, 5, 8, 16, 32}) {
-			reducer.analyze(pixmaps, 2000 / count, count);
+		for (int count : new int[]{3, 5, 8, 16, 32, 64}) {
+			reducer.analyze(pixmaps, 400, count);
 			gif.setPalette(reducer);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
 			gif.write(Gdx.files.local("images/" + name + "-Gif-Pattern-" + count + ".gif"), pixmaps, 1);
