@@ -425,7 +425,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                     | ((bb >>> 3))] & 0xFF];
                             bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
                             adj = ((bn + 0.5f) * 0.007843138f);
-                            adj *= adj * adj * strength;
+                            adj *= adj * adj;
                             adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1.Cp-6f * strength;
                             rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);

@@ -709,38 +709,17 @@ public class PaletteReducer {
             }
         } else // reduce color count
         {
-            int i = 1, hueBand = 2, c;
-            int[] hueBuckets = new int[limit + 11 >>> 1];
-            int bucketSize = hueBuckets.length - 2;
-            cs = Math.min(counts.size, Math.max(limit, cs >>> 1));
-
-            for (; i < limit && hueBand <= 0x100;) {
-                c = 0;
-                for (; i < limit && c < cs; ) {
-                    color = es.get(c++).key;
-                    int shrunk = (color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F);
-                    double luma = LAB[0][shrunk];
-                    if (++hueBuckets[luma < 16.0 ? 0 : luma > 90.0 ? 1 : (int) (HUE[shrunk] * bucketSize) + 2] > hueBand) continue;
-                    paletteArray[i] = color;
-                    paletteMapping[shrunk] = (byte) i;
-                    i++;
+            int i = 1, c = 0;
+            PER_BEST:
+            for (; i < limit && c < cs;) {
+                color = es.get(c++).key;
+                for (int j = 1; j < i; j++) {
+                    if (difference(color, paletteArray[j]) < threshold)
+                        continue PER_BEST;
                 }
-                hueBand <<= 1;
-            }
-            if(i < limit){
-                c = 0;
-                PER_BEST:
-                for (; i < limit && c < cs; ) {
-                    color = es.get(c++).key;
-                    for (int j = 1; j < i; j++) {
-                        if (difference(color, paletteArray[j]) < threshold)
-                            continue PER_BEST;
-                    }
-                    paletteArray[i] = color;
-                    paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-                    i++;
-                }
-
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                i++;
             }
         }
         int c2;
@@ -1261,10 +1240,10 @@ public class PaletteReducer {
     }
 
     /**
-     * A different kind of blue-noise-based dither; does not diffuse error, and uses a non-repeating blue noise pattern
-     * (it can be accessed with {@link #RAW_BLUE_NOISE}, but shouldn't usually be modified) as well as a quasi-random
-     * pattern, but only applies these noisy patterns when there's error matching a color from the image to a color in
-     * the palette.
+     * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
+     * with {@link #RAW_BLUE_NOISE}, but shouldn't usually be modified) as well as a fine-grained checkerboard pattern,
+     * but only applies these noisy patterns when there's error matching a color from the image to a color in th
+     * palette.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
@@ -1273,7 +1252,7 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used;
+        int color, used, bn;
         float adj, strength = ditherStrength;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
@@ -1288,10 +1267,10 @@ public class PaletteReducer {
                     used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF];
-                    adj = ((RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
-                    adj *= adj * adj * strength;
-                    //// long constants are from R2 sequence by Martin Roberts; they randomize values by position.
-                    adj += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 58) * 0x1p-5f - 1f;
+                    bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
+                    adj = ((bn + 0.5f) * 0.007843138f);
+                    adj *= adj * adj;
+                    adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1.Cp-6f * strength;
                     rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
                     gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
                     bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
