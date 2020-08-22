@@ -25,22 +25,37 @@ import java.util.Random;
  * constructor that uses them, you can use a specific dithering algorithm to reduce a Pixmap to the current palette.
  * Dithering algorithms that this supports:
  * <ul>
- *     <li>TOP TIER</li>
+ *     <li>TOP TIER
+ *     <ul>
  *     <li>{@link #reduceFloydSteinberg(Pixmap)} (Floyd-Steinberg is a very common error-diffusion dither; it's
- *     excellent for still images and large palette sizes, but not animations.)</li>
- *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
- *     the amount of color correction applied to each mismatched pixel; also uses a quasi-random pattern.)</li>
+ *     excellent for still images and large palette sizes, but not animations. It is great for preserving shape, but
+ *     when a color isn't in the palette and it needs to try to match it, Floyd-Steinberg can leave artifacts.)</li>
  *     <li>{@link #reduceJimenez(Pixmap)} (This is a modified version of Gradient Interleaved Noise by Jorge Jimenez;
- *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks.)</li>
+ *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks. It does quite well
+ *     on some animations and on smooth or rounded shapes.)</li>
  *     <li>{@link #reduceKnollRoberts(Pixmap)} (This is a modified version of Thomas Knoll's Pattern Dithering; it skews
- *     a grid-based ordered dither and also does a small amount of gamma correction, so lightness may change.)</li>
- *     <li>OTHER TIER</li>
+ *     a grid-based ordered dither and also does a small amount of gamma correction, so lightness may change. It
+ *     preserves shape extremely well, but is almost never faithful to the original colors.)</li>
+ *     <li>{@link #reduceChaoticNoise(Pixmap)} (Uses blue noise and pseudo-random white noise, with a carefully chosen
+ *     distribution, to disturb what would otherwise be flat bands. This does introduce chaotic or static-looking
+ *     pixels, but with larger palettes they won't be far from the original.)</li>
+ *     </ul>
+ *     </li>
+ *     <li>OTHER TIER
+ *     <ul>
+ *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
+ *     the amount of color correction applied to each mismatched pixel; also uses a quasi-random pattern. This may not
+ *     add enough disruption to some images, which leads to a flat-looking result.)</li>
  *     <li>{@link #reduceSierraLite(Pixmap)} (Like Floyd-Steinberg, Sierra Lite is an error-diffusion dither, and it
- *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small.)</li>
+ *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small. If
+ *     Floyd-Steinberg has unexpected artifacts, you can try Sierra Lite, and it may avoid those issues.)</li>
  *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim except for the
- *     inclusion of some gamma correction; this version has a heavy grid pattern that looks like an artifact.)</li>
+ *     inclusion of some gamma correction; this version has a heavy grid pattern that looks like an artifact. The skew
+ *     applied to Knoll-Roberts gives it a more subtle triangular grid, while the square grid here is a bit bad.)</li>
  *     <li>{@link #reduceSolid(Pixmap)} (No dither! Solid colors! Mostly useful when you want to preserve blocky parts
  *     of a source image, or for some kinds of pixel/low-color art.)</li>
+ *     </ul>
+ *     </li>
  * </ul>
  * <p>
  * Created by Tommy Ettinger on 6/23/2018.
@@ -1242,7 +1257,7 @@ public class PaletteReducer {
     /**
      * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
      * with {@link #RAW_BLUE_NOISE}, but shouldn't usually be modified) as well as a fine-grained checkerboard pattern,
-     * but only applies these noisy patterns when there's error matching a color from the image to a color in th
+     * but only applies these noisy patterns when there's error matching a color from the image to a color in the
      * palette.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
@@ -1284,6 +1299,62 @@ public class PaletteReducer {
         return pixmap;
     }
 
+
+    /**
+     * A white-noise-based dither; uses the colors encountered so far during dithering as a sort of state for basic
+     * pseudo-random number generation, while also using some blue noise from a tiling texture to offset clumping.
+     * This tends to be less "flat" than {@link #reduceBlueNoise(Pixmap)}, permitting more pixels to be different from
+     * what {@link #reduceSolid(Pixmap)} would produce, but this generally looks good, especially with larger palettes.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceChaoticNoise (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used;
+        float adj, strength = ditherStrength;
+        long s = 0xC13FA9A902A6328FL;
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y) & 0xF8F8F880;
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    color |= (color >>> 5 & 0x07070700) | 0xFE;
+                    int rr = ((color >>> 24)       );
+                    int gg = ((color >>> 16) & 0xFF);
+                    int bb = ((color >>> 8)  & 0xFF);
+                    used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF];
+                    adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                    adj *= adj * adj * strength;
+                    s += color;
+                    //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
+                    //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
+                    ////   different as long as the colors encountered so far were different. The numbers can
+                    ////   each be positive or negative, and are reduced to a manageable size, summed, and
+                    ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
+                    ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
+                    ////   Two of the random numbers use an XLCG, and the last uses an LCG. 
+                    adj += ((px + y & 1) - 0.5f) * 0x1.2p-50f *
+                            (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 13) +
+                                    ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 13) +
+                                    ((s ^ color) * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL >> 13));
+                    rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
+                    gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
+                    bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
+                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
 
     /**
      * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
