@@ -1154,8 +1154,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             int color, used;
 
             byte paletteIndex;
-            float adj;
-            final float strength = palette.ditherStrength;
+            double adj;
+            final double strength = palette.ditherStrength;
             int bn;
             long s = 0xC13FA9A902A6328FL;
             for (int y = 0; y < h; y++) {
@@ -1174,10 +1174,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))];
                         used = paletteArray[paletteIndex & 0xFF];
-                        bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
-                        adj = ((bn + 0.5f) * 0.007843138f);
-                        adj *= adj * adj * strength;
-                        s += color;
+                        adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                        adj *= adj * adj;
+                        s += px - y;
                         //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
                         //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
                         ////   different as long as the colors encountered so far were different. The numbers can
@@ -1185,10 +1184,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
                         ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
                         ////   Two of the random numbers use an XLCG, and the last uses an LCG. 
-                        adj += ((px + y & 1) - 0.5f) * 0x1.2p-50f *
-                                (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 13) +
-                                        ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 13) +
-                                        ((s ^ color) * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL >> 13));
+                        adj += ((px + y & 1) - 0.5f) * 0x1p-51f * strength *
+                                (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
+                                        ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
+                                        ((s = s * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL ^ color) >> 15));
                         rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                         gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                         bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);
@@ -2155,8 +2154,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = width;
 
             byte paletteIndex;
-            float adj;
-            final float strength = palette.ditherStrength;
+            double adj;
+            final double strength = palette.ditherStrength;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2194,7 +2193,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         prevLine[ln] = 0;
                 }
                 lastLineLen = width;
-                int bn;
                 long s = 0xC13FA9A902A6328FL;
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
@@ -2212,10 +2210,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))];
                             used = paletteArray[paletteIndex & 0xFF];
-                            bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
-                            adj = ((bn + 0.5f) * 0.007843138f);
-                            adj *= adj * adj * strength;
-                            s += color;
+                            adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                            adj *= adj * adj;
+                            s += px - y;
                             //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
                             //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
                             ////   different as long as the colors encountered so far were different. The numbers can
@@ -2223,10 +2220,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
                             ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
                             ////   Two of the random numbers use an XLCG, and the last uses an LCG. 
-                            adj += ((px + y & 1) - 0.5f) * 0x1.2p-50f *
-                                    (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 13) +
-                                            ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 13) +
-                                            ((s ^ color) * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL >> 13));
+                            adj += ((px + y & 1) - 0.5f) * 0x1p-51f * strength *
+                                    (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
+                                            ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
+                                            ((s = s * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL ^ color) >> 15));
                             rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                             bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);
