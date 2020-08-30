@@ -268,8 +268,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 case GRADIENT_NOISE:
                     writeGradientDithered(output, pixmap);
                     break;
-                case BLUE_NOISE:
-                    writeBlueNoiseDithered(output, pixmap);
+                case PATTERN:
+                    writePatternDithered(output, pixmap);
                     break;
                 case CHAOTIC_NOISE:
                     writeChaoticNoiseDithered(output, pixmap);
@@ -277,9 +277,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 case DIFFUSION:
                     writeDiffusionDithered(output, pixmap);
                     break;
-                case PATTERN:
                 default:
-                    writePatternDithered(output, pixmap);
+                case BLUE_NOISE:
+                    writeBlueNoiseDithered(output, pixmap);
             }
         }
         else writeSolid(output, pixmap);
@@ -1768,8 +1768,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case GRADIENT_NOISE:
                 writeGradientDithered(output, frames, fps);
                 break;
-            case BLUE_NOISE:
-                writeBlueNoiseDithered(output, frames, fps);
+            case PATTERN:
+                writePatternDithered(output, frames, fps);
                 break;
             case CHAOTIC_NOISE:
                 writeChaoticNoiseDithered(output, frames, fps);
@@ -1777,9 +1777,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case DIFFUSION:
                 writeDiffusionDithered(output, frames, fps);
                 break;
-            case PATTERN:
+            case BLUE_NOISE:
             default:
-                writePatternDithered(output, frames, fps);
+                writeBlueNoiseDithered(output, frames, fps);
         }
     }
 

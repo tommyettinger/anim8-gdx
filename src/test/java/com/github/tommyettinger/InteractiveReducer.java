@@ -152,6 +152,10 @@ public class InteractiveReducer extends ApplicationAdapter {
                         reducer.exact(palette);
                         refresh();
                         break;
+                    case Input.Keys.D:
+                        reducer.setDefaultPalette();
+                        refresh();
+                        break;
                     case Input.Keys.LEFT:
                     case Input.Keys.LEFT_BRACKET:
                         index = index - 1 & 7;

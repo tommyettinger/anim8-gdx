@@ -407,33 +407,43 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
             break;
-            case BLUE_NOISE: { 
-                float adj, strength = palette.ditherStrength;
-                int bn;
+            case PATTERN:
+            {
+                int cr, cg, cb,  usedIndex;
+                final float errorMul = palette.ditherStrength * 0.3f;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
+                            int er = 0, eg = 0, eb = 0;
                             color |= (color >>> 5 & 0x07070700) | 0xFF;
-                            int rr = ((color >>> 24)       );
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8)  & 0xFF);
-                            used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))] & 0xFF];
-                            bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
-                            adj = ((bn + 0.5f) * 0.007843138f);
-                            adj *= adj * adj;
-                            adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1.8p-8f * strength;
-                            rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
-                            gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
-                            bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
-                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))]) & 255] = true;
+                            cr = (color >>> 24);
+                            cg = (color >>> 16 & 0xFF);
+                            cb = (color >>> 8 & 0xFF);
+                            for (int c = 0; c < palette.candidates.length; c++) {
+                                int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
+                                int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
+                                int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
+                                usedIndex = paletteMapping[((rr << 7) & 0x7C00)
+                                        | ((gg << 2) & 0x3E0)
+                                        | ((bb >>> 3))] & 0xFF;
+                                palette.candidates[c] = paletteArray[usedIndex];
+                                used = palette.gammaArray[usedIndex];
+                                er += cr - (used >>> 24);
+                                eg += cg - (used >>> 16 & 0xFF);
+                                eb += cb - (used >>> 8 & 0xFF);
+                            }
+                            palette.sort16(palette.candidates);
+                            usedEntry[(indexedPixels[i] = paletteMapping[
+                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix[
+                                            ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
+                                                    ((px & 3) | (y & 3) << 2)
+                                            ]])
+                                    ]) & 255] = true;
                             i++;
+
                         }
                     }
                 }
@@ -600,48 +610,40 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
             break;
-            case PATTERN:
-            default: {
-                int cr, cg, cb,  usedIndex;
-                final float errorMul = palette.ditherStrength * 0.3f;
+            default:
+            case BLUE_NOISE: {
+                float adj, strength = palette.ditherStrength;
+                int bn;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            int er = 0, eg = 0, eb = 0;
                             color |= (color >>> 5 & 0x07070700) | 0xFF;
-                            cr = (color >>> 24);
-                            cg = (color >>> 16 & 0xFF);
-                            cb = (color >>> 8 & 0xFF);
-                            for (int c = 0; c < palette.candidates.length; c++) {
-                                int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
-                                int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
-                                int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
-                                usedIndex = paletteMapping[((rr << 7) & 0x7C00)
-                                        | ((gg << 2) & 0x3E0)
-                                        | ((bb >>> 3))] & 0xFF;
-                                palette.candidates[c] = paletteArray[usedIndex];
-                                used = palette.gammaArray[usedIndex];
-                                er += cr - (used >>> 24);
-                                eg += cg - (used >>> 16 & 0xFF);
-                                eb += cb - (used >>> 8 & 0xFF);
-                            }
-                            palette.sort16(palette.candidates);
-                            usedEntry[(indexedPixels[i] = paletteMapping[
-                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix[
-                                            ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
-                                                    ((px & 3) | (y & 3) << 2)
-                                            ]])
-                                    ]) & 255] = true;
+                            int rr = ((color >>> 24)       );
+                            int gg = ((color >>> 16) & 0xFF);
+                            int bb = ((color >>> 8)  & 0xFF);
+                            used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))] & 0xFF];
+                            bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
+                            adj = ((bn + 0.5f) * 0.007843138f);
+                            adj *= adj * adj;
+                            adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1.8p-8f * strength;
+                            rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
+                            gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
+                            bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
+                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))]) & 255] = true;
                             i++;
-
                         }
                     }
                 }
             }
             break;
+
         }
         colorDepth = 8;
         palSize = 7;

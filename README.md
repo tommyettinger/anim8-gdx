@@ -24,7 +24,7 @@ public void writeGif() {
     }
     // AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from
     // the given pixmaps and use that for all frames, dithering any colors that don't match.
-    // see Quirks below for visual things to be aware of and choices you can take.
+    // see Dithering Algorithms below for visual things to be aware of and choices you can take.
     AnimatedGif gif = new AnimatedGif();
     // you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
     // here, pixmaps is usually an Array of Pixmap for any of the animated image types.
@@ -42,7 +42,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX
-  api "com.github.tommyettinger:anim8-gdx:0.1.8"
+  api "com.github.tommyettinger:anim8-gdx:0.1.9"
 }
 ```
 
@@ -50,33 +50,41 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.1.8:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.1.9:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
 ``<inherits name="anim8" />
 ```
 
-# Quirks
-The default dithering algorithm used here is a variant on Thomas Knoll's pattern dither, which has been out-of-patent
-since November 2019. Used verbatim, pattern dither forms a square grid of lighter or darker pixels where a color isn't
-matched exactly. The first change here affects **Quirk Number One**: with pattern dither, some diagonal streaks may
-appear due to how the square grid has been skewed to obscure that artifact. The second change relates to **Quirk Number
-Two**: some partial gamma correction seems to significantly reduce the appearance of coarse dithering artifacts, but
-also tends to bias the lightness balance toward brighter colors, sometimes partly washing out some details. You can set
-the dithering algorithm to an alternative ordered dither, a variant on Jorge Jimenez' Gradient Interleaved Noise, using:
-`setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE)`. This still has some diagonal lines that appear in it, but
-they aren't usually as noticeable; there is however **Quirk Number Three**: with gradient noise dither, some smooth
-gradients in the source image have rough sections where they move briefly away from the right color before correcting
-their path. This has been improved in 0.1.5, by changing how color difference is calculated, but there are still some
-noticeable flaws in the smooth parts of some images. Gradient noise dither also tends to be, well, noisier. There's also
-the `Dithered.DitherAlgorithm.NONE` algorithm, but it's only reasonable for some art styles that don't look good with
-any dither. Using pattern dither can also be a little slow if you are writing many large images or long animations;
-gradient noise dither is much faster, and not using dither offers no real performance boost over gradient noise. If you
-aren't writing an animation, you can get good results with the `Dithered.DitherAlgorithm.DIFFUSION` algorithm. This
-uses Floyd-Steinberg dithering and preserves lightness while accurately matching shape, but has **Quirk Number Four**,
-that it causes pixels to jitter between frames of an animation due to tiny changes propagating throughout the image.
-The `DIFFUSION` algorithm has been added in version 0.1.6, coinciding with an update to libGDX 1.9.11. 
+# Dithering Algorithms
+You have a choice between several dithering algorithms if you write to GIF or PNG8; you can also avoid choosing one
+entirely by using AnimatedPNG (it can use full color) or libGDX's PixmapIO.PNG (which isn't animated and has a slightly
+different API).
+
+  - NONE
+    - No dither. Solid blocks of color only. Often looks bad unless the original image had few colors.
+  - GRADIENT_NOISE
+    - A solid choice of an ordered dither, though it may have visible artifacts in the form of zig-zag diagonal lines.
+    - A variant on Jorge Jimenez' Gradient Interleaved Noise.
+  - PATTERN
+    - A more traditional ordered dither that's been skewed, so it doesn't have square artifacts.
+    - Doesn't preserve lightness very well, but is very good at preserving shape.
+    - A variant on Thomas Knoll's Pattern Dither, which is out-of-patent.
+  - DIFFUSION
+    - This is Floyd-Steinberg error-diffusion dithering.
+    - It tends to look very good in still images, and very bad in animations.
+  - BLUE_NOISE
+    - Not the typical blue-noise dither; this incorporates a checkerboard pattern as well as a 64x64 blue noise texture.
+    - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise.
+    - This is the default and often the best of the bunch.
+  - CHAOTIC_NOISE
+    - Like BLUE_NOISE, but it will dither different frames differently, and can look somewhat more chaotic.
+    
+You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
+there's no effect. For BLUE_NOISE and CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither
+strength to close to 0 will approach the appearance of NONE, while setting it close to 1.0 (or higher) will make the
+dither much stronger and may make the image less legible.
 
 # Samples
 Some .gif animations, using 255 colors taken from the most-used in the animation:
