@@ -88,7 +88,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
         //// BW
-        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+//        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
@@ -121,7 +121,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
         //// BW
-        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+//        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 

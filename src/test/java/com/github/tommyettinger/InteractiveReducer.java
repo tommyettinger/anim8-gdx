@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.github.tommyettinger.anim8.PNG8;
@@ -26,6 +27,7 @@ public class InteractiveReducer extends ApplicationAdapter {
     private int[] palette;
     private Pixmap p0;
     private int index = 1;
+    private float strength = 0.5f;
 
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -87,7 +89,7 @@ public class InteractiveReducer extends ApplicationAdapter {
         palette = new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF};
  
         reducer = new PaletteReducer(palette);
-        reducer.setDitherStrength(0.5f);
+        reducer.setDitherStrength(strength);
         png8 = new PNG8();
         png8.palette = reducer;
         png8.setFlipY(false);
@@ -158,6 +160,14 @@ public class InteractiveReducer extends ApplicationAdapter {
                     case Input.Keys.RIGHT:
                     case Input.Keys.RIGHT_BRACKET:
                         index = index + 1 & 7;
+                        refresh();
+                        break;
+                    case Input.Keys.UP:
+                        reducer.setDitherStrength(strength = MathUtils.clamp(strength + 0.05f, 0f, 1f));
+                        refresh();
+                        break;
+                    case Input.Keys.DOWN:
+                        reducer.setDitherStrength(strength = MathUtils.clamp(strength - 0.05f, 0f, 1f));
                         refresh();
                         break;
                     case Input.Keys.Q:
