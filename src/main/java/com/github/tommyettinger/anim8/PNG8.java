@@ -1026,7 +1026,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             float adj;
-            final float strength = palette.ditherStrength;
+            final float strength = palette.ditherStrength * 3f;
             int bn;
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
@@ -1045,7 +1045,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (py & 63) << 6];
                         adj = ((bn + 0.5f) * 0.007843138f);
                         adj *= adj * adj;
-                        adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1.8p-8f * strength;
+                        adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1p-8f;
+                        adj *= strength;
                         rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                         gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                         bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);
@@ -1994,7 +1995,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte paletteIndex;
             float adj;
-            final float strength = palette.ditherStrength;
+            final float strength = palette.ditherStrength * 3f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2053,7 +2054,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                     RAW_BLUE_NOISE[(px & 63) | (py & 63) << 6];
                             adj = ((bn + 0.5f) * 0.007843138f);
                             adj *= adj * adj;
-                            adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1.8p-8f * strength;
+                            adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1p-8f;
+                            adj *= strength;
                             rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                             bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);

@@ -612,7 +612,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             default:
             case BLUE_NOISE: {
-                float adj, strength = palette.ditherStrength;
+                float adj, strength = palette.ditherStrength * 3f;
                 int bn;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
@@ -630,7 +630,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6];
                             adj = ((bn + 0.5f) * 0.007843138f);
                             adj *= adj * adj;
-                            adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1.8p-8f * strength;
+                            adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1p-8f;
+                            adj *= strength;
                             rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
                             bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);

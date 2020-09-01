@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.github.tommyettinger.anim8.PNG8;
@@ -28,7 +27,6 @@ public class InteractiveReducer extends ApplicationAdapter {
     private Pixmap p0;
     private int index = 1;
     private float strength = 0.5f;
-    private byte[] blueNoiseBackup = new byte[0x1000];
 
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -85,7 +83,6 @@ public class InteractiveReducer extends ApplicationAdapter {
 
     @Override
     public void create() {
-        System.arraycopy(PaletteReducer.RAW_BLUE_NOISE, 0, blueNoiseBackup, 0, 0x1000);
         font = new BitmapFont();
         batch = new SpriteBatch();
         palette = new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF};
@@ -169,23 +166,11 @@ public class InteractiveReducer extends ApplicationAdapter {
                         refresh();
                         break;
                     case Input.Keys.UP:
-                        reducer.setDitherStrength(strength = MathUtils.clamp(strength + 0.05f, 0f, 1f));
+                        reducer.setDitherStrength(strength = Math.min(strength + 0.05f, 2f));
                         refresh();
                         break;
                     case Input.Keys.DOWN:
-                        reducer.setDitherStrength(strength = MathUtils.clamp(strength - 0.05f, 0f, 1f));
-                        refresh();
-                        break;
-                    case Input.Keys.NUM_1:
-                        System.arraycopy(blueNoiseBackup, 0, PaletteReducer.RAW_BLUE_NOISE, 0, 0x1000);
-                        refresh();
-                        break;
-                    case Input.Keys.NUM_2:
-                        System.arraycopy(PaletteReducer.TRI_BLUE_NOISE, 0, PaletteReducer.RAW_BLUE_NOISE, 0, 0x1000);
-                        refresh();
-                        break;
-                    case Input.Keys.NUM_3:
-                        System.arraycopy(PaletteReducer.MAPPED_TRI_BLUE_NOISE, 0, PaletteReducer.RAW_BLUE_NOISE, 0, 0x1000);
+                        reducer.setDitherStrength(strength = Math.max(strength - 0.05f, 0f));
                         refresh();
                         break;
                     case Input.Keys.Q:
