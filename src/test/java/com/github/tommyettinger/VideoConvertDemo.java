@@ -61,19 +61,21 @@ public class VideoConvertDemo extends ApplicationAdapter {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
         PNG8 png8 = new PNG8();
-        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF});
-        png8.setFlipY(false);
+        String namePalette = name + "-analyzed";
+        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW"; png8.setFlipY(false);
         png8.setCompression(7);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + name + "-BW-None.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-None.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + name + "-BW-Diffusion.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-Diffusion.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + name + "-BW-Pattern.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + name + "-BW-GradientNoise.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-GradientNoise.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + name + "-BW-BlueNoise.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-ChaoticNoise.png"), pixmaps, 20);
     }
 
     public void renderVideoGif() {
@@ -88,7 +90,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
         //// BW
-//        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
@@ -121,7 +123,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
         //// BW
-//        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
