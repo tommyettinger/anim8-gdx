@@ -143,11 +143,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                         load("Pixel_Art.png");
                         break;
                     case Input.Keys.A:
-                        reducer.analyze(p0, 200, 64);
-                        refresh();
-                        break;
-                    case Input.Keys.X:
-                        reducer.maximin(p0, 64);
+                        reducer.analyze(p0, 200);
                         refresh();
                         break;
                     case Input.Keys.NUM_1:

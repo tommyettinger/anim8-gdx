@@ -4,7 +4,10 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ByteArray;
+import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.NumberUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -739,89 +742,6 @@ public class PaletteReducer {
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
                 i++;
-            }
-        }
-        int c2;
-        int rr, gg, bb;
-        double dist;
-        for (int r = 0; r < 32; r++) {
-            rr = (r << 3 | r >>> 2);
-            for (int g = 0; g < 32; g++) {
-                gg = (g << 3 | g >>> 2);
-                for (int b = 0; b < 32; b++) {
-                    c2 = r << 10 | g << 5 | b;
-                    if (paletteMapping[c2] == 0) {
-                        bb = (b << 3 | b >>> 2);
-                        dist = Double.POSITIVE_INFINITY;
-                        for (int i = 1; i < limit; i++) {
-                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
-                                paletteMapping[c2] = (byte) i;
-                        }
-                    }
-                }
-            }
-        }
-        calculateGamma();
-    }
-
-    /**
-     * Don't use this; it's much slower than {@link #analyze(Pixmap, int, int)} and usually yields worse results.
-     * This should be coupled with a clustering stage, as in <a href="https://faculty.uca.edu/ecelebi/documents/JRTIP_2020.pdf">M. Emre Celebi's paper</a>,
-     * but I didn't do that here, and the maximin stage alone is miserably slow for larger images.
-     * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8/AnimatedGif
-     * @param limit     the maximum number of colors to allow in the resulting palette; cannot be more than 256
-     */
-    public void maximin(Pixmap pixmap, int limit) {
-        Arrays.fill(paletteArray, 0);
-        Arrays.fill(paletteMapping, (byte) 0);
-        int color;
-        limit = Math.max(2, Math.min(256, limit));
-        final int width = pixmap.getWidth(), height = pixmap.getHeight();
-        int hasTransparent = 0;
-        IntSet counts = new IntSet(width * height >>> 1);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                color = pixmap.getPixel(x, y);
-                if ((color & 0x80) != 0) {
-                    counts.add(color | 0xFF);
-                } else {
-                    hasTransparent = 1;
-                }
-            }
-        }
-        int cs = counts.size;
-        if(hasTransparent + cs > limit && counts.notEmpty()) {
-            int[] centers = new int[limit];
-            double[] distances = new double[width * height];
-            Arrays.fill(distances, Double.POSITIVE_INFINITY);
-            int best = centers[hasTransparent] = counts.first();
-            for (int k = hasTransparent + 1; k < limit; k++) {
-                double dMax = Double.NEGATIVE_INFINITY, current;
-                int prev = centers[k-1];
-                for (int y = 0, yw = 0; y < height; y++, yw += width) {
-                    for (int x = 0; x < width; x++) {
-                        color = pixmap.getPixel(x, y);
-                        if ((color & 0x80) != 0 && (current = difference(color, prev)) < distances[x + yw]) {
-                            distances[x + yw] = current;
-                            if(dMax != (dMax = Math.max(dMax, current)))
-                                best = color;
-                        }
-                    }
-                }
-                centers[k] = best; 
-            }
-            for (int i = hasTransparent; i < limit; i++) {
-                paletteArray[i] = color = centers[i];
-                paletteMapping[shrink(color)] = (byte) i;
-            }
-        }
-        else  {
-            int i = hasTransparent;
-            IntSet.IntSetIterator it = counts.iterator();
-            while (it.hasNext) {
-                color = it.next();
-                paletteArray[i] = color;
-                paletteMapping[shrink(color)] = (byte) i++;
             }
         }
         int c2;
