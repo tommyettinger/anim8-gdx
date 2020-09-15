@@ -26,7 +26,7 @@ public class InteractiveReducer extends ApplicationAdapter {
     private int[] palette;
     private Pixmap p0;
     private int index = 1;
-    private float strength = 0.5f;
+    private float strength = 1f;
 
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -34,7 +34,7 @@ public class InteractiveReducer extends ApplicationAdapter {
         config.setWindowedMode(SCREEN_WIDTH, SCREEN_HEIGHT);
         config.setIdleFPS(10);
         config.useVsync(true);
-        config.setResizable(false);
+        config.setResizable(true);
         final InteractiveReducer app = new InteractiveReducer();
         config.setWindowListener(new Lwjgl3WindowAdapter() {
             @Override
@@ -59,26 +59,26 @@ public class InteractiveReducer extends ApplicationAdapter {
     }
     
     public void refresh(){
-        Pixmap p0 = new Pixmap(this.p0.getWidth(), this.p0.getHeight(), Pixmap.Format.RGBA8888);
-        p0.drawPixmap(this.p0, 0, 0);
+        Pixmap p = new Pixmap(this.p0.getWidth(), this.p0.getHeight(), Pixmap.Format.RGBA8888);
+        p.drawPixmap(this.p0, 0, 0);
         switch (index) {
-            case 0: reducer.reduceSolid(p0);
+            case 0: reducer.reduceSolid(p);
                 break;
-            case 1: reducer.reduceBlueNoise(p0);
+            case 1: reducer.reduceBlueNoise(p);
                 break;
-            case 2: reducer.reduceChaoticNoise(p0);
+            case 2: reducer.reduceChaoticNoise(p);
                 break;
-            case 3: reducer.reduceJimenez(p0);
+            case 3: reducer.reduceJimenez(p);
                 break;
-            case 4: reducer.reduceKnollRoberts(p0);
+            case 4: reducer.reduceKnollRoberts(p);
                 break;
-            case 5: reducer.reduceKnoll(p0);
+            case 5: reducer.reduceKnoll(p);
                 break;
-            case 6: reducer.reduceSierraLite(p0);
+            case 6: reducer.reduceSierraLite(p);
                 break;
-            default: reducer.reduceFloydSteinberg(p0);
+            default: reducer.reduceFloydSteinberg(p);
         }
-        screenTexture = new Texture(p0);
+        screenTexture = new Texture(p);
     }
 
     @Override
@@ -93,8 +93,7 @@ public class InteractiveReducer extends ApplicationAdapter {
         png8.palette = reducer;
         png8.setFlipY(false);
         screenView = new ScreenViewport();
-        screenView.getCamera().position.set(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0);
-        screenView.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        screenView.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         batch.enableBlending();
         Gdx.input.setInputProcessor(inputProcessor());
 
@@ -120,7 +119,7 @@ public class InteractiveReducer extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        screenView.update(width, height);
+        screenView.update(width, height, true);
     }
 
     public InputProcessor inputProcessor() {
@@ -144,9 +143,22 @@ public class InteractiveReducer extends ApplicationAdapter {
                         load("Pixel_Art.png");
                         break;
                     case Input.Keys.A:
-                        reducer.analyze(p0);
+                        reducer.analyze(p0, 200);
                         refresh();
-                            break;
+                        break;
+                    case Input.Keys.NUM_1:
+                    case Input.Keys.NUM_2:
+                    case Input.Keys.NUM_3:
+                    case Input.Keys.NUM_4:
+                    case Input.Keys.NUM_5:
+                    case Input.Keys.NUM_6:
+                    case Input.Keys.NUM_7:
+                    case Input.Keys.NUM_8:
+                    case Input.Keys.NUM_9:
+                        reducer.analyze(p0, 6000 / keycode, keycode - 5);
+//                        reducer.analyze(p0, 400, (2 << keycode - Input.Keys.NUM_0)+1);
+                        refresh();
+                        break;
                     case Input.Keys.B:
                         reducer.exact(palette);
                         refresh();
@@ -172,6 +184,9 @@ public class InteractiveReducer extends ApplicationAdapter {
                     case Input.Keys.DOWN:
                         reducer.setDitherStrength(strength = Math.max(strength - 0.05f, 0f));
                         refresh();
+                        break;
+                    case Input.Keys.S:
+                        System.out.println("Algorithm selected: " + index + ", strength: " + strength);
                         break;
                     case Input.Keys.Q:
                     case Input.Keys.ESCAPE:
