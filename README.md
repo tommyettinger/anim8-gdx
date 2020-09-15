@@ -42,7 +42,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX
-  api "com.github.tommyettinger:anim8-gdx:0.1.9"
+  api "com.github.tommyettinger:anim8-gdx:0.2.0"
 }
 ```
 
@@ -50,7 +50,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.1.9:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.0:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -70,6 +70,7 @@ different API).
   - PATTERN
     - A more traditional ordered dither that's been skewed, so it doesn't have square artifacts.
     - Doesn't preserve lightness very well, but is very good at preserving shape.
+      - Unlike other dither types, changing the dither strength affects lightness here.
     - A variant on Thomas Knoll's Pattern Dither, which is out-of-patent.
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
@@ -82,9 +83,9 @@ different API).
     - Like BLUE_NOISE, but it will dither different frames differently, and can look somewhat more chaotic.
     
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
-there's no effect. For BLUE_NOISE and CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither
-strength to close to 0 will approach the appearance of NONE, while setting it close to 1.0 (or higher) will make the
-dither much stronger and may make the image less legible.
+there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
+will approach the appearance of NONE, while setting it close to 1.0 (or higher) will make the dither much stronger and
+may make the image less legible.
 
 # Samples
 Some .gif animations, using 255 colors taken from the most-used in the animation:
@@ -187,7 +188,7 @@ A more intense usage is to encode a high-color video as an indexed-color GIF; wh
 but someone probably wants videos as GIFs. The images here are 90 frames from
 ["Video Of A Market" by Olivier Polome](https://www.pexels.com/video/video-of-a-market-4236787/), which is freely
 licensed without requirements. Note that the following animations are limited to 255 colors, and the mp4 video
-they use as a source has some block artifacts. [You can see the effects of different dither algorithms on the same video in this folder](images/market/).
+they use as a source has some block artifacts. [You can see the effects of different dither algorithms on the same video in this folder](https://github.com/tommyettinger/anim8-gdx/tree/master/images/market).
 
 Animated PNG can support full alpha as well (though file sizes can be large):
 
