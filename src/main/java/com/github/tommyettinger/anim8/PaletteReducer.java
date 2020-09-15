@@ -955,7 +955,7 @@ public class PaletteReducer {
     }
     
     void calculateGamma(){
-        double gamma = 2.0 - this.ditherStrength * 1.666;
+        double gamma = 2.0 - this.ditherStrength * 2.0;
         for (int i = 0; i < 256; i++) {
             int color = paletteArray[i];
             double r = Math.pow((color >>> 24) / 255.0, gamma);
@@ -1482,7 +1482,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, cr, cg, cb, usedIndex;
-        final float errorMul = ditherStrength * 0.5f;
+        final float errorMul = ditherStrength * 0.3125f;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -1539,7 +1539,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, cr, cg, cb,  usedIndex;
-        final float errorMul = ditherStrength * 0.3f;
+        final float errorMul = ditherStrength * 0.3125f;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
