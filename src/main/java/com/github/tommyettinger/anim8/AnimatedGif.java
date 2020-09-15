@@ -410,7 +410,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             case PATTERN:
             {
                 int cr, cg, cb,  usedIndex;
-                final float errorMul = palette.ditherStrength * 0.3f;
+                final float errorMul = palette.ditherStrength * 0.3125f;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
@@ -526,7 +526,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 final int w = width;
                 int rdiff, gdiff, bdiff;
                 byte er, eg, eb, paletteIndex;
-                final float w1 = palette.ditherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+                final float w1 = palette.halfDitherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
                 byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedBytes == null) {

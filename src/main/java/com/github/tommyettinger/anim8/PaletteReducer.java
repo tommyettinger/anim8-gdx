@@ -1036,6 +1036,7 @@ public class PaletteReducer {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        final float d1 = halfDitherStrength * 0.5f, d2 = d1 * 2f;
         if (curErrorRedBytes == null) {
             curErrorRed = (curErrorRedBytes = new ByteArray(lineLen)).items;
             nextErrorRed = (nextErrorRedBytes = new ByteArray(lineLen)).items;
@@ -1094,21 +1095,21 @@ public class PaletteReducer {
                     bdiff = (color>>>8&255)- (used>>>8&255);
                     if(px < lineLen - 1)
                     {
-                        curErrorRed[px+1]   += rdiff * ditherStrength;
-                        curErrorGreen[px+1] += gdiff * ditherStrength;
-                        curErrorBlue[px+1]  += bdiff * ditherStrength;
+                        curErrorRed[px+1]   += rdiff * d2;
+                        curErrorGreen[px+1] += gdiff * d2;
+                        curErrorBlue[px+1]  += bdiff * d2;
                     }
                     if(ny < h)
                     {
                         if(px > 0)
                         {
-                            nextErrorRed[px-1]   += rdiff * halfDitherStrength;
-                            nextErrorGreen[px-1] += gdiff * halfDitherStrength;
-                            nextErrorBlue[px-1]  += bdiff * halfDitherStrength;
+                            nextErrorRed[px-1]   += rdiff * d1;
+                            nextErrorGreen[px-1] += gdiff * d1;
+                            nextErrorBlue[px-1]  += bdiff * d1;
                         }
-                        nextErrorRed[px]   += rdiff * halfDitherStrength;
-                        nextErrorGreen[px] += gdiff * halfDitherStrength;
-                        nextErrorBlue[px]  += bdiff * halfDitherStrength;
+                        nextErrorRed[px]   += rdiff * d1;
+                        nextErrorGreen[px] += gdiff * d1;
+                        nextErrorBlue[px]  += bdiff * d1;
                     }
                 }
             }
@@ -1158,7 +1159,7 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, rdiff, gdiff, bdiff;
         byte er, eg, eb, paletteIndex;
-        float w1 = ditherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = halfDitherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {

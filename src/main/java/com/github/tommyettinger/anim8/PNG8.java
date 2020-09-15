@@ -1299,7 +1299,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used, rdiff, gdiff, bdiff;
             byte er, eg, eb, paletteIndex;
-            final float w1 = palette.ditherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            final float w1 = palette.halfDitherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             byte[] lineOut, curLine, prevLine;
             if (lineOutBytes == null) {
@@ -1473,7 +1473,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
         int color, used;
         int cr, cg, cb,  usedIndex;
-        final float errorMul = palette.ditherStrength * 0.3f;
+        final float errorMul = palette.ditherStrength * 0.3125f;
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
@@ -2342,7 +2342,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used, rdiff, gdiff, bdiff;
             byte er, eg, eb, paletteIndex;
-            float w1 = palette.ditherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = palette.halfDitherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2533,7 +2533,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             int cr, cg, cb,  usedIndex;
-            final float errorMul = palette.ditherStrength * 0.3f;
+            final float errorMul = palette.ditherStrength * 0.3125f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
