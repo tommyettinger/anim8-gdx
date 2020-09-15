@@ -697,6 +697,7 @@ public class PaletteReducer {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
+        threshold >>>= 1;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         int hasTransparent = 0;
@@ -855,6 +856,7 @@ public class PaletteReducer {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
+        threshold >>>= 1;
         IntIntMap counts = new IntIntMap(limit);
         int hasTransparent = 0;
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];

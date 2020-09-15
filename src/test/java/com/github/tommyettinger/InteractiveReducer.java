@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.github.tommyettinger.anim8.PNG8;
@@ -143,7 +144,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                         load("Pixel_Art.png");
                         break;
                     case Input.Keys.A:
-                        reducer.analyze(p0, 200);
+                        reducer.analyze(p0);
                         refresh();
                         break;
                     case Input.Keys.NUM_1:
@@ -155,7 +156,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_7:
                     case Input.Keys.NUM_8:
                     case Input.Keys.NUM_9:
-                        reducer.analyze(p0, 6000 / keycode, keycode - 5);
+                        reducer.analyze(p0, 7000 / keycode, UIUtils.shift() ? (keycode - 4) * keycode : keycode - 5);
 //                        reducer.analyze(p0, 400, (2 << keycode - Input.Keys.NUM_0)+1);
                         refresh();
                         break;
