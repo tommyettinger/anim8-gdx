@@ -1042,10 +1042,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF];
-                        bn = PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (py & 63) << 6];
-                        adj = ((bn + 0.5f) * 0.007843138f);
-                        adj *= adj * adj;
-                        adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1p-8f;
+                        adj = ((PaletteReducer.RAW_BLUE_NOISE[bn = (px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                        adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[bn * 0xDAB & 4095]) * -0x1.4p-10f;
                         adj *= strength;
                         rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                         gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
@@ -2050,11 +2048,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))];
                             used = paletteArray[paletteIndex & 0xFF];
-                            bn = PaletteReducer.
-                                    RAW_BLUE_NOISE[(px & 63) | (py & 63) << 6];
-                            adj = ((bn + 0.5f) * 0.007843138f);
-                            adj *= adj * adj;
-                            adj += ((px + y & 1) - 0.5f) * (127.5f - (2112 - bn * 13 & 255)) * 0x1p-8f;
+                            adj = ((PaletteReducer.RAW_BLUE_NOISE[bn = (px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                            adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[bn * 0xDAB & 4095]) * -0x1.4p-10f;
                             adj *= strength;
                             rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);

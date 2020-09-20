@@ -156,8 +156,10 @@ public class InteractiveReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_7:
                     case Input.Keys.NUM_8:
                     case Input.Keys.NUM_9:
-                        reducer.analyze(p0, 7000 / keycode, UIUtils.shift() ? (keycode - 4) * keycode : keycode - 5);
-//                        reducer.analyze(p0, 400, (2 << keycode - Input.Keys.NUM_0)+1);
+                        if(UIUtils.shift()) 
+                            reducer.analyze(p0, (35 - keycode) * (40 - keycode), (keycode - 6) * keycode);
+                        else 
+                            reducer.analyze(p0, 700 - keycode * keycode, keycode - 5);
                         refresh();
                         break;
                     case Input.Keys.B:
