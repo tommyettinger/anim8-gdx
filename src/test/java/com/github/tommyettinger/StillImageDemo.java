@@ -19,22 +19,10 @@ import java.io.IOException;
  */
 public class StillImageDemo extends ApplicationAdapter {
     private long startTime;
-    private int[] palette = new int[64];
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
         startTime = System.currentTimeMillis();
-        
-        long state = 0x123456789L;
-
-        PaletteReducer reducer = new PaletteReducer();
-        for (int i = 1; i < palette.length; i++) {
-            // SquidLib's DiverRNG.randomize()
-            state = (state = ((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) ^ state >>> 28;
-            
-            int idx = (int) ((state>>>1) % 255) + 1;
-            palette[i] = reducer.paletteArray[idx];
-        }
 
         Gdx.files.local("images").mkdirs();
         for(String name : new String[]{"Cat", "Frog", "Landscape", "Mona_Lisa"}) {
