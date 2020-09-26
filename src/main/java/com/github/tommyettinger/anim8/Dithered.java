@@ -106,7 +106,8 @@ public interface Dithered {
          * <a href="https://i.imgur.com/YCSKKGw.png">this small image</a>; it looks different from a purely-random white
          * noise texture because blue noise has no low frequencies in any direction, while white noise has all
          * frequencies in equal measure. This has been optimized for quality on animations more so than on still images.
-         * Note, setting the dither strength with {@link PaletteReducer#setDitherStrength(float)} won't do much here.
+         * Setting the dither strength with {@link PaletteReducer#setDitherStrength(float)} does have some effect (it
+         * didn't do much in previous versions), and can improve the appearance of some images when banding occurs.
          */
         BLUE_NOISE,
         /**
@@ -114,11 +115,18 @@ public interface Dithered {
          * change wildly from frame to frame, taking an ordered dither (one which uses the same blue noise texture that
          * {@link #BLUE_NOISE} does) and incorporating one of the qualities of an error-diffusion dither to make each
          * frame dither differently. This can look very good for moving images, but it is, true to its name, both
-         * chaotic and noisy. Like {@link #BLUE_NOISE}, setting the dither strength with
+         * chaotic and noisy. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} won't do much here, but the result will have more of a
          * regular blue-noise pattern when dither strength is very low, and small changes will be introduced as dither
          * strength approaches 1.
          */
-        CHAOTIC_NOISE
+        CHAOTIC_NOISE,
+        /**
+         * The yin to to {@link #CHAOTIC_NOISE}'s yang; where chaotic noise actively scrambles pixels using uniform blue
+         * noise and some slightly-error-diffusion-like qualities to act as if it had a white noise source, this tries
+         * to subtly alter the more rigidly-defined error-diffusion dither of {@link #DIFFUSION} with a small amount of
+         * triangular-distributed blue noise, and doesn't introduce white noise.
+         */
+        SCATTER
     }
 }

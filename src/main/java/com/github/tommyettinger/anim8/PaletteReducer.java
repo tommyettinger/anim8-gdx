@@ -1379,6 +1379,108 @@ public class PaletteReducer {
         pixmap.setBlending(blending);
         return pixmap;
     }
+    /**
+     * Modifies the given Pixmap so it only uses colors present in this PaletteReducer, using Floyd-Steinberg to dither
+     * but modifying patterns slightly by introducing triangular-distributed blue noise. If you want to reduce the
+     * colors in a Pixmap based on what it currently contains, call {@link #analyze(Pixmap)} with {@code pixmap} as its
+     * argument, then call this method with the same Pixmap. You may instead want to use a known palette instead of one
+     * computed from a Pixmap; {@link #exact(int[])} is the tool for that job.
+     * @param pixmap a Pixmap that will be modified in place
+     * @return the given Pixmap, for chaining
+     */
+    public Pixmap reduceScatter (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedBytes == null) {
+            curErrorRed = (curErrorRedBytes = new ByteArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedBytes = new ByteArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenBytes = new ByteArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenBytes = new ByteArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueBytes = new ByteArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueBytes = new ByteArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedBytes.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedBytes.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenBytes.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenBytes.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueBytes.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueBytes.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used, rdiff, gdiff, bdiff;
+        byte er, eg, eb, paletteIndex;
+        float w1 = (float)(ditherStrength * populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                bn;
+        for (int y = 0; y < h; y++) {
+            int ny = y + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y) & 0xF8F8F880;
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    bn = (PaletteReducer.TRI_BLUE_NOISE[(px & 63) | ((y << 6) & 0xFC0)] + 0.5f) * 0.2f - 0.5f;
+                    er = (byte) MathUtils.clamp(curErrorRed[px] + bn, -128, 127);
+                    eg = (byte) MathUtils.clamp(curErrorGreen[px] + bn, -128, 127);
+                    eb = (byte) MathUtils.clamp(curErrorBlue[px] + bn, -128, 127);
+                    color |= (color >>> 5 & 0x07070700) | 0xFF;
+                    int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
+                    int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
+                    int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                    paletteIndex =
+                            paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))];
+                    used = paletteArray[paletteIndex & 0xFF];
+                    pixmap.drawPixel(px, y, used);
+                    rdiff = (color>>>24)-    (used>>>24);
+                    gdiff = (color>>>16&255)-(used>>>16&255);
+                    bdiff = (color>>>8&255)- (used>>>8&255);
+                    if(px < lineLen - 1)
+                    {
+                        curErrorRed[px+1]   += rdiff * w7;
+                        curErrorGreen[px+1] += gdiff * w7;
+                        curErrorBlue[px+1]  += bdiff * w7;
+                    }
+                    if(ny < h)
+                    {
+                        if(px > 0)
+                        {
+                            nextErrorRed[px-1]   += rdiff * w3;
+                            nextErrorGreen[px-1] += gdiff * w3;
+                            nextErrorBlue[px-1]  += bdiff * w3;
+                        }
+                        if(px < lineLen - 1)
+                        {
+                            nextErrorRed[px+1]   += rdiff * w1;
+                            nextErrorGreen[px+1] += gdiff * w1;
+                            nextErrorBlue[px+1]  += bdiff * w1;
+                        }
+                        nextErrorRed[px]   += rdiff * w5;
+                        nextErrorGreen[px] += gdiff * w5;
+                        nextErrorBlue[px]  += bdiff * w5;
+                    }
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
 
     /**
      * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
@@ -1485,7 +1587,8 @@ public class PaletteReducer {
      * on most dithered output (like needlepoint). The algorithm was described in detail by Joel Yliluoma in
      * <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Yliluoma used an 8x8
      * threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
-     * sorting step (this uses a sorting network, which works well for small input sizes like 16 items).
+     * sorting step (this uses a sorting network, which works well for small input sizes like 16 items). This is still
+     * very significantly slower than the other dithers here (except for {@link #reduceKnollRoberts(Pixmap)}.
      * <br>
      * Using pattern dither tends to produce some of the best results for lightness-based gradients, but when viewed
      * close-up the "needlepoint" pattern can be jarring for images that should look natural.
@@ -1540,7 +1643,8 @@ public class PaletteReducer {
      * this artifact can be mitigated by lowering dither strength. The algorithm was described in detail by Joel
      * Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Yliluoma used an
      * 8x8 threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
-     * sorting step (this uses a sorting network, which works well for small input sizes like 16 items).
+     * sorting step (this uses a sorting network, which works well for small input sizes like 16 items). This is stil
+     * very significantly slower than the other dithers here (except for {@link #reduceKnoll(Pixmap)}.
      * <br>
      * While the original Knoll pattern dither has square-shaped "needlepoint" artifacts, this has a varying-size
      * hexagonal or triangular pattern of dots that it uses to dither. Much like how Simplex noise uses a triangular

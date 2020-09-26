@@ -615,6 +615,96 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
             break;
+            case SCATTER: {
+                final int w = width;
+                int rdiff, gdiff, bdiff;
+                byte er, eg, eb, paletteIndex;
+                float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                        bn;
+
+                byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+                if (palette.curErrorRedBytes == null) {
+                    curErrorRed = (palette.curErrorRedBytes = new ByteArray(w)).items;
+                    nextErrorRed = (palette.nextErrorRedBytes = new ByteArray(w)).items;
+                    curErrorGreen = (palette.curErrorGreenBytes = new ByteArray(w)).items;
+                    nextErrorGreen = (palette.nextErrorGreenBytes = new ByteArray(w)).items;
+                    curErrorBlue = (palette.curErrorBlueBytes = new ByteArray(w)).items;
+                    nextErrorBlue = (palette.nextErrorBlueBytes = new ByteArray(w)).items;
+                } else {
+                    curErrorRed = palette.curErrorRedBytes.ensureCapacity(w);
+                    nextErrorRed = palette.nextErrorRedBytes.ensureCapacity(w);
+                    curErrorGreen = palette.curErrorGreenBytes.ensureCapacity(w);
+                    nextErrorGreen = palette.nextErrorGreenBytes.ensureCapacity(w);
+                    curErrorBlue = palette.curErrorBlueBytes.ensureCapacity(w);
+                    nextErrorBlue = palette.nextErrorBlueBytes.ensureCapacity(w);
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+                }
+
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+
+                    int py = flipped + flipDir * y,
+                            ny = y + 1;
+
+                    for (int px = 0; px < width & i < nPix; px++) {
+                        color = image.getPixel(px, py) & 0xF8F8F880;
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            bn = (PaletteReducer.TRI_BLUE_NOISE[(px & 63) | ((y << 6) & 0xFC0)] + 0.5f) * 0.2f - 0.5f;
+                            er = (byte) MathUtils.clamp(curErrorRed[px] + bn, -128, 127);
+                            eg = (byte) MathUtils.clamp(curErrorGreen[px] + bn, -128, 127);
+                            eb = (byte) MathUtils.clamp(curErrorBlue[px] + bn, -128, 127);
+                            color |= (color >>> 5 & 0x07070700) | 0xFF;
+                            int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
+                            int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
+                            int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                            usedEntry[(indexedPixels[i] = paletteIndex =
+                                    paletteMapping[((rr << 7) & 0x7C00)
+                                            | ((gg << 2) & 0x3E0)
+                                            | ((bb >>> 3))]) & 255] = true;
+                            used = paletteArray[paletteIndex & 0xFF];
+                            rdiff = (color>>>24)-    (used>>>24);
+                            gdiff = (color>>>16&255)-(used>>>16&255);
+                            bdiff = (color>>>8&255)- (used>>>8&255);
+                            if(px < w - 1)
+                            {
+                                curErrorRed[px+1]   += rdiff * w7;
+                                curErrorGreen[px+1] += gdiff * w7;
+                                curErrorBlue[px+1]  += bdiff * w7;
+                            }
+                            if(ny < height)
+                            {
+                                if(px > 0)
+                                {
+                                    nextErrorRed[px-1]   += rdiff * w3;
+                                    nextErrorGreen[px-1] += gdiff * w3;
+                                    nextErrorBlue[px-1]  += bdiff * w3;
+                                }
+                                if(px < w - 1)
+                                {
+                                    nextErrorRed[px+1]   += rdiff * w1;
+                                    nextErrorGreen[px+1] += gdiff * w1;
+                                    nextErrorBlue[px+1]  += bdiff * w1;
+                                }
+                                nextErrorRed[px]   += rdiff * w5;
+                                nextErrorGreen[px] += gdiff * w5;
+                                nextErrorBlue[px]  += bdiff * w5;
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
             default:
             case BLUE_NOISE: {
                 float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 1.5);
