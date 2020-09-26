@@ -1434,7 +1434,7 @@ public class PaletteReducer {
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    bn = (PaletteReducer.TRI_BLUE_NOISE[(px & 63) | ((y << 6) & 0xFC0)] + 0.5f) * 0.2f - 0.5f;
+                    bn = (PaletteReducer.TRI_BLUE_NOISE[(px & 63) | ((y << 6) & 0xFC0)] + 0.5f) * 0.15625f;
                     er = (byte) MathUtils.clamp(curErrorRed[px] + bn, -128, 127);
                     eg = (byte) MathUtils.clamp(curErrorGreen[px] + bn, -128, 127);
                     eb = (byte) MathUtils.clamp(curErrorBlue[px] + bn, -128, 127);

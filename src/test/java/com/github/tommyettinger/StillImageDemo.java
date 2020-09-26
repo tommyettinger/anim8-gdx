@@ -64,6 +64,8 @@ public class StillImageDemo extends ApplicationAdapter {
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-BlueNoise-" + count + ".png"), pixmap, false, true);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-ChaoticNoise-" + count + ".png"), pixmap, false, true);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-Scatter-" + count + ".png"), pixmap, false, true);
 		}
 	}
 
@@ -98,6 +100,8 @@ public class StillImageDemo extends ApplicationAdapter {
 			gif.write(Gdx.files.local("images/" + name + "-Gif-BlueNoise-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
 			gif.write(Gdx.files.local("images/" + name + "-Gif-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-Scatter-" + count + ".gif"), pixmaps, 1);
 		}
     }
 
