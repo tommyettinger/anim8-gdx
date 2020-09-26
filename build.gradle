@@ -21,7 +21,7 @@ def projectName = 'anim8-gdx'
 version '0.2.1-SNAPSHOT'
 group 'com.github.tommyettinger'
 
-//api "com.github.tommyettinger:anim8-gdx:0.1.9"
+//api "com.github.tommyettinger:anim8-gdx:0.2.0"
 
 def gdxVersion = '1.9.11'
 

@@ -134,6 +134,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     protected boolean sizeSet = false; // if false, get size from first frame
 
+    protected int seq = 0;
+    
     public PaletteReducer palette;
 
     /**
@@ -248,6 +250,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 // use first frame's size
                 setSize(im.getWidth(), im.getHeight());
             }
+            ++seq;
             image = im;
             getImagePixels(); // convert to correct format if necessary
             analyzePixels(); // build color table & map pixels
@@ -301,6 +304,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         closeStream = false;
         sizeSet = false;
         firstFrame = true;
+        seq = 0;
 
         return ok;
     }
@@ -410,7 +414,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             case PATTERN:
             {
                 int cr, cg, cb,  usedIndex;
-                final float errorMul = palette.ditherStrength * 0.3125f;
+                final float errorMul = (float) (palette.ditherStrength * palette.populationBias * 0.6);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
@@ -449,9 +453,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
             break;
-            case CHAOTIC_NOISE: { 
-                double adj, strength = palette.ditherStrength;
-                long s = 0xC13FA9A902A6328FL;
+            case CHAOTIC_NOISE: {
+                double adj, strength = palette.ditherStrength * palette.populationBias * 1.5;
+                long s = 0xC13FA9A902A6328FL * seq;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
@@ -491,7 +495,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case GRADIENT_NOISE: {
-                float pos, adj, strength = palette.ditherStrength * 3.333f;
+                float pos, adj;
+                final float strength = (float) (palette.ditherStrength * palette.populationBias * 3.333);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
@@ -526,7 +531,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 final int w = width;
                 int rdiff, gdiff, bdiff;
                 byte er, eg, eb, paletteIndex;
-                final float w1 = palette.halfDitherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+                float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
                 byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedBytes == null) {
@@ -612,8 +617,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             default:
             case BLUE_NOISE: {
-                float adj, strength = palette.ditherStrength;
-                int bn;
+                float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 1.5);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
@@ -627,8 +631,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))] & 0xFF];
-                            adj = ((PaletteReducer.RAW_BLUE_NOISE[bn = (px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
-                            adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[bn * 0xDAB & 4095]) * -0x1.4p-10f;
+                            adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
+                            adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[(px * 19 & 63) | (y * 23 & 63) << 6]) * -0x1.6p-10f;
                             adj *= strength;
                             rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);

@@ -897,7 +897,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte paletteIndex;
             float pos, adj;
-            final float strength = palette.ditherStrength * 3.333f;
+            final float strength = (float) (palette.ditherStrength * palette.populationBias * 3.333);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1025,9 +1025,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = w;
 
             int color, used;
-            float adj;
-            final float strength = palette.ditherStrength * 3f;
-            int bn;
+            float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 1.5);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1042,8 +1040,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF];
-                        adj = ((PaletteReducer.RAW_BLUE_NOISE[bn = (px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
-                        adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[bn * 0xDAB & 4095]) * -0x1.4p-10f;
+                        adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
+                        adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[(px * 19 & 63) | (y * 23 & 63) << 6]) * -0x1.6p-10f;
                         adj *= strength;
                         rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                         gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
@@ -1153,9 +1151,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             int color, used;
 
             byte paletteIndex;
-            double adj;
-            final double strength = palette.ditherStrength;
-            int bn;
+            double adj, strength = palette.ditherStrength * palette.populationBias * 1.5;
             long s = 0xC13FA9A902A6328FL;
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
@@ -1297,7 +1293,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used, rdiff, gdiff, bdiff;
             byte er, eg, eb, paletteIndex;
-            final float w1 = palette.halfDitherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             byte[] lineOut, curLine, prevLine;
             if (lineOutBytes == null) {
@@ -1471,7 +1467,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
         int color, used;
         int cr, cg, cb,  usedIndex;
-        final float errorMul = palette.ditherStrength * 0.3125f;
+        final float errorMul = (float) (palette.ditherStrength * palette.populationBias * 0.6);
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
@@ -1833,7 +1829,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte paletteIndex;
             float pos, adj;
-            final float strength = palette.ditherStrength * 3.333f;
+            final float strength = (float) (palette.ditherStrength * palette.populationBias * 3.333);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -1992,8 +1988,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = width;
 
             byte paletteIndex;
-            float adj;
-            final float strength = palette.ditherStrength * 3f;
+            float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 1.5);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2048,8 +2043,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))];
                             used = paletteArray[paletteIndex & 0xFF];
-                            adj = ((PaletteReducer.RAW_BLUE_NOISE[bn = (px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
-                            adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[bn * 0xDAB & 4095]) * -0x1.4p-10f;
+                            adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
+                            adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[(px * 19 & 63) | (y * 23 & 63) << 6]) * -0x1.6p-10f;
                             adj *= strength;
                             rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
@@ -2150,8 +2145,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = width;
 
             byte paletteIndex;
-            double adj;
-            final double strength = palette.ditherStrength;
+            double adj, strength = palette.ditherStrength * palette.populationBias * 1.5;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2189,7 +2183,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         prevLine[ln] = 0;
                 }
                 lastLineLen = width;
-                long s = 0xC13FA9A902A6328FL;
+                long s = 0xC13FA9A902A6328FL * seq;
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
@@ -2337,7 +2331,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used, rdiff, gdiff, bdiff;
             byte er, eg, eb, paletteIndex;
-            float w1 = palette.halfDitherStrength * 0.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2528,7 +2522,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             int cr, cg, cb,  usedIndex;
-            final float errorMul = palette.ditherStrength * 0.3125f;
+            final float errorMul = (float) (palette.ditherStrength * palette.populationBias * 0.6);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
