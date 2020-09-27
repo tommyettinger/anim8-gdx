@@ -77,7 +77,9 @@ public class InteractiveReducer extends ApplicationAdapter {
                 break;
             case 6: reducer.reduceSierraLite(p);
                 break;
-            default: reducer.reduceFloydSteinberg(p);
+            case 7: reducer.reduceFloydSteinberg(p);
+                break;
+            default: reducer.reduceScatter(p);
         }
         screenTexture = new Texture(p);
     }
@@ -172,12 +174,12 @@ public class InteractiveReducer extends ApplicationAdapter {
                         break;
                     case Input.Keys.LEFT:
                     case Input.Keys.LEFT_BRACKET:
-                        index = index - 1 & 7;
+                        index = (index + 8) % 9;
                         refresh();
                         break;
                     case Input.Keys.RIGHT:
                     case Input.Keys.RIGHT_BRACKET:
-                        index = index + 1 & 7;
+                        index = (index + 1) % 9;
                         refresh();
                         break;
                     case Input.Keys.UP:
