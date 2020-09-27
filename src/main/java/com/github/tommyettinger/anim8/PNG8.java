@@ -277,12 +277,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 case DIFFUSION:
                     writeDiffusionDithered(output, pixmap);
                     break;
+                case BLUE_NOISE:
+                    writeBlueNoiseDithered(output, pixmap);
+                    break;
+                default:
                 case SCATTER:
                     writeScatterDithered(output, pixmap);
                     break;
-                default:
-                case BLUE_NOISE:
-                    writeBlueNoiseDithered(output, pixmap);
             }
         }
         else writeSolid(output, pixmap);

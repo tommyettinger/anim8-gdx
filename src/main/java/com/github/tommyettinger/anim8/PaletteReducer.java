@@ -233,7 +233,7 @@ public class PaletteReducer {
      * available, and treat this array as read-only. If you don't call exact() or {@link #analyze(Pixmap)} to set the
      * values in this, then the reductions that use gamma correction ({@link #reduceKnoll(Pixmap)},
      * {@link #reduceKnollRoberts(Pixmap)}, and any {@link Dithered} using
-     * {@link com.github.tommyettinger.anim8.Dithered.DitherAlgorithm#PATTERN}) will be incorrect.
+     * {@link Dithered.DitherAlgorithm#PATTERN}) will be incorrect.
      */
     public final int[] paletteArray = new int[256];
     final int[] gammaArray = new int[256];
@@ -921,6 +921,33 @@ public class PaletteReducer {
      */
     public Pixmap reduce (Pixmap pixmap) {
         return reduceFloydSteinberg(pixmap);
+    }
+
+    /**
+     * Uses the given {@link Dithered.DitherAlgorithm} to decide how to dither {@code pixmap}.
+     * @param pixmap a pixmap that will be modified in-place
+     * @param ditherAlgorithm a dithering algorithm enum value; if not recognized, defaults to {@link Dithered.DitherAlgorithm#SCATTER}
+     * @return {@code pixmap} after modifications
+     */
+    public Pixmap reduce(Pixmap pixmap, Dithered.DitherAlgorithm ditherAlgorithm){
+        if(ditherAlgorithm == null || pixmap == null) return pixmap;
+        switch (ditherAlgorithm) {
+            case NONE:
+                return reduceSolid(pixmap);
+            case GRADIENT_NOISE:
+                return reduceJimenez(pixmap);
+            case PATTERN:
+                return reduceKnollRoberts(pixmap);
+            case CHAOTIC_NOISE:
+                return reduceChaoticNoise(pixmap);
+            case DIFFUSION:
+                return reduceFloydSteinberg(pixmap);
+            case BLUE_NOISE:
+                return reduceBlueNoise(pixmap); 
+                default:
+            case SCATTER:
+                return reduceScatter(pixmap);
+        }
     }
 
     /**

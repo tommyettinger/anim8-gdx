@@ -41,8 +41,8 @@ palette-based color, respectively).
 A typical Gradle dependency on anim8 looks like this (in the core module's dependencies for a typical libGDX project):
 ```groovy
 dependencies {
-  //... other dependencies are here, like libGDX
-  api "com.github.tommyettinger:anim8-gdx:0.2.0"
+  //... other dependencies are here, like libGDX 1.9.11
+  api "com.github.tommyettinger:anim8-gdx:0.2.1"
 }
 ```
 
@@ -50,7 +50,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.0:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.1:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -78,9 +78,13 @@ different API).
   - BLUE_NOISE
     - Not the typical blue-noise dither; this incorporates a checkerboard pattern as well as a 64x64 blue noise texture.
     - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise.
-    - This is the default and often the best of the bunch.
+    - This is probably the second-best algorithm here, after SCATTER.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and can look somewhat more chaotic.
+  - SCATTER
+    - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
+    error with blue-noise values. 
+    - This is the default and often the best of the bunch.
     
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0

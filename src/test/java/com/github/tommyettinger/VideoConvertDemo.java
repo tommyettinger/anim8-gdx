@@ -62,7 +62,14 @@ public class VideoConvertDemo extends ApplicationAdapter {
         }
         PNG8 png8 = new PNG8();
         String namePalette = name + "-analyzed";
-        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW"; png8.setFlipY(false);
+        //// BW
+//        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+        //// GB-16 Green
+        png8.palette = new PaletteReducer(new int[]{0x00000000, 
+                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
+                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
+        namePalette = name + "-Green";
+        png8.setFlipY(false);
         png8.setCompression(7);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
         png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-None.png"), pixmaps, 20);
@@ -92,7 +99,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
         //// BW
-        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+//        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
@@ -126,7 +133,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
         //// BW
-        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+//        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
