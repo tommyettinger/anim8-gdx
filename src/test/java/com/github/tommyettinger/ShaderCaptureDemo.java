@@ -212,6 +212,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         png8.write(Gdx.files.local("images/PNG8-"+name+"-blueNoise.png"), pixmaps, 16);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
         png8.write(Gdx.files.local("images/PNG8-"+name+"-chaoticNoise.png"), pixmaps, 16);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+        png8.write(Gdx.files.local("images/PNG8-"+name+"-scatter.png"), pixmaps, 16);
     }
 
     public void renderGif() {
@@ -243,6 +245,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         gif.write(Gdx.files.local("images/AnimatedGif-"+name+"-blueNoise.gif"), pixmaps, 16);
         gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
         gif.write(Gdx.files.local("images/AnimatedGif-"+name+"-chaoticNoise.gif"), pixmaps, 16);
+        gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+        gif.write(Gdx.files.local("images/AnimatedGif-"+name+"-scatter.gif"), pixmaps, 16);
     }
 
 	public static void main(String[] args) {
