@@ -702,38 +702,6 @@ public class PaletteReducer {
         }
         calculateGamma();
     }
-
-    //// These are for usage in the median-cut algorithm.
-    
-    protected void sortRed(int[] in, int[] out, int[] buf32, int offset, int end) {
-        Arrays.fill(buf32, 0);
-        for (int i = offset; i < end; i++)
-            buf32[in[i] >>> 27]++;
-        for (int i = 1; i < 32; i++)
-            buf32[i] += buf32[i - 1];
-        for (int i = end - 1; i >= offset; i--)
-            out[offset + --buf32[in[i]]] = in[i];
-    }
-
-    protected void sortGreen(int[] in, int[] out, int[] buf32, int offset, int end) {
-        Arrays.fill(buf32, 0);
-        for (int i = offset; i < end; i++)
-            buf32[in[i] >>> 19 & 31]++;
-        for (int i = 1; i < 32; i++)
-            buf32[i] += buf32[i - 1];
-        for (int i = end - 1; i >= offset; i--)
-            out[offset + --buf32[in[i]]] = in[i];
-    }
-
-    protected void sortBlue(int[] in, int[] out, int[] buf32, int offset, int end) {
-        Arrays.fill(buf32, 0);
-        for (int i = offset; i < end; i++)
-            buf32[in[i] >>> 11 & 31]++;
-        for (int i = 1; i < 32; i++)
-            buf32[i] += buf32[i - 1];
-        for (int i = end - 1; i >= offset; i--)
-            out[offset + --buf32[in[i]]] = in[i];
-    }
     
     public void analyzeMC(Pixmap pixmap, int limit) {
         Arrays.fill(paletteArray, 0);
@@ -741,55 +709,98 @@ public class PaletteReducer {
         int color;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntArray bin = new IntArray(width * height);
+        IntIntMap counts = new IntIntMap(limit);
         int hasTransparent = 0;
-        int rangeR = 0, rangeG = 0, rangeB = 0;
+        int rangeR, rangeG, rangeB;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 color = pixmap.getPixel(x, y);
                 if ((color & 0x80) != 0) {
-                    bin.add(color | (color >>> 5 & 0x07070700) | 0xFF);
+                    bin.add(color |= (color >>> 5 & 0x07070700) | 0xFF);
+                    counts.getAndIncrement(color, 0, 1);
                 } else {
                     hasTransparent = 1;
                 }
             }
         }
-        limit = Math.max(1 + hasTransparent, Math.min(limit - hasTransparent, 256));
-        int numCuts = 32 - Integer.numberOfLeadingZeros(limit - 1);
-        int offset = 0, end = bin.size;
-        int[] in = bin.items, out = new int[end], buf32 = new int[32],
-                bufR = new int[32],
-                bufG = new int[32],
-                bufB = new int[32];
-        for (int stage = 0; stage < numCuts; stage++) {
-            for (int part = 1 << stage; part > 0; part--) {
-                Arrays.fill(bufR, 0);
-                Arrays.fill(bufG, 0);
-                Arrays.fill(bufB, 0);
-                for (int i = offset, ii; i < end; i++) {
-                    ii = in[i];
-                    bufR[ii >>> 27]++;
-                    bufG[ii >>> 19 & 31]++;
-                    bufB[ii >>> 11 & 31]++;
-                }
-                for (rangeR = 32; rangeR > 0 && bufR[rangeR - 1] == 0; rangeR--) ;
-                for (int r = 0; r < rangeR && bufR[r] == 0; r++, rangeR--) ;
-                for (rangeG = 32; rangeG > 0 && bufG[rangeG - 1] == 0; rangeG--) ;
-                for (int r = 0; r < rangeG && bufG[r] == 0; r++, rangeG--) ;
-                for (rangeB = 32; rangeB > 0 && bufB[rangeB - 1] == 0; rangeB--) ;
-                for (int r = 0; r < rangeB && bufB[r] == 0; r++, rangeB--) ;
+        limit = Math.max(2 - hasTransparent, Math.min(limit - hasTransparent, 256));
+        if(counts.size > limit) {
+            int numCuts = 32 - Integer.numberOfLeadingZeros(limit - 1);
+            int offset, end = bin.size;
+            int[] in = bin.items, out = new int[end], buf32,
+                    bufR = new int[32],
+                    bufG = new int[32],
+                    bufB = new int[32];
+            for (int stage = 0; stage < numCuts; stage++) {
+                int size = bin.size >> stage;
+                offset = 0;
+                end = 0;
+                for (int part = 1 << stage; part > 0; part--) {
+                    if (part == 1)
+                        end = bin.size;
+                    else
+                        end += size;
+                    Arrays.fill(bufR, 0);
+                    Arrays.fill(bufG, 0);
+                    Arrays.fill(bufB, 0);
+                    for (int i = offset, ii; i < end; i++) {
+                        ii = in[i];
+                        bufR[ii >>> 27]++;
+                        bufG[ii >>> 19 & 31]++;
+                        bufB[ii >>> 11 & 31]++;
+                    }
+                    for (rangeR = 32; rangeR > 0 && bufR[rangeR - 1] == 0; rangeR--) ;
+                    for (int r = 0; r < rangeR && bufR[r] == 0; r++, rangeR--) ;
+                    for (rangeG = 32; rangeG > 0 && bufG[rangeG - 1] == 0; rangeG--) ;
+                    for (int r = 0; r < rangeG && bufG[r] == 0; r++, rangeG--) ;
+                    for (rangeB = 32; rangeB > 0 && bufB[rangeB - 1] == 0; rangeB--) ;
+                    for (int r = 0; r < rangeB && bufB[r] == 0; r++, rangeB--) ;
 
-                if(rangeG >= rangeR && rangeG >= rangeB)
-                    buf32 = bufG;
-                else if (rangeR >= rangeG && rangeR >= rangeB)
-                    buf32 = bufR;
-                else 
-                    buf32 = bufB;                 
-                
-                for (int i = 1; i < 32; i++)
-                    buf32[i] += buf32[i - 1];
-                for (int i = end - 1; i >= offset; i--)
-                    out[offset + --buf32[in[i]]] = in[i];
+                    if (rangeG >= rangeR && rangeG >= rangeB)
+                        buf32 = bufG;
+                    else if (rangeR >= rangeG && rangeR >= rangeB)
+                        buf32 = bufR;
+                    else
+                        buf32 = bufB;
+
+                    for (int i = 1; i < 32; i++)
+                        buf32[i] += buf32[i - 1];
+                    for (int i = end - 1; i >= offset; i--)
+                        out[offset + --buf32[in[i]]] = in[i];
+
+                    offset += size;
+                }
             }
+            int jump = out.length >>> numCuts, mid = jump >>> 1, assigned = hasTransparent;
+            for (; assigned < limit; assigned++, mid += jump) {
+                paletteArray[assigned] = out[mid];
+            }
+            
+            //TODO: sort paletteArray here by count frequency
+            
+            COLORS:
+            for (; mid < out.length; mid += jump) {
+                int currentCount = counts.get(out[mid], 0);
+                for (int i = limit - 1; i > hasTransparent; i--) {
+                    if(counts.get(paletteArray[i], 0) < currentCount)
+                    {
+                        paletteArray[i] = out[mid];
+                        continue COLORS;
+                    }
+                }
+            }
+            colorCount = limit;
+            populationBias = Math.exp(-1.375/colorCount);
+        }
+        else
+        { 
+            IntIntMap.Keys it = counts.keys();
+            Arrays.fill(paletteArray, 0);
+            for (int i = hasTransparent; i < limit && it.hasNext; i++) {
+                paletteArray[i] = it.next();
+            }
+            colorCount = counts.size + hasTransparent;
+            populationBias = Math.exp(-1.375/colorCount);
         }
     }
 
