@@ -4,10 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ByteArray;
-import com.badlogic.gdx.utils.IntIntMap;
-import com.badlogic.gdx.utils.NumberUtils;
+import com.badlogic.gdx.utils.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -710,8 +707,8 @@ public class PaletteReducer {
     
     protected void sortRed(int[] in, int[] out, int[] buf32, int offset, int end) {
         Arrays.fill(buf32, 0);
-        for (int i = offset, ai; i < end; i++)
-            if(((ai = in[i]) & 0x80) != 0) buf32[ai >>> 27]++;
+        for (int i = offset; i < end; i++)
+            buf32[in[i] >>> 27]++;
         for (int i = 1; i < 32; i++)
             buf32[i] += buf32[i - 1];
         for (int i = end - 1; i >= offset; i--)
@@ -720,8 +717,8 @@ public class PaletteReducer {
 
     protected void sortGreen(int[] in, int[] out, int[] buf32, int offset, int end) {
         Arrays.fill(buf32, 0);
-        for (int i = offset, ai; i < end; i++)
-            if(((ai = in[i]) & 0x80) != 0) buf32[ai >>> 19 & 31]++;
+        for (int i = offset; i < end; i++)
+            buf32[in[i] >>> 19 & 31]++;
         for (int i = 1; i < 32; i++)
             buf32[i] += buf32[i - 1];
         for (int i = end - 1; i >= offset; i--)
@@ -730,16 +727,71 @@ public class PaletteReducer {
 
     protected void sortBlue(int[] in, int[] out, int[] buf32, int offset, int end) {
         Arrays.fill(buf32, 0);
-        for (int i = offset, ai; i < end; i++)
-            if(((ai = in[i]) & 0x80) != 0) buf32[ai >>> 11 & 31]++;
+        for (int i = offset; i < end; i++)
+            buf32[in[i] >>> 11 & 31]++;
         for (int i = 1; i < 32; i++)
             buf32[i] += buf32[i - 1];
         for (int i = end - 1; i >= offset; i--)
             out[offset + --buf32[in[i]]] = in[i];
     }
-//    public void analyzeMC(Pixmap pixmap, int limit) {
-//
-//    }
+    
+    public void analyzeMC(Pixmap pixmap, int limit) {
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        final int width = pixmap.getWidth(), height = pixmap.getHeight();
+        IntArray bin = new IntArray(width * height);
+        int hasTransparent = 0;
+        int rangeR = 0, rangeG = 0, rangeB = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                color = pixmap.getPixel(x, y);
+                if ((color & 0x80) != 0) {
+                    bin.add(color | (color >>> 5 & 0x07070700) | 0xFF);
+                } else {
+                    hasTransparent = 1;
+                }
+            }
+        }
+        limit = Math.max(1 + hasTransparent, Math.min(limit - hasTransparent, 256));
+        int numCuts = 32 - Integer.numberOfLeadingZeros(limit - 1);
+        int offset = 0, end = bin.size;
+        int[] in = bin.items, out = new int[end], buf32 = new int[32],
+                bufR = new int[32],
+                bufG = new int[32],
+                bufB = new int[32];
+        for (int stage = 0; stage < numCuts; stage++) {
+            for (int part = 1 << stage; part > 0; part--) {
+                Arrays.fill(bufR, 0);
+                Arrays.fill(bufG, 0);
+                Arrays.fill(bufB, 0);
+                for (int i = offset, ii; i < end; i++) {
+                    ii = in[i];
+                    bufR[ii >>> 27]++;
+                    bufG[ii >>> 19 & 31]++;
+                    bufB[ii >>> 11 & 31]++;
+                }
+                for (rangeR = 32; rangeR > 0 && bufR[rangeR - 1] == 0; rangeR--) ;
+                for (int r = 0; r < rangeR && bufR[r] == 0; r++, rangeR--) ;
+                for (rangeG = 32; rangeG > 0 && bufG[rangeG - 1] == 0; rangeG--) ;
+                for (int r = 0; r < rangeG && bufG[r] == 0; r++, rangeG--) ;
+                for (rangeB = 32; rangeB > 0 && bufB[rangeB - 1] == 0; rangeB--) ;
+                for (int r = 0; r < rangeB && bufB[r] == 0; r++, rangeB--) ;
+
+                if(rangeG >= rangeR && rangeG >= rangeB)
+                    buf32 = bufG;
+                else if (rangeR >= rangeG && rangeR >= rangeB)
+                    buf32 = bufR;
+                else 
+                    buf32 = bufB;                 
+                
+                for (int i = 1; i < 32; i++)
+                    buf32[i] += buf32[i - 1];
+                for (int i = end - 1; i >= offset; i--)
+                    out[offset + --buf32[in[i]]] = in[i];
+            }
+        }
+    }
 
     /**
      * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
