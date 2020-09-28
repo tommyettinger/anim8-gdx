@@ -706,6 +706,41 @@ public class PaletteReducer {
         calculateGamma();
     }
 
+    //// These are for usage in the median-cut algorithm.
+    
+    protected void sortRed(int[] in, int[] out, int[] buf32, int offset, int end) {
+        Arrays.fill(buf32, 0);
+        for (int i = offset, ai; i < end; i++)
+            if(((ai = in[i]) & 0x80) != 0) buf32[ai >>> 27]++;
+        for (int i = 1; i < 32; i++)
+            buf32[i] += buf32[i - 1];
+        for (int i = end - 1; i >= offset; i--)
+            out[offset + --buf32[in[i]]] = in[i];
+    }
+
+    protected void sortGreen(int[] in, int[] out, int[] buf32, int offset, int end) {
+        Arrays.fill(buf32, 0);
+        for (int i = offset, ai; i < end; i++)
+            if(((ai = in[i]) & 0x80) != 0) buf32[ai >>> 19 & 31]++;
+        for (int i = 1; i < 32; i++)
+            buf32[i] += buf32[i - 1];
+        for (int i = end - 1; i >= offset; i--)
+            out[offset + --buf32[in[i]]] = in[i];
+    }
+
+    protected void sortBlue(int[] in, int[] out, int[] buf32, int offset, int end) {
+        Arrays.fill(buf32, 0);
+        for (int i = offset, ai; i < end; i++)
+            if(((ai = in[i]) & 0x80) != 0) buf32[ai >>> 11 & 31]++;
+        for (int i = 1; i < 32; i++)
+            buf32[i] += buf32[i - 1];
+        for (int i = end - 1; i >= offset; i--)
+            out[offset + --buf32[in[i]]] = in[i];
+    }
+//    public void analyzeMC(Pixmap pixmap, int limit) {
+//
+//    }
+
     /**
      * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
