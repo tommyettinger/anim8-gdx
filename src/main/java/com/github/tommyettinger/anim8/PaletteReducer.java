@@ -757,37 +757,76 @@ public class PaletteReducer {
                     for (int r = 0; r < rangeB && bufB[r] == 0; r++, rangeB--) ;
 
                     if (rangeG >= rangeR && rangeG >= rangeB)
-                        buf32 = bufG;
+                    {
+                        for (int i = 1; i < 32; i++)
+                            bufG[i] += bufG[i - 1];
+                        for (int i = end - 1; i >= offset; i--)
+                            out[offset + --bufG[in[i] >>> 19 & 31]] = in[i];
+                    }
                     else if (rangeR >= rangeG && rangeR >= rangeB)
-                        buf32 = bufR;
+                    {
+                        for (int i = 1; i < 32; i++)
+                            bufR[i] += bufR[i - 1];
+                        for (int i = end - 1; i >= offset; i--)
+                            out[offset + --bufR[in[i] >>> 27]] = in[i];
+                    }
                     else
-                        buf32 = bufB;
-
-                    for (int i = 1; i < 32; i++)
-                        buf32[i] += buf32[i - 1];
-                    for (int i = end - 1; i >= offset; i--)
-                        out[offset + --buf32[in[i]]] = in[i];
-
+                    {
+                        for (int i = 1; i < 32; i++)
+                            bufB[i] += bufB[i - 1];
+                        for (int i = end - 1; i >= offset; i--)
+                            out[offset + --bufB[in[i] >>> 11 & 31]] = in[i];
+                    }
                     offset += size;
                 }
             }
-            int jump = out.length >>> numCuts, mid = jump >>> 1, assigned = hasTransparent;
-            for (; assigned < limit; assigned++, mid += jump) {
+            int jump = out.length >>> numCuts, mid = jump >>> 1, assigned = 0;
+            for (int n = 1 << numCuts; assigned < n; assigned++, mid += jump) {
                 paletteArray[assigned] = out[mid];
             }
-            
-            //TODO: sort paletteArray here by count frequency
-            
             COLORS:
-            for (; mid < out.length; mid += jump) {
-                int currentCount = counts.get(out[mid], 0);
-                for (int i = limit - 1; i > hasTransparent; i--) {
-                    if(counts.get(paletteArray[i], 0) < currentCount)
+            for (int i = limit; i < assigned; i++) {
+                int currentCount = counts.get(paletteArray[i], 0);
+                for (int j = 0; j < limit; j++) {
+                    if(counts.get(paletteArray[j], 0) < currentCount)
                     {
-                        paletteArray[i] = out[mid];
+                        currentCount = paletteArray[j];
+                        paletteArray[j] = paletteArray[i];
+                        paletteArray[i] = currentCount;
                         continue COLORS;
                     }
                 }
+            }
+            if(hasTransparent == 1) {
+                int min = Integer.MAX_VALUE, worst = 0;
+                for (int i = 0; i < limit; i++) {
+                    int currentCount = counts.get(paletteArray[i], 0);
+                    if(currentCount < min){
+                        min = currentCount;
+                        worst = i;
+                    }
+                }
+                if(worst == 0) paletteArray[0] = 0;
+                else {
+                    paletteArray[worst] = paletteArray[0];
+                    paletteArray[0] = 0;
+                }
+            }
+            //TODO: sort paletteArray here by count frequency
+//            COLORS:
+//            for (; mid < out.length; mid += jump) {
+//                int currentCount = counts.get(out[mid], 0);
+//                for (int i = limit - 1; i > hasTransparent; i--) {
+//                    if(counts.get(paletteArray[i], 0) < currentCount)
+//                    {
+//                        paletteArray[i] = out[mid];
+//                        continue COLORS;
+//                    }
+//                }
+//            }
+            for (int i = hasTransparent; i < limit; i++) {
+                color = paletteArray[i];
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = limit;
             populationBias = Math.exp(-1.375/colorCount);
@@ -797,11 +836,34 @@ public class PaletteReducer {
             IntIntMap.Keys it = counts.keys();
             Arrays.fill(paletteArray, 0);
             for (int i = hasTransparent; i < limit && it.hasNext; i++) {
-                paletteArray[i] = it.next();
+                paletteArray[i] = color = it.next();
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = counts.size + hasTransparent;
             populationBias = Math.exp(-1.375/colorCount);
         }
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.POSITIVE_INFINITY;
+                        for (int i = 1; i < limit; i++) {
+                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
+        calculateGamma();
+
     }
 
     /**
