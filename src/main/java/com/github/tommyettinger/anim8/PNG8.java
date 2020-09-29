@@ -3185,18 +3185,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 output.write(inputStream, false);
                 return;
             }
-            for (int p = 0; p < pal.length - 2;) {
+            for (int p = 0; p < pal.length; p++) {
                 pal[p  ] = centralize(pal[p  ]);
-                pal[p+1] = centralize(pal[p+1]);
-                pal[p+2] = centralize(pal[p+2]);
-                p+=3;
             }
             writeChunks(output.write(false), chunks);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public static byte centralize(byte v) {return (byte) (probit(((v & 255) + 0x1p9f) * 0x1p-8f) * (255.999f * 0.17327209222987916f) + 128);}
+    public static byte centralize(byte v) {return (byte) (255.99 * (probit((v & 255) * 0x1p-8 + 0x1p-9) * 0.17327209222987916 + 0.5));}
     /**
      * A way of taking a double in the (0.0, 1.0) range and mapping it to a Gaussian or normal distribution, so high
      * inputs correspond to high outputs, and similarly for the low range. This is centered on 0.0 and its standard
@@ -3224,28 +3221,28 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * @param d should be between 0 and 1, exclusive, but other values are tolerated
      * @return a normal-distributed double centered on 0.0; all results will be between -38.5 and 38.5, both inclusive
      */
-    public static float probit(final float d) {
+    public static double probit(final double d) {
         if (d <= 0 || d >= 1) {
-            return Math.copySign(38.5f, d - 0.5f);
+            return Math.copySign(38.5, d - 0.5);
         }
         // Rational approximation for lower region:
-        else if (d < 0.02425f) {
+        else if (d < 0.02425) {
             final double q = Math.sqrt(-2.0 * Math.log(d));
-            return (float) ((((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) * q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00)
-                    / ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0));
+            return (((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) * q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00)
+                    / ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0);
         }
         // Rational approximation for upper region:
-        else if (0.97575f < d) {
+        else if (0.97575 < d) {
             final double q = Math.sqrt(-2.0 * Math.log(1 - d));
-            return (float) (-(((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) * q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00)
-                    / ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0));
+            return -(((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) * q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00)
+                    / ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0);
         }
         // Rational approximation for central region:
         else {
             final double q = d - 0.5;
             final double r = q * q;
-            return (float) ((((((-3.969683028665376e+01 * r + 2.209460984245205e+02) * r + -2.759285104469687e+02) * r + 1.383577518672690e+02) * r + -3.066479806614716e+01) * r + 2.506628277459239e+00) * q
-                    / (((((-5.447609879822406e+01 * r + 1.615858368580409e+02) * r + -1.556989798598866e+02) * r + 6.680131188771972e+01) * r + -1.328068155288572e+01) * r + 1.0));
+            return (((((-3.969683028665376e+01 * r + 2.209460984245205e+02) * r + -2.759285104469687e+02) * r + 1.383577518672690e+02) * r + -3.066479806614716e+01) * r + 2.506628277459239e+00) * q
+                    / (((((-5.447609879822406e+01 * r + 1.615858368580409e+02) * r + -1.556989798598866e+02) * r + 6.680131188771972e+01) * r + -1.328068155288572e+01) * r + 1.0);
         }
     }
 
