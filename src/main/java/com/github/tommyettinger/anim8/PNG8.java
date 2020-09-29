@@ -3169,7 +3169,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     /**
      * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits the red,
      * green, and blue channels of each color in its palette (which is all colors in the image) by running each channel
-     * through a function (related to {@link #probit(float)} that biases any channel values that aren't extreme toward
+     * through a function (related to {@link #probit(double)} that biases any channel values that aren't extreme toward
      * the center of their range, and keeps extreme values (such as max green, or black) as they are.
      * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
      * @param output FileHandle that should be writable and empty
@@ -3186,7 +3186,38 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 return;
             }
             for (int p = 0; p < pal.length; p++) {
-                pal[p  ] = centralize(pal[p  ]);
+                pal[p] = centralize(pal[p]);
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits the red,
+     * green, and blue channels of each color in its palette (which is all colors in the image) by running each channel
+     * through a function (related to {@link #probit(double)} that biases any channel values that aren't extreme toward
+     * the center of their range, and keeps extreme values (such as max green, or black) as they are. This takes an
+     * {@code amount} parameter, between 0.0 and 1.0, that controls how much of the centralized effect to use (higher
+     * amount means more centralized colors).
+     * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
+     * @param output FileHandle that should be writable and empty
+     * @param amount how much this should use of the centralizing effect, from 0.0 (no centralization) to 1.0 (full)
+     */
+    public static void centralizePalette(FileHandle input, FileHandle output, float amount)
+    {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if(pal == null)
+            {
+                output.write(inputStream, false);
+                return;
+            }
+            for (int p = 0; p < pal.length; p++) {
+                pal[p] = (byte) MathUtils.lerp(pal[p] & 255, centralize(pal[p]) & 255, amount);
             }
             writeChunks(output.write(false), chunks);
         } catch (IOException e) {
