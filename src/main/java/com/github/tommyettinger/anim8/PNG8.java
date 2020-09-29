@@ -4,13 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
+import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
@@ -3036,6 +3036,132 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     /** Should probably be done explicitly; finalize() has been scheduled for removal from the JVM. */
     public void dispose () {
         deflater.end();
+    }
+
+    /**
+     * Simple PNG IO from https://www.java-tips.org/java-se-tips-100019/23-java-awt-image/2283-png-file-format-decoder-in-java.html .
+     * @param inStream an input stream to read from; will be closed at the end of this method
+     * @return an {@link OrderedMap} of chunk names to chunk contents
+     * @throws IOException if the file is not a PNG or is extremely long
+     */
+    protected static OrderedMap<String, byte[]> readChunks(InputStream inStream) throws IOException {
+        DataInputStream in = new DataInputStream(inStream);
+        if(in.readLong() != 0x89504e470d0a1a0aL)
+            throw  new IOException("PNG signature not found!");
+        OrderedMap<String, byte[]> chunks = new OrderedMap<>(10);
+        boolean trucking = true;
+        while (trucking) {
+            try {
+                // Read the length.
+                int length = in.readInt();
+                if (length < 0)
+                    throw new IOException("Sorry, that file is too long.");
+                // Read the type.
+                byte[] typeBytes = new byte[4];
+                in.readFully(typeBytes);
+                // Read the data.
+                byte[] data = new byte[length];
+                in.readFully(data);
+                // Read the CRC, discard it.
+                int crc = in.readInt();
+                String type = new String(typeBytes, "UTF8");
+                chunks.put(type, data);
+            } catch (EOFException eofe) {
+                trucking = false;
+            }
+        }
+        in.close();
+        return chunks;
+    }
+
+    /**
+     * Simple PNG IO from https://www.java-tips.org/java-se-tips-100019/23-java-awt-image/2283-png-file-format-decoder-in-java.html .
+     * @param outStream an output stream; will be closed when this method ends
+     * @param chunks an OrderedMap of chunks, almost always produced by {@link #readChunks(InputStream)}
+     */
+    protected static void writeChunks(OutputStream outStream, OrderedMap<String, byte[]> chunks) {
+        DataOutputStream out = new DataOutputStream(outStream);
+        CRC32 crc = new CRC32();
+        try {
+            out.writeLong(0x89504e470d0a1a0aL);
+            for (ObjectMap.Entry<String, byte[]> ent : chunks.entries()) {
+                out.writeInt(ent.value.length);
+                out.writeBytes(ent.key);
+                crc.update(ent.key.getBytes("UTF8"));
+                out.write(ent.value);
+                crc.update(ent.value);
+                out.writeInt((int) crc.getValue());
+                crc.reset();
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and changes its
+     * palette (in full and in order) to exactly match {@code palette}. This is only likely to work if the input file
+     * was written with the same palette order, such as by specifying an {@code exactPalette} in
+     * {@link #writePrecisely(FileHandle, Pixmap, int[], boolean, int)} where that exactPalette has similar colors at
+     * each palette index to {@code palette}.
+     * @param input FileHandle to read from that should have a similar palette (and very similar order) to {@code palette}
+     * @param output FileHandle that should be writable and empty
+     * @param palette RGBA8888 color array
+     */
+    public static void swapPalette(FileHandle input, FileHandle output, int[] palette)
+    {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if(pal == null)
+            {
+                output.write(inputStream, false);
+                return;
+            }
+            for (int i = 0, p = 0; i < palette.length && p < pal.length - 2; i++) {
+                int rgba = palette[i];
+                pal[p++] = (byte) (rgba >>> 24);
+                pal[p++] = (byte) (rgba >>> 16);
+                pal[p++] = (byte) (rgba >>> 8);
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits the red,
+     * green, and blue channels of each color in its palette (which is all colors in the image) by converting them to a
+     * 0.0-1.0 range and giving that to {@code editor}. <a href="https://github.com/libgdx/libgdx/wiki/Interpolation">The
+     * libGDX wiki page on Interpolation</a> has valuable info.
+     * @param input FileHandle to read from that should have a similar palette (and very similar order) to {@code palette}
+     * @param output FileHandle that should be writable and empty
+     */
+    public static void editPalette(FileHandle input, FileHandle output, Interpolation editor)
+    {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if(pal == null)
+            {
+                output.write(inputStream, false);
+                return;
+            }
+            for (int p = 0; p < pal.length - 2;) {
+                pal[p  ] = (byte)editor.apply(0f, 255.999f, (pal[p  ] & 255) / 255f);
+                pal[p+1] = (byte)editor.apply(0f, 255.999f, (pal[p+1] & 255) / 255f);
+                pal[p+2] = (byte)editor.apply(0f, 255.999f, (pal[p+2] & 255) / 255f);
+                p+=3;
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
