@@ -780,10 +780,39 @@ public class PaletteReducer {
                     offset += size;
                 }
             }
-            int jump = out.length >>> numCuts, mid = jump >>> 1, assigned = 0;
-            for (int n = 1 << numCuts; assigned < n; assigned++, mid += jump) {
-                paletteArray[assigned] = out[mid];
+            int jump = out.length >>> numCuts, mid = 0, assigned = 0;
+            double fr = 270.0 / (jump * 31.0);
+            for (int n = (1 << numCuts) - 1; assigned < n; assigned++, mid += jump) {
+                double r = 0, g = 0, b = 0;
+                for (int i = mid + jump - 1; i >= mid; i--) {
+                    color = out[i];
+                    r += color >>> 27;
+                    g += color >>> 19 & 31;
+                    b += color >>> 11 & 31;
+                }
+                paletteArray[assigned] =
+                        (int)MathUtils.clamp((r - 7.0) * fr, 0.0, 255.0) << 24 |
+                                (int)MathUtils.clamp((g - 7.0) * fr, 0.0, 255.0) << 16 |
+                                (int)MathUtils.clamp((b - 7.0) * fr, 0.0, 255.0) << 8 | 0xFF;
             }
+            {
+                int j2 = out.length - (mid - jump);
+                double r = 0, g = 0, b = 0, fr2 = 270.0 / (j2 * 31.0);
+                for (int i = out.length - 1; i >= mid; i--) {
+                    color = out[i];
+                    r += color >>> 27;
+                    g += color >>> 19 & 31;
+                    b += color >>> 11 & 31;
+                }
+                paletteArray[assigned++] =
+                        (int)MathUtils.clamp((r - 7.0) * fr2, 0.0, 255.0) << 24 |
+                                (int)MathUtils.clamp((g - 7.0) * fr2, 0.0, 255.0) << 16 |
+                                (int)MathUtils.clamp((b - 7.0) * fr2, 0.0, 255.0) << 8 | 0xFF;
+            }
+//            int jump = out.length >>> numCuts, mid = jump >>> 1, assigned = 0;
+//            for (int n = 1 << numCuts; assigned < n; assigned++, mid += jump) {
+//                paletteArray[assigned] = out[mid];
+//            }
             COLORS:
             for (int i = limit; i < assigned; i++) {
                 int currentCount = counts.get(paletteArray[i], 0);
