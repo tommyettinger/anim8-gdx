@@ -22,6 +22,7 @@ public class PaletteTwister extends ApplicationAdapter {
     private int index = 1;
     private final int modes = 10;
     private float strength = 0.5f;
+    private int bias = 0;
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setTitle("Palette Twister");
@@ -50,36 +51,108 @@ public class PaletteTwister extends ApplicationAdapter {
             in = Gdx.files.internal(name);
         else
             in = Gdx.files.absolute(name);
-        switch (index){
+        switch (bias) {
+            case -1:
+                switch (index) {
+                    case 0:
+                        PNG8.centralizePalette(in, out, strength);
+                        break;
+                    case 1:
+                        PNG8.editPalette(in, out, Interpolation.circleIn);
+                        break;
+                    case 2:
+                        PNG8.editPalette(in, out, Interpolation.pow2In);
+                        break;
+                    case 3:
+                        PNG8.editPalette(in, out, Interpolation.pow3In);
+                        break;
+                    case 4:
+                        PNG8.editPalette(in, out, Interpolation.pow4In);
+                        break;
+                    case 5:
+                        PNG8.editPalette(in, out, Interpolation.pow5In);
+                        break;
+                    case 6:
+                        PNG8.editPalette(in, out, Interpolation.exp5In);
+                        break;
+                    case 7:
+                        PNG8.editPalette(in, out, Interpolation.exp10In);
+                        break;
+                    case 8:
+                        PNG8.editPalette(in, out, Interpolation.sineIn);
+                        break;
+                    case 9:
+                        PNG8.editPalette(in, out, Interpolation.pow2OutInverse);
+                        break;
+                }
+                break;
             case 0:
-                PNG8.centralizePalette(in, out, strength);
+                switch (index) {
+                    case 0:
+                        PNG8.centralizePalette(in, out, strength);
+                        break;
+                    case 1:
+                        PNG8.editPalette(in, out, Interpolation.circle);
+                        break;
+                    case 2:
+                        PNG8.editPalette(in, out, Interpolation.pow2);
+                        break;
+                    case 3:
+                        PNG8.editPalette(in, out, Interpolation.pow3);
+                        break;
+                    case 4:
+                        PNG8.editPalette(in, out, Interpolation.pow4);
+                        break;
+                    case 5:
+                        PNG8.editPalette(in, out, Interpolation.pow5);
+                        break;
+                    case 6:
+                        PNG8.editPalette(in, out, Interpolation.exp5);
+                        break;
+                    case 7:
+                        PNG8.editPalette(in, out, Interpolation.exp10);
+                        break;
+                    case 8:
+                        PNG8.editPalette(in, out, Interpolation.smooth);
+                        break;
+                    case 9:
+                        PNG8.editPalette(in, out, Interpolation.smoother);
+                        break;
+                }
                 break;
             case 1:
-                PNG8.editPalette(in, out, Interpolation.circle);
-                break;
-            case 2:
-                PNG8.editPalette(in, out, Interpolation.pow2);
-                break;
-            case 3:
-                PNG8.editPalette(in, out, Interpolation.pow3);
-                break;
-            case 4:
-                PNG8.editPalette(in, out, Interpolation.pow4);
-                break;
-            case 5:
-                PNG8.editPalette(in, out, Interpolation.pow5);
-                break;
-            case 6:
-                PNG8.editPalette(in, out, Interpolation.exp5);
-                break;
-            case 7:
-                PNG8.editPalette(in, out, Interpolation.exp10);
-                break;
-            case 8:
-                PNG8.editPalette(in, out, Interpolation.smooth);
-                break;
-            case 9:
-                PNG8.editPalette(in, out, Interpolation.smoother);
+                switch (index) {
+                    case 0:
+                        PNG8.centralizePalette(in, out, strength);
+                        break;
+                    case 1:
+                        PNG8.editPalette(in, out, Interpolation.circleOut);
+                        break;
+                    case 2:
+                        PNG8.editPalette(in, out, Interpolation.pow2Out);
+                        break;
+                    case 3:
+                        PNG8.editPalette(in, out, Interpolation.pow3Out);
+                        break;
+                    case 4:
+                        PNG8.editPalette(in, out, Interpolation.pow4Out);
+                        break;
+                    case 5:
+                        PNG8.editPalette(in, out, Interpolation.pow5Out);
+                        break;
+                    case 6:
+                        PNG8.editPalette(in, out, Interpolation.exp5Out);
+                        break;
+                    case 7:
+                        PNG8.editPalette(in, out, Interpolation.exp10Out);
+                        break;
+                    case 8:
+                        PNG8.editPalette(in, out, Interpolation.sineOut);
+                        break;
+                    case 9:
+                        PNG8.editPalette(in, out, Interpolation.pow2InInverse);
+                        break;
+                }
                 break;
         }
         screenTexture = new Texture(out);
@@ -153,6 +226,12 @@ public class PaletteTwister extends ApplicationAdapter {
                         break;
                     case Input.Keys.DOWN:
                         strength = Math.max(strength - 0.05f, 0f);
+                        break;
+                    case Input.Keys.LEFT:
+                        bias = Math.max(bias - 1, -1);
+                        break;
+                    case Input.Keys.RIGHT:
+                        bias = Math.min(bias + 1, 1);
                         break;
                     case Input.Keys.Q:
                     case Input.Keys.ESCAPE:
