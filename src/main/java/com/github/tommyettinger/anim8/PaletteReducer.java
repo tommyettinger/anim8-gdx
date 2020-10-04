@@ -927,6 +927,141 @@ public class PaletteReducer {
 
     }
 
+    public void analyzeNQ(Pixmap pixmap, int limit) {
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        final int width = pixmap.getWidth(), height = pixmap.getHeight();
+        IntSet counts = new IntSet(limit);
+        int hasTransparent = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                color = pixmap.getPixel(x, y);
+                if ((color & 0x80) != 0) {
+                    counts.add(color | (color >>> 5 & 0x07070700) | 0xFF);
+                    if(counts.size + hasTransparent > limit) break;
+                } else {
+                    hasTransparent = 1;
+                }
+            }
+        }
+        if(counts.size + hasTransparent <= limit){
+            IntSet.IntSetIterator it = counts.iterator();
+            int i = hasTransparent;
+            while (it.hasNext)
+            {
+                paletteArray[i] = color = it.next();
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i++;
+            }
+            colorCount = limit;
+            populationBias = Math.exp(-1.375/colorCount);
+        }
+        else {
+            NeuQuant nq = new NeuQuant(pixmap, 8, limit - 1);
+            nq.process(paletteArray);
+            for (int i = hasTransparent; i < limit; i++) {
+                color = paletteArray[i];
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+            }
+            colorCount = limit;
+            populationBias = Math.exp(-1.375/colorCount);
+        }
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.POSITIVE_INFINITY;
+                        for (int i = 1; i < limit; i++) {
+                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
+        calculateGamma();
+
+    }
+
+
+    public void analyzeNQ(Array<Pixmap> pixmaps, int limit) {
+        analyzeNQ(pixmaps.items, pixmaps.size, limit);
+    }
+
+    public void analyzeNQ(Pixmap[] pixmaps, int pixmapCount, int limit) {
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        IntSet counts = new IntSet(limit);
+        int hasTransparent = 0;
+        for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
+            Pixmap pixmap = pixmaps[i];
+            final int width = pixmap.getWidth(), height = pixmap.getHeight();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    color = pixmap.getPixel(x, y);
+                    if ((color & 0x80) != 0) {
+                        counts.add(color | (color >>> 5 & 0x07070700) | 0xFF);
+                        if(counts.size + hasTransparent > limit) break;
+                    } else {
+                        hasTransparent = 1;
+                    }
+                }
+            }
+        }
+
+        if(counts.size + hasTransparent <= limit){
+            IntSet.IntSetIterator it = counts.iterator();
+            int i = hasTransparent;
+            while (it.hasNext)
+            {
+                paletteArray[i] = color = it.next();
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i++;
+            }
+            colorCount = limit;
+            populationBias = Math.exp(-1.375/colorCount);
+        }
+        else {
+            NeuQuant nq = new NeuQuant(pixmaps, pixmapCount, 8, limit - 1);
+            nq.process(paletteArray);
+            for (int i = hasTransparent; i < limit; i++) {
+                color = paletteArray[i];
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+            }
+            colorCount = limit;
+            populationBias = Math.exp(-1.375/colorCount);
+        }
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.POSITIVE_INFINITY;
+                        for (int i = 1; i < limit; i++) {
+                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
+        calculateGamma();
+
+    }
+
     /**
      * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
