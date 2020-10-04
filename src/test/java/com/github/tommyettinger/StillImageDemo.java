@@ -15,7 +15,8 @@ import com.github.tommyettinger.anim8.PaletteReducer;
 import java.io.IOException;
 
 /**
- * Currently just dithers a picture of my cat (Satchmo) as a still GIF, PNG8, and full-color PNG.
+ * Currently just dithers a few pictures (my cat, then from Wikimedia Commons, a tropical frog, a public domain
+ * landscape painting, and a remaster of the Mona Lisa) as a still GIF, PNG8, and full-color PNG.
  */
 public class StillImageDemo extends ApplicationAdapter {
     private long startTime;
@@ -50,7 +51,8 @@ public class StillImageDemo extends ApplicationAdapter {
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
 		PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
-			reducer.analyze(pixmap, 10000 / count + count * 4, count);
+			reducer.analyze(pixmap, 400, count);
+//			reducer.analyze(pixmap, 10000 / count + count * 4, count);
 			png8.setPalette(reducer);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-Pattern-" + count + ".png"), pixmap, false, true);
@@ -86,7 +88,8 @@ public class StillImageDemo extends ApplicationAdapter {
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
-			reducer.analyze(pixmaps, 10000 / count + count * 4, count);
+			reducer.analyze(pixmaps, 400, count);
+//			reducer.analyze(pixmaps, 10000 / count + count * 4, count);
 			gif.setPalette(reducer);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
 			gif.write(Gdx.files.local("images/" + name + "-Gif-Pattern-" + count + ".gif"), pixmaps, 1);
