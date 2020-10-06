@@ -29,7 +29,7 @@ import java.nio.IntBuffer;
 //	 Ported to Java 12/00 K Weiner
 public class NeuQuant {
 
-	protected int netsize = 256; /* number of colours used */
+	protected int limit; /* number of colours used */
 
 	/* four primes near 500 - assume no image has a length so large */
 	/* that it is divisible by all four primes */
@@ -47,7 +47,7 @@ public class NeuQuant {
 	 * Network Definitions -------------------
 	 */
 
-	protected int maxnetpos = (netsize - 1);
+	protected int maxnetpos = (limit - 1);
 
 	protected static final int netbiasshift = 4; /* bias for colour values */
 
@@ -107,14 +107,13 @@ public class NeuQuant {
 	// typedef int pixel[4]; /* BGRc */
 	protected int[][] network; /* the network itself - [netsize][4] */
 
+	/* for network lookup */
 	protected int[] netindex = new int[256];
 
-	/* for network lookup - really 256 */
-
-	protected int[] bias = new int[netsize];
+	protected int[] bias;
 
 	/* bias and freq arrays for learning */
-	protected int[] freq = new int[netsize];
+	protected int[] freq;
 
 	protected int[] radpower;
 
@@ -125,10 +124,12 @@ public class NeuQuant {
 	 * -----------------------------------------------------------------------
 	 */
 	public NeuQuant(Pixmap thepic, int sample, int limit) {
-		this.netsize = limit;
+		this.limit = limit;
 		initrad = (limit >> 3);
 		initradius = (initrad * radiusbias);
 		radpower = new int[initrad];
+		bias = new int[limit];
+		freq = new int[limit];
 		int i;
 		int[] p;
 		lengthcount = thepic.getHeight() * thepic.getWidth();
@@ -147,10 +148,12 @@ public class NeuQuant {
 	}
 
 	public NeuQuant(Pixmap[] thepic, int pixmapCount, int sample, int limit) {
-		this.netsize = limit;
+		this.limit = limit;
 		initrad = (limit >> 3);
 		initradius = (initrad * radiusbias);
 		radpower = new int[initrad];
+		bias = new int[limit];
+		freq = new int[limit];
 		int i;
 		int[] p;
 
@@ -173,11 +176,11 @@ public class NeuQuant {
 	}
 
 	public void colorMap(int[] colorArray) {
-		int[] index = new int[netsize];
-		for (int i = 0; i < netsize; i++)
+		int[] index = new int[limit];
+		for (int i = 0; i < limit; i++)
 			index[network[i][3]] = i;
 		int k = 1;
-		for (int i = 0; i < netsize; i++) {
+		for (int i = 0; i < limit; i++) {
 			int j = index[i];
 			colorArray[k++] = (network[j][2] << 24) | (network[j][1] << 16 & 0xFF0000) | (network[j][0] << 8 & 0xFF00) | 0xFF;
 		}
@@ -197,12 +200,12 @@ public class NeuQuant {
 
 		previouscol = 0;
 		startpos = 0;
-		for (i = 0; i < netsize; i++) {
+		for (i = 0; i < limit; i++) {
 			p = network[i];
 			smallpos = i;
 			smallval = p[1]; /* index on g */
 			/* find smallest in i..netsize-1 */
-			for (j = i + 1; j < netsize; j++) {
+			for (j = i + 1; j < limit; j++) {
 				q = network[j];
 				if (q[1] < smallval) { /* index on g */
 					smallpos = j;
@@ -328,12 +331,12 @@ public class NeuQuant {
 		i = netindex[g]; /* index on g */
 		j = i - 1; /* start at netindex[g] and work outwards */
 
-		while ((i < netsize) || (j >= 0)) {
-			if (i < netsize) {
+		while ((i < limit) || (j >= 0)) {
+			if (i < limit) {
 				p = network[i];
 				dist = p[1] - g; /* inx key */
 				if (dist >= bestd)
-					i = netsize; /* stop iter */
+					i = limit; /* stop iter */
 				else {
 					i++;
 					if (dist < 0)
@@ -399,7 +402,7 @@ public class NeuQuant {
 
 		int i;
 
-		for (i = 0; i < netsize; i++) {
+		for (i = 0; i < limit; i++) {
 			network[i][0] >>= netbiasshift;
 			network[i][1] >>= netbiasshift;
 			network[i][2] >>= netbiasshift;
@@ -421,8 +424,8 @@ public class NeuQuant {
 		if (lo < -1)
 			lo = -1;
 		hi = i + rad;
-		if (hi > netsize)
-			hi = netsize;
+		if (hi > limit)
+			hi = limit;
 
 		j = i + 1;
 		k = i - 1;
@@ -478,7 +481,7 @@ public class NeuQuant {
 		bestpos = -1;
 		bestbiaspos = bestpos;
 
-		for (i = 0; i < netsize; i++) {
+		for (i = 0; i < limit; i++) {
 			n = network[i];
 			dist = n[0] - b;
 			if (dist < 0)

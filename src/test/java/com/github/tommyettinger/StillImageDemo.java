@@ -19,7 +19,7 @@ import java.io.IOException;
  * landscape painting, and a remaster of the Mona Lisa) as a still GIF, PNG8, and full-color PNG.
  */
 public class StillImageDemo extends ApplicationAdapter {
-    private long startTime;
+    private long startTime, total = 0;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
@@ -31,6 +31,7 @@ public class StillImageDemo extends ApplicationAdapter {
 			renderGif(name);
 //			renderPNG(name);
 		}
+		System.out.println("Analyzed all " + total + " images in " + (System.currentTimeMillis() - startTime) + " ms");
         Gdx.app.exit();
     }
     
@@ -51,7 +52,9 @@ public class StillImageDemo extends ApplicationAdapter {
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
 		PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
-			reducer.analyzeNQ(pixmap, count);
+			reducer.analyzeNQ(pixmap, count); //Dithered all 392 images in 42784 ms
+//			reducer.analyze(pixmap, 400, count); //Dithered all 392 images in 42237 ms
+			
 //			reducer.analyze(pixmap, 10000 / count + count * 4, count);
 			png8.setPalette(reducer);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -68,6 +71,7 @@ public class StillImageDemo extends ApplicationAdapter {
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-ChaoticNoise-" + count + ".png"), pixmap, false, true);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-Scatter-" + count + ".png"), pixmap, false, true);
+			total += 1;
 		}
 	}
 
@@ -88,9 +92,9 @@ public class StillImageDemo extends ApplicationAdapter {
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
-			reducer.analyzeNQ(pixmaps, count);
-//			reducer.analyze(pixmaps, 400, count);
-//			reducer.analyze(pixmaps, 10000 / count + count * 4, count);
+			reducer.analyzeNQ(pixmaps, count); //Dithered all 392 images in 42784 ms
+//			reducer.analyze(pixmaps, 400, count); //Dithered all 392 images in 42237 ms
+
 			gif.setPalette(reducer);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
 			gif.write(Gdx.files.local("images/" + name + "-Gif-Pattern-" + count + ".gif"), pixmaps, 1);
@@ -106,6 +110,7 @@ public class StillImageDemo extends ApplicationAdapter {
 			gif.write(Gdx.files.local("images/" + name + "-Gif-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
 			gif.write(Gdx.files.local("images/" + name + "-Gif-Scatter-" + count + ".gif"), pixmaps, 1);
+			total += 1;
 		}
     }
 

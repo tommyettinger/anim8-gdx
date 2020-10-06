@@ -957,7 +957,7 @@ public class PaletteReducer {
             populationBias = Math.exp(-1.375/colorCount);
         }
         else {
-            NeuQuant nq = new NeuQuant(pixmap, 8, limit - 1);
+            NeuQuant nq = new NeuQuant(pixmap, 5, limit - 1);
             nq.process(paletteArray);
             for (int i = hasTransparent; i < limit; i++) {
                 color = paletteArray[i];
@@ -1029,7 +1029,7 @@ public class PaletteReducer {
             populationBias = Math.exp(-1.375/colorCount);
         }
         else {
-            NeuQuant nq = new NeuQuant(pixmaps, pixmapCount, 8, limit - 1);
+            NeuQuant nq = new NeuQuant(pixmaps, pixmapCount, 5, limit - 1);
             nq.process(paletteArray);
             for (int i = hasTransparent; i < limit; i++) {
                 color = paletteArray[i];

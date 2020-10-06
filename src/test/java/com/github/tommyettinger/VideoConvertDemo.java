@@ -31,6 +31,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
 //		renderPNG8();
         renderVideoGif();
         renderPixelGif();
+        System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
 
@@ -61,13 +62,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
         PNG8 png8 = new PNG8();
+        png8.setPalette(new PaletteReducer());
+        png8.palette.analyzeNQ(pixmaps, 256);
         String namePalette = name + "-analyzed";
         //// BW
 //        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
-        png8.palette = new PaletteReducer(new int[]{0x00000000, 
-                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
-                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
+//        png8.palette = new PaletteReducer(new int[]{0x00000000, 
+//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
+//                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
         namePalette = name + "-Green";
         png8.setFlipY(false);
         png8.setCompression(7);
@@ -89,12 +92,16 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
     public void renderVideoGif() {
         String name = "market";
-        Array<Pixmap> pixmaps = new Array<>(90);
+        Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
         AnimatedGif gif = new AnimatedGif();
         String namePalette;
+        gif.setPalette(new PaletteReducer());
+        gif.palette.analyzeNQ(pixmaps, 256); //Took 23225 ms
+//        gif.palette.analyze(pixmaps, 400, 256); //Took 24765 ms
+
         namePalette = name + "-Analyzed";
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
@@ -123,12 +130,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
     public void renderPixelGif() {
         String name = "tree";
-        Array<Pixmap> pixmaps = new Array<>(32);
+        Array<Pixmap> pixmaps = new Array<>(true, 32, Pixmap.class);
         for (int i = 0; i < 32; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
         AnimatedGif gif = new AnimatedGif();
         String namePalette;
+        gif.setPalette(new PaletteReducer());
+        gif.palette.analyzeNQ(pixmaps, 256); //Took 23225 ms
+//        gif.palette.analyze(pixmaps, 400, 256); //Took 24765 ms
         namePalette = name + "-Analyzed";
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
