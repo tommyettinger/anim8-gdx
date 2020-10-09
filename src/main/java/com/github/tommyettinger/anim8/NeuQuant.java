@@ -268,9 +268,7 @@ public class NeuQuant {
 			rad = 0;
 		for (i = 0; i < rad; i++)
 			radpower[i] = alpha * (((rad * rad - i * i) * radbias) / (rad * rad));
-
-		// fprintf(stderr,"beginning 1D learning: initial radius=%d\n", rad);
-
+		
 		if (lengthcount < minpicturebytes)
 			step = 1;
 		else if ((lengthcount % prime1) != 0)

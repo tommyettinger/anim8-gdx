@@ -208,10 +208,11 @@ public class PaletteReducer {
                     m = Math.pow(0.151693 * r + 0.748209 * g + 0.1000044 * b, 0.43);
                     s = Math.pow(0.017753 * r + 0.109468 * g + 0.8729690 * b, 0.43);
 
-                    IPT[0][idx] = 0.40000 * l + 0.40000 * m + 0.2000 * s;
-                    IPT[1][idx] = 3.34125 * l - 3.63825 * m + 0.2970 * s;
-                    IPT[2][idx] = 0.53705 * l + 0.23815 * m - 0.7752 * s;
-                    
+                    IPT[0][idx] = 0.4000 * l + 0.4000 * m + 0.2000 * s;
+                    IPT[1][idx] = 6.6825 * l - 7.2765 * m + 0.5940 * s;
+                    IPT[2][idx] = 1.0741 * l + 0.4763 * m - 1.5504 * s;
+
+
                     idx++;
                 }
             }
@@ -405,7 +406,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return L * L * 0x1p16 + (A * A + B * B) * 0x1.8p14;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 4.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     public double difference(int color1, int r2, int g2, int b2) {
@@ -416,7 +417,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return L * L * 0x1p16 + (A * A + B * B) * 0x1.8p14;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 4.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
@@ -426,7 +427,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return L * L * 0x1p16 + (A * A + B * B) * 0x1.8p14;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 4.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     /**
@@ -934,12 +935,13 @@ public class PaletteReducer {
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntSet counts = new IntSet(limit);
         int hasTransparent = 0;
+        OUTER:
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 color = pixmap.getPixel(x, y);
                 if ((color & 0x80) != 0) {
                     counts.add(color | (color >>> 5 & 0x07070700) | 0xFF);
-                    if(counts.size + hasTransparent > limit) break;
+                    if(counts.size + hasTransparent > limit) break OUTER;
                 } else {
                     hasTransparent = 1;
                 }
@@ -1001,6 +1003,7 @@ public class PaletteReducer {
         int color;
         IntSet counts = new IntSet(limit);
         int hasTransparent = 0;
+        OUTER:
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
             Pixmap pixmap = pixmaps[i];
             final int width = pixmap.getWidth(), height = pixmap.getHeight();
@@ -1009,7 +1012,7 @@ public class PaletteReducer {
                     color = pixmap.getPixel(x, y);
                     if ((color & 0x80) != 0) {
                         counts.add(color | (color >>> 5 & 0x07070700) | 0xFF);
-                        if(counts.size + hasTransparent > limit) break;
+                        if(counts.size + hasTransparent > limit) break OUTER;
                     } else {
                         hasTransparent = 1;
                     }
