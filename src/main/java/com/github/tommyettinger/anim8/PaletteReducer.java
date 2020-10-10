@@ -933,22 +933,20 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
-        IntSet counts = new IntSet(limit);
+        IntIntMap populace = new IntIntMap(Math.max(width * height >>> 4, limit));
         int hasTransparent = 0;
-        OUTER:
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 color = pixmap.getPixel(x, y);
                 if ((color & 0x80) != 0) {
-                    counts.add(color | (color >>> 5 & 0x07070700) | 0xFF);
-                    if(counts.size + hasTransparent > limit) break OUTER;
+                    populace.getAndIncrement(color | (color >>> 5 & 0x07070700) | 0xFF, 1, 0); 
                 } else {
                     hasTransparent = 1;
                 }
             }
         }
-        if(counts.size + hasTransparent <= limit){
-            IntSet.IntSetIterator it = counts.iterator();
+        if(populace.size + hasTransparent <= limit){
+            IntIntMap.Keys it = populace.keys();
             int i = hasTransparent;
             while (it.hasNext)
             {
@@ -962,7 +960,7 @@ public class PaletteReducer {
             NeuQuant nq = new NeuQuant(pixmap, 5, 256 - hasTransparent);
             nq.process(paletteArray, hasTransparent);
             colorCount = 256;             
-            squashColors(limit);
+            squashColors(limit, populace);
         }
         int c2;
         int rr, gg, bb;
@@ -997,9 +995,8 @@ public class PaletteReducer {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
-        IntSet counts = new IntSet(limit);
+        IntIntMap populace = new IntIntMap(Math.max(pixmaps[0].getWidth() * pixmaps[0].getHeight() >>> 4, limit));
         int hasTransparent = 0;
-        OUTER:
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
             Pixmap pixmap = pixmaps[i];
             final int width = pixmap.getWidth(), height = pixmap.getHeight();
@@ -1007,17 +1004,15 @@ public class PaletteReducer {
                 for (int x = 0; x < width; x++) {
                     color = pixmap.getPixel(x, y);
                     if ((color & 0x80) != 0) {
-                        counts.add(color | (color >>> 5 & 0x07070700) | 0xFF);
-                        if(counts.size + hasTransparent > limit) break OUTER;
+                        populace.getAndIncrement(color | (color >>> 5 & 0x07070700) | 0xFF, 1, 0);
                     } else {
                         hasTransparent = 1;
                     }
                 }
             }
         }
-
-        if(counts.size + hasTransparent <= limit){
-            IntSet.IntSetIterator it = counts.iterator();
+        if(populace.size + hasTransparent <= limit){
+            IntIntMap.Keys it = populace.keys();
             int i = hasTransparent;
             while (it.hasNext)
             {
@@ -1031,7 +1026,7 @@ public class PaletteReducer {
             NeuQuant nq = new NeuQuant(pixmaps, pixmapCount, 5, 256 - hasTransparent);
             nq.process(paletteArray, hasTransparent);
             colorCount = 256;
-            squashColors(limit);
+            squashColors(limit, populace);
         }
         int c2;
         int rr, gg, bb;
@@ -1077,25 +1072,22 @@ public class PaletteReducer {
         return r << 24 | g << 16 | b << 8 | a;
 
     }
-    public void squashColors(int newCount) {
+    public void squashColors(int newCount, IntIntMap populace) {
         if(newCount >= colorCount) {
             exact(Arrays.copyOf(paletteArray, colorCount));
             return;
         }
-        int[] bufG = new int[64];
         int hasTransparent = paletteArray[0] == 0 ? 1 : 0;
-        for (int i = hasTransparent; i < colorCount; i++) {
-            bufG[(int)(IPT[0][shrink(paletteArray[i])] * 63.99999)]++; 
-        }
-        int rangeG;
-        for (rangeG = 64; rangeG > 0 && bufG[rangeG - 1] == 0; rangeG--) ;
-        for (int r = 0; r < rangeG && bufG[r] == 0; r++, rangeG--) ;
-        for (int i = 1; i < 64; i++)
-            bufG[i] += bufG[i - 1];
         IntArray pal = new IntArray(true, paletteArray, 0, colorCount);
-        int[] out = pal.items;
-        for (int i = colorCount - 1; i >= hasTransparent; i--)
-            out[hasTransparent + --bufG[(int)(IPT[0][shrink(paletteArray[i])] * 63.99999)]] = paletteArray[i];
+//        int[] bufI = new int[64];
+//        for (int i = hasTransparent; i < colorCount; i++) {
+//            bufI[(int)(IPT[0][shrink(paletteArray[i])] * 63.99999)]++; 
+//        }
+//        for (int i = 1; i < 64; i++)
+//            bufI[i] += bufI[i - 1];
+//        int[] out = pal.items;
+//        for (int i = colorCount - 1; i >= hasTransparent; i--)
+//            out[hasTransparent + --bufI[(int)(IPT[0][shrink(paletteArray[i])] * 63.99999)]] = paletteArray[i];
  
         for (int i = colorCount; i > newCount; i--) {
             double minDist = 1e100;
@@ -1109,8 +1101,21 @@ public class PaletteReducer {
                     }
                 }
             }
+            if(((populace.get(pal.get(xPick), 0) < populace.get(pal.get(yPick), 0))) ^ ((i * (i + 11 >> 1) % 5) == 3))
+            {
+                populace.getAndIncrement(pal.get(yPick), populace.remove(pal.removeIndex(xPick), 0), 0);
+            }
+            else
+            {
+                populace.getAndIncrement(pal.get(xPick), populace.remove(pal.removeIndex(yPick), 0), 0);
+            }
+//            int cx = shrink(pal.get(xPick)), cy = shrink(pal.get(yPick));
+//            if((IPT[0][cx] * 2 + IPT[1][cx] * IPT[1][cx] + IPT[2][cx] * IPT[2][cx] < IPT[0][cy] * 2 + IPT[1][cy] * IPT[1][cy] + IPT[2][cy] * IPT[2][cy]) ^ ((i * 53 % 13) > 4))
+//                pal.removeIndex(xPick);
+//            else 
+//                pal.removeIndex(yPick);
 //            pal.removeIndex(yPick);
-            pal.removeIndex((i * 47 % 13) > 4 ? yPick : xPick); // chooses y approximately 8/13 times, x 5/13 times 
+//            pal.removeIndex((i * 47 % 13) > 4 ? yPick : xPick); // chooses y approximately 8/13 times, x 5/13 times 
             //pal.set(xPick, blend(pal.get(xPick), pal.removeIndex(yPick)));
         }
         exact(pal.items, newCount);
