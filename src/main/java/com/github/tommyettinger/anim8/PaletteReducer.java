@@ -406,7 +406,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return (L * L * 4.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 8.0 + A * A + B * B) * 0x1p12;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     public double difference(int color1, int r2, int g2, int b2) {
@@ -417,7 +417,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return (L * L * 4.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 8.0 + A * A + B * B) * 0x1p12;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
@@ -427,7 +427,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return (L * L * 4.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 8.0 + A * A + B * B) * 0x1p12;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     /**
@@ -760,7 +760,7 @@ public class PaletteReducer {
         if(counts.size > limit) {
             int numCuts = 32 - Integer.numberOfLeadingZeros(limit - 1);
             int offset, end = bin.size;
-            int[] in = bin.items, out = new int[end], buf32,
+            int[] in = bin.items, out = new int[end],
                     bufR = new int[32],
                     bufG = new int[32],
                     bufB = new int[32];
@@ -959,14 +959,10 @@ public class PaletteReducer {
             populationBias = Math.exp(-1.375/colorCount);
         }
         else {
-            NeuQuant nq = new NeuQuant(pixmap, 5, limit - 1);
-            nq.process(paletteArray);
-            for (int i = hasTransparent; i < limit; i++) {
-                color = paletteArray[i];
-                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-            }
-            colorCount = limit;
-            populationBias = Math.exp(-1.375/colorCount);
+            NeuQuant nq = new NeuQuant(pixmap, 5, 256 - hasTransparent);
+            nq.process(paletteArray, hasTransparent);
+            colorCount = 256;             
+            squashColors(limit);
         }
         int c2;
         int rr, gg, bb;
@@ -1032,14 +1028,10 @@ public class PaletteReducer {
             populationBias = Math.exp(-1.375/colorCount);
         }
         else {
-            NeuQuant nq = new NeuQuant(pixmaps, pixmapCount, 5, limit - 1);
-            nq.process(paletteArray);
-            for (int i = hasTransparent; i < limit; i++) {
-                color = paletteArray[i];
-                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-            }
-            colorCount = limit;
-            populationBias = Math.exp(-1.375/colorCount);
+            NeuQuant nq = new NeuQuant(pixmaps, pixmapCount, 5, 256 - hasTransparent);
+            nq.process(paletteArray, hasTransparent);
+            colorCount = 256;
+            squashColors(limit);
         }
         int c2;
         int rr, gg, bb;
@@ -1062,7 +1054,66 @@ public class PaletteReducer {
             }
         }
         calculateGamma();
+    }
+    public int blend(int rgba1, int rgba2) {
+        int a1 = rgba1 & 255, a2 = rgba2 & 255;
+        if((a1 & 0x80) == 0) return rgba2;
+        else if((a2 & 0x80) == 0) return rgba1;
+        rgba1 = shrink(rgba1);
+        rgba2 = shrink(rgba2);
+        double i = (IPT[0][rgba1] + IPT[0][rgba2]) * 0.5;
+        double p = (IPT[1][rgba1] + IPT[1][rgba2]) * 0.5;
+        double t = (IPT[2][rgba1] + IPT[2][rgba2]) * 0.5;
+        double lPrime = i + 0.06503950 * p + 0.15391950 * t;
+        double mPrime = i - 0.07591241 * p + 0.09991275 * t;
+        double sPrime = i + 0.02174116 * p - 0.50766750 * t;
+        double l = Math.copySign(Math.pow(Math.abs(lPrime), 2.3256), lPrime);
+        double m = Math.copySign(Math.pow(Math.abs(mPrime), 2.3256), mPrime);
+        double s = Math.copySign(Math.pow(Math.abs(sPrime), 2.3256), sPrime);
+        int r = MathUtils.clamp((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 255.99999), 0, 255);
+        int g = MathUtils.clamp((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 255.99999), 0, 255);
+        int b = MathUtils.clamp((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 255.99999), 0, 255);
+        int a = a1 + a2 + 1 >>> 1;
+        return r << 24 | g << 16 | b << 8 | a;
 
+    }
+    public void squashColors(int newCount) {
+        if(newCount >= colorCount) {
+            exact(Arrays.copyOf(paletteArray, colorCount));
+            return;
+        }
+        int[] bufG = new int[64];
+        int hasTransparent = paletteArray[0] == 0 ? 1 : 0;
+        for (int i = hasTransparent; i < colorCount; i++) {
+            bufG[(int)(IPT[0][shrink(paletteArray[i])] * 63.99999)]++; 
+        }
+        int rangeG;
+        for (rangeG = 64; rangeG > 0 && bufG[rangeG - 1] == 0; rangeG--) ;
+        for (int r = 0; r < rangeG && bufG[r] == 0; r++, rangeG--) ;
+        for (int i = 1; i < 64; i++)
+            bufG[i] += bufG[i - 1];
+        IntArray pal = new IntArray(true, paletteArray, 0, colorCount);
+        int[] out = pal.items;
+        for (int i = colorCount - 1; i >= hasTransparent; i--)
+            out[hasTransparent + --bufG[(int)(IPT[0][shrink(paletteArray[i])] * 63.99999)]] = paletteArray[i];
+ 
+        for (int i = colorCount; i > newCount; i--) {
+            double minDist = 1e100;
+            int xPick = 0, yPick = 1;
+            for (int x = hasTransparent; x < i; x++) {
+                for (int y = x + 1; y < i; y++) {
+                    if(minDist > (minDist = Math.min(minDist, difference(pal.get(x), pal.get(y)))))
+                    {
+                        xPick = x;
+                        yPick = y;
+                    }
+                }
+            }
+//            pal.removeIndex(yPick);
+            pal.removeIndex((i * 47 % 13) > 4 ? yPick : xPick); // chooses y approximately 8/13 times, x 5/13 times 
+            //pal.set(xPick, blend(pal.get(xPick), pal.removeIndex(yPick)));
+        }
+        exact(pal.items, newCount);
     }
 
     /**

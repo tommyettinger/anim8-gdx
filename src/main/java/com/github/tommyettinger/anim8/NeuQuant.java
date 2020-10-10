@@ -175,11 +175,11 @@ public class NeuQuant {
 		}
 	}
 
-	public void colorMap(int[] colorArray) {
+	public void colorMap(int[] colorArray, int hasTransparent) {
 		int[] index = new int[limit];
 		for (int i = 0; i < limit; i++)
 			index[network[i][3]] = i;
-		int k = 1;
+		int k = hasTransparent;
 		for (int i = 0; i < limit; i++) {
 			int j = index[i];
 			colorArray[k++] = (network[j][2] << 24) | (network[j][1] << 16 & 0xFF0000) | (network[j][0] << 8 & 0xFF00) | 0xFF;
@@ -384,11 +384,11 @@ public class NeuQuant {
 		return (best);
 	}
 
-	public void process(int[] colorArray) {
+	public void process(int[] colorArray, int hasTransparent) {
 		learn();
 		unbiasnet();
 		inxbuild();
-		colorMap(colorArray);
+		colorMap(colorArray, hasTransparent);
 	}
 
 	/*
