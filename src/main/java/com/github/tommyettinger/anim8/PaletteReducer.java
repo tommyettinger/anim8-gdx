@@ -661,7 +661,7 @@ public class PaletteReducer {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
-        threshold = threshold - limit >>> 1;
+        threshold >>>= 2;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         int hasTransparent = 0;
@@ -939,7 +939,7 @@ public class PaletteReducer {
             for (int x = 0; x < width; x++) {
                 color = pixmap.getPixel(x, y);
                 if ((color & 0x80) != 0) {
-                    populace.getAndIncrement(color | (color >>> 5 & 0x07070700) | 0xFF, 1, 0); 
+                    populace.getAndIncrement(color | (color >>> 5 & 0x07070700) | 0xFF, 0, 1); 
                 } else {
                     hasTransparent = 1;
                 }
@@ -1004,7 +1004,7 @@ public class PaletteReducer {
                 for (int x = 0; x < width; x++) {
                     color = pixmap.getPixel(x, y);
                     if ((color & 0x80) != 0) {
-                        populace.getAndIncrement(color | (color >>> 5 & 0x07070700) | 0xFF, 1, 0);
+                        populace.getAndIncrement(color | (color >>> 5 & 0x07070700) | 0xFF, 0, 1);
                     } else {
                         hasTransparent = 1;
                     }
@@ -1050,15 +1050,18 @@ public class PaletteReducer {
         }
         calculateGamma();
     }
-    public int blend(int rgba1, int rgba2) {
+    public int blend(int rgba1, int rgba2, double preference) {
         int a1 = rgba1 & 255, a2 = rgba2 & 255;
         if((a1 & 0x80) == 0) return rgba2;
         else if((a2 & 0x80) == 0) return rgba1;
         rgba1 = shrink(rgba1);
         rgba2 = shrink(rgba2);
-        double i = (IPT[0][rgba1] + IPT[0][rgba2]) * 0.5;
-        double p = (IPT[1][rgba1] + IPT[1][rgba2]) * 0.5;
-        double t = (IPT[2][rgba1] + IPT[2][rgba2]) * 0.5;
+        double i = IPT[0][rgba1] + (IPT[0][rgba2] - IPT[0][rgba1]) * preference;
+        double p = IPT[1][rgba1] + (IPT[1][rgba2] - IPT[1][rgba1]) * preference;
+        double t = IPT[2][rgba1] + (IPT[2][rgba2] - IPT[2][rgba1]) * preference;
+//        double i = (IPT[0][rgba1] + IPT[0][rgba2]) * 0.5;
+//        double p = (IPT[1][rgba1] + IPT[1][rgba2]) * 0.5;
+//        double t = (IPT[2][rgba1] + IPT[2][rgba2]) * 0.5;
         double lPrime = i + 0.06503950 * p + 0.15391950 * t;
         double mPrime = i - 0.07591241 * p + 0.09991275 * t;
         double sPrime = i + 0.02174116 * p - 0.50766750 * t;
@@ -1101,13 +1104,18 @@ public class PaletteReducer {
                     }
                 }
             }
-            if(((populace.get(pal.get(xPick), 0) < populace.get(pal.get(yPick), 0))) ^ ((i * (i + 11 >> 1) % 5) == 3))
+            double xCount = populace.get(pal.get(xPick), 0), yCount = populace.get(pal.get(yPick), 0); 
+            if(((xCount < yCount)))// ^ ((i * (i + 11 >> 1) % 7) == 1))
             {
-                populace.getAndIncrement(pal.get(yPick), populace.remove(pal.removeIndex(xPick), 0), 0);
+                pal.set(yPick, blend(pal.get(yPick), pal.get(xPick), xCount / yCount));
+                pal.removeIndex(xPick);
+//                populace.getAndIncrement(pal.get(yPick), 0, populace.remove(pal.removeIndex(xPick), 0));
             }
             else
             {
-                populace.getAndIncrement(pal.get(xPick), populace.remove(pal.removeIndex(yPick), 0), 0);
+                pal.set(xPick, blend(pal.get(yPick), pal.get(xPick), yCount / xCount));
+                pal.removeIndex(yPick);
+//                populace.getAndIncrement(pal.get(xPick),0, populace.remove(pal.removeIndex(yPick), 0));
             }
 //            int cx = shrink(pal.get(xPick)), cy = shrink(pal.get(yPick));
 //            if((IPT[0][cx] * 2 + IPT[1][cx] * IPT[1][cx] + IPT[2][cx] * IPT[2][cx] < IPT[0][cy] * 2 + IPT[1][cy] * IPT[1][cy] + IPT[2][cy] * IPT[2][cy]) ^ ((i * 53 % 13) > 4))
@@ -1209,7 +1217,7 @@ public class PaletteReducer {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
-        threshold = threshold - limit >>> 1;
+        threshold >>>= 2;
         IntIntMap counts = new IntIntMap(limit);
         int hasTransparent = 0;
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];

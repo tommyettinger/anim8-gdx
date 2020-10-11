@@ -52,8 +52,8 @@ public class StillImageDemo extends ApplicationAdapter {
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
 		PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
-			reducer.analyzeNQ(pixmap, count); //Dithered all 392 images in 42784 ms
-//			reducer.analyze(pixmap, 400, count); //Dithered all 392 images in 42237 ms
+//			reducer.analyzeNQ(pixmap, count); //Dithered all 392 images in 42784 ms
+			reducer.analyze(pixmap, 400, count); //Dithered all 392 images in 42237 ms
 			
 //			reducer.analyze(pixmap, 10000 / count + count * 4, count);
 			png8.setPalette(reducer);
@@ -92,8 +92,8 @@ public class StillImageDemo extends ApplicationAdapter {
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
-			reducer.analyzeNQ(pixmaps, count); //Dithered all 392 images in 42784 ms
-//			reducer.analyze(pixmaps, 400, count); //Dithered all 392 images in 42237 ms
+//			reducer.analyzeNQ(pixmaps, count); //Dithered all 392 images in 42784 ms
+			reducer.analyze(pixmaps, 400, count); //Dithered all 392 images in 42237 ms
 
 			gif.setPalette(reducer);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
