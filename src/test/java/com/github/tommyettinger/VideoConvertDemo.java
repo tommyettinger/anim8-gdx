@@ -63,7 +63,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         }
         PNG8 png8 = new PNG8();
         png8.setPalette(new PaletteReducer());
-        png8.palette.analyzeNQ(pixmaps, 256);
+        png8.palette.analyze(pixmaps, 400, 256);
         String namePalette = name + "-analyzed";
         //// BW
 //        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
@@ -99,8 +99,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         String namePalette;
         gif.setPalette(new PaletteReducer());
-        gif.palette.analyzeNQ(pixmaps, 256); //Took 23225 ms
-//        gif.palette.analyze(pixmaps, 400, 256); //Took 24765 ms
+        gif.palette.analyze(pixmaps, 400, 256);
 
         namePalette = name + "-Analyzed";
         // DB Aurora palette
@@ -137,8 +136,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         String namePalette;
         gif.setPalette(new PaletteReducer());
-        gif.palette.analyzeNQ(pixmaps, 256); //Took 23225 ms
-//        gif.palette.analyze(pixmaps, 400, 256); //Took 24765 ms
+        gif.palette.analyze(pixmaps, 400, 256);
         namePalette = name + "-Analyzed";
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
