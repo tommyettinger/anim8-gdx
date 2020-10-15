@@ -204,9 +204,9 @@ public class PaletteReducer {
                 g = gi / 31.0;
                 for (int bi = 0; bi < 32; bi++) {
                     b = bi / 31.0;
-                    l = Math.pow(0.313921 * r + 0.639468 * g + 0.0465970 * b, 0.43);
-                    m = Math.pow(0.151693 * r + 0.748209 * g + 0.1000044 * b, 0.43);
-                    s = Math.pow(0.017753 * r + 0.109468 * g + 0.8729690 * b, 0.43);
+                    l = 0.313921 * r + 0.639468 * g + 0.0465970 * b;
+                    m = 0.151693 * r + 0.748209 * g + 0.1000044 * b;
+                    s = 0.017753 * r + 0.109468 * g + 0.8729690 * b;
 
                     IPT[0][idx] = 0.4000 * l + 0.4000 * m + 0.2000 * s;
                     IPT[1][idx] = 6.6825 * l - 7.2765 * m + 0.5940 * s;
@@ -1144,7 +1144,8 @@ public class PaletteReducer {
     }
     
     void calculateGamma(){
-        double gamma = 2.0 - this.ditherStrength * 2.0;
+//        double gamma = 2.2;
+        double gamma = 1.8 - this.ditherStrength * 1.8;
         for (int i = 0; i < 256; i++) {
             int color = paletteArray[i];
             double r = Math.pow((color >>> 24) / 255.0, gamma);
