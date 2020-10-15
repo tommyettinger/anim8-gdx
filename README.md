@@ -41,8 +41,8 @@ palette-based color, respectively).
 A typical Gradle dependency on anim8 looks like this (in the core module's dependencies for a typical libGDX project):
 ```groovy
 dependencies {
-  //... other dependencies are here, like libGDX 1.9.11
-  api "com.github.tommyettinger:anim8-gdx:0.2.1"
+  //... other dependencies are here, like libGDX 1.9.10 or higher
+  api "com.github.tommyettinger:anim8-gdx:0.2.2"
 }
 ```
 
@@ -50,7 +50,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/e93fcd85db). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.1:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.2:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -78,13 +78,16 @@ different API).
   - BLUE_NOISE
     - Not the typical blue-noise dither; this incorporates a checkerboard pattern as well as a 64x64 blue noise texture.
     - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise.
-    - This is probably the second-best algorithm here, after SCATTER.
+    - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
+      palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and can look somewhat more chaotic.
+    - This is probably the second-best algorithm here for animations, after SCATTER.
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
-    error with blue-noise values. 
+      error with blue-noise values. 
     - This is the default and often the best of the bunch.
+    - Unlike DIFFUSION, this is quite suitable for animations, but some fluid shapes look better with CHAOTIC_NOISE.
     
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
@@ -114,6 +117,10 @@ Chaotic Noise dither:
 
 ![Flashy Gif, chaotic noise dither](images/AnimatedGif-flashy-chaoticNoise.gif)
 
+Scatter dither:
+
+![Flashy Gif, scatter dither](images/AnimatedGif-flashy-scatter.gif)
+
 No dither:
 
 ![Flashy Gif, no dither](images/AnimatedGif-flashy-none.gif)
@@ -138,6 +145,10 @@ Chaotic Noise dither:
 
 ![Pastel Gif, chaotic noise dither](images/AnimatedGif-pastel-chaoticNoise.gif)
 
+Scatter dither:
+
+![Pastel Gif, scatter dither](images/AnimatedGif-pastel-scatter.gif)
+
 No dither:
 
 ![Pastel Gif, no dither](images/AnimatedGif-pastel-none.gif)
@@ -160,6 +171,10 @@ Black and white blue noise dither:
 
 ![BW Gif, blue noise dither](images/AnimatedGif-bw-blueNoise.gif)
 
+Black and white scatter dither:
+
+![BW Gif, scatter dither](images/AnimatedGif-bw-scatter.gif)
+
 Black and white no dither:
 
 ![BW Gif, no dither](images/AnimatedGif-bw-none.gif)
@@ -179,6 +194,10 @@ Black and white no dither:
 4-color green-scale blue noise dither:
 
 ![GB Gif, blue noise dither](images/AnimatedGif-gb-blueNoise.gif)
+
+4-color green-scale scatter dither:
+
+![GB Gif, scatter dither](images/AnimatedGif-gb-scatter.gif)
 
 And some .png animations, using full color:
 
@@ -226,6 +245,10 @@ Blue Noise:
 Chaotic Noise:
 
 ![](images/Mona_Lisa-Gif-ChaoticNoise-16.gif)
+
+Scatter:
+
+![](images/Mona_Lisa-Gif-Scatter-16.gif)
 
 None (no dither):
 
