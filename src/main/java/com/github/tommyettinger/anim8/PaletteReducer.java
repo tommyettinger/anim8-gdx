@@ -196,21 +196,18 @@ public class PaletteReducer {
             e.printStackTrace();
         }
 
-        double r, g, b, l, m, s;
+        double l, m, s;
         int idx = 0;
         for (int ri = 0; ri < 32; ri++) {
-            r = ri / 31.0;
             for (int gi = 0; gi < 32; gi++) {
-                g = gi / 31.0;
                 for (int bi = 0; bi < 32; bi++) {
-                    b = bi / 31.0;
-                    l = 0.313921 * r + 0.639468 * g + 0.0465970 * b;
-                    m = 0.151693 * r + 0.748209 * g + 0.1000044 * b;
-                    s = 0.017753 * r + 0.109468 * g + 0.8729690 * b;
+                    l = (0.010126483870967743) * ri + (0.020628) * gi + (0.0015031290322580645) * bi;
+                    m = (0.004893322580645161) * ri + (0.024135774193548388) * gi + (0.003225948387096774) * bi;
+                    s = (5.726774193548388E-4) * ri + (0.0035312258064516128) * gi + (0.028160290322580644) * bi;
 
                     IPT[0][idx] = 0.4000 * l + 0.4000 * m + 0.2000 * s;
-                    IPT[1][idx] = 6.6825 * l - 7.2765 * m + 0.5940 * s;
-                    IPT[2][idx] = 1.0741 * l + 0.4763 * m - 1.5504 * s;
+                    IPT[1][idx] = 4.4550 * l - 4.8510 * m + 0.3960 * s;
+                    IPT[2][idx] = 0.8056 * l + 0.3572 * m - 1.1628 * s;
 
 
                     idx++;
@@ -406,7 +403,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return (L * L * 8.0 + A * A + B * B) * 0x1p12;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 3.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     public double difference(int color1, int r2, int g2, int b2) {
@@ -417,7 +414,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return (L * L * 8.0 + A * A + B * B) * 0x1p12;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 3.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
@@ -427,7 +424,7 @@ public class PaletteReducer {
                 L = IPT[0][indexA] - IPT[0][indexB],
                 A = IPT[1][indexA] - IPT[1][indexB],
                 B = IPT[2][indexA] - IPT[2][indexB];
-        return (L * L * 8.0 + A * A + B * B) * 0x1p12;//return L * L * 11.0 + A * A * 1.6 + B * B;
+        return (L * L * 3.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
     }
 
     /**
@@ -517,7 +514,7 @@ public class PaletteReducer {
             System.arraycopy(AURORA, 0,  paletteArray, 0, 256);
             System.arraycopy(ENCODED_AURORA, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
-            populationBias = Math.exp(-1.375/256.0);
+            populationBias = Math.exp(-0.00537109375);
             calculateGamma();
             return;
         }
@@ -1503,7 +1500,8 @@ public class PaletteReducer {
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF];
                     adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
-                    adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[(px * 19 & 63) | (y * 23 & 63) << 6]) * -0x1.6p-10f;
+                    adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[(px * 19 & 63) | (y * 23 & 63) << 6])
+                            * -0.0013427734f;//-0.0013427734f is -0x1.6p-10f
                     adj *= strength;
                     rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
                     gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
