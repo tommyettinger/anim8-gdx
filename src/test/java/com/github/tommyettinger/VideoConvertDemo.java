@@ -10,21 +10,17 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.github.tommyettinger.anim8.*;
 
 /**
- * This is from the NorthernLights demo in SquidLib-Demos, available
- * <a href="https://github.com/tommyettinger/SquidLib-Demos/tree/master/NorthernLights">here</a>.
- * <p>
- * Credit for the shader adaptation goes to angelickite , a very helpful user on the libGDX Discord.
- * The Discord can be found at <a href="https://discord.gg/crTrDEK">this link</a>.
+ * This takes two multiple-frame images/videos and dithers both of them in all the ways this can before writing to GIF
+ * and optionally PNG files. There is a 90-frame "Video Of A Market" by Olivier Polome,
+ * <a href="https://www.pexels.com/video/video-of-a-market-4236787/">available freely at Pexels</a>, and a rotating
+ * cartoon-style tree animation (self-made, public domain).
  */
 public class VideoConvertDemo extends ApplicationAdapter {
     private long startTime;
-    private int width, height;
     private static final String name = "market";
     @Override
     public void create() {
         startTime = TimeUtils.millis();
-        width = Gdx.graphics.getWidth();
-        height = Gdx.graphics.getHeight();
 
         Gdx.files.local("images").mkdirs();
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
@@ -37,8 +33,6 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        this.width = width;
-        this.height = height;
     }
 
     @Override
