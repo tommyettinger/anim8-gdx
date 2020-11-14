@@ -27,8 +27,9 @@ public class StillImageDemo extends ApplicationAdapter {
 
         Gdx.files.local("images").mkdirs();
         for(String name : new String[]{"Mona_Lisa", "Cat", "Frog", "Landscape",}) {
-			renderPNG8(name);
-			renderGif(name);
+//			renderPNG8(name);
+//			renderGif(name);
+			renderGifHS(name);
 //			renderPNG(name);
 		}
 		System.out.println("Analyzed all " + total + " images in " + (System.currentTimeMillis() - startTime) + " ms");
@@ -110,6 +111,33 @@ public class StillImageDemo extends ApplicationAdapter {
 			gif.write(Gdx.files.local("images/" + name + "-Gif-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
 			gif.write(Gdx.files.local("images/" + name + "-Gif-Scatter-" + count + ".gif"), pixmaps, 1);
+			total += 1;
+		}
+    }
+    public void renderGifHS(String name) {
+        Array<Pixmap> pixmaps = Array.with(new Pixmap(Gdx.files.classpath(name+".jpg")));
+        AnimatedGif gif = new AnimatedGif();
+        gif.setFlipY(false);
+        PaletteReducer reducer = new PaletteReducer();
+		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
+//			reducer.analyzeNQ(pixmaps, count); //Dithered all 392 images in 42784 ms
+			reducer.analyze(pixmaps, 400, count); //Dithered all 392 images in 42237 ms
+
+			gif.setPalette(reducer.hueShift());
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Pattern-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-None-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Gradient-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Diffusion-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-BlueNoise-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Scatter-" + count + ".gif"), pixmaps, 1);
 			total += 1;
 		}
     }

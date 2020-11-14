@@ -3,6 +3,7 @@ package com.github.tommyettinger.anim8;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 
@@ -121,8 +122,8 @@ public class PaletteReducer {
     /**
      * Stores IPT components corresponding to RGB555 indices.
      * IPT[0] stores intensity from 0.0 to 1.0 .
-     * IPT[1] stores protan, which is something like a green-red axis, from -0.5 (green) to 0.5 (red).
-     * IPT[2] stores tritan, which is something like a blue-yellow axis, from -0.5 (blue) to 0.5 (yellow).
+     * IPT[1] stores protan, which is something like a green-red axis, from -1 (green) to 1 (red).
+     * IPT[2] stores tritan, which is something like a blue-yellow axis, from -1 (blue) to 1 (yellow).
      * <br>
      * The indices into each of these double[] values store red in bits 10-14, green in bits 5-9, and blue in bits 0-4.
      * It's ideal to work with these indices with bitwise operations, as with {@code (r << 10 | g << 5 | b)}, where r,
@@ -242,6 +243,16 @@ public class PaletteReducer {
 //                }
 //            }
 //        }
+    }
+
+    public int iptToRgb(double i, double p, double t, double a) {
+        final double l = i + 0.097569 * p + 0.205226 * t;
+        final double m = i - 0.113880 * p + 0.133217 * t;
+        final double s = i + 0.032615 * p - 0.676890 * t;
+        final int r = MathUtils.clamp((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 256.0), 0, 255);
+        final int g = MathUtils.clamp((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 256.0), 0, 255);
+        final int b = MathUtils.clamp((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 256.0), 0, 255);
+        return r << 24 | g << 16 | b << 8 | (int)(a * 255.999);
     }
 
     /**
@@ -1985,5 +1996,103 @@ public class PaletteReducer {
                         | ((int) (color.g * 0x1f.8p+5) & 0x3E0)
                         | ((int) (color.r * 0x1f.8p+0))] & 0xFF]);
     }
-    
+
+    /**
+     * Edits this PaletteReducer by changing each used color in the IPT color space with an {@link Interpolation}.
+     * This allows adjusting lightness, such as for gamma correction. You could use {@link Interpolation#pow2InInverse}
+     * to use the square root of a color's lightness instead of its actual lightness, or {@link Interpolation#pow2In} to
+     * square the lightness instead.
+     * @param lightness an Interpolation that will affect the lightness of each color
+     * @return this PaletteReducer, for chaining
+     */
+    public PaletteReducer alterColorsLightness(Interpolation lightness) {
+        return alterColorsIPT(lightness, Interpolation.linear, Interpolation.linear);
+    }
+
+    /**
+     * Edits this PaletteReducer by changing each used color in the IPT color space with an {@link Interpolation}.
+     * This allows adjusting lightness, such as for gamma correction, but also individually emphasizing or
+     * de-emphasizing different aspects of the chroma. You could use {@link Interpolation#pow2InInverse} to use the
+     * square root of a color's lightness instead of its actual lightness, or {@link Interpolation#pow2In} to square the
+     * lightness instead. You could make colors more saturated by passing {@link Interpolation#circle} to greenToRed and
+     * blueToYellow, or get a less-extreme version by using {@link Interpolation#smooth}. To desaturate colors is a
+     * different task; you can create a {@link BiasGain} Interpolation with 0.5 turning and maybe 0.25 to 0.75 shape to
+     * produce different strengths of desaturation. Using a shape of 1.5 to 4 with BiasGain is another way to saturate
+     * the colors.
+     * @param lightness an Interpolation that will affect the lightness of each color
+     * @param greenToRed an Interpolation that will make colors more green if it evaluates below 0.5 or more red otherwise
+     * @param blueToYellow an Interpolation that will make colors more blue if it evaluates below 0.5 or more yellow otherwise
+     * @return this PaletteReducer, for chaining
+     */
+    public PaletteReducer alterColorsIPT(Interpolation lightness, Interpolation greenToRed, Interpolation blueToYellow) {
+        int[] palette = paletteArray;
+        for (int idx = 0; idx < colorCount; idx++) {
+            int s = shrink(palette[idx]);
+            double i = lightness.apply((float) IPT[0][s]);
+            double p = greenToRed.apply(-1, 1, (float) IPT[1][s] * 0.5f + 0.5f);
+            double t = blueToYellow.apply(-1, 1, (float) IPT[2][s] * 0.5f + 0.5f);
+            palette[idx] = iptToRgb(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
+        }
+        return this;
+    }
+
+    /**
+     * Edits this PaletteReducer by changing each used color so lighter colors lean towards warmer hues, while darker
+     * colors lean toward cooler or more purple-ish hues.
+     * @return this PaletteReducer, for chaining
+     */
+    public PaletteReducer hueShift() {
+        int[] palette = paletteArray;
+        for (int idx = 0; idx < colorCount; idx++) {
+            int s = shrink(palette[idx]);
+            double i = IPT[0][s];
+            double p = IPT[1][s] + (i - 0.5) * 0.2;
+            double t = IPT[2][s] + (i - 0.5) * 0.25;
+            palette[idx] = iptToRgb(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
+        }
+        return this;
+    }
+
+    /**
+     * A generalization on bias and gain functions that can represent both; this version is branch-less.
+     * This is based on <a href="https://arxiv.org/abs/2010.09714">this micro-paper</a> by Jon Barron, which
+     * generalizes the earlier bias and gain rational functions by Schlick. The second and final page of the
+     * paper has useful graphs of what the s (shape) and t (turning point) parameters do; shape should be 0
+     * or greater, while turning must be between 0 and 1, inclusive. This effectively combines two different
+     * curving functions so they continue into each other when x equals turning. The shape parameter will
+     * cause this to imitate "smoothstep-like" splines when greater than 1 (where the values ease into their
+     * starting and ending levels), or to be the inverse when less than 1 (where values start like square
+     * root does, taking off very quickly, but also end like square does, landing abruptly at the ending
+     * level). You should only give x values between 0 and 1, inclusive.
+     * @param x progress through the spline, from 0 to 1, inclusive
+     * @param shape must be greater than or equal to 0; values greater than 1 are "normal interpolations"
+     * @param turning a value between 0.0 and 1.0, inclusive, where the shape changes
+     * @return a float between 0 and 1, inclusive
+     */
+    public static float barronSpline(final float x, final float shape, final float turning) {
+        final float d = turning - x;
+        final int f = NumberUtils.floatToIntBits(d) >> 31, n = f | 1;
+        return ((turning * n - f) * (x + f)) / (Float.MIN_NORMAL - f + (x + shape * d) * n) - f;
+    }
+
+    /**
+     * A wrapper around {@link #barronSpline(float, float, float)} to use it as an Interpolation.
+     * Useful because it can imitate the wide variety of symmetrical Interpolations by setting turning to 0.5 and shape
+     * to some value greater than 1, while also being able to produce the inverse of those interpolations by setting
+     * shape to some value between 0 and 1.
+     */
+    static public class BiasGain extends Interpolation {
+        final float shape, turning;
+
+        public BiasGain (float shape, float turning) {
+            this.shape = shape;
+            this.turning = turning;
+        }
+
+        public float apply (float a) {
+            return barronSpline(a, shape, turning);
+        }
+    }
+
+
 }
