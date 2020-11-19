@@ -27,8 +27,8 @@ public class StillImageDemo extends ApplicationAdapter {
 
         Gdx.files.local("images").mkdirs();
         for(String name : new String[]{"Mona_Lisa", "Cat", "Frog", "Landscape",}) {
-//			renderPNG8(name);
-//			renderGif(name);
+			renderPNG8(name);
+			renderGif(name);
 			renderGifHS(name);
 //			renderPNG(name);
 		}
@@ -54,7 +54,7 @@ public class StillImageDemo extends ApplicationAdapter {
 		PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
 //			reducer.analyzeNQ(pixmap, count); //Dithered all 392 images in 42784 ms
-			reducer.analyze(pixmap, 400, count); //Dithered all 392 images in 42237 ms
+			reducer.analyze(pixmap, 400 - count, count); //Dithered all 392 images in 42237 ms
 			
 //			reducer.analyze(pixmap, 10000 / count + count * 4, count);
 			png8.setPalette(reducer);
@@ -94,7 +94,7 @@ public class StillImageDemo extends ApplicationAdapter {
         PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
 //			reducer.analyzeNQ(pixmaps, count); //Dithered all 392 images in 42784 ms
-			reducer.analyze(pixmaps, 400, count); //Dithered all 392 images in 42237 ms
+			reducer.analyze(pixmaps, 400 - count, count); //Dithered all 392 images in 42237 ms
 
 			gif.setPalette(reducer);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -121,7 +121,7 @@ public class StillImageDemo extends ApplicationAdapter {
         PaletteReducer reducer = new PaletteReducer();
 		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
 //			reducer.analyzeNQ(pixmaps, count); //Dithered all 392 images in 42784 ms
-			reducer.analyze(pixmaps, 400, count); //Dithered all 392 images in 42237 ms
+			reducer.analyze(pixmaps, 400 - count, count); //Dithered all 392 images in 42237 ms
 
 			gif.setPalette(reducer.hueShift());
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);

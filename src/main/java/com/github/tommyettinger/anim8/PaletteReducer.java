@@ -324,6 +324,21 @@ public class PaletteReducer {
         }
         exact(rgbaPalette);
     }
+    /**
+     * Constructs a PaletteReducer that uses the given array of RGBA8888 ints as a palette (see
+     * {@link #exact(int[], int)} for more info).
+     *
+     * @param rgbaPalette an array of RGBA8888 ints to use as a palette
+     * @param limit how many int items to use from rgbaPalette (this always starts at index 0)
+     */
+    public PaletteReducer(int[] rgbaPalette, int limit) {
+        if(rgbaPalette == null)
+        {
+            exact(AURORA, ENCODED_AURORA);
+            return;
+        }
+        exact(rgbaPalette, limit);
+    }
 
     /**
      * Constructs a PaletteReducer that uses the given array of Color objects as a palette (see {@link #exact(Color[])}
@@ -341,8 +356,8 @@ public class PaletteReducer {
     }
 
     /**
-     * Constructs a PaletteReducer that uses the given array of Color objects as a palette (see {@link #exact(Color[])}
-     * for more info).
+     * Constructs a PaletteReducer that uses the given array of Color objects as a palette (see
+     * {@link #exact(Color[], int)} for more info).
      *
      * @param colorPalette an array of Color objects to use as a palette
      */
@@ -385,11 +400,12 @@ public class PaletteReducer {
         analyze(pixmaps);
     }
     /**
-     * Constructs a PaletteReducer that uses the given array of RGBA8888 ints as a palette (see {@link #exact(int[])}
-     * for more info) and an encoded String to use to look up pre-loaded color data.
-     *
+     * Constructs a PaletteReducer that uses the given array of RGBA8888 ints as a palette (see
+     * {@link #exact(int[], byte[])} for more info) and an encoded byte array to use to look up pre-loaded color data.
+     * You can use {@link #writePreloadFile(FileHandle)} to write the preload data for a given PaletteReducer, and
+     * {@link #loadPreloadFile(FileHandle)} to get a byte array of preload data from a previously-written file.
      * @param palette an array of RGBA8888 ints to use as a palette
-     * @param preload an ISO-8859-1-encoded String containing preload data
+     * @param preload a byte array containing preload data
      */
     public PaletteReducer(int[] palette, byte[] preload)
     {
@@ -400,7 +416,7 @@ public class PaletteReducer {
      * (see {@link #analyze(Pixmap, int)} for more info).
      *
      * @param pixmap    a Pixmap to analyze in detail to produce a palette
-     * @param threshold the minimum difference between colors required to put them in the palette (default 400)
+     * @param threshold the minimum difference between colors required to put them in the palette (default 150)
      */
     public PaletteReducer(Pixmap pixmap, int threshold) {
         analyze(pixmap, threshold);
@@ -608,7 +624,7 @@ public class PaletteReducer {
      * transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
      * aren't exact, and dithering works better when the palette can choose colors that are sufficiently different, this
      * uses a threshold value to determine whether it should permit a less-common color into the palette, and if the
-     * second color is different enough (as measured by {@link #difference(int, int)}) by a value of at least 400, it is
+     * second color is different enough (as measured by {@link #difference(int, int)}) by a value of at least 150, it is
      * allowed in the palette, otherwise it is kept out for being too similar to existing colors. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} field or can be used directly to {@link #reduce(Pixmap)} a Pixmap.
@@ -616,7 +632,7 @@ public class PaletteReducer {
      * @param pixmap a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      */
     public void analyze(Pixmap pixmap) {
-        analyze(pixmap, 400);
+        analyze(pixmap, 150);
     }
 
     private static final Comparator<IntIntMap.Entry> entryComparator = new Comparator<IntIntMap.Entry>() {
@@ -637,12 +653,15 @@ public class PaletteReducer {
      * takes a threshold value to determine whether it should permit a less-common color into the palette, and if the
      * second color is different enough (as measured by {@link #difference(int, int)}) by a value of at least
      * {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar to existing
-     * colors. The threshold is usually between 250 and 1000, and 400 is a good default. This doesn't return a value but
-     * instead stores the palette info in this object; a PaletteReducer can be assigned to the
-     * {@link PNG8#palette} field or can be used directly to {@link #reduce(Pixmap)} a Pixmap.
+     * colors. The threshold is usually between 100 and 1000, and 150 is a good default. Because this always uses the
+     * maximum color limit, threshold should be lower than cases where the color limit is small. If the threshold is too
+     * high, then some colors that would be useful to smooth out subtle color changes won't get considered, and colors
+     * may change more abruptly. This doesn't return a value but instead stores the palette info in this object; a
+     * PaletteReducer can be assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields or can be used
+     * directly to {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 250 and 1000, 400 is a good default
+     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      */
     public void analyze(Pixmap pixmap, int threshold) {
         analyze(pixmap, threshold, 256);
@@ -657,12 +676,14 @@ public class PaletteReducer {
      * determine whether it should permit a less-common color into the palette, and if the second color is different
      * enough (as measured by {@link #difference(int, int)}) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
-     * 250 and 1000, and 400 is a good default. This doesn't return a value but instead stores the palette info in this
-     * object; a PaletteReducer can be assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette}
-     * fields, or can be used directly to {@link #reduce(Pixmap)} a Pixmap.
+     * 100 and 1000, and 150 is a good default. If the threshold is too high, then some colors that would be useful to
+     * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
+     * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
+     * Pixmap.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 250 and 1000, 400 is a good default
+     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap pixmap, int threshold, int limit) {
@@ -969,7 +990,7 @@ public class PaletteReducer {
      * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
-     * value of at least 400, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * value of at least 150, it is allowed in the palette, otherwise it is kept out for being too similar to existing
      * colors. This doesn't return a value but instead stores the palette info in this object; a PaletteReducer can be
      * assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
@@ -977,7 +998,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      */
     public void analyze(Array<Pixmap> pixmaps){
-        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, 400, 256);
+        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, 150, 256);
     }
 
     /**
@@ -990,13 +1011,13 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 250 and 1000, and 400 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 100 and 1000, and 150 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 250 and 1000, 400 is a good default
+     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      */
     public void analyze(Array<Pixmap> pixmaps, int threshold){
         analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
@@ -1012,13 +1033,13 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 250 and 1000, and 400 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 100 and 1000, and 150 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 250 and 1000, 400 is a good default
+     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Array<Pixmap> pixmaps, int threshold, int limit){
@@ -1034,14 +1055,14 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 250 and 1000, and 400 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 100 and 1000, and 150 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      * @param pixmapCount the maximum number of Pixmap entries in pixmaps to use
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 250 and 1000, 400 is a good default
+     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap[] pixmaps, int pixmapCount, int threshold, int limit) {
@@ -1166,7 +1187,7 @@ public class PaletteReducer {
 
     /**
      * Modifies the given Pixmap so it only uses colors present in this PaletteReducer, dithering when it can
-     * using Floyd-Steinberg (this merely delegates to {@link #reduceFloydSteinberg(Pixmap)}).
+     * using Scatter dithering (this merely delegates to {@link #reduceScatter(Pixmap)}).
      * If you want to reduce the colors in a Pixmap based on what it currently contains, call
      * {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
      * Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
@@ -1175,7 +1196,7 @@ public class PaletteReducer {
      * @return the given Pixmap, for chaining
      */
     public Pixmap reduce (Pixmap pixmap) {
-        return reduceFloydSteinberg(pixmap);
+        return reduceScatter(pixmap);
     }
 
     /**
@@ -1185,7 +1206,8 @@ public class PaletteReducer {
      * @return {@code pixmap} after modifications
      */
     public Pixmap reduce(Pixmap pixmap, Dithered.DitherAlgorithm ditherAlgorithm){
-        if(ditherAlgorithm == null || pixmap == null) return pixmap;
+        if(pixmap == null) return null;
+        if(ditherAlgorithm == null) return reduceScatter(pixmap);
         switch (ditherAlgorithm) {
             case NONE:
                 return reduceSolid(pixmap);
