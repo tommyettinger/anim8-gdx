@@ -1490,7 +1490,8 @@ public class PaletteReducer {
                     pos -= (int) pos;
                     pos *= 52.9829189f;
                     pos -= (int) pos;
-                    adj = (pos * pos - 0.3f) * strength;
+                    adj = MathUtils.sin(pos * 2f - 1f) * strength;
+//                            adj = (pos * pos - 0.3f) * strength;
                     rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
                     gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                     bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);
@@ -2068,7 +2069,7 @@ public class PaletteReducer {
         for (int idx = 0; idx < colorCount; idx++) {
             int s = shrink(palette[idx]);
             double i = IPT[0][s];
-            double p = IPT[1][s] + (i - 0.5) * 0.2;
+            double p = IPT[1][s] + (i - 0.5) * 0.3;
             double t = IPT[2][s] + (i - 0.5) * 0.25;
             palette[idx] = iptToRgb(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
         }

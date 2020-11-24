@@ -514,7 +514,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             pos -= (int) pos;
                             pos *= 52.9829189f;
                             pos -= (int) pos;
-                            adj = (pos * pos - 0.3f) * strength;
+                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
+//                            adj = (pos * pos - 0.3f) * strength;
                             rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24)))), 0, 0xFF);
                             gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
                             bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8 & 0xFF)))), 0, 0xFF);
