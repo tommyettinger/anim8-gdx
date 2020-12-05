@@ -196,7 +196,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
         PNG8 png8 = new PNG8();
         // black and white
-//        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF})); name = "bw";
+        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF})); name = "bw";
         // gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF})); name = "gb";
         png8.setCompression(7);
@@ -230,7 +230,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
         AnimatedGif gif = new AnimatedGif();
         // black and white
-//        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF})); name = "bw";
+        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF})); name = "bw";
         // gb palette
 //        gif.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF})); name = "gb";
         gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
