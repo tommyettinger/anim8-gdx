@@ -1501,7 +1501,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     }
                     palette.sort16(palette.candidates);
                     curLine[px] = paletteMapping[
-                            PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix[
+                            PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix16[
                                     ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
                                             ((px & 3) | (y & 3) << 2)
                                     ]])];
@@ -2778,7 +2778,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             }
                             palette.sort16(palette.candidates);
                             curLine[px] = paletteMapping[
-                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix[
+                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix16[
                                             ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
                                                     ((px & 3) | (y & 3) << 2)
                                             ]])];

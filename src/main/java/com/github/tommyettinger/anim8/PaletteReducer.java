@@ -1730,7 +1730,15 @@ public class PaletteReducer {
     /**
      * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
      */
-    static final int[] thresholdMatrix = {
+    static final int[] thresholdMatrix8 = {
+            0, 4, 2, 6,
+            3, 7, 1, 5,
+    };
+
+    /**
+     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
+     */
+    static final int[] thresholdMatrix16 = {
             0,  12,   3,  15,
             8,   4,  11,   7,
             2,  14,   1,  13,
@@ -1756,7 +1764,63 @@ public class PaletteReducer {
             ints[b] = t;
         }
     }
-
+    
+    /**
+     * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 8.
+     * @param i8 an 8-or-more-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
+     */
+    void sort8(final int[] i8) {
+        compareSwap(i8, 0, 1);
+        compareSwap(i8, 2, 3);
+        compareSwap(i8, 0, 2);
+        compareSwap(i8, 1, 3);
+        compareSwap(i8, 1, 2);
+        compareSwap(i8, 4, 5);
+        compareSwap(i8, 6, 7);
+        compareSwap(i8, 4, 6);
+        compareSwap(i8, 5, 7);
+        compareSwap(i8, 5, 6);
+        compareSwap(i8, 0, 4);
+        compareSwap(i8, 1, 5);
+        compareSwap(i8, 1, 4);
+        compareSwap(i8, 2, 6);
+        compareSwap(i8, 3, 7);
+        compareSwap(i8, 3, 6);
+        compareSwap(i8, 2, 4);
+        compareSwap(i8, 3, 5);
+        compareSwap(i8, 3, 4);
+    }
+    /**
+     * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 9.
+     * @param i9 an 8-or-more-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
+     */
+    void sort9(final int[] i9) {
+        compareSwap(i9, 0, 1);
+        compareSwap(i9, 3, 4);
+        compareSwap(i9, 6, 7);
+        compareSwap(i9, 1, 2);
+        compareSwap(i9, 4, 5);
+        compareSwap(i9, 7, 8);
+        compareSwap(i9, 0, 1);
+        compareSwap(i9, 3, 4);
+        compareSwap(i9, 6, 7);
+        compareSwap(i9, 0, 3);
+        compareSwap(i9, 3, 6);
+        compareSwap(i9, 0, 3);
+        compareSwap(i9, 1, 4);
+        compareSwap(i9, 4, 7);
+        compareSwap(i9, 1, 4);
+        compareSwap(i9, 2, 5);
+        compareSwap(i9, 5, 8);
+        compareSwap(i9, 2, 5);
+        compareSwap(i9, 1, 3);
+        compareSwap(i9, 5, 7);
+        compareSwap(i9, 2, 6);
+        compareSwap(i9, 4, 6);
+        compareSwap(i9, 2, 4);
+        compareSwap(i9, 2, 3);
+        compareSwap(i9, 5, 6);
+    }
     /**
      * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 16.
      * @param i16 a 16-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
@@ -1872,7 +1936,7 @@ public class PaletteReducer {
                         eb += cb - (used >>> 8 & 0xFF);
                     }
                     sort16(candidates);
-                    pixmap.drawPixel(px, y, candidates[thresholdMatrix[((px & 3) | (y & 3) << 2)]]);
+                    pixmap.drawPixel(px, y, candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]]);
                 }
             }
         }
@@ -1916,7 +1980,7 @@ public class PaletteReducer {
                     cr = (color >>> 24);
                     cg = (color >>> 16 & 0xFF);
                     cb = (color >>> 8 & 0xFF);
-                    for (int c = 0; c < candidates.length; c++) {
+                    for (int c = 0; c < 8; c++) {
                         int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
                         int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
                         int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
@@ -1930,9 +1994,9 @@ public class PaletteReducer {
                         eb += cb - (used >>> 8 & 0xFF);
                     }
                     sort16(candidates);
-                    pixmap.drawPixel(px, y, candidates[thresholdMatrix[
-                            ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
-                                    ((px & 3) | (y & 3) << 2)
+                    pixmap.drawPixel(px, y, candidates[thresholdMatrix8[
+                            ((int) (px * 0x1.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 1) ^
+                                    ((px & 1) | (px & 2) + (y & 1) << 1)
                             ]]);
                 }
             }
