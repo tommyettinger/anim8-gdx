@@ -439,11 +439,11 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                 eg += cg - (used >>> 16 & 0xFF);
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
-                            palette.sort16(palette.candidates);
+                            palette.sort8(palette.candidates);
                             usedEntry[(indexedPixels[i] = paletteMapping[
-                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix16[
-                                            ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
-                                                    ((px & 3) | (y & 3) << 2)
+                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix8[
+                                            ((int) (px * 0x1.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 1) ^
+                                                    ((px & 1) | (px & 2) + (y & 1) << 1)
                                             ]])
                                     ]) & 255] = true;
                             i++;

@@ -1968,7 +1968,7 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used, cr, cg, cb,  usedIndex;
+        int color, used, cr, cg, cb, usedIndex;
         final float errorMul = (float) (ditherStrength * populationBias * 0.6);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
@@ -1993,7 +1993,7 @@ public class PaletteReducer {
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
                     }
-                    sort16(candidates);
+                    sort8(candidates);
                     pixmap.drawPixel(px, y, candidates[thresholdMatrix8[
                             ((int) (px * 0x1.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 1) ^
                                     ((px & 1) | (px & 2) + (y & 1) << 1)
