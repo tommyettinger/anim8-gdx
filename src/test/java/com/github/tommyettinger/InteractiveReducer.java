@@ -25,7 +25,7 @@ public class InteractiveReducer extends ApplicationAdapter {
     protected PaletteReducer reducer;
     protected PNG8 png8;
     private int[] palette;
-    private Pixmap p0;
+    private Pixmap p0, p;
     private int index = 1;
     private float strength = 1f;
 
@@ -34,7 +34,7 @@ public class InteractiveReducer extends ApplicationAdapter {
         config.setTitle("Palette Reducer");
         config.setWindowedMode(SCREEN_WIDTH, SCREEN_HEIGHT);
         config.setIdleFPS(10);
-        config.useVsync(true);
+        config.useVsync(false);
         config.setResizable(true);
         final InteractiveReducer app = new InteractiveReducer();
         config.setWindowListener(new Lwjgl3WindowAdapter() {
@@ -56,11 +56,11 @@ public class InteractiveReducer extends ApplicationAdapter {
             p0 = new Pixmap(Gdx.files.internal(name));
         else
             p0 = new Pixmap(Gdx.files.absolute(name));
+        p = new Pixmap(this.p0.getWidth(), this.p0.getHeight(), Pixmap.Format.RGBA8888);
         refresh();
     }
     
     public void refresh(){
-        Pixmap p = new Pixmap(this.p0.getWidth(), this.p0.getHeight(), Pixmap.Format.RGBA8888);
         p.drawPixmap(this.p0, 0, 0);
         switch (index) {
             case 0: reducer.reduceSolid(p);
@@ -108,7 +108,7 @@ public class InteractiveReducer extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.4f, 0.4f, 0.4f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        refresh();
         batch.setProjectionMatrix(screenView.getCamera().combined);
         batch.begin();
         if(screenTexture != null)
@@ -118,6 +118,7 @@ public class InteractiveReducer extends ApplicationAdapter {
             font.draw(batch, "a palette-reduced copy will be written to this folder.", 20, 120);
         }
         batch.end();
+        Gdx.graphics.setTitle(Gdx.graphics.getFramesPerSecond() + " FPS");
     }
 
     @Override
@@ -170,6 +171,13 @@ public class InteractiveReducer extends ApplicationAdapter {
                             else
                                 reducer.analyze(p0, 700 - keycode * keycode, keycode - 5);
                         }
+                        refresh();
+                        break;
+                    case Input.Keys.NUM_0:
+                        if(UIUtils.ctrl())
+                            reducer.analyzeMC(p0, 256);
+                        else
+                            reducer.analyze(p0);
                         refresh();
                         break;
                     case Input.Keys.B:
