@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
@@ -1907,12 +1906,11 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, cr, cg, cb,  usedIndex;
         final float errorMul = (float) (ditherStrength * populationBias * 0.6);
-        IntBuffer buffer = pixmap.getPixels().asIntBuffer();
-        for (int y = 0, i = 0; y < h; y++) {
-            for (int px = 0; px < lineLen; px++, i++) {
-                color = buffer.get(i);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
-                    buffer.put(0);
+                    pixmap.drawPixel(px, y, 0);
                 else {
                     int er = 0, eg = 0, eb = 0;
                     cr = (color >>> 24);
@@ -1932,7 +1930,7 @@ public class PaletteReducer {
                         eb += cb - (used >>> 8 & 0xFF);
                     }
                     sort16(candidates);
-                    buffer.put(candidates[thresholdMatrix[
+                    pixmap.drawPixel(px, y, candidates[thresholdMatrix[
                             ((int) (px * 0x0.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p2) & 3) ^
                                     ((px & 3) | (y & 3) << 2)
                             ]]);
