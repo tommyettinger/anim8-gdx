@@ -7,7 +7,6 @@
      <inherits name="anim8" />
   -->
 <module>
-    <super path="emu" />
     <source path="com/github/tommyettinger/anim8">
         <exclude name="**/AnimatedPNG.java"/>
         <exclude name="**/ChunkBuffer.java"/>
