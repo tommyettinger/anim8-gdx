@@ -257,9 +257,9 @@ public class PaletteReducer {
         final double l = i + 0.097569 * p + 0.205226 * t;
         final double m = i - 0.113880 * p + 0.133217 * t;
         final double s = i + 0.032615 * p - 0.676890 * t;
-        final int r = MathUtils.clamp((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 256.0), 0, 255);
-        final int g = MathUtils.clamp((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 256.0), 0, 255);
-        final int b = MathUtils.clamp((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 256.0), 0, 255);
+        final int r = Math.min(Math.max((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 256.0), 0), 255);
+        final int g = Math.min(Math.max((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 256.0), 0), 255);
+        final int b = Math.min(Math.max((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 256.0), 0), 255);
         return r << 24 | g << 16 | b << 8 | (int)(a * 255.999);
     }
 
@@ -874,9 +874,9 @@ public class PaletteReducer {
                     b += color >>> 11 & 31;
                 }
                 paletteArray[assigned] =
-                        (int)MathUtils.clamp((r - 7.0) * fr, 0.0, 255.0) << 24 |
-                                (int)MathUtils.clamp((g - 7.0) * fr, 0.0, 255.0) << 16 |
-                                (int)MathUtils.clamp((b - 7.0) * fr, 0.0, 255.0) << 8 | 0xFF;
+                        Math.min(Math.max((int)((r - 7.0) * fr), 0), 255) << 24 |
+                                Math.min(Math.max((int)((g - 7.0) * fr), 0), 255) << 16 |
+                                Math.min(Math.max((int)((b - 7.0) * fr), 0), 255) << 8 | 0xFF;
             }
             {
                 int j2 = out.length - (mid - jump);
@@ -888,9 +888,9 @@ public class PaletteReducer {
                     b += color >>> 11 & 31;
                 }
                 paletteArray[assigned++] =
-                        (int)MathUtils.clamp((r - 7.0) * fr2, 0.0, 255.0) << 24 |
-                                (int)MathUtils.clamp((g - 7.0) * fr2, 0.0, 255.0) << 16 |
-                                (int)MathUtils.clamp((b - 7.0) * fr2, 0.0, 255.0) << 8 | 0xFF;
+                        Math.min(Math.max((int)((r - 7.0) * fr2), 0), 255) << 24 |
+                                Math.min(Math.max((int)((g - 7.0) * fr2), 0), 255) << 16 |
+                                Math.min(Math.max((int)((b - 7.0) * fr2), 0), 255) << 8 | 0xFF;
             }
 //            int jump = out.length >>> numCuts, mid = jump >>> 1, assigned = 0;
 //            for (int n = 1 << numCuts; assigned < n; assigned++, mid += jump) {
@@ -994,9 +994,9 @@ public class PaletteReducer {
         double l = Math.copySign(Math.pow(Math.abs(lPrime), 2.3256), lPrime);
         double m = Math.copySign(Math.pow(Math.abs(mPrime), 2.3256), mPrime);
         double s = Math.copySign(Math.pow(Math.abs(sPrime), 2.3256), sPrime);
-        int r = MathUtils.clamp((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 255.99999), 0, 255);
-        int g = MathUtils.clamp((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 255.99999), 0, 255);
-        int b = MathUtils.clamp((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 255.99999), 0, 255);
+        int r = Math.min(Math.max((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 255.99999), 0), 255);
+        int g = Math.min(Math.max((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 255.99999), 0), 255);
+        int b = Math.min(Math.max((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 255.99999), 0), 255);
         int a = a1 + a2 + 1 >>> 1;
         return r << 24 | g << 16 | b << 8 | a;
 
@@ -1348,9 +1348,9 @@ public class PaletteReducer {
                     eg = curErrorGreen[px];
                     eb = curErrorBlue[px];
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
-                    int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
-                    int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
-                    int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                    int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
+                    int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
+                    int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
                     paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
@@ -1443,9 +1443,9 @@ public class PaletteReducer {
                     eg = curErrorGreen[px];
                     eb = curErrorBlue[px];
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
-                    int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
-                    int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
-                    int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                    int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
+                    int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
+                    int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
                     paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
@@ -1513,9 +1513,9 @@ public class PaletteReducer {
                     pos -= (int) pos;
                     adj = MathUtils.sin(pos * 2f - 1f) * strength;
 //                            adj = (pos * pos - 0.3f) * strength;
-                    rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24       )))), 0, 0xFF);
-                    gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
-                    bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0, 0xFF);
+                    rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
+                    gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
+                    bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
@@ -1558,9 +1558,9 @@ public class PaletteReducer {
                     adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[(px * 19 & 63) | (y * 23 & 63) << 6])
                             * -0.0013427734f;//-0.0013427734f is -0x1.6p-10f
                     adj *= strength;
-                    rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
-                    gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
-                    bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
+                    rr = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);
+                    gg = Math.min(Math.max((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0), 0xFF);
+                    bb = Math.min(Math.max((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0), 0xFF);
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
@@ -1613,9 +1613,9 @@ public class PaletteReducer {
                             (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
                                     ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
                                     ((s = (s ^ color) * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL) >> 15));
-                    rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
-                    gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
-                    bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
+                    rr = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);
+                    gg = Math.min(Math.max((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0), 0xFF);
+                    bb = Math.min(Math.max((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0), 0xFF);
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
@@ -1684,9 +1684,9 @@ public class PaletteReducer {
                     eg = (byte) (curErrorGreen[px] * tbn);
                     eb = (byte) (curErrorBlue[px] * tbn);
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
-                    int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
-                    int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
-                    int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                    int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
+                    int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
+                    int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
                     paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
@@ -1923,9 +1923,9 @@ public class PaletteReducer {
                     cg = (color >>> 16 & 0xFF);
                     cb = (color >>> 8 & 0xFF);
                     for (int i = 0; i < candidates.length; i++) {
-                        int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
-                        int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
-                        int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
+                        int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
+                        int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
+                        int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
@@ -1981,9 +1981,9 @@ public class PaletteReducer {
                     cg = (color >>> 16 & 0xFF);
                     cb = (color >>> 8 & 0xFF);
                     for (int c = 0; c < 8; c++) {
-                        int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
-                        int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
-                        int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
+                        int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
+                        int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
+                        int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;

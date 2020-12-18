@@ -427,9 +427,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             cg = (color >>> 16 & 0xFF);
                             cb = (color >>> 8 & 0xFF);
                             for (int c = 0; c < palette.candidates.length; c++) {
-                                int rr = MathUtils.clamp((int) (cr + er * errorMul), 0, 255);
-                                int gg = MathUtils.clamp((int) (cg + eg * errorMul), 0, 255);
-                                int bb = MathUtils.clamp((int) (cb + eb * errorMul), 0, 255);
+                                int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
+                                int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
+                                int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
                                 usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))] & 0xFF;
@@ -482,9 +482,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                     (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
                                             ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
                                             ((s = (s ^ color) * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL) >> 15));
-                            rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
-                            gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
-                            bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
+                            rr = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);
+                            gg = Math.min(Math.max((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0), 0xFF);
+                            bb = Math.min(Math.max((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
@@ -516,9 +516,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             pos -= (int) pos;
                             adj = MathUtils.sin(pos * 2f - 1f) * strength;
 //                            adj = (pos * pos - 0.3f) * strength;
-                            rr = MathUtils.clamp((int) (rr + (adj * (rr - (used >>> 24)))), 0, 0xFF);
-                            gg = MathUtils.clamp((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0, 0xFF);
-                            bb = MathUtils.clamp((int) (bb + (adj * (bb - (used >>> 8 & 0xFF)))), 0, 0xFF);
+                            rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24)))), 0), 0xFF);
+                            gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
+                            bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8 & 0xFF)))), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
@@ -575,9 +575,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             eg = curErrorGreen[px];
                             eb = curErrorBlue[px];
                             color |= (color >>> 5 & 0x07070700) | 0xFF;
-                            int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
-                            int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
-                            int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                            int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
+                            int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
+                            int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
@@ -634,9 +634,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
                             adj += ((px + y & 1) - 0.5f) * (0.5f + PaletteReducer.RAW_BLUE_NOISE[(px * 19 & 63) | (y * 23 & 63) << 6]) * -0x1.6p-10f;
                             adj *= strength;
-                            rr = MathUtils.clamp((int) (rr + (adj * ((rr - (used >>> 24))))), 0, 0xFF);
-                            gg = MathUtils.clamp((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0, 0xFF);
-                            bb = MathUtils.clamp((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0, 0xFF);
+                            rr = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);
+                            gg = Math.min(Math.max((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0), 0xFF);
+                            bb = Math.min(Math.max((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
@@ -695,9 +695,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             eg = (byte) (curErrorGreen[px] * tbn);
                             eb = (byte) (curErrorBlue[px] * tbn);
                             color |= (color >>> 5 & 0x07070700) | 0xFF;
-                            int rr = MathUtils.clamp(((color >>> 24)       ) + (er), 0, 0xFF);
-                            int gg = MathUtils.clamp(((color >>> 16) & 0xFF) + (eg), 0, 0xFF);
-                            int bb = MathUtils.clamp(((color >>> 8)  & 0xFF) + (eb), 0, 0xFF);
+                            int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
+                            int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
+                            int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
