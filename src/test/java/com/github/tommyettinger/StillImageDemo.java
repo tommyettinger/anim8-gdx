@@ -29,7 +29,7 @@ public class StillImageDemo extends ApplicationAdapter {
         for(String name : new String[]{"Mona_Lisa", "Cat", "Frog", "Landscape",}) {
 			renderPNG8(name);
 			renderGif(name);
-			renderGifHS(name);
+//			renderGifHS(name);
 //			renderPNG(name);
 		}
 		System.out.println("Analyzed all " + total + " images in " + (System.currentTimeMillis() - startTime) + " ms");

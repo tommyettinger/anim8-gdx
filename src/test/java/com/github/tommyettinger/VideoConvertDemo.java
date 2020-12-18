@@ -57,7 +57,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         }
         PNG8 png8 = new PNG8();
         png8.setPalette(new PaletteReducer());
-        png8.palette.analyze(pixmaps, 400, 256);
+        png8.palette.analyze(pixmaps, 144, 256);
         String namePalette = name + "-analyzed";
         //// BW
 //        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
@@ -93,7 +93,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         String namePalette;
         gif.setPalette(new PaletteReducer());
-        gif.palette.analyze(pixmaps, 400, 256);
+        gif.palette.analyze(pixmaps, 144, 256);
 
         namePalette = name + "-Analyzed";
         // DB Aurora palette
@@ -101,8 +101,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         //// BW
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
-//        gif.palette = new PaletteReducer(new int[]{0x00000000, 
-//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
+//        gif.palette = new PaletteReducer(new int[]{0x00000000,
+//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
 //                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
 //        namePalette = name + "-Green";
         gif.setFlipY(false);
@@ -130,15 +130,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         String namePalette;
         gif.setPalette(new PaletteReducer());
-        gif.palette.analyze(pixmaps, 400, 256);
+        gif.palette.analyze(pixmaps, 144, 256);
         namePalette = name + "-Analyzed";
         // DB Aurora palette
 //        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
         //// BW
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
-//        gif.palette = new PaletteReducer(new int[]{0x00000000, 
-//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
+//        gif.palette = new PaletteReducer(new int[]{0x00000000,
+//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
 //                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
 //        namePalette = name + "-Green";
         gif.setFlipY(false);
