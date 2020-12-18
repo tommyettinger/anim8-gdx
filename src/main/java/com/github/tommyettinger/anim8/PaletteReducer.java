@@ -205,19 +205,22 @@ public class PaletteReducer {
             e.printStackTrace();
         }
 
-        double l, m, s;
+        double r, g, b, l, m, s;
         int idx = 0;
         for (int ri = 0; ri < 32; ri++) {
+            r = ri * ri * 0.0010405827263267429; // 1.0 / 31.0 / 31.0
             for (int gi = 0; gi < 32; gi++) {
+                g = gi * gi * 0.0010405827263267429; // 1.0 / 31.0 / 31.0
                 for (int bi = 0; bi < 32; bi++) {
-                    l = (0.010126483870967743) * ri + (0.020628) * gi + (0.0015031290322580645) * bi;
-                    m = (0.004893322580645161) * ri + (0.024135774193548388) * gi + (0.003225948387096774) * bi;
-                    s = (5.726774193548388E-4) * ri + (0.0035312258064516128) * gi + (0.028160290322580644) * bi;
+                    b = bi * bi * 0.0010405827263267429; // 1.0 / 31.0 / 31.0
+
+                    l = Math.pow(0.313921 * r + 0.639468 * g + 0.0465970 * b, 0.43);
+                    m = Math.pow(0.151693 * r + 0.748209 * g + 0.1000044 * b, 0.43);
+                    s = Math.pow(0.017753 * r + 0.109468 * g + 0.8729690 * b, 0.43);
 
                     IPT[0][idx] = 0.4000 * l + 0.4000 * m + 0.2000 * s;
                     IPT[1][idx] = 4.4550 * l - 4.8510 * m + 0.3960 * s;
                     IPT[2][idx] = 0.8056 * l + 0.3572 * m - 1.1628 * s;
-
 
                     idx++;
                 }
@@ -254,12 +257,22 @@ public class PaletteReducer {
     }
 
     public int iptToRgb(double i, double p, double t, double a) {
-        final double l = i + 0.097569 * p + 0.205226 * t;
-        final double m = i - 0.113880 * p + 0.133217 * t;
-        final double s = i + 0.032615 * p - 0.676890 * t;
-        final int r = Math.min(Math.max((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 256.0), 0), 255);
-        final int g = Math.min(Math.max((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 256.0), 0), 255);
-        final int b = Math.min(Math.max((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 256.0), 0), 255);
+        final double lPrime = i + 0.06503950 * p + 0.15391950 * t;
+        final double mPrime = i - 0.07591241 * p + 0.09991275 * t;
+        final double sPrime = i + 0.02174116 * p - 0.50766750 * t;
+        final double l = Math.copySign(Math.pow(Math.abs(lPrime), 2.3256), lPrime);
+        final double m = Math.copySign(Math.pow(Math.abs(mPrime), 2.3256), mPrime);
+        final double s = Math.copySign(Math.pow(Math.abs(sPrime), 2.3256), sPrime);
+        final int r = (int)(Math.sqrt(Math.min(Math.max(5.432622 * l - 4.679100 * m + 0.246257 * s, 0.0), 1.0)) * 255.99999);
+        final int g = (int)(Math.sqrt(Math.min(Math.max(-1.10517 * l + 2.311198 * m - 0.205880 * s, 0.0), 1.0)) * 255.99999);
+        final int b = (int)(Math.sqrt(Math.min(Math.max(0.028104 * l - 0.194660 * m + 1.166325 * s, 0.0), 1.0)) * 255.99999);
+
+//        final double l = i + 0.097569 * p + 0.205226 * t;
+//        final double m = i - 0.113880 * p + 0.133217 * t;
+//        final double s = i + 0.032615 * p - 0.676890 * t;
+//        final int r = Math.min(Math.max((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 256.0), 0), 255);
+//        final int g = Math.min(Math.max((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 256.0), 0), 255);
+//        final int b = Math.min(Math.max((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 256.0), 0), 255);
         return r << 24 | g << 16 | b << 8 | (int)(a * 255.999);
     }
 
@@ -994,9 +1007,9 @@ public class PaletteReducer {
         double l = Math.copySign(Math.pow(Math.abs(lPrime), 2.3256), lPrime);
         double m = Math.copySign(Math.pow(Math.abs(mPrime), 2.3256), mPrime);
         double s = Math.copySign(Math.pow(Math.abs(sPrime), 2.3256), sPrime);
-        int r = Math.min(Math.max((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 255.99999), 0), 255);
-        int g = Math.min(Math.max((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 255.99999), 0), 255);
-        int b = Math.min(Math.max((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 255.99999), 0), 255);
+        int r = (int)(Math.sqrt(Math.min(Math.max(5.432622 * l - 4.679100 * m + 0.246257 * s, 0.0), 1.0)) * 255.99999);
+        int g = (int)(Math.sqrt(Math.min(Math.max(-1.10517 * l + 2.311198 * m - 0.205880 * s, 0.0), 1.0)) * 255.99999);
+        int b = (int)(Math.sqrt(Math.min(Math.max(0.028104 * l - 0.194660 * m + 1.166325 * s, 0.0), 1.0)) * 255.99999);
         int a = a1 + a2 + 1 >>> 1;
         return r << 24 | g << 16 | b << 8 | a;
 
