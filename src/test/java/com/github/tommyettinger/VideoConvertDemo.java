@@ -96,8 +96,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         gif.palette.analyze(pixmaps, 144, 256);
 
         namePalette = name + "-Analyzed";
-        // DB Aurora palette
-//        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
+        // Haltonic palette
+        gif.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
         //// BW
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
@@ -132,8 +132,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         gif.setPalette(new PaletteReducer());
         gif.palette.analyze(pixmaps, 144, 256);
         namePalette = name + "-Analyzed";
-        // DB Aurora palette
-//        gif.palette = new PaletteReducer(); namePalette = name + "-Aurora";
+        // Haltonic palette
+        gif.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
         //// BW
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green

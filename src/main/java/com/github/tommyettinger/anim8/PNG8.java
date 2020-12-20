@@ -148,7 +148,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * colors in pixmap. When computePalette is true, if there are 256 or less colors and none are transparent, this
      * will use 256 colors in its palette exactly with no transparent entry, but if there are more than 256 colors or
      * any are transparent, then one color will be used for "fully transparent" and 255 opaque colors will be used. When
-     * computePalette is false, this uses the last palette this had computed, or the 256-color DB Aurora palette if no
+     * computePalette is false, this uses the last palette this had computed, or the 256-color "Haltonic" palette if no
      * palette had been computed yet.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given file

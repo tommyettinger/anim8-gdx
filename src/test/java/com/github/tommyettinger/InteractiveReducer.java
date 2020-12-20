@@ -89,7 +89,6 @@ public class InteractiveReducer extends ApplicationAdapter {
         font = new BitmapFont();
         batch = new SpriteBatch();
         palette = new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF};
- 
         reducer = new PaletteReducer(palette);
         reducer.setDitherStrength(strength);
         png8 = new PNG8();
