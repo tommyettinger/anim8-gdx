@@ -18,10 +18,10 @@ apply from: 'publish.gradle'
 sourceCompatibility = 1.7
 
 def projectName = 'anim8-gdx'
-version '0.2.4'
+version '0.2.5-SNAPSHOT'
 group 'com.github.tommyettinger'
 
-//api "com.github.tommyettinger:anim8-gdx:0.2.2"
+//api "com.github.tommyettinger:anim8-gdx:0.2.4"
 
 def gdxVersion = '1.9.10'
 
@@ -34,7 +34,7 @@ if (JavaVersion.current().isJava8Compatible()) {
         tasks.withType(Javadoc) {
             // The -quiet is because of some sort of weird JDK JavaCompiler bug:
             // https://discuss.gradle.org/t/passing-arguments-to-compiler-and-javadoc/1661
-            options.addStringOption('Xdoclint:all,-missing', '-quiet')
+            options.addStringOption('Xdoclint:none,-missing', '-quiet')
         }
     }
 }

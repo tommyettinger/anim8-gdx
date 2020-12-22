@@ -90,6 +90,8 @@ public class InteractiveReducer extends ApplicationAdapter {
         batch = new SpriteBatch();
         palette = new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF};
         reducer = new PaletteReducer(palette);
+//        reducer = new PaletteReducer(PaletteReducer.HALTONIC);
+//        reducer.writePreloadFile(Gdx.files.local("haltonic.txt"));
         reducer.setDitherStrength(strength);
         png8 = new PNG8();
         png8.palette = reducer;
