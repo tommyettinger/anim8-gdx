@@ -27,15 +27,23 @@ import java.util.Random;
  *     <li>{@link #reduceFloydSteinberg(Pixmap)} (Floyd-Steinberg is a very common error-diffusion dither; it's
  *     excellent for still images and large palette sizes, but not animations. It is great for preserving shape, but
  *     when a color isn't in the palette and it needs to try to match it, Floyd-Steinberg can leave artifacts.)</li>
+ *     <li>{@link #reduceScatter(Pixmap)} (This is Floyd-Steinberg, as above, but with some of the problem artifacts
+ *     that Floyd-Steinberg can produce perturbed by blue noise; it's the default here because it works well in still
+ *     images and animations. Using blue noise to edit error somewhat-randomly would seem like it would introduce
+ *     artifacts of its own, but blue noise patterns are very hard to recognize as artificial, since they show up mostly
+ *     in organic forms.)</li>
  *     <li>{@link #reduceJimenez(Pixmap)} (This is a modified version of Gradient Interleaved Noise by Jorge Jimenez;
  *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks. It does quite well
  *     on some animations and on smooth or rounded shapes.)</li>
  *     <li>{@link #reduceKnollRoberts(Pixmap)} (This is a modified version of Thomas Knoll's Pattern Dithering; it skews
  *     a grid-based ordered dither and also does a small amount of gamma correction, so lightness may change. It
- *     preserves shape extremely well, but is almost never faithful to the original colors.)</li>
+ *     preserves shape extremely well, but is almost never 100% faithful to the original colors. It has gotten much
+ *     better since version 0.2.4, however. This algorithm is rather slow; most of the other algorithms take comparable
+ *     amounts of time to each other, but KnollRoberts and especially Knoll are sluggish.)</li>
  *     <li>{@link #reduceChaoticNoise(Pixmap)} (Uses blue noise and pseudo-random white noise, with a carefully chosen
  *     distribution, to disturb what would otherwise be flat bands. This does introduce chaotic or static-looking
- *     pixels, but with larger palettes they won't be far from the original.)</li>
+ *     pixels, but with larger palettes they won't be far from the original. This works fine as a last resort when you
+ *     can tolerate chaotic/fuzzy patches of poorly-defined shapes, but other dithers aren't doing well.)</li>
  *     </ul>
  *     </li>
  *     <li>OTHER TIER
@@ -45,10 +53,12 @@ import java.util.Random;
  *     add enough disruption to some images, which leads to a flat-looking result.)</li>
  *     <li>{@link #reduceSierraLite(Pixmap)} (Like Floyd-Steinberg, Sierra Lite is an error-diffusion dither, and it
  *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small. If
- *     Floyd-Steinberg has unexpected artifacts, you can try Sierra Lite, and it may avoid those issues.)</li>
+ *     Floyd-Steinberg has unexpected artifacts, you can try Sierra Lite, and it may avoid those issues. Using
+ *     Scatter should be tried first, though.)</li>
  *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim except for the
  *     inclusion of some gamma correction; this version has a heavy grid pattern that looks like an artifact. The skew
- *     applied to Knoll-Roberts gives it a more subtle triangular grid, while the square grid here is a bit bad.)</li>
+ *     applied to Knoll-Roberts gives it a more subtle triangular grid, while the square grid here is a bit bad. This
+ *     reduction is the slowest here, currently, and may noticeably delay processing on large images.)</li>
  *     <li>{@link #reduceSolid(Pixmap)} (No dither! Solid colors! Mostly useful when you want to preserve blocky parts
  *     of a source image, or for some kinds of pixel/low-color art.)</li>
  *     </ul>
@@ -452,7 +462,7 @@ public class PaletteReducer {
         analyze(pixmap, threshold);
     }
     
-    public double difference(int color1, int color2) {
+    public static double difference(int color1, int color2) {
         if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
@@ -475,7 +485,7 @@ public class PaletteReducer {
 //                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-10;
     }
 
-    public double difference(int color1, int r2, int g2, int b2) {
+    public static double difference(int color1, int r2, int g2, int b2) {
         if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
@@ -498,7 +508,7 @@ public class PaletteReducer {
 //                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-10;
     }
 
-    public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
+    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
 //        final int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
 //                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
 //        final double
@@ -2169,7 +2179,7 @@ public class PaletteReducer {
      * square root of a color's lightness instead of its actual lightness, or {@link Interpolation#pow2In} to square the
      * lightness instead. You could make colors more saturated by passing {@link Interpolation#circle} to greenToRed and
      * blueToYellow, or get a less-extreme version by using {@link Interpolation#smooth}. To desaturate colors is a
-     * different task; you can create a {@link BiasGain} Interpolation with 0.5 turning and maybe 0.25 to 0.75 shape to
+     * different task; you can create a {@link OtherMath.BiasGain} Interpolation with 0.5 turning and maybe 0.25 to 0.75 shape to
      * produce different strengths of desaturation. Using a shape of 1.5 to 4 with BiasGain is another way to saturate
      * the colors.
      * @param lightness an Interpolation that will affect the lightness of each color
@@ -2204,47 +2214,6 @@ public class PaletteReducer {
             palette[idx] = iptToRgb(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
         }
         return this;
-    }
-
-    /**
-     * A generalization on bias and gain functions that can represent both; this version is branch-less.
-     * This is based on <a href="https://arxiv.org/abs/2010.09714">this micro-paper</a> by Jon Barron, which
-     * generalizes the earlier bias and gain rational functions by Schlick. The second and final page of the
-     * paper has useful graphs of what the s (shape) and t (turning point) parameters do; shape should be 0
-     * or greater, while turning must be between 0 and 1, inclusive. This effectively combines two different
-     * curving functions so they continue into each other when x equals turning. The shape parameter will
-     * cause this to imitate "smoothstep-like" splines when greater than 1 (where the values ease into their
-     * starting and ending levels), or to be the inverse when less than 1 (where values start like square
-     * root does, taking off very quickly, but also end like square does, landing abruptly at the ending
-     * level). You should only give x values between 0 and 1, inclusive.
-     * @param x progress through the spline, from 0 to 1, inclusive
-     * @param shape must be greater than or equal to 0; values greater than 1 are "normal interpolations"
-     * @param turning a value between 0.0 and 1.0, inclusive, where the shape changes
-     * @return a float between 0 and 1, inclusive
-     */
-    public static float barronSpline(final float x, final float shape, final float turning) {
-        final float d = turning - x;
-        final int f = NumberUtils.floatToIntBits(d) >> 31, n = f | 1;
-        return ((turning * n - f) * (x + f)) / (Float.MIN_NORMAL - f + (x + shape * d) * n) - f;
-    }
-
-    /**
-     * A wrapper around {@link #barronSpline(float, float, float)} to use it as an Interpolation.
-     * Useful because it can imitate the wide variety of symmetrical Interpolations by setting turning to 0.5 and shape
-     * to some value greater than 1, while also being able to produce the inverse of those interpolations by setting
-     * shape to some value between 0 and 1.
-     */
-    static public class BiasGain extends Interpolation {
-        final float shape, turning;
-
-        public BiasGain (float shape, float turning) {
-            this.shape = shape;
-            this.turning = turning;
-        }
-
-        public float apply (float a) {
-            return barronSpline(a, shape, turning);
-        }
     }
 
 

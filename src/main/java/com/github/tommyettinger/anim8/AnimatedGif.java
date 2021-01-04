@@ -426,7 +426,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             cr = (color >>> 24);
                             cg = (color >>> 16 & 0xFF);
                             cb = (color >>> 8 & 0xFF);
-                            for (int c = 0; c < palette.candidates.length; c++) {
+                            for (int c = 0; c < 8; c++) {
                                 int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
                                 int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
                                 int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
