@@ -871,7 +871,7 @@ public class PaletteReducer {
                     bufG = new int[32],
                     bufB = new int[32];
             for (int stage = 0; stage < numCuts; stage++) {
-                int size = bin.size >> stage;
+                int size = bin.size >>> stage;
                 offset = 0;
                 end = 0;
                 for (int part = 1 << stage; part > 0; part--) {

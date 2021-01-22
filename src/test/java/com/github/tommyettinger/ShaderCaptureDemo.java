@@ -133,7 +133,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         height = Gdx.graphics.getHeight();
 
         Gdx.files.local("images").mkdirs();
-//		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
+		renderAPNG(nms, sds); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 		renderPNG8(nms, pals, sds);
         renderGif(nms, pals, sds);
     }
@@ -165,21 +165,29 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         batch.end();
     }
 
-    public void renderAPNG() {
-        Array<Pixmap> pixmaps = new Array<>(40);
-        for (int i = 1; i <= 40; i++) {
-            Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-            Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
-            batch.begin();
-            shader.setUniformf("seed", seed);
-            shader.setUniformf("tm", i * 2.5f);
-            batch.draw(pixel, 0, 0, width, height);
-            batch.end();
-            pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        }
+    public void renderAPNG(String[] names, long[] seeds) {
         AnimatedPNG apng = new AnimatedPNG();
         apng.setCompression(7);
-        apng.write(Gdx.files.local("images/AnimatedPNG-" + startTime + ".png"), pixmaps, 16);
+        for (int n = 0; n < names.length && n < seeds.length; n++) {
+            name = names[n];
+            long state = seeds[n];
+            // SquidLib's DiverRNG.randomize()
+            seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
+            Array<Pixmap> pixmaps = new Array<>(40);
+            for (int i = 1; i <= 40; i++) {
+                Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
+                Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+                batch.begin();
+                shader.setUniformf("seed", seed);
+                shader.setUniformf("tm", i * 2.5f);
+                batch.draw(pixel, 0, 0, width, height);
+                batch.end();
+                pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+            }
+            apng.write(Gdx.files.local("images/AnimatedPNG-" + startTime + ".png"), pixmaps, 16);
+            for (Pixmap pm : pixmaps)
+                pm.dispose();
+        }
     }
     
     public void renderPNG8(String[] names, int[][] palettes, long[] seeds) {

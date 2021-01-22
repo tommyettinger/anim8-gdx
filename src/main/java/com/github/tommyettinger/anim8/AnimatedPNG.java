@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.StreamUtils;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -141,6 +142,7 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
      * @param frames an Array of Pixmap frames to write in order to the animated PNG
      * @param fps how many frames per second the animated PNG should display
      */
+    @SuppressWarnings("RedundantCast")
     @Override
     public void write(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
@@ -209,18 +211,18 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
                 lastLineLen = lineLen;
 
                 pixels = pixmap.getPixels();
-                oldPosition = pixels.position();
+                oldPosition = ((Buffer)pixels).position();
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     if (rgba8888) {
-                        pixels.position(py * lineLen);
+                        ((Buffer)pixels).position(py * lineLen);
                         pixels.get(curLine, 0, lineLen);
                     } else {
                         for (int px = 0, x = 0; px < width; px++) {
                             int pixel = pixmap.getPixel(px, py);
-                            curLine[x++] = (byte) ((pixel >> 24) & 0xff);
-                            curLine[x++] = (byte) ((pixel >> 16) & 0xff);
-                            curLine[x++] = (byte) ((pixel >> 8) & 0xff);
+                            curLine[x++] = (byte) ((pixel >>> 24) & 0xff);
+                            curLine[x++] = (byte) ((pixel >>> 16) & 0xff);
+                            curLine[x++] = (byte) ((pixel >>> 8) & 0xff);
                             curLine[x++] = (byte) (pixel & 0xff);
                         }
                     }
@@ -255,7 +257,7 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
                     curLine = prevLine;
                     prevLine = temp;
                 }
-                pixels.position(oldPosition);
+                ((Buffer)pixels).position(oldPosition);
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
             }

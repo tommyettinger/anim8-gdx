@@ -868,7 +868,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      */
     protected void writeShort(int value) throws IOException {
         out.write(value & 0xff);
-        out.write((value >> 8) & 0xff);
+        out.write((value >>> 8) & 0xff);
     }
 
     /**

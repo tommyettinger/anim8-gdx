@@ -59,13 +59,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
         png8.setPalette(new PaletteReducer());
         png8.palette.analyze(pixmaps, 144, 256);
         String namePalette = name + "-analyzed";
+        // Haltonic palette
+//        png8.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
         //// BW
 //        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
 //        png8.palette = new PaletteReducer(new int[]{0x00000000, 
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
 //                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
-        namePalette = name + "-Green";
+//        namePalette = name + "-Green";
         png8.setFlipY(false);
         png8.setCompression(7);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
@@ -97,7 +99,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
         namePalette = name + "-Analyzed";
         // Haltonic palette
-        gif.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
+//        gif.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
         //// BW
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
@@ -133,7 +135,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         gif.palette.analyze(pixmaps, 144, 256);
         namePalette = name + "-Analyzed";
         // Haltonic palette
-        gif.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
+//        gif.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
         //// BW
 //        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
