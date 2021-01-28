@@ -18,10 +18,10 @@ apply from: 'publish.gradle'
 sourceCompatibility = 1.7
 
 def projectName = 'anim8-gdx'
-version '0.2.6'
+version '0.2.7-SNAPSHOT'
 group 'com.github.tommyettinger'
 
-//api "com.github.tommyettinger:anim8-gdx:0.2.5"
+//api "com.github.tommyettinger:anim8-gdx:0.2.6"
 
 def gdxVersion = '1.9.10'
 

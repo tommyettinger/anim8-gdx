@@ -150,6 +150,19 @@ public class PaletteReducer {
      * color with {@link #shrink(int)}.
      */
     public static final double[][] IPT = new double[3][0x8000];
+
+    /**
+     * Stores Oklab components corresponding to RGB555 indices.
+     * OKLAB[0] stores L (lightness) from 0.0 to 1.0 .
+     * OKLAB[1] stores A, which is something like a green-magenta axis, from -0.5 (green) to 0.5 (red).
+     * OKLAB[2] stores B, which is something like a blue-orange axis, from -0.5 (blue) to 0.5 (yellow).
+     * <br>
+     * The indices into each of these double[] values store red in bits 10-14, green in bits 5-9, and blue in bits 0-4.
+     * It's ideal to work with these indices with bitwise operations, as with {@code (r << 10 | g << 5 | b)}, where r,
+     * g, and b are all in the 0-31 range inclusive. It's usually easiest to convert an RGBA8888 int color to an RGB555
+     * color with {@link #shrink(int)}.
+     */
+    public static final float[][] OKLAB = new float[3][0x8000];
 //    /**
 //     * Stores CIE LAB components corresponding to RGB555 indices.
 //     * LAB[0] stores lightness from 0.0 to 100.0 .
@@ -225,13 +238,14 @@ public class PaletteReducer {
         }
 
         double r, g, b, l, m, s;
+        float rf, gf, bf, lf, mf, sf;
         int idx = 0;
         for (int ri = 0; ri < 32; ri++) {
-            r = ri * ri * 0.0010405827263267429; // 1.0 / 31.0 / 31.0
+            rf = (float) (r = ri * ri * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
             for (int gi = 0; gi < 32; gi++) {
-                g = gi * gi * 0.0010405827263267429; // 1.0 / 31.0 / 31.0
+                gf = (float) (g = gi * gi * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
                 for (int bi = 0; bi < 32; bi++) {
-                    b = bi * bi * 0.0010405827263267429; // 1.0 / 31.0 / 31.0
+                    bf = (float) (b = bi * bi * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
 
                     l = Math.pow(0.313921 * r + 0.639468 * g + 0.0465970 * b, 0.43);
                     m = Math.pow(0.151693 * r + 0.748209 * g + 0.1000044 * b, 0.43);
@@ -240,6 +254,14 @@ public class PaletteReducer {
                     IPT[0][idx] = 0.4000 * l + 0.4000 * m + 0.2000 * s;
                     IPT[1][idx] = 4.4550 * l - 4.8510 * m + 0.3960 * s;
                     IPT[2][idx] = 0.8056 * l + 0.3572 * m - 1.1628 * s;
+
+                    lf = OtherMath.cbrt(0.4121656120f * rf + 0.5362752080f * gf + 0.0514575653f * bf);
+                    mf = OtherMath.cbrt(0.2118591070f * rf + 0.6807189584f * gf + 0.1074065790f * bf);
+                    sf = OtherMath.cbrt(0.0883097947f * rf + 0.2818474174f * gf + 0.6302613616f * bf);
+
+                    OKLAB[0][idx] = 0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf;
+                    OKLAB[1][idx] = 1.9779984951f * lf - 2.4285922050f * mf + 0.4505937099f * sf;
+                    OKLAB[2][idx] = 0.0259040371f * lf + 0.7827717662f * mf - 0.8086757660f * sf;
 
                     idx++;
                 }
@@ -467,10 +489,23 @@ public class PaletteReducer {
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
         final double
-                i = IPT[0][indexA] - IPT[0][indexB],
-                p = IPT[1][indexA] - IPT[1][indexB],
-                t = IPT[2][indexA] - IPT[2][indexB];
-        return (i * i + p * p + t * t) * 0x1p13;
+                i = OKLAB[0][indexA] - OKLAB[0][indexB],
+                p = OKLAB[1][indexA] - OKLAB[1][indexB],
+                t = OKLAB[2][indexA] - OKLAB[2][indexB];
+        return (i * i + p * p + t * t) * 0x1p+14;
+    }
+//
+//    public static double difference(int color1, int color2) {
+//        if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
+//        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
+//                indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
+//        final double
+//                i = IPT[0][indexA] - IPT[0][indexB],
+//                p = IPT[1][indexA] - IPT[1][indexB],
+//                t = IPT[2][indexA] - IPT[2][indexB];
+//        return (i * i + p * p + t * t) * 0x1p13;
+//    }
+
 //        if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
 //        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
 //                indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
@@ -483,17 +518,29 @@ public class PaletteReducer {
 //        return (RGB_POWERS[Math.abs((color1 >>> 24) - (color2 >>> 24))]
 //                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF))]
 //                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-10;
-    }
 
     public static double difference(int color1, int r2, int g2, int b2) {
-        if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
+        if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
         final double
-                i = IPT[0][indexA] - IPT[0][indexB],
-                p = IPT[1][indexA] - IPT[1][indexB],
-                t = IPT[2][indexA] - IPT[2][indexB];
-        return (i * i + p * p + t * t) * 0x1p13;
+                i = OKLAB[0][indexA] - OKLAB[0][indexB],
+                p = OKLAB[1][indexA] - OKLAB[1][indexB],
+                t = OKLAB[2][indexA] - OKLAB[2][indexB];
+        return (i * i + p * p + t * t) * 0x1p+14;
+    }
+//
+//    public static double difference(int color1, int r2, int g2, int b2) {
+//        if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
+//        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
+//                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
+//        final double
+//                i = IPT[0][indexA] - IPT[0][indexB],
+//                p = IPT[1][indexA] - IPT[1][indexB],
+//                t = IPT[2][indexA] - IPT[2][indexB];
+//        return (i * i + p * p + t * t) * 0x1p13;
+//    }
+
 //        if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
 //        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
 //                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
@@ -506,9 +553,26 @@ public class PaletteReducer {
 //        return (RGB_POWERS[Math.abs((color1 >>> 24) - r2)]
 //                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - g2)]
 //                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-10;
-    }
 
     public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
+        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
+                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
+        final double
+                i = OKLAB[0][indexA] - OKLAB[0][indexB],
+                p = OKLAB[1][indexA] - OKLAB[1][indexB],
+                t = OKLAB[2][indexA] - OKLAB[2][indexB];
+        return (i * i + p * p + t * t) * 0x1p+14;
+    }
+//    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
+//        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
+//                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
+//        final double
+//                i = IPT[0][indexA] - IPT[0][indexB],
+//                p = IPT[1][indexA] - IPT[1][indexB],
+//                t = IPT[2][indexA] - IPT[2][indexB];
+//        return (i * i + p * p + t * t) * 0x1p13;
+//    }
+
 //        final int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
 //                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
 //        final double
@@ -517,19 +581,11 @@ public class PaletteReducer {
 //                B = IPT[2][indexA] - IPT[2][indexB];
 //        return (L * L * 3.0 + A * A + B * B) * 0x1p13;//return L * L * 11.0 + A * A * 1.6 + B * B;
 //
-        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
-                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        final double
-                i = IPT[0][indexA] - IPT[0][indexB],
-                p = IPT[1][indexA] - IPT[1][indexB],
-                t = IPT[2][indexA] - IPT[2][indexB];
-        return (i * i + p * p + t * t) * 0x1p13;
+
 
 //        return (RGB_POWERS[Math.abs(r1 - r2)]
 //                + RGB_POWERS[256+Math.abs(g1 - g2)]
 //                + RGB_POWERS[512+Math.abs(b1 - b2)]) * 0x1p-10;
-
-    }
 
     /**
      * Resets the palette to the 256-color (including transparent) "Haltonic" palette. PaletteReducer already
@@ -1055,7 +1111,6 @@ public class PaletteReducer {
         int b = (int)(Math.sqrt(Math.min(Math.max(0.028104 * l - 0.194660 * m + 1.166325 * s, 0.0), 1.0)) * 255.99999);
         int a = a1 + a2 + 1 >>> 1;
         return r << 24 | g << 16 | b << 8 | a;
-
     }
 
     /**
@@ -1807,14 +1862,14 @@ public class PaletteReducer {
      * Compares items in ints by their luma, looking up items by the indices a and b, and swaps the two given indices if
      * the item at a has higher luma than the item at b. This is protected rather than private because it's more likely
      * that this would be desirable to override than a method that uses it, like {@link #reduceKnoll(Pixmap)}. Uses
-     * {@link #IPT} to look up fairly-accurate luma for the given colors in {@code ints} (that contains RGBA8888 colors
-     * while labs uses RGB555, so {@link #shrink(int)} is used to convert).
+     * {@link #OKLAB} to look up accurate luma for the given colors in {@code ints} (that contains RGBA8888 colors
+     * while OKLAB uses RGB555, so {@link #shrink(int)} is used to convert).
      * @param ints an int array than must be able to take a and b as indices; may be modified in place
      * @param a an index into ints
      * @param b an index into ints
      */
     protected void compareSwap(final int[] ints, final int a, final int b) {
-        if(IPT[0][shrink(ints[a])] > IPT[0][shrink(ints[b])]) {
+        if(OKLAB[0][shrink(ints[a])] > OKLAB[0][shrink(ints[b])]) {
             final int t = ints[a];
             ints[a] = ints[b];
             ints[b] = t;
