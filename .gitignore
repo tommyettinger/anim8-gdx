@@ -65,3 +65,4 @@ nb-configuration.xml
 *.symbolMap
 
 ## extra folders
+/hueShifted/
