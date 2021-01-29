@@ -2279,8 +2279,8 @@ public class PaletteReducer {
         for (int idx = 0; idx < colorCount; idx++) {
             int s = shrink(palette[idx]);
             double i = OKLAB[0][s];
-            double p = OKLAB[1][s] + (i - 0.5) * 0.1875;
-            double t = OKLAB[2][s] + (i - 0.5) * -0.0625;
+            double p = OKLAB[1][s] + (i - 0.5) * 0.07;
+            double t = OKLAB[2][s] + (i - 0.5) * 0.07;
             palette[idx] = oklabToRGB(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
         }
         return this;
