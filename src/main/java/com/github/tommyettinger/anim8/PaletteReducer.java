@@ -317,6 +317,21 @@ public class PaletteReducer {
         return r << 24 | g << 16 | b << 8 | (int)(a * 255.999);
     }
 
+    public static int oklabToRGB(double L, double A, double B, double alpha)
+    {
+        double l = (L + 0.3963377774f * A + 0.2158037573f * B);
+        double m = (L - 0.1055613458f * A - 0.0638541728f * B);
+        double s = (L - 0.0894841775f * A - 1.2914855480f * B);
+        l *= l * l;
+        m *= m * m;
+        s *= s * s;
+        final int r = (int)(Math.sqrt(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0f), 1f)) * 255.999f);
+        final int g = (int)(Math.sqrt(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0f), 1f)) * 255.999f);
+        final int b = (int)(Math.sqrt(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0f), 1f)) * 255.999f);
+        return r << 24 | g << 16 | b << 8 | (int)(alpha * 255.999);
+    }
+
+
     /**
      * Stores the byte indices into {@link #paletteArray} (when treated as unsigned; mask with 255) corresponding to
      * RGB555 colors (you can get an RGB555 int from an RGBA8888 int using {@link #shrink(int)}). This is not especially
@@ -2263,10 +2278,10 @@ public class PaletteReducer {
         int[] palette = paletteArray;
         for (int idx = 0; idx < colorCount; idx++) {
             int s = shrink(palette[idx]);
-            double i = IPT[0][s];
-            double p = IPT[1][s] + (i - 0.5) * 0.3;
-            double t = IPT[2][s] + (i - 0.5) * 0.25;
-            palette[idx] = iptToRgb(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
+            double i = OKLAB[0][s];
+            double p = OKLAB[1][s] + (i - 0.5) * 0.1875;
+            double t = OKLAB[2][s] + (i - 0.5) * -0.0625;
+            palette[idx] = oklabToRGB(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
         }
         return this;
     }

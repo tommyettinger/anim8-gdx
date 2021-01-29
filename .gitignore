@@ -63,3 +63,5 @@ nb-configuration.xml
 ## OS Specific
 .DS_Store
 *.symbolMap
+
+## extra folders

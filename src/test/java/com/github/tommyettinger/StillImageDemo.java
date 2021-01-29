@@ -125,19 +125,19 @@ public class StillImageDemo extends ApplicationAdapter {
 
 			gif.setPalette(reducer.hueShift());
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Pattern-" + count + ".gif"), pixmaps, 1);
+			gif.write(Gdx.files.local("hueShifted/" + name + "-Gif-HS-Pattern-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-None-" + count + ".gif"), pixmaps, 1);
+			gif.write(Gdx.files.local("hueShifted/" + name + "-Gif-HS-None-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Gradient-" + count + ".gif"), pixmaps, 1);
+			gif.write(Gdx.files.local("hueShifted/" + name + "-Gif-HS-Gradient-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Diffusion-" + count + ".gif"), pixmaps, 1);
+			gif.write(Gdx.files.local("hueShifted/" + name + "-Gif-HS-Diffusion-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-BlueNoise-" + count + ".gif"), pixmaps, 1);
+			gif.write(Gdx.files.local("hueShifted/" + name + "-Gif-HS-BlueNoise-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
+			gif.write(Gdx.files.local("hueShifted/" + name + "-Gif-HS-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-			gif.write(Gdx.files.local("images/" + name + "-Gif-HS-Scatter-" + count + ".gif"), pixmaps, 1);
+			gif.write(Gdx.files.local("hueShifted/" + name + "-Gif-HS-Scatter-" + count + ".gif"), pixmaps, 1);
 			total += 1;
 		}
     }
