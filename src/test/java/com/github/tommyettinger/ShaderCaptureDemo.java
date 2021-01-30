@@ -125,15 +125,15 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 //        long state = -1L; name = "pastel"; // pastel
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
-        String[] nms = {"flashy", "bw", "gb", "pastel", "green"};
-        int[][] pals = {null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, null, null};
-        long[] sds = {0x123456789L, 0x123456789L, 0x123456789L, -1L, 0x1234567890L};
+        String[] nms = {"flashy", "bw", "gb", "haltonic", "pastel", "green"};
+        int[][] pals = {null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC, null, null};
+        long[] sds = {0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, -1L, 0x1234567890L};
 
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
 
         Gdx.files.local("images").mkdirs();
-		renderAPNG(nms, sds); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
+//		renderAPNG(nms, sds); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 		renderPNG8(nms, pals, sds);
         renderGif(nms, pals, sds);
     }

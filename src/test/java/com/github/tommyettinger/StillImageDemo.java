@@ -27,9 +27,9 @@ public class StillImageDemo extends ApplicationAdapter {
 
         Gdx.files.local("images").mkdirs();
         for(String name : new String[]{"Mona_Lisa", "Cat", "Frog", "Landscape",}) {
-//			renderPNG8(name);
-//			renderGif(name);
-			renderGifHS(name);
+			renderPNG8(name);
+			renderGif(name);
+//			renderGifHS(name);
 //			renderPNG(name);
 		}
 		System.out.println("Analyzed all " + total + " images in " + (System.currentTimeMillis() - startTime) + " ms");
