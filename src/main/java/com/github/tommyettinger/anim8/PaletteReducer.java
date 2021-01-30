@@ -507,7 +507,7 @@ public class PaletteReducer {
                 i = OKLAB[0][indexA] - OKLAB[0][indexB],
                 p = OKLAB[1][indexA] - OKLAB[1][indexB],
                 t = OKLAB[2][indexA] - OKLAB[2][indexB];
-        return (i * i + p * p + t * t) * 0x1p+14;
+        return (i * i + p * p + t * t) * 0x1.2p+14;
     }
 //
 //    public static double difference(int color1, int color2) {
@@ -542,7 +542,7 @@ public class PaletteReducer {
                 i = OKLAB[0][indexA] - OKLAB[0][indexB],
                 p = OKLAB[1][indexA] - OKLAB[1][indexB],
                 t = OKLAB[2][indexA] - OKLAB[2][indexB];
-        return (i * i + p * p + t * t) * 0x1p+14;
+        return (i * i + p * p + t * t) * 0x1.2p+14;
     }
 //
 //    public static double difference(int color1, int r2, int g2, int b2) {
@@ -576,7 +576,7 @@ public class PaletteReducer {
                 i = OKLAB[0][indexA] - OKLAB[0][indexB],
                 p = OKLAB[1][indexA] - OKLAB[1][indexB],
                 t = OKLAB[2][indexA] - OKLAB[2][indexB];
-        return (i * i + p * p + t * t) * 0x1p+14;
+        return (i * i + p * p + t * t) * 0x1.2p+14;
     }
 //    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
 //        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
@@ -2279,8 +2279,8 @@ public class PaletteReducer {
         for (int idx = 0; idx < colorCount; idx++) {
             int s = shrink(palette[idx]);
             double i = OKLAB[0][s];
-            double p = OKLAB[1][s] + (i - 0.5) * 0.07;
-            double t = OKLAB[2][s] + (i - 0.5) * 0.07;
+            double p = OKLAB[1][s] + (i - 0.5) * 0.04;
+            double t = OKLAB[2][s] + (i - 0.5) * 0.08;
             palette[idx] = oklabToRGB(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
         }
         return this;
