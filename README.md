@@ -42,7 +42,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX 1.9.10 or higher
-  api "com.github.tommyettinger:anim8-gdx:0.2.6"
+  api "com.github.tommyettinger:anim8-gdx:0.2.7"
 }
 ```
 
@@ -50,7 +50,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/57db9e3b6d). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.6:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.7:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -79,7 +79,12 @@ different API).
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
     - It tends to look very good in still images, and very bad in animations.
+    - SCATTER is mostly the same as this algorithm, but uses blue noise to break up unpleasant patterns.
   - BLUE_NOISE
+    - Blue noise, if you haven't heard the term, refers to a kind of sequence of values where low-frequency patterns
+      don't appear at all, but mid- and high-frequency patterns are very common. 2D blue noise is common in graphics
+      code, often as a texture but sometimes as a sequence of points; it is used here because most vertebrate eyes
+      employ a blue-noise distribution for sensory cells, and this makes blue noise appear natural to the human eye.
     - Not the typical blue-noise dither; this incorporates a checkerboard pattern as well as a 64x64 blue noise texture.
     - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise.
     - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
