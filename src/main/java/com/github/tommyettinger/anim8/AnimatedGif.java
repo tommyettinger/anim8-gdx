@@ -651,7 +651,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 final int w = width;
                 int rdiff, gdiff, bdiff;
                 byte er, eg, eb, paletteIndex;
-                float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+                float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.09375), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
                 byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedBytes == null) {
@@ -690,7 +690,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
+                            double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)]
+                                    * PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(y * 5 + 23 & 63) | ((px * 7 + 29 << 6) & 0xFC0)]
+                                    * ((PaletteReducer.TRI_BLUE_NOISE[(seq - y) * 0xDE4D + (seq - px) * 0xBA55 >>> 8 & 0xFFF] + 0.5) * 0x1.8p-11 + 1.0);
                             er = (byte) (curErrorRed[px] * tbn);
                             eg = (byte) (curErrorGreen[px] * tbn);
                             eb = (byte) (curErrorBlue[px] * tbn);

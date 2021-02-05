@@ -1610,7 +1610,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used, rdiff, gdiff, bdiff;
             byte er, eg, eb, paletteIndex;
-            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.09375), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             byte[] lineOut, curLine, prevLine;
             if (lineOutBytes == null) {
@@ -1645,7 +1645,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if ((color & 0x80) == 0 && hasTransparent)
                         curLine[px] = 0;
                     else {
-                        double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
+                        double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)]
+                                * PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(y * 5 + 23 & 63) | ((px * 7 + 29 << 6) & 0xFC0)]
+                                * ((PaletteReducer.TRI_BLUE_NOISE[(1 - y) * 0xDE4D + (1 - px) * 0xBA55 >>> 8 & 0xFFF] + 0.5) * 0x1.8p-11 + 1.0);
                         er = (byte) (curErrorRed[px] * tbn);
                         eg = (byte) (curErrorGreen[px] * tbn);
                         eb = (byte) (curErrorBlue[px] * tbn);
@@ -2894,7 +2896,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used, rdiff, gdiff, bdiff;
             byte er, eg, eb, paletteIndex;
-            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.09375), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2953,7 +2955,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
+                            double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)]
+                                    * PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(y * 5 + 23 & 63) | ((px * 7 + 29 << 6) & 0xFC0)]
+                                    * ((PaletteReducer.TRI_BLUE_NOISE[(seq - y) * 0xDE4D + (seq - px) * 0xBA55 >>> 8 & 0xFFF] + 0.5) * 0x1.8p-11 + 1.0);
                             er = (byte) (curErrorRed[px] * tbn);
                             eg = (byte) (curErrorGreen[px] * tbn);
                             eb = (byte) (curErrorBlue[px] * tbn);
