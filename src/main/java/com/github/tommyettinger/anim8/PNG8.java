@@ -1646,8 +1646,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         curLine[px] = 0;
                     else {
                         double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)]
-                                * PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(y * 5 + 23 & 63) | ((px * 7 + 29 << 6) & 0xFC0)]
-                                * ((PaletteReducer.TRI_BLUE_NOISE[(1 - y) * 0xDE4D + (1 - px) * 0xBA55 >>> 8 & 0xFFF] + 0.5) * 0x1.8p-11 + 1.0);
+                                * PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(y * 5 + 28 & 63) | ((px * 7 + 36 << 6) & 0xFC0)]
+                                ;//* ((PaletteReducer.TRI_BLUE_NOISE[(1 - y) * 0xDE4D + (1 - px) * 0xBA55 >>> 8 & 0xFFF] + 0.5) * 0x1.8p-11 + 1.0);
                         er = (byte) (curErrorRed[px] * tbn);
                         eg = (byte) (curErrorGreen[px] * tbn);
                         eb = (byte) (curErrorBlue[px] * tbn);
@@ -2956,8 +2956,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             curLine[px] = 0;
                         else {
                             double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)]
-                                    * PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(y * 5 + 23 & 63) | ((px * 7 + 29 << 6) & 0xFC0)]
-                                    * ((PaletteReducer.TRI_BLUE_NOISE[(seq - y) * 0xDE4D + (seq - px) * 0xBA55 >>> 8 & 0xFFF] + 0.5) * 0x1.8p-11 + 1.0);
+                                    * PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[((seq + y) * 5 + 23 & 63) | (((seq + px) * 7 + 29 << 6) & 0xFC0)]
+                                    ;//* ((PaletteReducer.TRI_BLUE_NOISE[(seq - y) * 0xDE4D + (seq - px) * 0xBA55 >>> 8 & 0xFFF] + 0.5) * 0x1.8p-11 + 1.0);
                             er = (byte) (curErrorRed[px] * tbn);
                             eg = (byte) (curErrorGreen[px] * tbn);
                             eb = (byte) (curErrorBlue[px] * tbn);
