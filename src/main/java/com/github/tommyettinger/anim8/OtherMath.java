@@ -127,7 +127,17 @@ public final class OtherMath {
      * shape to some value between 0 and 1.
      */
     public static class BiasGain extends Interpolation {
-        final float shape, turning;
+        /**
+         * The shape parameter will cause this to imitate "smoothstep-like" splines when greater than 1 (where the
+         * values ease into their starting and ending levels), or to be the inverse when less than 1 (where values
+         * start like square root does, taking off very quickly, but also end like square does, landing abruptly at
+         * the ending level).
+         */
+        public final float shape;
+        /**
+         * A value between 0.0 and 1.0, inclusive, where the shape changes.
+         */
+        public final float turning;
 
         public BiasGain (float shape, float turning) {
             this.shape = shape;
