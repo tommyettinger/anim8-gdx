@@ -314,21 +314,21 @@ public class PaletteReducer {
 //        final int r = Math.min(Math.max((int) ((5.432622 * l - 4.679100 * m + 0.246257 * s) * 256.0), 0), 255);
 //        final int g = Math.min(Math.max((int) ((-1.10517 * l + 2.311198 * m - 0.205880 * s) * 256.0), 0), 255);
 //        final int b = Math.min(Math.max((int) ((0.028104 * l - 0.194660 * m + 1.166325 * s) * 256.0), 0), 255);
-        return r << 24 | g << 16 | b << 8 | (int)(a * 255.999);
+        return r << 24 | g << 16 | b << 8 | (int)(a * 255.9999999999);
     }
 
     public static int oklabToRGB(double L, double A, double B, double alpha)
     {
-        double l = (L + 0.3963377774f * A + 0.2158037573f * B);
-        double m = (L - 0.1055613458f * A - 0.0638541728f * B);
-        double s = (L - 0.0894841775f * A - 1.2914855480f * B);
+        double l = (L + 0.3963377774 * A + 0.2158037573 * B);
+        double m = (L - 0.1055613458 * A - 0.0638541728 * B);
+        double s = (L - 0.0894841775 * A - 1.2914855480 * B);
         l *= l * l;
         m *= m * m;
         s *= s * s;
-        final int r = (int)(Math.sqrt(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0f), 1f)) * 255.999f);
-        final int g = (int)(Math.sqrt(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0f), 1f)) * 255.999f);
-        final int b = (int)(Math.sqrt(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0f), 1f)) * 255.999f);
-        return r << 24 | g << 16 | b << 8 | (int)(alpha * 255.999);
+        final int r = (int)(Math.sqrt(Math.min(Math.max(+4.0767245293 * l - 3.3072168827 * m + 0.2307590544 * s, 0.0), 1.0)) * 255.9999999999);
+        final int g = (int)(Math.sqrt(Math.min(Math.max(-1.2681437731 * l + 2.6093323231 * m - 0.3411344290 * s, 0.0), 1.0)) * 255.9999999999);
+        final int b = (int)(Math.sqrt(Math.min(Math.max(-0.0041119885 * l - 0.7034763098 * m + 1.7068625689 * s, 0.0), 1.0)) * 255.9999999999);
+        return r << 24 | g << 16 | b << 8 | (int)(alpha * 255.9999999999);
     }
 
 
