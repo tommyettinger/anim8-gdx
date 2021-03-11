@@ -3089,12 +3089,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         CRC32 crc = new CRC32();
         try {
             out.writeLong(0x89504e470d0a1a0aL);
+            byte[] k;
             for (ObjectMap.Entry<String, byte[]> ent : chunks.entries()) {
                 out.writeInt(ent.value.length);
-                out.writeBytes(ent.key);
-                crc.update(ent.key.getBytes("UTF8"));
+                k = ent.key.getBytes("UTF8");
+                out.write(k);
+                crc.update(k, 0, k.length);
                 out.write(ent.value);
-                crc.update(ent.value);
+                crc.update(ent.value, 0, ent.value.length);
                 out.writeInt((int) crc.getValue());
                 crc.reset();
             }
