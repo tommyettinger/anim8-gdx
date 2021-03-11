@@ -42,7 +42,8 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX 1.9.10 or higher
-  api "com.github.tommyettinger:anim8-gdx:0.2.7"
+  // libGDX 1.9.13 is recommended currently, but versions as old as 1.9.10 work.
+  api "com.github.tommyettinger:anim8-gdx:0.2.8"
 }
 ```
 
@@ -50,7 +51,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/57db9e3b6d). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.7:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.8:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -72,9 +73,10 @@ different API).
     - Unusually slow to compute, but very accurate at preserving smooth shapes.
       - PATTERN dither changed to a 4x2 dither with skew instead of a 4x4 between in version 0.2.4,
         which sped it up somewhat, but it remains noticeably slower than other dithering algorithms.
-    - Doesn't preserve lightness very well, but is very good at preserving shape.
-      - Unlike other dither types, changing the dither strength affects lightness here, but not very
-        strongly in version 0.2.4 and later.
+    - Very good at preserving shape and the best at handling smooth gradients.
+      - Changing the dither strength may have a small effect on lightness, but the effect
+        to expect for PATTERN should be about the same as any other dither. This was different
+        before version 0.2.8.
     - A variant on Thomas Knoll's Pattern Dither, which is out-of-patent.
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
@@ -86,7 +88,8 @@ different API).
       code, often as a texture but sometimes as a sequence of points; it is used here because most vertebrate eyes
       employ a blue-noise distribution for sensory cells, and this makes blue noise appear natural to the human eye.
     - Not the typical blue-noise dither; this incorporates a checkerboard pattern as well as a 64x64 blue noise texture.
-    - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise.
+    - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise,
+      such as [this introduction](https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/).
     - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
   - CHAOTIC_NOISE
@@ -98,7 +101,7 @@ different API).
       error with blue-noise values. 
     - This is the default and often the best of the bunch.
     - Unlike DIFFUSION, this is quite suitable for animations, but some fluid shapes look better with CHAOTIC_NOISE or
-      GRADIENT_NOISE, and subtle gradients are handled best by PATTERN.
+      GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN.
 
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
