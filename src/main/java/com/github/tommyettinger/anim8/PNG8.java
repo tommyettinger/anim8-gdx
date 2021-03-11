@@ -6,9 +6,21 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ByteArray;
+import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.FloatArray;
+import com.badlogic.gdx.utils.IntIntMap;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.OrderedMap;
+import com.badlogic.gdx.utils.StreamUtils;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
@@ -1249,21 +1261,21 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             final int w = pixmap.getWidth();
             final int h = pixmap.getHeight();
-            byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
-            if (palette.curErrorRedBytes == null) {
-                curErrorRed = (palette.curErrorRedBytes = new ByteArray(w)).items;
-                nextErrorRed = (palette.nextErrorRedBytes = new ByteArray(w)).items;
-                curErrorGreen = (palette.curErrorGreenBytes = new ByteArray(w)).items;
-                nextErrorGreen = (palette.nextErrorGreenBytes = new ByteArray(w)).items;
-                curErrorBlue = (palette.curErrorBlueBytes = new ByteArray(w)).items;
-                nextErrorBlue = (palette.nextErrorBlueBytes = new ByteArray(w)).items;
+            float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+            if (palette.curErrorRedFloats == null) {
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
             } else {
-                curErrorRed = palette.curErrorRedBytes.ensureCapacity(w);
-                nextErrorRed = palette.nextErrorRedBytes.ensureCapacity(w);
-                curErrorGreen = palette.curErrorGreenBytes.ensureCapacity(w);
-                nextErrorGreen = palette.nextErrorGreenBytes.ensureCapacity(w);
-                curErrorBlue = palette.curErrorBlueBytes.ensureCapacity(w);
-                nextErrorBlue = palette.nextErrorBlueBytes.ensureCapacity(w);
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
                 Arrays.fill(nextErrorRed, (byte) 0);
                 Arrays.fill(nextErrorGreen, (byte) 0);
                 Arrays.fill(nextErrorBlue, (byte) 0);
@@ -1297,8 +1309,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             deflater.reset();
 
             int color, used, rdiff, gdiff, bdiff;
-            byte er, eg, eb, paletteIndex;
-            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float er, eg, eb;
+            byte paletteIndex;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.15625), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             byte[] lineOut, curLine, prevLine;
             if (lineOutBytes == null) {
@@ -1337,9 +1350,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         eg = curErrorGreen[px];
                         eb = curErrorBlue[px];
                         color |= (color >>> 5 & 0x07070700) | 0xFF;
-                        int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
-                        int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
-                        int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
+                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                         curLine[px] = paletteIndex =
                                 paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
@@ -1561,21 +1574,21 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             final int w = pixmap.getWidth();
             final int h = pixmap.getHeight();
-            byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
-            if (palette.curErrorRedBytes == null) {
-                curErrorRed = (palette.curErrorRedBytes = new ByteArray(w)).items;
-                nextErrorRed = (palette.nextErrorRedBytes = new ByteArray(w)).items;
-                curErrorGreen = (palette.curErrorGreenBytes = new ByteArray(w)).items;
-                nextErrorGreen = (palette.nextErrorGreenBytes = new ByteArray(w)).items;
-                curErrorBlue = (palette.curErrorBlueBytes = new ByteArray(w)).items;
-                nextErrorBlue = (palette.nextErrorBlueBytes = new ByteArray(w)).items;
+            float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+            if (palette.curErrorRedFloats == null) {
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
             } else {
-                curErrorRed = palette.curErrorRedBytes.ensureCapacity(w);
-                nextErrorRed = palette.nextErrorRedBytes.ensureCapacity(w);
-                curErrorGreen = palette.curErrorGreenBytes.ensureCapacity(w);
-                nextErrorGreen = palette.nextErrorGreenBytes.ensureCapacity(w);
-                curErrorBlue = palette.curErrorBlueBytes.ensureCapacity(w);
-                nextErrorBlue = palette.nextErrorBlueBytes.ensureCapacity(w);
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
                 Arrays.fill(nextErrorRed, (byte) 0);
                 Arrays.fill(nextErrorGreen, (byte) 0);
                 Arrays.fill(nextErrorBlue, (byte) 0);
@@ -1609,9 +1622,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             deflater.reset();
 
             int color, used, rdiff, gdiff, bdiff;
-            int er, eg, eb;
+            float er, eg, eb;
             byte paletteIndex;
-            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.1), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.15625), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             byte[] lineOut, curLine, prevLine;
             if (lineOutBytes == null) {
@@ -1646,14 +1659,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if ((color & 0x80) == 0 && hasTransparent)
                         curLine[px] = 0;
                     else {
-                        double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
-                        er = Math.min(Math.max((int) (curErrorRed[px] * tbn), -128), 128);
-                        eg = Math.min(Math.max((int) (curErrorGreen[px] * tbn), -128), 128);
-                        eb = Math.min(Math.max((int) (curErrorBlue[px] * tbn), -128), 128);
+                        float tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
+                        er = curErrorRed[px] * tbn;
+                        eg = curErrorGreen[px] * tbn;
+                        eb = curErrorBlue[px] * tbn;
                         color |= (color >>> 5 & 0x07070700) | 0xFF;
-                        int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
-                        int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
-                        int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
+                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                         curLine[px] = paletteIndex =
                                 paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
@@ -2465,21 +2478,21 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             final int w = pixmap.getWidth();
             final int h = pixmap.getHeight();
-            byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
-            if (palette.curErrorRedBytes == null) {
-                curErrorRed = (palette.curErrorRedBytes = new ByteArray(w)).items;
-                nextErrorRed = (palette.nextErrorRedBytes = new ByteArray(w)).items;
-                curErrorGreen = (palette.curErrorGreenBytes = new ByteArray(w)).items;
-                nextErrorGreen = (palette.nextErrorGreenBytes = new ByteArray(w)).items;
-                curErrorBlue = (palette.curErrorBlueBytes = new ByteArray(w)).items;
-                nextErrorBlue = (palette.nextErrorBlueBytes = new ByteArray(w)).items;
+            float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+            if (palette.curErrorRedFloats == null) {
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
             } else {
-                curErrorRed = palette.curErrorRedBytes.ensureCapacity(w);
-                nextErrorRed = palette.nextErrorRedBytes.ensureCapacity(w);
-                curErrorGreen = palette.curErrorGreenBytes.ensureCapacity(w);
-                nextErrorGreen = palette.nextErrorGreenBytes.ensureCapacity(w);
-                curErrorBlue = palette.curErrorBlueBytes.ensureCapacity(w);
-                nextErrorBlue = palette.nextErrorBlueBytes.ensureCapacity(w);
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
                 Arrays.fill(nextErrorRed, (byte) 0);
                 Arrays.fill(nextErrorGreen, (byte) 0);
                 Arrays.fill(nextErrorBlue, (byte) 0);
@@ -2521,8 +2534,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = w;
 
             int color, used, rdiff, gdiff, bdiff;
-            byte er, eg, eb, paletteIndex;
-            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.125), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float er, eg, eb;
+            byte paletteIndex;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.15625), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2585,9 +2599,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             eg = curErrorGreen[px];
                             eb = curErrorBlue[px];
                             color |= (color >>> 5 & 0x07070700) | 0xFF;
-                            int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
-                            int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
-                            int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                             curLine[px] = paletteIndex = 
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
@@ -2838,21 +2852,21 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             final int w = pixmap.getWidth();
             final int h = pixmap.getHeight();
-            byte[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
-            if (palette.curErrorRedBytes == null) {
-                curErrorRed = (palette.curErrorRedBytes = new ByteArray(w)).items;
-                nextErrorRed = (palette.nextErrorRedBytes = new ByteArray(w)).items;
-                curErrorGreen = (palette.curErrorGreenBytes = new ByteArray(w)).items;
-                nextErrorGreen = (palette.nextErrorGreenBytes = new ByteArray(w)).items;
-                curErrorBlue = (palette.curErrorBlueBytes = new ByteArray(w)).items;
-                nextErrorBlue = (palette.nextErrorBlueBytes = new ByteArray(w)).items;
+            float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+            if (palette.curErrorRedFloats == null) {
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
             } else {
-                curErrorRed = palette.curErrorRedBytes.ensureCapacity(w);
-                nextErrorRed = palette.nextErrorRedBytes.ensureCapacity(w);
-                curErrorGreen = palette.curErrorGreenBytes.ensureCapacity(w);
-                nextErrorGreen = palette.nextErrorGreenBytes.ensureCapacity(w);
-                curErrorBlue = palette.curErrorBlueBytes.ensureCapacity(w);
-                nextErrorBlue = palette.nextErrorBlueBytes.ensureCapacity(w);
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
                 Arrays.fill(nextErrorRed, (byte) 0);
                 Arrays.fill(nextErrorGreen, (byte) 0);
                 Arrays.fill(nextErrorBlue, (byte) 0);
@@ -2894,9 +2908,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = w;
 
             int color, used, rdiff, gdiff, bdiff;
-            int er, eg, eb;
+            float er, eg, eb;
             byte paletteIndex;
-            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.1), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = (float)(palette.ditherStrength * palette.populationBias * 0.15625), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2955,14 +2969,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            double tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
-                            er = Math.min(Math.max((int) (curErrorRed[px] * tbn), -128), 128);
-                            eg = Math.min(Math.max((int) (curErrorGreen[px] * tbn), -128), 128);
-                            eb = Math.min(Math.max((int) (curErrorBlue[px] * tbn), -128), 128);
+                            float tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
+                            er = curErrorRed[px] * tbn;
+                            eg = curErrorGreen[px] * tbn;
+                            eb = curErrorBlue[px] * tbn;
                             color |= (color >>> 5 & 0x07070700) | 0xFF;
-                            int rr = Math.min(Math.max(((color >>> 24)       ) + (er), 0), 0xFF);
-                            int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + (eg), 0), 0xFF);
-                            int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + (eb), 0), 0xFF);
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                             curLine[px] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
