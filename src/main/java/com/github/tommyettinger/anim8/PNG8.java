@@ -93,7 +93,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
     public PaletteReducer palette;
     
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.BLUE_NOISE;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.SCATTER;
 
     @Override
     public PaletteReducer getPalette() {
@@ -1505,8 +1505,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        palette.candidates[c] = paletteArray[usedIndex];
-                        used = palette.gammaArray[usedIndex];
+                        used = palette.candidates[c] = paletteArray[usedIndex];
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
@@ -2785,8 +2784,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                 usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))] & 0xFF;
-                                palette.candidates[c] = paletteArray[usedIndex];
-                                used = palette.gammaArray[usedIndex];
+                                used = palette.candidates[c] = paletteArray[usedIndex];
                                 er += cr - (used >>> 24);
                                 eg += cg - (used >>> 16 & 0xFF);
                                 eb += cb - (used >>> 8 & 0xFF);

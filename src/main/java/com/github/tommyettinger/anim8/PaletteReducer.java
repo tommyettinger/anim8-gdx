@@ -355,7 +355,6 @@ public class PaletteReducer {
      * {@link Dithered.DitherAlgorithm#PATTERN}) will be incorrect.
      */
     public final int[] paletteArray = new int[256];
-    final int[] gammaArray = new int[256];
     FloatArray curErrorRedFloats, nextErrorRedFloats, curErrorGreenFloats, nextErrorGreenFloats, curErrorBlueFloats, nextErrorBlueFloats;
     public int colorCount;
     double ditherStrength = 0.5f, populationBias = 0.5;
@@ -1323,16 +1322,16 @@ public class PaletteReducer {
         calculateGamma();
     }
     
-    void calculateGamma(){
-        double gamma = 1.8 - this.ditherStrength * 1.8;
-        for (int i = 0; i < 256; i++) {
-            int color = paletteArray[i];
-            double r = Math.pow((color >>> 24) / 255.0, gamma);
-            double g = Math.pow((color >>> 16 & 0xFF) / 255.0, gamma);
-            double b = Math.pow((color >>>  8 & 0xFF) / 255.0, gamma);
-            int a = color & 0xFF;
-            gammaArray[i] = (int)(r * 255.999) << 24 | (int)(g * 255.999) << 16 | (int)(b * 255.999) << 8 | a;
-        }
+    private void calculateGamma(){
+//        double gamma = 1.8 - this.ditherStrength * 1.8;
+//        for (int i = 0; i < 256; i++) {
+//            int color = paletteArray[i];
+//            double r = Math.pow((color >>> 24) / 255.0, gamma);
+//            double g = Math.pow((color >>> 16 & 0xFF) / 255.0, gamma);
+//            double b = Math.pow((color >>>  8 & 0xFF) / 255.0, gamma);
+//            int a = color & 0xFF;
+//            gammaArray[i] = (int)(r * 255.999) << 24 | (int)(g * 255.999) << 16 | (int)(b * 255.999) << 8 | a;
+//        }
     }
 
     /**
@@ -2061,8 +2060,7 @@ public class PaletteReducer {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        candidates[i] = paletteArray[usedIndex];
-                        used = gammaArray[usedIndex];
+                        used = candidates[i] = paletteArray[usedIndex];
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
@@ -2119,8 +2117,7 @@ public class PaletteReducer {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        candidates[c] = paletteArray[usedIndex];
-                        used = gammaArray[usedIndex];
+                        used = candidates[c] = paletteArray[usedIndex];
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
