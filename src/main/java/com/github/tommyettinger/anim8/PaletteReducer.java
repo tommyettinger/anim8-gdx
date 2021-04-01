@@ -1370,7 +1370,7 @@ public class PaletteReducer {
                 return reduceFloydSteinberg(pixmap);
             case BLUE_NOISE:
                 return reduceBlueNoise(pixmap); 
-                default:
+            default:
             case SCATTER:
                 return reduceScatter(pixmap);
         }
@@ -1454,10 +1454,11 @@ public class PaletteReducer {
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used, rdiff, gdiff, bdiff;
+        int color, used;
+        float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float ditherStrength = (float)(this.ditherStrength * this.populationBias * 1.5), halfDitherStrength = ditherStrength * 0.5f;
+        float ditherStrength = (float)(this.ditherStrength * this.populationBias * 40.0), halfDitherStrength = ditherStrength * 0.5f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1486,9 +1487,9 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = (color>>>24)-    (used>>>24);
-                    gdiff = (color>>>16&255)-(used>>>16&255);
-                    bdiff = (color>>>8&255)- (used>>>8&255);
+                    rdiff = OtherMath.cbrtShape(0x1.Ep-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = OtherMath.cbrtShape(0x1.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = OtherMath.cbrtShape(0x1.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * ditherStrength;
@@ -1550,10 +1551,11 @@ public class PaletteReducer {
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used, rdiff, gdiff, bdiff;
+        int color, used;
+        float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = (float)(ditherStrength * populationBias * 0.15625), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = (float)(ditherStrength * populationBias * 4.0), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1582,9 +1584,9 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = (color>>>24)-    (used>>>24);
-                    gdiff = (color>>>16&255)-(used>>>16&255);
-                    bdiff = (color>>>8&255)- (used>>>8&255);
+                    rdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>8&255)- (used>>>8&255)) );
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * w7;
@@ -1791,10 +1793,11 @@ public class PaletteReducer {
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used, rdiff, gdiff, bdiff;
+        int color, used;
+        float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = (float)(ditherStrength * populationBias * 0.15625), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = (float)(ditherStrength * populationBias * 4.0), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1824,9 +1827,9 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = (color>>>24)-    (used>>>24);
-                    gdiff = (color>>>16&255)-(used>>>16&255);
-                    bdiff = (color>>>8&255)- (used>>>8&255);
+                    rdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>8&255)- (used>>>8&255)) );
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * w7;
