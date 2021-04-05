@@ -506,11 +506,14 @@ public class PaletteReducer {
         if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
-        final double
+        double
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        return (L * L + A * A + B * B) * 0x1.2p+14;
+        L *= L;
+        A *= A;
+        B *= B;
+        return (L * L + A * A + B * B) * 0x1.2p+22;
     }
 //
 //    public static double difference(int color1, int color2) {
@@ -541,11 +544,14 @@ public class PaletteReducer {
         if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        final double
+        double
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        return (L * L + A * A + B * B) * 0x1.2p+14;
+        L *= L;
+        A *= A;
+        B *= B;
+        return (L * L + A * A + B * B) * 0x1.2p+22;
     }
 //
 //    public static double difference(int color1, int r2, int g2, int b2) {
@@ -575,11 +581,14 @@ public class PaletteReducer {
     public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
         int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        final double
+        double
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        return (L * L + A * A + B * B) * 0x1.2p+14;
+        L *= L;
+        A *= A;
+        B *= B;
+        return (L * L + A * A + B * B) * 0x1.2p+22;
     }
 //    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
 //        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
