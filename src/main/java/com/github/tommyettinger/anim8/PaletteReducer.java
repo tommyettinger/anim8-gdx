@@ -35,15 +35,21 @@ import java.util.Random;
  *     that Floyd-Steinberg can produce perturbed by blue noise; it's the default here because it works well in still
  *     images and animations. Using blue noise to edit error somewhat-randomly would seem like it would introduce
  *     artifacts of its own, but blue noise patterns are very hard to recognize as artificial, since they show up mostly
- *     in organic forms.)</li>
+ *     in organic forms. Scatter holds up very well to high ditherStrength, even to 2.0 or above, where most of the
+ *     other dithers have problems, and looks similar to Floyd-Steinberg if using low ditherStrength.)</li>
  *     <li>{@link #reduceJimenez(Pixmap)} (This is a modified version of Gradient Interleaved Noise by Jorge Jimenez;
  *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks. It does quite well
  *     on some animations and on smooth or rounded shapes.)</li>
  *     <li>{@link #reduceKnollRoberts(Pixmap)} (This is a modified version of Thomas Knoll's Pattern Dithering; it skews
- *     a grid-based ordered dither and also does a small amount of gamma correction, so lightness may change. It
- *     preserves shape extremely well, but is almost never 100% faithful to the original colors. It has gotten much
- *     better since version 0.2.4, however. This algorithm is rather slow; most of the other algorithms take comparable
- *     amounts of time to each other, but KnollRoberts and especially Knoll are sluggish.)</li>
+ *     a grid-based ordered dither and also handles lightness differently from the non-Knoll dithers. It preserves shape
+ *     extremely well, but is almost never 100% faithful to the original colors. It has gotten much better since version
+ *     0.2.4, however. This algorithm is rather slow; most of the other algorithms take comparable amounts of time to
+ *     each other, but KnollRoberts and especially Knoll are sluggish.)</li>
+ *     <li>{@link #reduceSierraLite(Pixmap)} (Like Floyd-Steinberg, Sierra Lite is an error-diffusion dither, and it
+ *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small. Sierra
+ *     Lite tends to look comparable to Floyd-Steinberg if the Floyd-Steinberg dither was done with a lower
+ *     ditherStrength.If Floyd-Steinberg has unexpected artifacts, you can try Sierra Lite, and it may avoid those
+ *     issues. Using Scatter should be tried first, though.)</li>
  *     <li>{@link #reduceChaoticNoise(Pixmap)} (Uses blue noise and pseudo-random white noise, with a carefully chosen
  *     distribution, to disturb what would otherwise be flat bands. This does introduce chaotic or static-looking
  *     pixels, but with larger palettes they won't be far from the original. This works fine as a last resort when you
@@ -55,14 +61,10 @@ import java.util.Random;
  *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
  *     the amount of color correction applied to each mismatched pixel; also uses a quasi-random pattern. This may not
  *     add enough disruption to some images, which leads to a flat-looking result.)</li>
- *     <li>{@link #reduceSierraLite(Pixmap)} (Like Floyd-Steinberg, Sierra Lite is an error-diffusion dither, and it
- *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small. If
- *     Floyd-Steinberg has unexpected artifacts, you can try Sierra Lite, and it may avoid those issues. Using
- *     Scatter should be tried first, though.)</li>
- *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim except for the
- *     inclusion of some gamma correction; this version has a heavy grid pattern that looks like an artifact. The skew
- *     applied to Knoll-Roberts gives it a more subtle triangular grid, while the square grid here is a bit bad. This
- *     reduction is the slowest here, currently, and may noticeably delay processing on large images.)</li>
+ *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim; this version has
+ *     a heavy grid pattern that looks like an artifact. The skew applied to Knoll-Roberts gives it a more subtle
+ *     triangular grid, while the square grid here is a bit bad. This reduction is the slowest here, currently, and may
+ *     noticeably delay processing on large images.)</li>
  *     <li>{@link #reduceSolid(Pixmap)} (No dither! Solid colors! Mostly useful when you want to preserve blocky parts
  *     of a source image, or for some kinds of pixel/low-color art.)</li>
  *     </ul>
@@ -313,18 +315,18 @@ public class PaletteReducer {
         return r << 24 | g << 16 | b << 8 | (int)(a * 255.9999999999);
     }
 
-    public static int oklabToRGB(double L, double A, double B, double alpha)
+    public static int oklabToRGB(float L, float A, float B, float alpha)
     {
-        double l = (L + 0.3963377774 * A + 0.2158037573 * B);
-        double m = (L - 0.1055613458 * A - 0.0638541728 * B);
-        double s = (L - 0.0894841775 * A - 1.2914855480 * B);
+        float l = (L + 0.3963377774f * A + 0.2158037573f * B);
+        float m = (L - 0.1055613458f * A - 0.0638541728f * B);
+        float s = (L - 0.0894841775f * A - 1.2914855480f * B);
         l *= l * l;
         m *= m * m;
         s *= s * s;
-        final int r = (int)(Math.sqrt(Math.min(Math.max(+4.0767245293 * l - 3.3072168827 * m + 0.2307590544 * s, 0.0), 1.0)) * 255.9999999999);
-        final int g = (int)(Math.sqrt(Math.min(Math.max(-1.2681437731 * l + 2.6093323231 * m - 0.3411344290 * s, 0.0), 1.0)) * 255.9999999999);
-        final int b = (int)(Math.sqrt(Math.min(Math.max(-0.0041119885 * l - 0.7034763098 * m + 1.7068625689 * s, 0.0), 1.0)) * 255.9999999999);
-        return r << 24 | g << 16 | b << 8 | (int)(alpha * 255.9999999999);
+        final int r = (int)(Math.sqrt(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0.0f), 1.0f)) * 255.999f);
+        final int g = (int)(Math.sqrt(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0.0f), 1.0f)) * 255.999f);
+        final int b = (int)(Math.sqrt(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0.0f), 1.0f)) * 255.999f);
+        return r << 24 | g << 16 | b << 8 | (int)(alpha * 255.999f);
     }
 
 
@@ -340,14 +342,18 @@ public class PaletteReducer {
     public final byte[] paletteMapping = new byte[0x8000];
     /**
      * The RGBA8888 int colors this can reduce an image to use. This is public, and since it is an array you can modify
-     * it, but it is strongly encouraged that you instead call {@link #exact(int[])} when you want to change the colors
-     * available, and treat this array as read-only. If you don't call exact() or {@link #analyze(Pixmap)} to set the
-     * values in this, then the reductions that use gamma correction ({@link #reduceKnoll(Pixmap)},
-     * {@link #reduceKnollRoberts(Pixmap)}, and any {@link Dithered} using
-     * {@link Dithered.DitherAlgorithm#PATTERN}) will be incorrect.
+     * its contents, but you should only change this if you know what you are doing. It is closely related to the
+     * contents of the {@link #paletteMapping} field, and paletteMapping should typically be changed by
+     * {@link #exact(int[])}, {@link #analyze(Pixmap)}, or {@link #loadPreloadFile(FileHandle)}. Because paletteMapping
+     * only contains indices into this paletteArray, if paletteArray changes then the closest-color consideration may be
+     * altered. This field can be safely altered, usually, by {@link #alterColorsLightness(Interpolation)} or
+     * {@link #alterColorsOklab(Interpolation, Interpolation, Interpolation)}.
      */
     public final int[] paletteArray = new int[256];
     FloatArray curErrorRedFloats, nextErrorRedFloats, curErrorGreenFloats, nextErrorGreenFloats, curErrorBlueFloats, nextErrorBlueFloats;
+    /**
+     * How many colors are in the palette here; this is at most 256, and typically includes one fully-transparent color.
+     */
     public int colorCount;
     double ditherStrength = 0.5f, populationBias = 0.5;
 
@@ -672,8 +678,7 @@ public class PaletteReducer {
                 }
             }
         }
-        calculateGamma();
-    }
+   }
 
     /**
      * Builds the palette information this PaletteReducer stores from the given array of RGBA8888 ints as a palette (see
@@ -694,7 +699,6 @@ public class PaletteReducer {
             System.arraycopy(ENCODED_HALTONIC, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
             populationBias = Math.exp(-0.00537109375);
-            calculateGamma();
             return;
         }
         colorCount = Math.min(256, palette.length);
@@ -702,8 +706,6 @@ public class PaletteReducer {
         System.arraycopy(preload, 0,  paletteMapping, 0, 0x8000);
 
         populationBias = Math.exp(-1.375/colorCount);
-
-        calculateGamma();
     }
 
     /**
@@ -766,7 +768,6 @@ public class PaletteReducer {
                 }
             }
         }
-        calculateGamma();
     }
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
@@ -914,7 +915,6 @@ public class PaletteReducer {
                 }
             }
         }
-        calculateGamma();
     }
     
     public void analyzeMC(Pixmap pixmap, int limit) {
@@ -1105,7 +1105,6 @@ public class PaletteReducer {
                 }
             }
         }
-        calculateGamma();
 
     }
 
@@ -1307,7 +1306,6 @@ public class PaletteReducer {
                 }
             }
         }
-        calculateGamma();
     }
 
     /**
@@ -1320,19 +1318,6 @@ public class PaletteReducer {
      */
     public void setDitherStrength(float ditherStrength) {
         this.ditherStrength = Math.max(0f, 0.5f * ditherStrength);
-        calculateGamma();
-    }
-    
-    private void calculateGamma(){
-//        double gamma = 1.8 - this.ditherStrength * 1.8;
-//        for (int i = 0; i < 256; i++) {
-//            int color = paletteArray[i];
-//            double r = Math.pow((color >>> 24) / 255.0, gamma);
-//            double g = Math.pow((color >>> 16 & 0xFF) / 255.0, gamma);
-//            double b = Math.pow((color >>>  8 & 0xFF) / 255.0, gamma);
-//            int a = color & 0xFF;
-//            gammaArray[i] = (int)(r * 255.999) << 24 | (int)(g * 255.999) << 16 | (int)(b * 255.999) << 8 | a;
-//        }
     }
 
     /**
@@ -2246,7 +2231,13 @@ public class PaletteReducer {
      * @return this PaletteReducer, for chaining
      */
     public PaletteReducer alterColorsLightness(Interpolation lightness) {
-        return alterColorsIPT(lightness, Interpolation.linear, Interpolation.linear);
+        int[] palette = paletteArray;
+        for (int idx = 0; idx < colorCount; idx++) {
+            int s = shrink(palette[idx]);
+            palette[idx] = oklabToRGB(lightness.apply(OKLAB[0][s]), OKLAB[1][s], OKLAB[2][s],
+                    (palette[idx] & 0xFE) / 254f);
+        }
+        return this;
     }
 
     /**
@@ -2277,6 +2268,35 @@ public class PaletteReducer {
     }
 
     /**
+     * Edits this PaletteReducer by changing each used color in the Oklab color space with an {@link Interpolation}.
+     * This allows adjusting lightness, such as for gamma correction, but also individually emphasizing or
+     * de-emphasizing different aspects of the chroma. You could use {@link Interpolation#pow2InInverse} to use the
+     * square root of a color's lightness instead of its actual lightness (which, because lightness is in the 0 to 1
+     * range, always results in a color with the same lightness or a higher lightness), or {@link Interpolation#pow2In}
+     * to square the lightness instead (this always results in a color with the same or lower lightness). You could make
+     * colors more saturated by passing {@link Interpolation#circle} to greenToRed and blueToYellow, or get a
+     * less-extreme version by using {@link Interpolation#smooth}. To desaturate colors is a different task; you can
+     * create a {@link OtherMath.BiasGain} Interpolation with 0.5 turning and maybe 0.25 to 0.75 shape to produce
+     * different strengths of desaturation. Using a shape of 1.5 to 4 with BiasGain is another way to saturate the
+     * colors.
+     * @param lightness an Interpolation that will affect the lightness of each color
+     * @param greenToRed an Interpolation that will make colors more green if it evaluates below 0.5 or more red otherwise
+     * @param blueToYellow an Interpolation that will make colors more blue if it evaluates below 0.5 or more yellow otherwise
+     * @return this PaletteReducer, for chaining
+     */
+    public PaletteReducer alterColorsOklab(Interpolation lightness, Interpolation greenToRed, Interpolation blueToYellow) {
+        int[] palette = paletteArray;
+        for (int idx = 0; idx < colorCount; idx++) {
+            int s = shrink(palette[idx]);
+            float L = lightness.apply(OKLAB[0][s]);
+            float A = greenToRed.apply(-1, 1, OKLAB[1][s] * 0.5f + 0.5f);
+            float B = blueToYellow.apply(-1, 1, OKLAB[2][s] * 0.5f + 0.5f);
+            palette[idx] = oklabToRGB(L, A, B, (palette[idx] & 0xFE) / 254f);
+        }
+        return this;
+    }
+
+    /**
      * Edits this PaletteReducer by changing each used color so lighter colors lean towards warmer hues, while darker
      * colors lean toward cooler or more purple-ish hues.
      * @return this PaletteReducer, for chaining
@@ -2285,10 +2305,10 @@ public class PaletteReducer {
         int[] palette = paletteArray;
         for (int idx = 0; idx < colorCount; idx++) {
             int s = shrink(palette[idx]);
-            double i = OKLAB[0][s];
-            double p = OKLAB[1][s] + (i - 0.5) * 0.04;
-            double t = OKLAB[2][s] + (i - 0.5) * 0.08;
-            palette[idx] = oklabToRGB(i, p, t, (palette[idx] >>> 1 & 0x7F) / 127f);
+            float L = OKLAB[0][s];
+            float A = OKLAB[1][s] + (L - 0.5f) * 0.04f;
+            float B = OKLAB[2][s] + (L - 0.5f) * 0.08f;
+            palette[idx] = oklabToRGB(L, A, B, (palette[idx] & 0xFE) / 254f);
         }
         return this;
     }
