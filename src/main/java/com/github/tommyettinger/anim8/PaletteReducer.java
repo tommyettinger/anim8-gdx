@@ -1783,7 +1783,7 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = (float)(ditherStrength * populationBias * 4.0), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = (float)(ditherStrength * 3.5), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1813,9 +1813,9 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>24)-    (used>>>24))    );
-                    gdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = OtherMath.cbrtShape(0x1.Cp-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * w7;
