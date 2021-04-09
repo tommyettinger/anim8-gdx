@@ -13,7 +13,7 @@ import com.github.tommyettinger.anim8.*;
  * This takes two multiple-frame images/videos and dithers both of them in all the ways this can before writing to GIF
  * and optionally PNG files. There is a 90-frame "Video Of A Market" by Olivier Polome,
  * <a href="https://www.pexels.com/video/video-of-a-market-4236787/">available freely at Pexels</a>, and a rotating
- * cartoon-style tree animation (self-made, public domain).
+ * cartoon-style pixel-art monster animation (self-made, public domain).
  */
 public class VideoConvertDemo extends ApplicationAdapter {
     private long startTime;
@@ -150,9 +150,9 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderPixelGif(String[] names, int[][] palettes) {
-        String name = "tree";
-        Array<Pixmap> pixmaps = new Array<>(true, 32, Pixmap.class);
-        for (int i = 0; i < 32; i++) {
+        String name = "tyrant";
+        Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap.class);
+        for (int i = 0; i < 64; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
         AnimatedGif gif = new AnimatedGif();
