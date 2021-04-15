@@ -35,6 +35,13 @@ if (JavaVersion.current().isJava8Compatible()) {
         }
     }
 }
+if(JavaVersion.current().isJava9Compatible()) {
+    allprojects {
+        tasks.withType(JavaCompile) {
+            options.release.set(8)
+        }
+    }
+}
 
 javadoc.destinationDir = file('docs/apidocs')
 
