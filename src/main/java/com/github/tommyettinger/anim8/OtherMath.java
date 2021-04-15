@@ -5,6 +5,13 @@ import com.badlogic.gdx.utils.NumberUtils;
 
 import java.util.Random;
 
+/**
+ * Various math functions that don't fit anywhere else, mostly relating to the shape of a distribution.
+ * These include the parameterizable 0-1 curve produced by {@link #barronSpline(float, float, float)}, the
+ * bell curve produced from a 0-1 input but with a larger output range by {@link #probit(double)}, and both
+ * an accurate approximation of the cube root, {@link #cbrt(float)} and an inaccurate but similarly-shaped
+ * method, {@link #cbrtShape(float)}.
+ */
 public final class OtherMath {
     private OtherMath(){}
 
