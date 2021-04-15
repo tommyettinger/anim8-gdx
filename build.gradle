@@ -1,19 +1,16 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
-        jcenter()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
-        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.0"
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.14.2'
     }
 }
 
 apply plugin: 'java-library'
-apply plugin: 'com.bmuschko.nexus'
-apply plugin: 'io.codearte.nexus-staging'
-apply from: 'publish.gradle'
+apply plugin: 'com.vanniktech.maven.publish'
 
 sourceCompatibility = 1.7
 
@@ -41,7 +38,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 
 javadoc.destinationDir = file('docs/apidocs')
 
-sourceSets.test.resources.srcDirs += [ file('src/test/resources').path ]
+//sourceSets.test.resources.srcDirs += [ file('src/test/resources').path ]
 
 jar {
     archiveBaseName.set(projectName)
