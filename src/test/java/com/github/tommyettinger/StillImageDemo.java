@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.utils.Array;
@@ -26,7 +27,7 @@ public class StillImageDemo extends ApplicationAdapter {
         startTime = System.currentTimeMillis();
 
         Gdx.files.local("images").mkdirs();
-        for(String name : new String[]{"Mona_Lisa", "Cat", "Frog", "Landscape",}) {
+        for(String name : new String[]{"AllRGB.png", "Mona_Lisa.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
 			renderPNG8(name);
 			renderGif(name);
 //			renderGifHS(name);
@@ -42,11 +43,13 @@ public class StillImageDemo extends ApplicationAdapter {
         Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
     }
 
-    public void renderPNG8(String name) {
+    public void renderPNG8(String filename) {
 		PNG8 png8 = new PNG8();
 		png8.setFlipY(false);
 		png8.setCompression(7);
-		Pixmap pixmap = new Pixmap(Gdx.files.classpath(name + ".jpg"));
+		FileHandle file = Gdx.files.classpath(filename);
+		String name = file.nameWithoutExtension();
+		Pixmap pixmap = new Pixmap(file);
 		// black and white
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
 		// gb palette
@@ -104,8 +107,10 @@ public class StillImageDemo extends ApplicationAdapter {
 		}
 	}
 
-    public void renderGif(String name) {
-        Array<Pixmap> pixmaps = Array.with(new Pixmap(Gdx.files.classpath(name+".jpg")));
+    public void renderGif(String filename) {
+		FileHandle file = Gdx.files.classpath(filename);
+		String name = file.nameWithoutExtension();
+		Array<Pixmap> pixmaps = Array.with(new Pixmap(file));
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
@@ -149,8 +154,10 @@ public class StillImageDemo extends ApplicationAdapter {
 		total += 1;
 
 	}
-    public void renderGifHS(String name) {
-        Array<Pixmap> pixmaps = Array.with(new Pixmap(Gdx.files.classpath(name+".jpg")));
+    public void renderGifHS(String filename) {
+		FileHandle file = Gdx.files.classpath(filename);
+		String name = file.nameWithoutExtension();
+		Array<Pixmap> pixmaps = Array.with(new Pixmap(file));
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
