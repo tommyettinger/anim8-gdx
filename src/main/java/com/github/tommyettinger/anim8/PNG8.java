@@ -1486,7 +1486,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
         int color, used;
         int cr, cg, cb,  usedIndex;
-        final float errorMul = (float) (palette.ditherStrength * palette.populationBias * 0.6);
+        final float errorMul = (float) (palette.ditherStrength * palette.populationBias);
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
@@ -1499,25 +1499,21 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     cr = (color >>> 24);
                     cg = (color >>> 16 & 0xFF);
                     cb = (color >>> 8 & 0xFF);
-                    for (int c = 0; c < 8; c++) {
+                    for (int i = 0; i < 16; i++) {
                         int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
                         int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
                         int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        used = palette.candidates[c] = paletteArray[usedIndex];
+                        used = palette.candidates[i] = paletteArray[usedIndex];
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
                     }
-                    palette.sort8(palette.candidates);
+                    PaletteReducer.sort16(palette.candidates);
                     curLine[px] = paletteMapping[
-                            PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix8[
-                                    ((int) (px * 0x1.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p-2) & 3) ^
-                                            ((px & 3) | (y & 1) << 2)
-                                    ]])];
-
+                            PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]])];
                 }
             }
 
@@ -2780,7 +2776,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             cr = (color >>> 24);
                             cg = (color >>> 16 & 0xFF);
                             cb = (color >>> 8 & 0xFF);
-                            for (int c = 0; c < 8; c++) {
+                            for (int c = 0; c < 16; c++) {
                                 int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
                                 int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
                                 int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
@@ -2792,12 +2788,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                 eg += cg - (used >>> 16 & 0xFF);
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
-                            palette.sort8(palette.candidates);
+                            PaletteReducer.sort16(palette.candidates);
                             curLine[px] = paletteMapping[
-                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix8[
-                                            ((int) (px * 0x1.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p-2) & 3) ^
-                                                    ((px & 3) | (y & 1) << 2)
-                                    ]])];
+                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]])];
                         }
                     }
                     lineOut[0] = (byte) (curLine[0] - prevLine[0]);

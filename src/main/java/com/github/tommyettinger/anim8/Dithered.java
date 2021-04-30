@@ -37,20 +37,20 @@ public interface Dithered {
      * Represents a choice of dithering algorithm to apply when writing a high-color image with a color-limited format.
      * Options are NONE (just using solid blocks of the closest color), GRADIENT_NOISE (using an edit on Jorge Jimenez'
      * Gradient Interleaved Noise, a kind of ordered dither that adds some visual noise to break up patterns), PATTERN
-     * (using a skewed variant on Thomas Knoll's Pattern Dithering, with some gamma correction applied), DIFFUSION (an
-     * error-diffusing dither using Floyd-Steinberg, which isn't optimal for animations but is very good for still
-     * images), BLUE_NOISE (an ordered dither that corrects mismatched colors by checking a blue noise texture with
-     * no noticeable large patterns, and also using a quasi-random pattern to further break up artifacts; this looks the
-     * best for realistic animations), CHAOTIC_NOISE (which is like BLUE_NOISE but makes each frame of an animation
-     * dither differently, which can look busy but also trick the eye into seeing details over several frames), and
-     * SCATTER (which is similar to DIFFUSION but uses blue noise to scatter overly-regular patterns around). While
-     * NONE, GRADIENT_NOISE, BLUE_NOISE, DIFFUSION, CHAOTIC_NOISE, and SCATTER maintain the approximate lightness
-     * balance of the original image, PATTERN may lighten mid-tones somewhat to make the gradient smoother. All of these
-     * algorithms except DIFFUSION are suitable for animations; using error-diffusion makes tiny changes in some frames
-     * disproportionately affect other pixels in those frames, which is compounded by how DIFFUSION can have large
-     * sections of minor artifacts that become very noticeable when they suddenly change between frames. Using SCATTER
-     * may be a good alternative to DIFFUSION for animations. NONE is fastest, and PATTERN is slowest. GRADIENT_NOISE,
-     * BLUE_NOISE, DIFFUSION, CHAOTIC_NOISE, and SCATTER are in-between.
+     * (Thomas Knoll's Pattern Dithering, with some gamma correction applied), DIFFUSION (an error-diffusing dither
+     * using Floyd-Steinberg, which isn't optimal for animations but is very good for still images), BLUE_NOISE (an
+     * ordered dither that corrects mismatched colors by checking a blue noise texture with no noticeable large
+     * patterns, and also using a quasi-random pattern to further break up artifacts), CHAOTIC_NOISE (which is like
+     * BLUE_NOISE but makes each frame of an animation dither differently, which can look busy but also trick the eye
+     * into seeing details over several frames), and SCATTER (which is similar to DIFFUSION but uses blue noise to
+     * scatter overly-regular patterns around). While NONE, GRADIENT_NOISE, BLUE_NOISE, DIFFUSION, CHAOTIC_NOISE, and
+     * SCATTER maintain the approximate lightness balance of the original image, PATTERN may slightly lighten mid-tones
+     * to make the gradient smoother. All of these algorithms except DIFFUSION are suitable for animations; using
+     * error-diffusion makes tiny changes in some frames disproportionately affect other pixels in those frames, which
+     * is compounded by how DIFFUSION can have large sections of minor artifacts that become very noticeable when they
+     * suddenly change between frames. Using SCATTER may be a good alternative to DIFFUSION for animations. NONE is
+     * fastest, and PATTERN is slowest. GRADIENT_NOISE, BLUE_NOISE, DIFFUSION, CHAOTIC_NOISE, and SCATTER are
+     * in-between.
      * <br>
      * Created by Tommy Ettinger on 6/6/2020.
      */
@@ -72,18 +72,17 @@ public interface Dithered {
          */
         GRADIENT_NOISE,
         /**
-         * Thomas Knoll's Pattern Dither (with a skew to obscure grid artifacts), as originally described by Joel
-         * Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Pattern
-         * Dither was patented until late 2019, so Yliluoma had to use an 8x8 matrix instead of the 4x4 used here; the
-         * 4x4, with appropriate skew, is much faster to compute and doesn't have as many artifacts with large enough
-         * palettes. This implementation doesn't have gamma correction working quite correctly, so it tends to lighten
-         * images it dithers somewhat. It's an ordered dither, like {@link #GRADIENT_NOISE}, but isn't nearly as noisy
-         * (though it isn't noisy, it instead has regular triangular-grid artifacts, though they're often subtle).
-         * Pattern Dither was the default for most purposes here, but the constant mismatch between input lightness and
-         * output lightness, as well as the artifact-like regular lines on the dither, make it more of a specialized
-         * tool. {@link #BLUE_NOISE} is the current default; it does a better job at obscuring artifacts from dither and
+         * Thomas Knoll's Pattern Dither (with a 4x4 matrix), as originally described by Joel Yliluoma in
+         * <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Pattern Dither was
+         * patented until late 2019, so Yliluoma had to use an 8x8 matrix instead of the 4x4 used here; the 4x4 is much
+         * faster to compute and doesn't have as many artifacts with large enough palettes. It's an ordered dither, like
+         * {@link #GRADIENT_NOISE}, but isn't nearly as noisy (though it isn't noisy, it instead has regular
+         * square-shaped artifacts, which are mostly noticeable with small palettes). Earlier versions of Pattern Dither
+         * here had issues with lightness changing strangely based on dither strength, but these are mostly fixed now.
+         * {@link #SCATTER} is the current default; it does a better job at obscuring artifacts from dither and
          * it maintains lightness well. Setting the dither strength with {@link PaletteReducer#setDitherStrength(float)}
-         * can really change how strongly artifacts appear here, as well as how severe the lightness mismatch is. 
+         * can really change how strongly artifacts appear here, but artifacts may be very hard to spot with a full
+         * 255-color palette.
          */
         PATTERN,
         /**
@@ -106,7 +105,7 @@ public interface Dithered {
          * {@link #SCATTER} do, and it doesn't add as many artifacts as {@link #PATTERN} or {@link #GRADIENT_NOISE}. For
          * reference, the blue noise texture this uses looks like <a href="https://i.imgur.com/YCSKKGw.png">this small
          * image</a>; it looks different from a purely-random white noise texture because blue noise has no low
-         * frequencies in any direction, while white noise has all frequencies in equal measure. This has been optimize
+         * frequencies in any direction, while white noise has all frequencies in equal measure. This has been optimized
          * for quality on animations more so than on still images. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} does have some effect (it didn't do much in previous
          * versions), and can improve the appearance of some images when banding occurs.
