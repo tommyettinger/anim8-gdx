@@ -274,3 +274,15 @@ count is low.
 
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
+
+There are other generated images, both .gif and .png, with different color counts and algorithms used in the images/
+folder. AllRGB.png uses all possible RGB colors exactly once; it was made by user Meyermagic and called Hamiltonian 1,
+[available here](https://allrgb.com/hamiltonian-1). Cat.jpg is my cat, Satchmo. Frog.jpg is a public-domain image of a
+red-eyed tree frog, [taken by Carey James Balboa](https://commons.wikimedia.org/wiki/File:Red_eyed_tree_frog_edit2.jpg).
+Landscape.jpg is [Among the Sierra Nevada by Albert Bierstadt](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg),
+a public domain oil painting. Mona_Lisa.jpg is also a public domain oil painting, this one the Mona Lisa by Leonardo da
+Vinci, and [remastered by pixel8tor](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif) to reduce
+the appearance of damage over time. Pixel_Art.png is a snippet of a texture atlas made from some [wargame pixel art I
+previously released into the public domain](https://opengameart.org/content/pixvoxel-revised-isometric-wargame-sprites).
+The only image I am not certain on the licensing of is Hamiltonian 1 (AllRGB.png); if there are any issues with it, I
+will remove it and ideally replace it with another image with all colors.
