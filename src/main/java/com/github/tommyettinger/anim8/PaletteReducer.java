@@ -40,11 +40,10 @@ import java.util.Random;
  *     <li>{@link #reduceJimenez(Pixmap)} (This is a modified version of Gradient Interleaved Noise by Jorge Jimenez;
  *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks. It does quite well
  *     on some animations and on smooth or rounded shapes.)</li>
- *     <li>{@link #reduceKnollRoberts(Pixmap)} (This is a modified version of Thomas Knoll's Pattern Dithering; it skews
- *     a grid-based ordered dither and also handles lightness differently from the non-Knoll dithers. It preserves shape
- *     extremely well, but is almost never 100% faithful to the original colors. It has gotten much better since version
- *     0.2.4, however. This algorithm is rather slow; most of the other algorithms take comparable amounts of time to
- *     each other, but KnollRoberts and especially Knoll are sluggish.)</li>
+ *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim; this version has
+ *     a heavy grid pattern that looks like an artifact. While the square grid here is a bit bad, it becomes very hard
+ *     to see when the palette is large enough. This reduction is the slowest here, currently, and may noticeably delay
+ *     processing on large images.)</li>
  *     <li>{@link #reduceSierraLite(Pixmap)} (Like Floyd-Steinberg, Sierra Lite is an error-diffusion dither, and it
  *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small. Sierra
  *     Lite tends to look comparable to Floyd-Steinberg if the Floyd-Steinberg dither was done with a lower
@@ -61,10 +60,11 @@ import java.util.Random;
  *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
  *     the amount of color correction applied to each mismatched pixel; also uses a quasi-random pattern. This may not
  *     add enough disruption to some images, which leads to a flat-looking result.)</li>
- *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim; this version has
- *     a heavy grid pattern that looks like an artifact. The skew applied to Knoll-Roberts gives it a more subtle
- *     triangular grid, while the square grid here is a bit bad. This reduction is the slowest here, currently, and may
- *     noticeably delay processing on large images.)</li>
+ *     <li>{@link #reduceKnollRoberts(Pixmap)} (This is a modified version of Thomas Knoll's Pattern Dithering; it skews
+ *     a grid-based ordered dither and also handles lightness differently from the non-Knoll dithers. It preserves shape
+ *     somewhat well, but is almost never 100% faithful to the original colors. This algorithm is rather slow; most of
+ *     the other algorithms take comparable amounts of time to each other, but KnollRoberts and especially Knoll are
+ *     sluggish.)</li>
  *     <li>{@link #reduceSolid(Pixmap)} (No dither! Solid colors! Mostly useful when you want to preserve blocky parts
  *     of a source image, or for some kinds of pixel/low-color art.)</li>
  *     </ul>
@@ -1349,7 +1349,7 @@ public class PaletteReducer {
             case GRADIENT_NOISE:
                 return reduceJimenez(pixmap);
             case PATTERN:
-                return reduceKnollRoberts(pixmap);
+                return reduceKnoll(pixmap);
             case CHAOTIC_NOISE:
                 return reduceChaoticNoise(pixmap);
             case DIFFUSION:
@@ -1877,7 +1877,7 @@ public class PaletteReducer {
      * @param a an index into ints
      * @param b an index into ints
      */
-    protected void compareSwap(final int[] ints, final int a, final int b) {
+    protected static void compareSwap(final int[] ints, final int a, final int b) {
         if(OKLAB[0][shrink(ints[a])] > OKLAB[0][shrink(ints[b])]) {
             final int t = ints[a];
             ints[a] = ints[b];
@@ -1889,7 +1889,7 @@ public class PaletteReducer {
      * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 8.
      * @param i8 an 8-or-more-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
      */
-    void sort8(final int[] i8) {
+    static void sort8(final int[] i8) {
         compareSwap(i8, 0, 1);
         compareSwap(i8, 2, 3);
         compareSwap(i8, 0, 2);
@@ -1914,7 +1914,7 @@ public class PaletteReducer {
      * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 9.
      * @param i9 an 8-or-more-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
      */
-    void sort9(final int[] i9) {
+    static void sort9(final int[] i9) {
         compareSwap(i9, 0, 1);
         compareSwap(i9, 3, 4);
         compareSwap(i9, 6, 7);
@@ -1945,7 +1945,7 @@ public class PaletteReducer {
      * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 16.
      * @param i16 a 16-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
      */
-    void sort16(final int[] i16)
+    static void sort16(final int[] i16)
     {
         compareSwap(i16, 0, 1);
         compareSwap(i16, 2, 3);

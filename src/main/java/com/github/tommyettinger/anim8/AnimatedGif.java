@@ -92,7 +92,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             palette = null;
     }
 
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.BLUE_NOISE;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.SCATTER;
     
     protected int width; // image size
 
@@ -426,7 +426,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             cr = (color >>> 24);
                             cg = (color >>> 16 & 0xFF);
                             cb = (color >>> 8 & 0xFF);
-                            for (int c = 0; c < 8; c++) {
+                            for (int c = 0; c < 16; c++) {
                                 int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
                                 int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
                                 int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
@@ -438,13 +438,11 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                 eg += cg - (used >>> 16 & 0xFF);
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
-                            palette.sort8(palette.candidates);
+                            PaletteReducer.sort16(palette.candidates);
                             usedEntry[(indexedPixels[i] = paletteMapping[
-                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix8[
-                                            ((int) (px * 0x1.C13FA9A902A6328Fp3 + y * 0x1.9E3779B97F4A7C15p-2) & 3) ^
-                                                    ((px & 3) | (y & 1) << 2)
-                                            ]])
-                                    ]) & 255] = true;
+                                    PaletteReducer.shrink(palette.candidates[
+                                            PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]])]
+                            ) & 255] = true;
                             i++;
 
                         }
