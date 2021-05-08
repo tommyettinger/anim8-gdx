@@ -16,7 +16,7 @@ apply plugin: 'com.vanniktech.maven.publish'
 sourceCompatibility = 1.7
 
 def projectName = 'anim8-gdx'
-version '0.2.9-SNAPSHOT'
+version "$VERSION_NAME"
 group 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:anim8-gdx:0.2.8"

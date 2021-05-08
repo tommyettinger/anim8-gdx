@@ -42,8 +42,8 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX 1.9.10 or higher
-  // libGDX 1.9.13 is recommended currently, but versions as old as 1.9.10 work.
-  api "com.github.tommyettinger:anim8-gdx:0.2.8"
+  // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.10 work.
+  api "com.github.tommyettinger:anim8-gdx:0.2.9"
 }
 ```
 
@@ -51,7 +51,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/57db9e3b6d). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.8:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.9:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -71,13 +71,12 @@ different API).
   - PATTERN
     - A more traditional ordered dither that's been skewed, so it doesn't have square artifacts.
     - Unusually slow to compute, but very accurate at preserving smooth shapes.
-      - PATTERN dither changed to a 4x2 dither with skew instead of a 4x4 between in version 0.2.4,
-        which sped it up somewhat, but it remains noticeably slower than other dithering algorithms.
     - Very good at preserving shape and the best at handling smooth gradients.
       - Changing the dither strength may have a small effect on lightness, but the effect
         to expect for PATTERN should be about the same as any other dither. This was different
         before version 0.2.8.
     - A variant on Thomas Knoll's Pattern Dither, which is out-of-patent.
+    - One of the best options when using large color palettes, and not very good for very small palettes.
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
     - It tends to look very good in still images, and very bad in animations.
@@ -102,14 +101,30 @@ different API).
     - This is the default and often the best of the bunch.
     - Unlike DIFFUSION, this is quite suitable for animations, but some fluid shapes look better with CHAOTIC_NOISE or
       GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN.
+    - You may want to use a lower dither strength with SCATTER if you encounter horizontal line artifacts; 0.75 or 0.5
+      should be low enough to eliminate them (not all palettes will experience these artifacts). 
 
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
 will approach the appearance of NONE, while setting it close to 1.0 (or higher) will make the dither much stronger and
-may make the image less legible.
+may make the image less legible. SCATTER and also DIFFUSION have trouble with very high dither strengths, though how
+much trouble varies based on the palette, and they also tend to look good just before major issues appear.
+
+# Palette Generation
+
+You can create a PaletteReducer object by manually specifying an exact palette (useful for pixel art), attempting to
+analyze an existing image or animation (which can work well for large palette sizes, but not small sizes), or using the
+default palette (called "HALTONIC", it has 255 colors plus transparent). Of these, using `analyze()` is the trickiest,
+and it generally should be permitted all 256 colors to work with. With `analyze()`, you can specify the threshold
+between colors for it to consider adding one to the palette, and this is a challenging value to set that depends on the
+image being dithered. Typically, between 150 and 600 are used, with higher values for smaller or more diverse palettes
+(that is, ones with fewer similar colors to try to keep). Usually you will do just fine with the default "HALTONIC"
+palette, or almost any practical 250+ color palette, because with so many colors it's hard to go wrong. Creating a
+PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use HALTONIC.
 
 # Samples
-Some .gif animations, using 255 colors taken from the most-used in the animation:
+Some .gif animations, using 255 colors taken from the most-used in the animation (`analyze()`, which does well here
+because it can use all the colors):
 
 Pattern dither:
 
