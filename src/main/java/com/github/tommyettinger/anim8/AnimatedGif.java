@@ -439,9 +439,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
                             PaletteReducer.sort16(palette.candidates);
-                            usedEntry[(indexedPixels[i] = paletteMapping[
-                                    PaletteReducer.shrink(palette.candidates[
-                                            PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]])]
+                            usedEntry[(indexedPixels[i] =  (byte) palette.reverseMap.get(palette.candidates[
+                                            PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1)
                             ) & 255] = true;
                             i++;
 

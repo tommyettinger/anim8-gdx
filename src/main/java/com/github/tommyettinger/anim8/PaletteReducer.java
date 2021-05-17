@@ -355,6 +355,8 @@ public class PaletteReducer {
      * How many colors are in the palette here; this is at most 256, and typically includes one fully-transparent color.
      */
     public int colorCount;
+
+    public IntIntMap reverseMap;
     double ditherStrength = 0.5, populationBias = 0.5;
 
 
@@ -653,12 +655,15 @@ public class PaletteReducer {
         populationBias = Math.exp(-1.375/colorCount);
         int color, c2;
         double dist;
+        reverseMap = new IntIntMap(colorCount);
         for (int i = 0; i < plen; i++) {
             color = rgbaPalette[i];
             if ((color & 0x80) != 0) {
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                reverseMap.put(color, i);
             }
+            else reverseMap.put(0, i);
         }
         int rr, gg, bb;
         for (int r = 0; r < 32; r++) {
@@ -699,12 +704,18 @@ public class PaletteReducer {
             System.arraycopy(ENCODED_HALTONIC, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
             populationBias = Math.exp(-0.00537109375);
+            for (int i = 0; i < colorCount; i++) {
+                reverseMap.put(paletteArray[i], i);
+            }
             return;
         }
         colorCount = Math.min(256, palette.length);
         System.arraycopy(palette, 0,  paletteArray, 0, colorCount);
         System.arraycopy(preload, 0,  paletteMapping, 0, 0x8000);
-
+        reverseMap = new IntIntMap(colorCount);
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
+        }
         populationBias = Math.exp(-1.375/colorCount);
     }
 
@@ -745,10 +756,12 @@ public class PaletteReducer {
         populationBias = Math.exp(-1.375/colorCount);
         int color, c2;
         double dist;
+        reverseMap = new IntIntMap(colorCount);
         for (int i = 0; i < plen; i++) {
             color = Color.rgba8888(colorPalette[i]);
             paletteArray[i] = color;
             paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+            reverseMap.put(color, i);
         }
         int rr, gg, bb;
         for (int r = 0; r < 32; r++) {
@@ -894,6 +907,10 @@ public class PaletteReducer {
             }
             colorCount = i;
             populationBias = Math.exp(-1.375/colorCount);
+        }
+        reverseMap = new IntIntMap(colorCount);
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
         }
         int c2;
         int rr, gg, bb;
@@ -1084,6 +1101,10 @@ public class PaletteReducer {
             }
             colorCount = counts.size + hasTransparent;
             populationBias = Math.exp(-1.375/colorCount);
+        }
+        reverseMap = new IntIntMap(colorCount);
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
         }
         int c2;
         int rr, gg, bb;
@@ -1281,11 +1302,11 @@ public class PaletteReducer {
             colorCount = i;
             populationBias = Math.exp(-1.375/colorCount);
         }
-//        for (int i = 0; i < 256; i++) {
-//            System.out.printf("0x%08X, ", paletteArray[i]);
-//            if((i& 7) == 7) System.out.println();
-//        }
-//        System.out.println("\n");
+        reverseMap = new IntIntMap(colorCount);
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
+        }
+
         int c2;
         int rr, gg, bb;
         double dist;

@@ -1512,8 +1512,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         eb += cb - (used >>> 8 & 0xFF);
                     }
                     PaletteReducer.sort16(palette.candidates);
-                    curLine[px] = paletteMapping[
-                            PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]])];
+                    curLine[px] = (byte) palette.reverseMap.get(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1);
                 }
             }
 
@@ -2789,8 +2788,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
                             PaletteReducer.sort16(palette.candidates);
-                            curLine[px] = paletteMapping[
-                                    PaletteReducer.shrink(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]])];
+                            curLine[px] = (byte) palette.reverseMap.get(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1);
                         }
                     }
                     lineOut[0] = (byte) (curLine[0] - prevLine[0]);
