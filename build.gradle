@@ -21,7 +21,7 @@ group 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:anim8-gdx:0.2.8"
 
-def gdxVersion = '1.9.10'
+def gdxVersion = '1.9.11'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
