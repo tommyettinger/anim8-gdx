@@ -413,16 +413,15 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             case PATTERN:
             {
-                int cr, cg, cb,  usedIndex;
+                int cr, cg, cb, usedIndex;
                 final float errorMul = (float) (palette.ditherStrength * palette.populationBias);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
+                        color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
                             int er = 0, eg = 0, eb = 0;
-                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             cr = (color >>> 24);
                             cg = (color >>> 16 & 0xFF);
                             cb = (color >>> 8 & 0xFF);

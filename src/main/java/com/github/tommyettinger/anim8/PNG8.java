@@ -1490,12 +1490,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
-                color = pixmap.getPixel(px, py) & 0xF8F8F880;
+                color = pixmap.getPixel(px, py);
                 if ((color & 0x80) == 0 && hasTransparent)
                     curLine[px] = 0;
                 else {
                     int er = 0, eg = 0, eb = 0;
-                    color |= (color >>> 5 & 0x07070700) | 0xFF;
                     cr = (color >>> 24);
                     cg = (color >>> 16 & 0xFF);
                     cb = (color >>> 8 & 0xFF);
@@ -2766,12 +2765,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
-                        color = pixmap.getPixel(px, py) & 0xF8F8F880;
+                        color = pixmap.getPixel(px, py);
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
                             int er = 0, eg = 0, eb = 0;
-                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             cr = (color >>> 24);
                             cg = (color >>> 16 & 0xFF);
                             cb = (color >>> 8 & 0xFF);
