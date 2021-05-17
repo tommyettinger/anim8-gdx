@@ -2725,7 +2725,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             int cr, cg, cb,  usedIndex;
-            final float errorMul = (float) (palette.ditherStrength * palette.populationBias * 0.6);
+            final float errorMul = (float) (palette.ditherStrength * palette.populationBias);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
