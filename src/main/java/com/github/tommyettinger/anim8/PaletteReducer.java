@@ -355,7 +355,7 @@ public class PaletteReducer {
      * How many colors are in the palette here; this is at most 256, and typically includes one fully-transparent color.
      */
     public int colorCount;
-    double ditherStrength = 0.5f, populationBias = 0.5;
+    double ditherStrength = 0.5, populationBias = 0.5;
 
 
     /**
@@ -2017,7 +2017,8 @@ public class PaletteReducer {
      * <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Yliluoma used an 8x8
      * threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
      * sorting step (this uses a sorting network, which works well for small input sizes like 16 items). This is still
-     * very significantly slower than the other dithers here (except for {@link #reduceKnollRoberts(Pixmap)}.
+     * very significantly slower than the other dithers here (although {@link #reduceKnollRoberts(Pixmap)} isn't at all
+     * fast, it still takes less than half the time this method does).
      * <br>
      * Using pattern dither tends to produce some of the best results for lightness-based gradients, but when viewed
      * close-up the "needlepoint" pattern can be jarring for images that should look natural.
@@ -2088,7 +2089,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, cr, cg, cb, usedIndex;
-        final float errorMul = (float) (ditherStrength * populationBias * 0.6);
+        final float errorMul = (float) (ditherStrength * populationBias * 1.25);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
