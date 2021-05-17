@@ -1865,7 +1865,7 @@ public class PaletteReducer {
             10,  6,   9,   5,
     };
 
-    final int[] candidates = new int[16];
+    final int[] candidates = new int[32];
 
     /**
      * Compares items in ints by their luma, looking up items by the indices a and b, and swaps the two given indices if
@@ -1878,10 +1878,12 @@ public class PaletteReducer {
      * @param b an index into ints
      */
     protected static void compareSwap(final int[] ints, final int a, final int b) {
-        if(OKLAB[0][shrink(ints[a])] > OKLAB[0][shrink(ints[b])]) {
-            final int t = ints[a];
+        if(OKLAB[0][ints[a|16]] > OKLAB[0][ints[b|16]]) {
+            final int t = ints[a], st = ints[a|16];
             ints[a] = ints[b];
+            ints[a|16] = ints[b|16];
             ints[b] = t;
+            ints[b|16] = st;
         }
     }
     
@@ -1909,37 +1911,6 @@ public class PaletteReducer {
         compareSwap(i8, 2, 4);
         compareSwap(i8, 3, 5);
         compareSwap(i8, 3, 4);
-    }
-    /**
-     * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 9.
-     * @param i9 an 8-or-more-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
-     */
-    static void sort9(final int[] i9) {
-        compareSwap(i9, 0, 1);
-        compareSwap(i9, 3, 4);
-        compareSwap(i9, 6, 7);
-        compareSwap(i9, 1, 2);
-        compareSwap(i9, 4, 5);
-        compareSwap(i9, 7, 8);
-        compareSwap(i9, 0, 1);
-        compareSwap(i9, 3, 4);
-        compareSwap(i9, 6, 7);
-        compareSwap(i9, 0, 3);
-        compareSwap(i9, 3, 6);
-        compareSwap(i9, 0, 3);
-        compareSwap(i9, 1, 4);
-        compareSwap(i9, 4, 7);
-        compareSwap(i9, 1, 4);
-        compareSwap(i9, 2, 5);
-        compareSwap(i9, 5, 8);
-        compareSwap(i9, 2, 5);
-        compareSwap(i9, 1, 3);
-        compareSwap(i9, 5, 7);
-        compareSwap(i9, 2, 6);
-        compareSwap(i9, 4, 6);
-        compareSwap(i9, 2, 4);
-        compareSwap(i9, 2, 3);
-        compareSwap(i9, 5, 6);
     }
     /**
      * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 16.
@@ -2043,14 +2014,14 @@ public class PaletteReducer {
                     cr = (color >>> 24);
                     cg = (color >>> 16 & 0xFF);
                     cb = (color >>> 8 & 0xFF);
-                    for (int i = 0; i < candidates.length; i++) {
+                    for (int i = 0; i < 16; i++) {
                         int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
                         int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
                         int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        used = candidates[i] = paletteArray[usedIndex];
+                        candidates[i | 16] = shrink(used = candidates[i] = paletteArray[usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
@@ -2107,7 +2078,7 @@ public class PaletteReducer {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        used = candidates[c] = paletteArray[usedIndex];
+                        candidates[c | 16] = shrink(used = candidates[c] = paletteArray[usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
