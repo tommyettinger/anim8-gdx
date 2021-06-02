@@ -41,17 +41,17 @@ palette-based color, respectively).
 A typical Gradle dependency on anim8 looks like this (in the core module's dependencies for a typical libGDX project):
 ```groovy
 dependencies {
-  //... other dependencies are here, like libGDX 1.9.10 or higher
-  // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.10 work.
-  api "com.github.tommyettinger:anim8-gdx:0.2.9"
+  //... other dependencies are here, like libGDX 1.9.11 or higher
+  // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
+  api "com.github.tommyettinger:anim8-gdx:0.2.10"
 }
 ```
 
 You can also get a specific commit using JitPack, by following the instructions on
-[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/57db9e3b6d). 
+[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/633d5e0bdc). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.9:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.10:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -71,7 +71,7 @@ different API).
   - PATTERN
     - A more traditional ordered dither that's been skewed, so it doesn't have square artifacts.
     - Unusually slow to compute, but very accurate at preserving smooth shapes.
-    - Very good at preserving shape and the best at handling smooth gradients.
+    - Very good at preserving shape, and the best at handling smooth gradients.
       - Changing the dither strength may have a small effect on lightness, but the effect
         to expect for PATTERN should be about the same as any other dither. This was different
         before version 0.2.8.
@@ -93,7 +93,7 @@ different API).
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and can look somewhat more chaotic.
-    - This is probably the second-best algorithm here for animations, after SCATTER.
+    - This is probably the third-best algorithm here for animations, after SCATTER and PATTERN in either order.
     - This may be more useful when using many colors than when using just a few.
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
