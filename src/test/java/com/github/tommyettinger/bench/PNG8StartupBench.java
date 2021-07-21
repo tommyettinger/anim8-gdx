@@ -14,6 +14,7 @@ import com.github.tommyettinger.anim8.PaletteReducer;
 /**
  * Startup time: between 2362 and 2467 ms in most cases.
  * This includes loading 90 Pixmaps from separate files, dithering them with SCATTER, and assembling an animated PNG8.
+ * There's no real difference when PAETH filtering is removed, replacing it with NONE.
  */
 public class PNG8StartupBench extends ApplicationAdapter {
     private static final String name = "market";
