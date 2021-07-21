@@ -12,7 +12,7 @@ import com.github.tommyettinger.anim8.Dithered;
 import com.github.tommyettinger.anim8.PaletteReducer;
 
 /**
- * Startup time: between 1622 and 1660 ms in most cases.
+ * Startup time: between 1622 and 1660 ms in most cases.     File size: 10992 KB
  * This includes loading 90 Pixmaps from separate files, dithering them with SCATTER, and assembling an animated GIF.
  */
 public class GifStartupBench extends ApplicationAdapter {

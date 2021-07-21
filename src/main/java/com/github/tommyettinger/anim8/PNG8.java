@@ -83,7 +83,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     static private final byte COMPRESSION_DEFLATE = 0;
     static private final byte FILTER_NONE = 0;
     static private final byte INTERLACE_NONE = 0;
-    static private final byte PAETH = 4;
+    static private final byte FILTER_PAETH = 4;
 
     private final ChunkBuffer buffer;
     private final Deflater deflater;
@@ -92,7 +92,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     private int lastLineLen;
 
     public PaletteReducer palette;
-    
+
     protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.SCATTER;
 
     @Override
@@ -545,7 +545,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     lineOut[x] = (byte) (curLine[x] - c);
                 }
 
-                deflaterOutput.write(PAETH);
+                deflaterOutput.write(FILTER_PAETH);
                 deflaterOutput.write(lineOut, 0, lineLen);
 
                 byte[] temp = curLine;
@@ -721,7 +721,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 lineOut[x] = (byte)(curLine[x] - c);
             }
 
-            deflaterOutput.write(PAETH);
+            deflaterOutput.write(FILTER_PAETH);
             deflaterOutput.write(lineOut, 0, lineLen);
 
             byte[] temp = curLine;
@@ -834,7 +834,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 lineOut[x] = (byte)(curLine[x] - c);
             }
 
-            deflaterOutput.write(PAETH);
+            deflaterOutput.write(FILTER_PAETH);
             deflaterOutput.write(lineOut, 0, lineLen);
 
             byte[] temp = curLine;
@@ -967,7 +967,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     lineOut[x] = (byte)(curLine[x] - c);
                 }
 
-                deflaterOutput.write(PAETH);
+                deflaterOutput.write(FILTER_PAETH);
                 deflaterOutput.write(lineOut, 0, w);
 
                 byte[] temp = curLine;
@@ -1090,7 +1090,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     lineOut[x] = (byte)(curLine[x] - c);
                 }
 
-                deflaterOutput.write(PAETH);
+                deflaterOutput.write(FILTER_PAETH);
                 deflaterOutput.write(lineOut, 0, w);
 
                 byte[] temp = curLine;
@@ -1108,7 +1108,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             Gdx.app.error("anim8", e.getMessage());
         }
     }
-    
+
     private void writeChaoticNoiseDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
@@ -1194,7 +1194,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ////   each be positive or negative, and are reduced to a manageable size, summed, and
                         ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
                         ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
-                        ////   Two of the random numbers use an XLCG, and the last uses an LCG. 
+                        ////   Two of the random numbers use an XLCG, and the last uses an LCG.
                         adj += ((px + y & 1) - 0.5f) * 0x1.8p-49 * strength *
                                 (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
                                         ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
@@ -1229,7 +1229,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     lineOut[x] = (byte)(curLine[x] - c);
                 }
 
-                deflaterOutput.write(PAETH);
+                deflaterOutput.write(FILTER_PAETH);
                 deflaterOutput.write(lineOut, 0, w);
 
                 byte[] temp = curLine;
@@ -1247,7 +1247,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             Gdx.app.error("anim8", e.getMessage());
         }
     }
-    
+
     private void writeDiffusionDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
@@ -1409,7 +1409,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     lineOut[x] = (byte) (curLine[x] - c);
                 }
 
-                deflaterOutput.write(PAETH);
+                deflaterOutput.write(FILTER_PAETH);
                 deflaterOutput.write(lineOut, 0, w);
 
                 byte[] temp = curLine;
@@ -1536,7 +1536,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 lineOut[x] = (byte)(curLine[x] - c);
             }
 
-            deflaterOutput.write(PAETH);
+            deflaterOutput.write(FILTER_PAETH);
             deflaterOutput.write(lineOut, 0, w);
 
             byte[] temp = curLine;
@@ -1717,7 +1717,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     lineOut[x] = (byte) (curLine[x] - c);
                 }
 
-                deflaterOutput.write(PAETH);
+                deflaterOutput.write(FILTER_PAETH);
                 deflaterOutput.write(lineOut, 0, w);
 
                 byte[] temp = curLine;
@@ -1929,7 +1929,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     lineOut[x] = (byte) (curLine[x] - c);
                 }
 
-                deflaterOutput.write(PAETH);
+                deflaterOutput.write(FILTER_PAETH);
                 deflaterOutput.write(lineOut, 0, width);
 
                 byte[] temp = curLine;
@@ -2118,7 +2118,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         lineOut[x] = (byte) (curLine[x] - c);
                     }
 
-                    deflaterOutput.write(PAETH);
+                    deflaterOutput.write(FILTER_PAETH);
                     deflaterOutput.write(lineOut, 0, width);
 
                     byte[] temp = curLine;
@@ -2274,7 +2274,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         lineOut[x] = (byte) (curLine[x] - c);
                     }
 
-                    deflaterOutput.write(PAETH);
+                    deflaterOutput.write(FILTER_PAETH);
                     deflaterOutput.write(lineOut, 0, width);
 
                     byte[] temp = curLine;
@@ -2407,7 +2407,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ////   each be positive or negative, and are reduced to a manageable size, summed, and
                             ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
                             ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
-                            ////   Two of the random numbers use an XLCG, and the last uses an LCG. 
+                            ////   Two of the random numbers use an XLCG, and the last uses an LCG.
                             adj += ((px + y & 1) - 0.5f) * 0x1.8p-49 * strength *
                                     (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
                                             ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
@@ -2441,7 +2441,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         lineOut[x] = (byte) (curLine[x] - c);
                     }
 
-                    deflaterOutput.write(PAETH);
+                    deflaterOutput.write(FILTER_PAETH);
                     deflaterOutput.write(lineOut, 0, width);
 
                     byte[] temp = curLine;
@@ -2598,7 +2598,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
                             int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
                             int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
-                            curLine[px] = paletteIndex = 
+                            curLine[px] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))];
@@ -2653,7 +2653,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         lineOut[x] = (byte) (curLine[x] - c);
                     }
 
-                    deflaterOutput.write(PAETH);
+                    deflaterOutput.write(FILTER_PAETH);
                     deflaterOutput.write(lineOut, 0, w);
 
                     byte[] temp = curLine;
@@ -2718,7 +2718,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.endChunk(dataOutput);
 
             byte[] lineOut, curLine, prevLine;
-            
+
             lastLineLen = width;
 
             int color, used;
@@ -2810,7 +2810,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         lineOut[x] = (byte) (curLine[x] - c);
                     }
 
-                    deflaterOutput.write(PAETH);
+                    deflaterOutput.write(FILTER_PAETH);
                     deflaterOutput.write(lineOut, 0, width);
 
                     byte[] temp = curLine;
@@ -2829,7 +2829,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             Gdx.app.error("anim8", e.getMessage());
         }
     }
-    
+
     private void writeScatterDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
@@ -2893,7 +2893,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.writeInt(0);
             buffer.endChunk(dataOutput);
 
-            byte[] lineOut, curLine, prevLine;
+//            byte[] lineOut, curLine, prevLine;
+            byte[] curLine, prevLine;
 
             lastLineLen = w;
 
@@ -2931,12 +2932,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (lineOutBytes == null) {
-                    lineOut = (lineOutBytes = new ByteArray(w)).items;
+                if (curLineBytes == null) {
+//                    lineOut = (lineOutBytes = new ByteArray(w)).items;
                     curLine = (curLineBytes = new ByteArray(w)).items;
                     prevLine = (prevLineBytes = new ByteArray(w)).items;
                 } else {
-                    lineOut = lineOutBytes.ensureCapacity(w);
+//                    lineOut = lineOutBytes.ensureCapacity(w);
                     curLine = curLineBytes.ensureCapacity(w);
                     prevLine = prevLineBytes.ensureCapacity(w);
                     for (int ln = 0, n = lastLineLen; ln < n; ln++)
@@ -3002,29 +3003,32 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             }
                         }
                     }
-                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//
+//                    //Paeth
+//                    for (int x = 1; x < w; x++) {
+//                        int a = curLine[x - 1] & 0xff;
+//                        int b = prevLine[x] & 0xff;
+//                        int c = prevLine[x - 1] & 0xff;
+//                        int p = a + b - c;
+//                        int pa = p - a;
+//                        if (pa < 0) pa = -pa;
+//                        int pb = p - b;
+//                        if (pb < 0) pb = -pb;
+//                        int pc = p - c;
+//                        if (pc < 0) pc = -pc;
+//                        if (pa <= pb && pa <= pc)
+//                            c = a;
+//                        else if (pb <= pc)
+//                            c = b;
+//                        lineOut[x] = (byte) (curLine[x] - c);
+//                    }
+//
+//                    deflaterOutput.write(FILTER_PAETH);
+//                    deflaterOutput.write(lineOut, 0, w);
 
-                    //Paeth
-                    for (int x = 1; x < w; x++) {
-                        int a = curLine[x - 1] & 0xff;
-                        int b = prevLine[x] & 0xff;
-                        int c = prevLine[x - 1] & 0xff;
-                        int p = a + b - c;
-                        int pa = p - a;
-                        if (pa < 0) pa = -pa;
-                        int pb = p - b;
-                        if (pb < 0) pb = -pb;
-                        int pc = p - c;
-                        if (pc < 0) pc = -pc;
-                        if (pa <= pb && pa <= pc)
-                            c = a;
-                        else if (pb <= pc)
-                            c = b;
-                        lineOut[x] = (byte) (curLine[x] - c);
-                    }
-
-                    deflaterOutput.write(PAETH);
-                    deflaterOutput.write(lineOut, 0, w);
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, w);
 
                     byte[] temp = curLine;
                     curLine = prevLine;

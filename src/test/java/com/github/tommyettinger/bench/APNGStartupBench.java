@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.github.tommyettinger.anim8.AnimatedPNG;
 
 /**
- * Startup time: between 4071 and 4090 ms in most cases, once 4999 ms.
+ * Startup time: between 4071 and 4090 ms in most cases, once 4999 ms.     File size: 21777 KB
  * This includes loading 90 Pixmaps from separate files and assembling an animated PNG (full-color).
  */
 public class APNGStartupBench extends ApplicationAdapter {

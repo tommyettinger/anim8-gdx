@@ -12,7 +12,9 @@ import com.github.tommyettinger.anim8.PNG8;
 import com.github.tommyettinger.anim8.PaletteReducer;
 
 /**
- * Startup time: between 2362 and 2467 ms in most cases.
+ * Startup time:
+ * With PAETH filter, compression 6 (default): between 2362 and 2467 ms in most cases.     File size: 13853 KB
+ * With NONE filter, compression 2: between 1550 and 1610 ms in most cases.                File size:  9974 KB
  * This includes loading 90 Pixmaps from separate files, dithering them with SCATTER, and assembling an animated PNG8.
  */
 public class PNG8StartupBench extends ApplicationAdapter {
@@ -32,6 +34,7 @@ public class PNG8StartupBench extends ApplicationAdapter {
         namePalette = name;
         png8.setPalette(new PaletteReducer());
         png8.setFlipY(false);
+        png8.setCompression(2);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
         png8.write(Gdx.files.local("tmp/images/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
