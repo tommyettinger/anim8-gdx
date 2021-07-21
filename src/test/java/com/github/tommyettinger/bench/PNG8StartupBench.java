@@ -22,11 +22,12 @@ public class PNG8StartupBench extends ApplicationAdapter {
 
         Gdx.files.local("tmp/images").mkdirs();
         long startTime = TimeUtils.millis();
+        PNG8 png8 = new PNG8();
+        System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct a PNG8");
         Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
-        PNG8 png8 = new PNG8();
         String namePalette;
         namePalette = name;
         png8.setPalette(new PaletteReducer());

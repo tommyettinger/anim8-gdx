@@ -22,11 +22,12 @@ public class GifStartupBench extends ApplicationAdapter {
 
         Gdx.files.local("tmp/images").mkdirs();
         long startTime = TimeUtils.millis();
+        AnimatedGif gif = new AnimatedGif();
+        System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct an AnimatedGif");
         Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
-        AnimatedGif gif = new AnimatedGif();
         String namePalette;
         namePalette = name;
         gif.setPalette(new PaletteReducer());
