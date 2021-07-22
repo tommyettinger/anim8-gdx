@@ -68,7 +68,7 @@ public class StillImageDemo extends ApplicationAdapter {
 //			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
 //			png8.write(Gdx.files.local("images/" + name + "-PNG8-None-" + count + ".png"), pixmap, false, true);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-			png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "-PNG8-Gradient-" + count + ".png"), pixmap, false, true);
+			png8.write(Gdx.files.local("tmp/imagesClean/" + name + "-PNG8-Gradient-" + count + ".png"), pixmap, false, true);
 //			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 //			png8.write(Gdx.files.local("images/" + name + "-PNG8-Diffusion-" + count + ".png"), pixmap, false, true);
 //			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -86,7 +86,7 @@ public class StillImageDemo extends ApplicationAdapter {
 //		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
 //		png8.write(Gdx.files.local("images/" + name + "-PNG8-None-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-		png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "-PNG8-Gradient-BW.png"), pixmap, false, true);
+		png8.write(Gdx.files.local("tmp/imagesClean/" + name + "-PNG8-Gradient-BW.png"), pixmap, false, true);
 //		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 //		png8.write(Gdx.files.local("images/" + name + "-PNG8-Diffusion-BW.png"), pixmap, false, true);
 //		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
