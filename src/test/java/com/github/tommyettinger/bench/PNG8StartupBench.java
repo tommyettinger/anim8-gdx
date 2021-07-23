@@ -22,21 +22,45 @@ public class PNG8StartupBench extends ApplicationAdapter {
     @Override
     public void create() {
 
-        Gdx.files.local("tmp/images").mkdirs();
+        Gdx.files.local("tmp/imagesClean").mkdirs();
+        Gdx.files.local("tmp/imagesPaeth").mkdirs();
         long startTime = TimeUtils.millis();
         PNG8 png8 = new PNG8();
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct a PNG8");
+        long subTime = TimeUtils.millis();
         Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to load the Array<Pixmap>");
         String namePalette;
         namePalette = name;
+        subTime = TimeUtils.millis();
         png8.setPalette(new PaletteReducer());
         png8.setFlipY(false);
         png8.setCompression(2);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to configure");
+
+        subTime = TimeUtils.millis();
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-        png8.write(Gdx.files.local("tmp/images/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Scatter");
+
+        subTime = TimeUtils.millis();
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Gradient.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Gradient");
+
+        subTime = TimeUtils.millis();
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+        png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/PNG8-" + namePalette + "-None.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write None");
+
+        subTime = TimeUtils.millis();
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+        png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Pattern");
+
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
