@@ -58,7 +58,7 @@ public class PNG8StartupBench extends ApplicationAdapter {
 
         subTime = TimeUtils.millis();
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-        png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Pattern");
 
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
