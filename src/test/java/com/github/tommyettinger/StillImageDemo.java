@@ -64,7 +64,7 @@ public class StillImageDemo extends ApplicationAdapter {
 //			reducer.analyze(pixmap, 10000 / count + count * 4, count);
 			png8.setPalette(reducer);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-			png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "-PNG8-Pattern-" + count + ".png"), pixmap, false, true);
+			png8.write(Gdx.files.local("tmp/imagesClean/" + name + "-PNG8-Pattern-" + count + ".png"), pixmap, false, true);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
 			png8.write(Gdx.files.local("tmp/imagesClean/" + name + "-PNG8-None-" + count + ".png"), pixmap, false, true);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
@@ -82,7 +82,7 @@ public class StillImageDemo extends ApplicationAdapter {
 		reducer.exact(new int[]{0, 255, -1});
 		png8.setPalette(reducer);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-		png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "-PNG8-Pattern-BW.png"), pixmap, false, true);
+		png8.write(Gdx.files.local("tmp/imagesClean/" + name + "-PNG8-Pattern-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
 		png8.write(Gdx.files.local("tmp/imagesClean/" + name + "-PNG8-None-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
