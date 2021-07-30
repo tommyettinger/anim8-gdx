@@ -68,7 +68,7 @@ public class PNG8StartupBench extends ApplicationAdapter {
 
         subTime = TimeUtils.millis();
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-        png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write BlueNoise");
 
         subTime = TimeUtils.millis();

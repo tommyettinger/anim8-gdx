@@ -2209,7 +2209,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.writeInt(0);
             buffer.endChunk(dataOutput);
 
-            byte[] lineOut, curLine, prevLine;
+//            byte[] lineOut, curLine, prevLine;
+            byte[] curLine, prevLine;
             int color, used;
 
             lastLineLen = width;
@@ -2241,19 +2242,18 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (lineOutBytes == null) {
-                    lineOut = (lineOutBytes = new ByteArray(width)).items;
+                if (curLineBytes == null) {
+//                    lineOut = (lineOutBytes = new ByteArray(width)).items;
                     curLine = (curLineBytes = new ByteArray(width)).items;
                     prevLine = (prevLineBytes = new ByteArray(width)).items;
                 } else {
-                    lineOut = lineOutBytes.ensureCapacity(width);
+//                    lineOut = lineOutBytes.ensureCapacity(width);
                     curLine = curLineBytes.ensureCapacity(width);
                     prevLine = prevLineBytes.ensureCapacity(width);
                     for (int ln = 0, n = lastLineLen; ln < n; ln++)
                         prevLine[ln] = 0;
                 }
                 lastLineLen = width;
-                int bn;
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
@@ -2274,7 +2274,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
                             adj += ((px + y & 1) - 0.5f) * 0.25f;
                             adj *= strength;
-                            
+
                             rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
                             gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
                             bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
@@ -2283,29 +2283,31 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                     | ((bb >>> 3))];
                         }
                     }
-                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
-
-                    //Paeth
-                    for (int x = 1; x < width; x++) {
-                        int a = curLine[x - 1] & 0xff;
-                        int b = prevLine[x] & 0xff;
-                        int c = prevLine[x - 1] & 0xff;
-                        int p = a + b - c;
-                        int pa = p - a;
-                        if (pa < 0) pa = -pa;
-                        int pb = p - b;
-                        if (pb < 0) pb = -pb;
-                        int pc = p - c;
-                        if (pc < 0) pc = -pc;
-                        if (pa <= pb && pa <= pc)
-                            c = a;
-                        else if (pb <= pc)
-                            c = b;
-                        lineOut[x] = (byte) (curLine[x] - c);
-                    }
-
-                    deflaterOutput.write(FILTER_PAETH);
-                    deflaterOutput.write(lineOut, 0, width);
+//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//
+//                    //Paeth
+//                    for (int x = 1; x < width; x++) {
+//                        int a = curLine[x - 1] & 0xff;
+//                        int b = prevLine[x] & 0xff;
+//                        int c = prevLine[x - 1] & 0xff;
+//                        int p = a + b - c;
+//                        int pa = p - a;
+//                        if (pa < 0) pa = -pa;
+//                        int pb = p - b;
+//                        if (pb < 0) pb = -pb;
+//                        int pc = p - c;
+//                        if (pc < 0) pc = -pc;
+//                        if (pa <= pb && pa <= pc)
+//                            c = a;
+//                        else if (pb <= pc)
+//                            c = b;
+//                        lineOut[x] = (byte) (curLine[x] - c);
+//                    }
+//
+//                    deflaterOutput.write(FILTER_PAETH);
+//                    deflaterOutput.write(lineOut, 0, width);
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, width);
 
                     byte[] temp = curLine;
                     curLine = prevLine;
