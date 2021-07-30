@@ -33,7 +33,7 @@ public final class OtherMath {
      */
     public static float barronSpline(final float x, final float shape, final float turning) {
         final float d = turning - x;
-        final int f = NumberUtils.floatToRawIntBits(d) >> 31, n = f | 1;
+        final int f = com.badlogic.gdx.utils.NumberUtils.floatToRawIntBits(d) >> 31, n = f | 1;
         return ((turning * n - f) * (x + f)) / (Float.MIN_NORMAL - f + (x + shape * d) * n) - f;
     }
 
