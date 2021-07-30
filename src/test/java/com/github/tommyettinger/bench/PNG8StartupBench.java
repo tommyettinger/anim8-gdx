@@ -41,25 +41,40 @@ public class PNG8StartupBench extends ApplicationAdapter {
         png8.setCompression(2);
         System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to configure");
 
-        subTime = TimeUtils.millis();
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
-        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Scatter");
+//        subTime = TimeUtils.millis();
+//        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+//        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
+//        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Scatter");
+//
+//        subTime = TimeUtils.millis();
+//        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+//        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Gradient.png"), pixmaps, 20);
+//        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Gradient");
+//
+//        subTime = TimeUtils.millis();
+//        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+//        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-None.png"), pixmaps, 20);
+//        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write None");
+//
+//        subTime = TimeUtils.millis();
+//        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+//        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
+//        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Pattern");
 
         subTime = TimeUtils.millis();
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Gradient.png"), pixmaps, 20);
-        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Gradient");
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Diffusion.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Diffusion");
 
         subTime = TimeUtils.millis();
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-None.png"), pixmaps, 20);
-        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write None");
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+        png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write BlueNoise");
 
         subTime = TimeUtils.millis();
-        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
-        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Pattern");
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+        png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/PNG8-" + namePalette + "-ChaoticNoise.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write ChaoticNoise");
 
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
