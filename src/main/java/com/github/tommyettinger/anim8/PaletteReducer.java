@@ -1674,7 +1674,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used;
-        float adj, strength = (float) (ditherStrength * populationBias * 1.5);
+        float adj, strength = (float) (ditherStrength * populationBias * 2);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y) & 0xF8F8F880;
@@ -1689,7 +1689,7 @@ public class PaletteReducer {
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF];
                     adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
-                    adj += ((px + y & 1) - 0.5f) * 0.25f;
+                    adj += ((px + y & 1) - 0.5f) * 0.125f;
                     adj *= strength;
 
                     rr = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);

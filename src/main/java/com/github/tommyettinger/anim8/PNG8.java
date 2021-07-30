@@ -1051,7 +1051,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = w;
 
             int color, used;
-            float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 1.5);
+            float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 2);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1067,7 +1067,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF];
                         adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
-                        adj += ((px + y & 1) - 0.5f) * 0.25f;
+                        adj += ((px + y & 1) - 0.5f) * 0.125f;
                         adj *= strength;
                         rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
                         gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
@@ -2220,7 +2220,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = width;
 
             byte paletteIndex;
-            float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 1.5);
+            float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 2);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2276,7 +2276,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             used = paletteArray[paletteIndex & 0xFF];
 
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
-                            adj += ((px + y & 1) - 0.5f) * 0.25f;
+                            adj += ((px + y & 1) - 0.5f) * 0.125f;
                             adj *= strength;
 
                             rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
