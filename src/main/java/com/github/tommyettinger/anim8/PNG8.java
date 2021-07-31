@@ -81,13 +81,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             acTL = 0x6163544C, fcTL = 0x6663544C, fdAT = 0x66644154;
     static private final byte COLOR_INDEXED = 3;
     static private final byte COMPRESSION_DEFLATE = 0;
-    static private final byte FILTER_NONE = 0;
     static private final byte INTERLACE_NONE = 0;
-    static private final byte FILTER_PAETH = 4;
+    static private final byte FILTER_NONE = 0;
+//    static private final byte FILTER_PAETH = 4;
 
     private final ChunkBuffer buffer;
     private final Deflater deflater;
-    private ByteArray lineOutBytes, curLineBytes, prevLineBytes;
+    private ByteArray curLineBytes;
+    private ByteArray prevLineBytes;
     private boolean flipY = true;
     private int lastLineLen;
 
@@ -501,13 +502,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             deflater.reset();
 
             int lineLen = pixmap.getWidth();
-            byte[] lineOut, curLine, prevLine;
-            if (lineOutBytes == null) {
-                lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
+//            byte[] lineOut, curLine, prevLine;
+            byte[] curLine, prevLine;
+            if (curLineBytes == null) {
+//                lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
                 curLine = (curLineBytes = new ByteArray(lineLen)).items;
                 prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
             } else {
-                lineOut = lineOutBytes.ensureCapacity(lineLen);
+//                lineOut = lineOutBytes.ensureCapacity(lineLen);
                 curLine = curLineBytes.ensureCapacity(lineLen);
                 prevLine = prevLineBytes.ensureCapacity(lineLen);
                 for (int i = 0, n = lastLineLen; i < n; i++) {
@@ -524,29 +526,32 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     curLine[px] = (byte) colorToIndex.get(color, 0);
                 }
 
-                lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//                lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//
+//                //Paeth
+//                for (int x = 1; x < lineLen; x++) {
+//                    int a = curLine[x - 1] & 0xff;
+//                    int b = prevLine[x] & 0xff;
+//                    int c = prevLine[x - 1] & 0xff;
+//                    int p = a + b - c;
+//                    int pa = p - a;
+//                    if (pa < 0) pa = -pa;
+//                    int pb = p - b;
+//                    if (pb < 0) pb = -pb;
+//                    int pc = p - c;
+//                    if (pc < 0) pc = -pc;
+//                    if (pa <= pb && pa <= pc)
+//                        c = a;
+//                    else if (pb <= pc)
+//                        c = b;
+//                    lineOut[x] = (byte) (curLine[x] - c);
+//                }
+//
+//                deflaterOutput.write(FILTER_PAETH);
+//                deflaterOutput.write(lineOut, 0, lineLen);
 
-                //Paeth
-                for (int x = 1; x < lineLen; x++) {
-                    int a = curLine[x - 1] & 0xff;
-                    int b = prevLine[x] & 0xff;
-                    int c = prevLine[x - 1] & 0xff;
-                    int p = a + b - c;
-                    int pa = p - a;
-                    if (pa < 0) pa = -pa;
-                    int pb = p - b;
-                    if (pb < 0) pb = -pb;
-                    int pc = p - c;
-                    if (pc < 0) pc = -pc;
-                    if (pa <= pb && pa <= pc)
-                        c = a;
-                    else if (pb <= pc)
-                        c = b;
-                    lineOut[x] = (byte) (curLine[x] - c);
-                }
-
-                deflaterOutput.write(FILTER_PAETH);
-                deflaterOutput.write(lineOut, 0, lineLen);
+                deflaterOutput.write(FILTER_NONE);
+                deflaterOutput.write(curLine, 0, lineLen);
 
                 byte[] temp = curLine;
                 curLine = prevLine;
@@ -676,13 +681,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         deflater.reset();
 
         int lineLen = width;
-        byte[] lineOut, curLine, prevLine;
-        if (lineOutBytes == null) {
-            lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
+//        byte[] lineOut, curLine, prevLine;
+        byte[] curLine, prevLine;
+        if (curLineBytes == null) {
+//            lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
             curLine = (curLineBytes = new ByteArray(lineLen)).items;
             prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
         } else {
-            lineOut = lineOutBytes.ensureCapacity(lineLen);
+//            lineOut = lineOutBytes.ensureCapacity(lineLen);
             curLine = curLineBytes.ensureCapacity(lineLen);
             prevLine = prevLineBytes.ensureCapacity(lineLen);
             for (int i = 0, n = lastLineLen; i < n; i++)
@@ -700,29 +706,32 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine[px - startX] = (byte) colorToIndex.get(color, 0);
             }
 
-            lineOut[0] = (byte)(curLine[0] - prevLine[0]);
+//            lineOut[0] = (byte)(curLine[0] - prevLine[0]);
+//
+//            //Paeth
+//            for (int x = 1; x < lineLen; x++) {
+//                int a = curLine[x - 1] & 0xff;
+//                int b = prevLine[x] & 0xff;
+//                int c = prevLine[x - 1] & 0xff;
+//                int p = a + b - c;
+//                int pa = p - a;
+//                if (pa < 0) pa = -pa;
+//                int pb = p - b;
+//                if (pb < 0) pb = -pb;
+//                int pc = p - c;
+//                if (pc < 0) pc = -pc;
+//                if (pa <= pb && pa <= pc)
+//                    c = a;
+//                else if (pb <= pc)
+//                    c = b;
+//                lineOut[x] = (byte)(curLine[x] - c);
+//            }
+//
+//            deflaterOutput.write(FILTER_PAETH);
+//            deflaterOutput.write(lineOut, 0, lineLen);
 
-            //Paeth
-            for (int x = 1; x < lineLen; x++) {
-                int a = curLine[x - 1] & 0xff;
-                int b = prevLine[x] & 0xff;
-                int c = prevLine[x - 1] & 0xff;
-                int p = a + b - c;
-                int pa = p - a;
-                if (pa < 0) pa = -pa;
-                int pb = p - b;
-                if (pb < 0) pb = -pb;
-                int pc = p - c;
-                if (pc < 0) pc = -pc;
-                if (pa <= pb && pa <= pc)
-                    c = a;
-                else if (pb <= pc)
-                    c = b;
-                lineOut[x] = (byte)(curLine[x] - c);
-            }
-
-            deflaterOutput.write(FILTER_PAETH);
-            deflaterOutput.write(lineOut, 0, lineLen);
+            deflaterOutput.write(FILTER_NONE);
+            deflaterOutput.write(curLine, 0, lineLen);
 
             byte[] temp = curLine;
             curLine = prevLine;
