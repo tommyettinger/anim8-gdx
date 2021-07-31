@@ -73,7 +73,7 @@ public class PNG8StartupBench extends ApplicationAdapter {
 
         subTime = TimeUtils.millis();
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-        png8.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/PNG8-" + namePalette + "-ChaoticNoise.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-ChaoticNoise.png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write ChaoticNoise");
 
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
