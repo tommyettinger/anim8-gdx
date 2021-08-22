@@ -25,6 +25,20 @@ import com.github.tommyettinger.anim8.AnimatedPNG;
  * This is an unusually large animated PNG, and a lot of usage won't need a 20+ MB APNG file. However, we save about a
  * second per such file by switching from the Paeth filter to the Sub filter, and only have slightly worse file size
  * (less than 3% larger).
+ * <br>
+ * Changing compression to 2 (instead of 6, used for all the runs before) has some worsening on file size, but a really
+ * excellent halving of startup time. Compression 1 is a little faster, and a little larger; compression 3 is a fair
+ * amount slower and a little smaller. 2 seems to be a good middle ground, at less than 10% larger than compression 6
+ * but needing just half the time to write. Tools like apngopt can improve the file size on any images that matter.
+ * <br>
+ * With Sub filter, buffer-less, compression 1:
+ * Startup time: between 1315 and 1362 ms in most cases.                   File size: 25367 KB
+ * <br>
+ * With Sub filter, buffer-less, compression 2:
+ * Startup time: between 1401 and 1443 ms in most cases.                   File size: 24593 KB
+ * <br>
+ * With Sub filter, buffer-less, compression 3:
+ * Startup time: between 1636 and 1782 ms in most cases.                   File size: 23799 KB
  */
 public class APNGStartupBench extends ApplicationAdapter {
     private static final String name = "market";
@@ -42,7 +56,8 @@ public class APNGStartupBench extends ApplicationAdapter {
         String namePalette;
         namePalette = name;
         apng.setFlipY(false);
-        apng.write(Gdx.files.local("tmp/imagesSub/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
+        apng.setCompression(1);
+        apng.write(Gdx.files.local("tmp/imagesSub/" + name + "/APNG-" + namePalette + "1.png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }

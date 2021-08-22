@@ -38,9 +38,15 @@ import java.util.zip.DeflaterOutputStream;
  * match for the colors used in an animation (indexed mode has at most 256 colors), this will dither pixels so that from
  * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
  * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is
- *  * based on blue noise and a quasi-random pattern ({@link DitherAlgorithm#BLUE_NOISE}), but you can select alternatives
- *  * with {@link #setDitherAlgorithm(DitherAlgorithm)}, like a modified version of Jorge Jimenez' Gradient Interleaved
- *  * Noise using {@link DitherAlgorithm#GRADIENT_NOISE}, or no dither at all with {@link DitherAlgorithm#NONE}.
+ * based on Floyd-Steinberg error-diffusion dithering but with patterns broken up using blue noise
+ * ({@link DitherAlgorithm#SCATTER}), but you can select alternatives with {@link #setDitherAlgorithm(DitherAlgorithm)},
+ * such as the slow but high-quality Knoll Ordered Dither using {@link DitherAlgorithm#PATTERN}, or no dither at all
+ * with {@link DitherAlgorithm#NONE}.
+ * <br>
+ * This defaults to using a relatively high amount of compression, which makes writing many files or large files slower.
+ * You can use {@link #setCompression(int)} to lower compression from the default of 6, down to 2 or even lower. Using
+ * compression 2 is probably as low as you need to go; speed of writing the file is only negligibly different below 2,
+ * but the file size is higher at 1 or especially 0.
  * <br>
  * Note that for many cases where you write a non-animated PNG, you will want to use
  * {@link #writePrecisely(FileHandle, Pixmap, boolean)} instead of {@link #write(FileHandle, Pixmap, boolean, boolean)},

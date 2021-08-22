@@ -22,12 +22,13 @@ import java.util.Arrays;
  * methods {@link PaletteReducer#exact(Color[])} or {@link PaletteReducer#analyze(Pixmap)} can be used to make the
  * target palette match a specific set of colors or the colors in an existing image. If palette is null, this will
  * compute a palette for each GIF that closely fits its set of given animation frames. If the palette isn't an exact
- * match for the colors used in an animation (GIF can store at most 256 colors), this will dither pixels so that from a
- * distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
+ * match for the colors used in an animation (indexed mode has at most 256 colors), this will dither pixels so that from
+ * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
  * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is
- * based on blue noise and a quasi-random pattern ({@link DitherAlgorithm#BLUE_NOISE}), but you can select alternatives
- * with {@link #setDitherAlgorithm(DitherAlgorithm)}, like a modified version of Jorge Jimenez' Gradient Interleaved
- * Noise using {@link DitherAlgorithm#GRADIENT_NOISE}, or no dither at all with {@link DitherAlgorithm#NONE}.
+ * based on Floyd-Steinberg error-diffusion dithering but with patterns broken up using blue noise
+ * ({@link DitherAlgorithm#SCATTER}), but you can select alternatives with {@link #setDitherAlgorithm(DitherAlgorithm)},
+ * such as the slow but high-quality Knoll Ordered Dither using {@link DitherAlgorithm#PATTERN}, or no dither at all
+ * with {@link DitherAlgorithm#NONE}.
  * <br>
  * You can write non-animated GIFs with this, but libGDX can't read them back in, so you may want to prefer {@link PNG8}
  * for images with 256 or fewer colors and no animation (libGDX can read in non-animated PNG files, as well as the first

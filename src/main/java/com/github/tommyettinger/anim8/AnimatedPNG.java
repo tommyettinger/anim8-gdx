@@ -11,8 +11,6 @@ import com.badlogic.gdx.utils.StreamUtils;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
@@ -23,6 +21,15 @@ import java.util.zip.DeflaterOutputStream;
  * alpha channel and has 256 or fewer colors, you can use {@link AnimatedGif} or the
  * animated mode of {@link PNG8}, which have comparable APIs. An instance can be 
  * reused to encode multiple animated PNGs with minimal allocation.
+ * <br>
+ * The animated PNG (often called APNG) files this produces default to using a high
+ * compression level, but this is somewhat slow. You can use {@link #setCompression(int)}
+ * to set compression to 2, which results in about 10-15% larger files that take about
+ * half the time to write, or leave it at the default 6, which may take a few seconds
+ * longer to write large files. You are encouraged to use some kind of tool to optimize
+ * the file size of less-compressed APNGs that you want to host online;
+ * <a href="http://sourceforge.net/projects/apng/files/APNG_Optimizer/">APNG Optimizer</a>
+ * is a good choice.
  * <br>
  * <pre>
  * Copyright (c) 2007 Matthias Mann - www.matthiasmann.de
