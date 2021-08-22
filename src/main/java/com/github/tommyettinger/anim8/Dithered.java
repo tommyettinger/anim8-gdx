@@ -97,14 +97,14 @@ public interface Dithered {
         DIFFUSION,
         /**
          * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern and a
-         * checkerboard pattern. If a pixel is perfectly matched by the palette, this won't change it, but otherwise the
-         * position will be used for both the checkerboard and a lookup into a 64x64 blue noise texture (stored as a
-         * byte array), and the resulting positive or negative value will be multiplied by the error for that pixel.
-         * This yields closer results to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE};
-         * though it doesn't preserve soft gradients quite as well, it keeps lightness as well as {@link #DIFFUSION} and
-         * {@link #SCATTER} do, and it doesn't add as many artifacts as {@link #PATTERN} or {@link #GRADIENT_NOISE}. For
-         * reference, the blue noise texture this uses looks like <a href="https://i.imgur.com/YCSKKGw.png">this small
-         * image</a>; it looks different from a purely-random white noise texture because blue noise has no low
+         * checkerboard pattern. The position will be used for both the checkerboard and a lookup into a 64x64 blue
+         * noise texture (stored as a byte array), and the resulting positive or negative value will be multiplied by
+         * the error for that pixel. This uses a triangular-mapped blue noise pattern, which means most of its values
+         * are in the middle of its range and very few are at the extremely bright or dark. This yields closer results
+         * to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; though it doesn't preserve soft
+         * gradients quite as well, it keeps lightness as well as {@link #DIFFUSION} and {@link #SCATTER} do. For
+         * reference, the blue noise texture this uses looks like <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this
+         * small image</a>; it looks different from a purely-random white noise texture because blue noise has no low
          * frequencies in any direction, while white noise has all frequencies in equal measure. This has been optimized
          * for quality on animations more so than on still images. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} does have some effect (it didn't do much in previous
@@ -129,7 +129,7 @@ public interface Dithered {
          * triangular-distributed blue noise, and doesn't introduce white noise. This offers generally the best mix of
          * shape preservation, color preservation, animation-compatibility, and speed, so it's the current default.
          * Setting the dither strength to a low value makes this more bold, with higher contrast, while setting the
-         * strength too high (above 1.25, or sometimes higher) can introduce artifacts.
+         * strength too high (above 1.5, or sometimes higher) can introduce artifacts.
          */
         SCATTER
     }

@@ -43,15 +43,15 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.2.10"
+  api "com.github.tommyettinger:anim8-gdx:0.2.11"
 }
 ```
 
 You can also get a specific commit using JitPack, by following the instructions on
-[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/633d5e0bdc). 
+[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/f8afbbb229). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.10:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.11:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -69,18 +69,20 @@ different API).
     - A solid choice of an ordered dither, though it may have visible artifacts in the form of zig-zag diagonal lines.
     - A variant on Jorge Jimenez' Gradient Interleaved Noise.
   - PATTERN
-    - A more traditional ordered dither that's been skewed, so it doesn't have square artifacts.
+    - A more traditional ordered dither that emphasizes accurately representing lightness changes.
+    - Has a strong "quilt-like" square artifact that is more noticeable with small palette sizes.
     - Unusually slow to compute, but very accurate at preserving smooth shapes.
     - Very good at preserving shape, and the best at handling smooth gradients.
       - Changing the dither strength may have a small effect on lightness, but the effect
         to expect for PATTERN should be about the same as any other dither. This was different
         before version 0.2.8.
-    - A variant on Thomas Knoll's Pattern Dither, which is out-of-patent.
+    - Uses Thomas Knoll's Pattern Dither, which is out-of-patent.
     - One of the best options when using large color palettes, and not very good for very small palettes.
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
     - It tends to look very good in still images, and very bad in animations.
     - SCATTER is mostly the same as this algorithm, but uses blue noise to break up unpleasant patterns.
+      - SCATTER is usually preferred. 
   - BLUE_NOISE
     - Blue noise, if you haven't heard the term, refers to a kind of sequence of values where low-frequency patterns
       don't appear at all, but mid- and high-frequency patterns are very common. 2D blue noise is common in graphics
@@ -89,6 +91,8 @@ different API).
     - Not the typical blue-noise dither; this incorporates a checkerboard pattern as well as a 64x64 blue noise texture.
     - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise,
       such as [this introduction](https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/).
+      - This also uses a triangular-mapped blue noise texture, which means most of its pixels are in the middle of the
+        range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
     - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
   - CHAOTIC_NOISE
