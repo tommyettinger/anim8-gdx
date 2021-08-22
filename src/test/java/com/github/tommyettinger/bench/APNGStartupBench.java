@@ -15,6 +15,9 @@ import com.github.tommyettinger.anim8.AnimatedPNG;
  * <br>
  * Without Paeth, but with the same Buffer-less way as PNG8:
  * Startup time: between 2325 and 2355 ms in most cases.                   File size: 34291 KB
+ * <br>
+ * With Paeth, and again with the same Buffer-less way as PNG:
+ * Startup time: between 4039 and 4121 ms in most cases.                   File size: 21777 KB
  */
 public class APNGStartupBench extends ApplicationAdapter {
     private static final String name = "market";
@@ -32,7 +35,7 @@ public class APNGStartupBench extends ApplicationAdapter {
         String namePalette;
         namePalette = name;
         apng.setFlipY(false);
-        apng.write(Gdx.files.local("tmp/imagesClean/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
+        apng.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
