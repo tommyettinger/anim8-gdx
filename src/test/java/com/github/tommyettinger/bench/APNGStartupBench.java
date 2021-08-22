@@ -12,6 +12,9 @@ import com.github.tommyettinger.anim8.AnimatedPNG;
 /**
  * Startup time: between 4071 and 4090 ms in most cases, once 4999 ms.     File size: 21777 KB
  * This includes loading 90 Pixmaps from separate files and assembling an animated PNG (full-color).
+ * <br>
+ * Without Paeth, but with the same Buffer-less way as PNG8:
+ * Startup time: between 2325 and 2355 ms in most cases.                   File size: 34291 KB
  */
 public class APNGStartupBench extends ApplicationAdapter {
     private static final String name = "market";
@@ -29,7 +32,7 @@ public class APNGStartupBench extends ApplicationAdapter {
         String namePalette;
         namePalette = name;
         apng.setFlipY(false);
-        apng.write(Gdx.files.local("tmp/images/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
+        apng.write(Gdx.files.local("tmp/imagesClean/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }

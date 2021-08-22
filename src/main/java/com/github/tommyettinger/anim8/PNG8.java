@@ -3005,7 +3005,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     for (int ln = 0, n = lastLineLen; ln < n; ln++)
                         prevLine[ln] = 0;
                 }
-                lastLineLen = w;
 
                 for (int y = 0; y < h; y++) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);

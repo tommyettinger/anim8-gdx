@@ -34,7 +34,7 @@ public class InteractiveReducer extends ApplicationAdapter {
         config.setTitle("Palette Reducer");
         config.setWindowedMode(SCREEN_WIDTH, SCREEN_HEIGHT);
         config.setIdleFPS(10);
-        config.useVsync(false);
+        config.useVsync(true);
         config.setResizable(true);
         final InteractiveReducer app = new InteractiveReducer();
         config.setWindowListener(new Lwjgl3WindowAdapter() {
