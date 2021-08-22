@@ -60,7 +60,8 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
     static private final byte COMPRESSION_DEFLATE = 0;
     static private final byte FILTER_NONE = 0;
     static private final byte INTERLACE_NONE = 0;
-    static private final byte PAETH = 4;
+    static private final byte FILTER_SUB = 1;
+    static private final byte FILTER_PAETH = 4;
 
     private final ChunkBuffer buffer;
     private final Deflater deflater;
@@ -169,10 +170,10 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
             buffer.endChunk(dataOutput);
 
             int lineLen = width * 4;
-            byte[] lineOut, curLine, prevLine;
-//            ByteBuffer pixels;
-//            int oldPosition;
-//            boolean rgba8888 = pixmap.getFormat() == Pixmap.Format.RGBA8888;
+            byte[] lineOut;
+            byte[] curLine;
+            byte[] prevLine;
+
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
 
@@ -210,50 +211,55 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
                 }
                 lastLineLen = lineLen;
 
-//                pixels = pixmap.getPixels();
-//                oldPosition = ((Buffer)pixels).position();
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
-//                    if (rgba8888) {
-//                        ((Buffer)pixels).position(py * lineLen);
-//                        pixels.get(curLine, 0, lineLen);
-//                    } else {
-                        for (int px = 0, x = 0; px < width; px++) {
-                            int pixel = pixmap.getPixel(px, py);
-                            curLine[x++] = (byte) ((pixel >>> 24) & 0xff);
-                            curLine[x++] = (byte) ((pixel >>> 16) & 0xff);
-                            curLine[x++] = (byte) ((pixel >>> 8) & 0xff);
-                            curLine[x++] = (byte) (pixel & 0xff);
-                        }
-//                    }
-
-                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
-                    lineOut[1] = (byte) (curLine[1] - prevLine[1]);
-                    lineOut[2] = (byte) (curLine[2] - prevLine[2]);
-                    lineOut[3] = (byte) (curLine[3] - prevLine[3]);
-
-                    for (int x = 4; x < lineLen; x++) {
-                        int a = curLine[x - 4] & 0xff;
-                        int b = prevLine[x] & 0xff;
-                        int c = prevLine[x - 4] & 0xff;
-                        int p = a + b - c;
-                        int pa = p - a;
-                        if (pa < 0) pa = -pa;
-                        int pb = p - b;
-                        if (pb < 0) pb = -pb;
-                        int pc = p - c;
-                        if (pc < 0) pc = -pc;
-                        if (pa <= pb && pa <= pc)
-                            c = a;
-                        else if (pb <= pc) //
-                            c = b;
-                        lineOut[x] = (byte) (curLine[x] - c);
+                    for (int px = 0, x = 0; px < width; px++) {
+                        int pixel = pixmap.getPixel(px, py);
+                        curLine[x++] = (byte) ((pixel >>> 24) & 0xff);
+                        curLine[x++] = (byte) ((pixel >>> 16) & 0xff);
+                        curLine[x++] = (byte) ((pixel >>> 8) & 0xff);
+                        curLine[x++] = (byte) (pixel & 0xff);
                     }
-
-                    deflaterOutput.write(PAETH);
-                    deflaterOutput.write(lineOut, 0, lineLen);
+////PAETH
+//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//                    lineOut[1] = (byte) (curLine[1] - prevLine[1]);
+//                    lineOut[2] = (byte) (curLine[2] - prevLine[2]);
+//                    lineOut[3] = (byte) (curLine[3] - prevLine[3]);
+//
+//                    for (int x = 4; x < lineLen; x++) {
+//                        int a = curLine[x - 4] & 0xff;
+//                        int b = prevLine[x] & 0xff;
+//                        int c = prevLine[x - 4] & 0xff;
+//                        int p = a + b - c;
+//                        int pa = p - a;
+//                        if (pa < 0) pa = -pa;
+//                        int pb = p - b;
+//                        if (pb < 0) pb = -pb;
+//                        int pc = p - c;
+//                        if (pc < 0) pc = -pc;
+//                        if (pa <= pb && pa <= pc)
+//                            c = a;
+//                        else if (pb <= pc) //
+//                            c = b;
+//                        lineOut[x] = (byte) (curLine[x] - c);
+//                    }
+//
+//                    deflaterOutput.write(PAETH);
+//                    deflaterOutput.write(lineOut, 0, lineLen);
+////NONE
 //                    deflaterOutput.write(FILTER_NONE);
 //                    deflaterOutput.write(curLine, 0, lineLen);
+////SUB
+                    lineOut[0] = curLine[0];
+                    lineOut[1] = curLine[1];
+                    lineOut[2] = curLine[2];
+                    lineOut[3] = curLine[3];
+
+                    for (int x = 4; x < lineLen; x++) {
+                        lineOut[x] = (byte) (curLine[x] - curLine[x - 4]);
+                    }
+                    deflaterOutput.write(FILTER_SUB);
+                    deflaterOutput.write(lineOut, 0, lineLen);
 
                     byte[] temp = curLine;
                     curLine = prevLine;

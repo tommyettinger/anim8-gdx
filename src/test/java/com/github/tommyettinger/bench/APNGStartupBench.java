@@ -18,13 +18,20 @@ import com.github.tommyettinger.anim8.AnimatedPNG;
  * <br>
  * With Paeth, and again with the same Buffer-less way as PNG:
  * Startup time: between 4039 and 4121 ms in most cases.                   File size: 21777 KB
+ * <br>
+ * With Sub filter, same Buffer-less way:
+ * Startup time: between 3030 and 3101 ms in most cases.                   File size: 22393 KB
+ * <br
+ * This is an unusually large animated PNG, and a lot of usage won't need a 20+ MB APNG file. However, we save about a
+ * second per such file by switching from the Paeth filter to the Sub filter, and only have slightly worse file size
+ * (less than 3% larger).
  */
 public class APNGStartupBench extends ApplicationAdapter {
     private static final String name = "market";
     @Override
     public void create() {
 
-        Gdx.files.local("tmp/images").mkdirs();
+        Gdx.files.local("tmp/imagesSub").mkdirs();
         long startTime = TimeUtils.millis();
         AnimatedPNG apng = new AnimatedPNG();
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct an AnimatedPNG");
@@ -35,7 +42,7 @@ public class APNGStartupBench extends ApplicationAdapter {
         String namePalette;
         namePalette = name;
         apng.setFlipY(false);
-        apng.write(Gdx.files.local("tmp/imagesPaeth/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
+        apng.write(Gdx.files.local("tmp/imagesSub/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
