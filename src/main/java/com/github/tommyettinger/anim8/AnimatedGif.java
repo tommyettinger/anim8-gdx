@@ -382,7 +382,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 //        palette.analyze(image);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
-        // initialize quantizer
+
         colorTab = new byte[256 * 3]; // create reduced palette
         for (int i = 0, bi = 0; i < 256; i++) {
             int pa = paletteArray[i];
@@ -398,7 +398,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             case NONE: {
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
+                        color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
@@ -454,11 +454,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 long s = 0xC13FA9A902A6328FL * seq;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
+                        color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             int rr = ((color >>> 24)       );
                             int gg = ((color >>> 16) & 0xFF);
                             int bb = ((color >>> 8)  & 0xFF);
@@ -495,7 +494,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 final float strength = (float) (palette.ditherStrength * palette.populationBias * 3.333);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
+                        color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
@@ -564,14 +563,13 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             ny = y + 1;
 
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, py) & 0xF8F8F880;
+                        color = image.getPixel(px, py);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
                             er = curErrorRed[px];
                             eg = curErrorGreen[px];
                             eb = curErrorBlue[px];
-                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
                             int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
                             int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
@@ -614,22 +612,21 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case BLUE_NOISE: {
-                float adj, strength = (float) (palette.ditherStrength * palette.populationBias * 2);
+                float adj, strength = (float) (palette.ditherStrength * palette.populationBias) * 0.25f;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, flipped + flipDir * y) & 0xF8F8F880;
+                        color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             int rr = ((color >>> 24)       );
                             int gg = ((color >>> 16) & 0xFF);
                             int bb = ((color >>> 8)  & 0xFF);
                             used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))] & 0xFF];
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f); // 0.007843138f is 1f / 127.5f
-                            adj += ((px + y & 1) - 0.5f) * 0.125f;
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.0627451f); //0.0627451f is 8/127.5
+                            adj += ((px + y & 1) - 0.5f);
                             adj *= strength;
                             rr = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);
                             gg = Math.min(Math.max((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0), 0xFF);
@@ -684,7 +681,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             ny = y + 1;
 
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, py) & 0xF8F8F880;
+                        color = image.getPixel(px, py);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
@@ -692,7 +689,6 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             er = curErrorRed[px] * tbn;
                             eg = curErrorGreen[px] * tbn;
                             eb = curErrorBlue[px] * tbn;
-                            color |= (color >>> 5 & 0x07070700) | 0xFF;
                             int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
                             int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
                             int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
@@ -737,7 +733,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
         colorDepth = 8;
         palSize = 7;
-        // get closest match to transparent color if specified
+        // get the closest match to transparent color if specified
         if (hasTransparent) {
             transIndex = 0;
         }
