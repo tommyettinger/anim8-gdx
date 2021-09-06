@@ -1670,27 +1670,20 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used;
-        float adj, strength = (float) (ditherStrength * populationBias) * 0.25f;
+        int color;
+        float adj, strength = (float) (48.0 * ditherStrength / populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    int rr = ((color >>> 24)       );
-                    int gg = ((color >>> 16) & 0xFF);
-                    int bb = ((color >>> 8)  & 0xFF);
-                    used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
-                            | ((gg << 2) & 0x3E0)
-                            | ((bb >>> 3))] & 0xFF];
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.0627451f); //0.0627451f is 8/127.5
-                    adj += ((px + y & 1) - 0.5f);
-                    adj *= strength;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                    adj *= strength + (px + y << 3 & 24) - 12f;
+                    int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                    int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
+                    int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
 
-                    rr = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);
-                    gg = Math.min(Math.max((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0), 0xFF);
-                    bb = Math.min(Math.max((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0), 0xFF);
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);

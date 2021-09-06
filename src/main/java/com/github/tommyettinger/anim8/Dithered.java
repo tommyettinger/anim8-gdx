@@ -97,18 +97,19 @@ public interface Dithered {
         DIFFUSION,
         /**
          * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern and a
-         * checkerboard pattern. The position will be used for both the checkerboard and a lookup into a 64x64 blue
-         * noise texture (stored as a byte array), and the resulting positive or negative value will be multiplied by
-         * the error for that pixel. This uses a triangular-mapped blue noise pattern, which means most of its values
+         * 4x4 checkerboard pattern. The position will be used for both the checkerboard and a lookup into a 64x64 blue
+         * noise texture (stored as a byte array), and the resulting positive or negative value will be added to the
+         * pixel's channels. This uses a triangular-mapped blue noise pattern, which means most of its values
          * are in the middle of its range and very few are at the extremely bright or dark. This yields closer results
-         * to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; though it doesn't preserve soft
-         * gradients quite as well, it keeps lightness as well as {@link #DIFFUSION} and {@link #SCATTER} do. For
-         * reference, the blue noise texture this uses looks like <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this
+         * to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; it preserves soft gradients
+         * reasonably well, and it keeps lightness as well as {@link #DIFFUSION} and {@link #SCATTER} do, but it tends
+         * to introduce a blue-noise artifact that looks web-like, particularly for mid-size palettes. For reference,
+         * the blue noise texture this uses looks like <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this
          * small image</a>; it looks different from a purely-random white noise texture because blue noise has no low
          * frequencies in any direction, while white noise has all frequencies in equal measure. This has been optimized
          * for quality on animations more so than on still images. Setting the dither strength with
-         * {@link PaletteReducer#setDitherStrength(float)} does have some effect (it didn't do much in previous
-         * versions), and can improve the appearance of some images when banding occurs.
+         * {@link PaletteReducer#setDitherStrength(float)} has significant effect (it didn't do much in previous
+         * versions), and raising it can improve depth and the appearance of some images when banding occurs.
          */
         BLUE_NOISE,
         /**

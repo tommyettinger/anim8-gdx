@@ -1064,8 +1064,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             lastLineLen = w;
 
-            int color, used;
-            float adj, strength = (float) (palette.ditherStrength * palette.populationBias) * 0.25f;
+            int color;
+            float adj, strength = (float) (48.0 * palette.ditherStrength / palette.populationBias);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1073,18 +1073,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if ((color & 0x80) == 0 && hasTransparent)
                         curLine[px] = 0;
                     else {
-                        int rr = ((color >>> 24)       );
-                        int gg = ((color >>> 16) & 0xFF);
-                        int bb = ((color >>> 8)  & 0xFF);
-                        used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
-                                | ((gg << 2) & 0x3E0)
-                                | ((bb >>> 3))] & 0xFF];
-                        adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.0627451f); //0.0627451f is 8/127.5
-                        adj += ((px + y & 1) - 0.5f);
-                        adj *= strength;
-                        rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
-                        gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                        bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
+                        adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                        adj *= strength + (px + py << 3 & 24) - 12f;
+                        int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                        int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
+                        int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
@@ -2228,12 +2221,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            int color, used;
+            int color;
 
             lastLineLen = width;
 
-            byte paletteIndex;
-            float adj, strength = (float) (palette.ditherStrength * palette.populationBias) * 0.25f;
+            float adj, strength = (float) (48.0 * palette.ditherStrength / palette.populationBias);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2278,22 +2270,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            int rr = ((color >>> 24)       );
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8)  & 0xFF);
-                            paletteIndex =
-                                    paletteMapping[((rr << 7) & 0x7C00)
-                                            | ((gg << 2) & 0x3E0)
-                                            | ((bb >>> 3))];
-                            used = paletteArray[paletteIndex & 0xFF];
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                            adj *= strength + (px + py << 3 & 24) - 12f;
+                            int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                            int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
+                            int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
 
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.0627451f); //0.0627451f is 8/127.5
-                            adj += ((px + y & 1) - 0.5f);
-                            adj *= strength;
-
-                            rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
-                            gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                            bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];
