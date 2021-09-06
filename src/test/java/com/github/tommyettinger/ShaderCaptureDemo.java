@@ -215,21 +215,19 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 png8.palette.analyze(pixmaps);
             else
                 png8.palette.exact(palettes[n]);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-            png8.write(Gdx.files.local("images/PNG8-" + name + "-pattern.png"), pixmaps, 16);
-            /*
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-            png8.write(Gdx.files.local("images/PNG8-" + name + "-none.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-            png8.write(Gdx.files.local("images/PNG8-" + name + "-gradient.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-            png8.write(Gdx.files.local("images/PNG8-" + name + "-diffusion.png"), pixmaps, 16);
+//            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+//            png8.write(Gdx.files.local("images/PNG8-" + name + "-pattern.png"), pixmaps, 16);
+//            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+//            png8.write(Gdx.files.local("images/PNG8-" + name + "-none.png"), pixmaps, 16);
+//            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+//            png8.write(Gdx.files.local("images/PNG8-" + name + "-gradient.png"), pixmaps, 16);
+//            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+//            png8.write(Gdx.files.local("images/PNG8-" + name + "-diffusion.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
             png8.write(Gdx.files.local("images/PNG8-" + name + "-blueNoise.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-            png8.write(Gdx.files.local("images/PNG8-" + name + "-chaoticNoise.png"), pixmaps, 16);
+//            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+//            png8.write(Gdx.files.local("images/PNG8-" + name + "-chaoticNoise.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-             */
             png8.write(Gdx.files.local("images/PNG8-" + name + "-scatter.png"), pixmaps, 16);
             for (Pixmap pm : pixmaps)
                 pm.dispose();
@@ -265,22 +263,20 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 gif.palette.analyze(pixmaps);
             else
                 gif.palette.exact(palettes[n]);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-pattern.gif"), pixmaps, 16);
-            /*
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-none.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-gradient.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-diffusion.gif"), pixmaps, 16);
+//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+//            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-pattern.gif"), pixmaps, 16);
+//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+//            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-none.gif"), pixmaps, 16);
+//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+//            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-gradient.gif"), pixmaps, 16);
+//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+//            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-diffusion.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
             gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-blueNoise.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-chaoticNoise.gif"), pixmaps, 16);
+//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+//            gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-chaoticNoise.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
             gif.write(Gdx.files.local("images/AnimatedGif-" + name + "-scatter.gif"), pixmaps, 16);
-            */
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }
