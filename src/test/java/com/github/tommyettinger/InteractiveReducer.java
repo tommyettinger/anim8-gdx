@@ -59,6 +59,7 @@ public class InteractiveReducer extends ApplicationAdapter {
             p0 = new Pixmap(Gdx.files.absolute(name));
         if(p != null) p.dispose();
         p = new Pixmap(this.p0.getWidth(), this.p0.getHeight(), Pixmap.Format.RGBA8888);
+        screenTexture = new Texture(p);
         refresh();
     }
     
@@ -83,7 +84,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                 break;
             default: reducer.reduceScatter(p);
         }
-        screenTexture = new Texture(p);
+        screenTexture.draw(p, 0, 0);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class InteractiveReducer extends ApplicationAdapter {
             batch.draw(screenTexture, 0, 0);
         else {
             font.draw(batch, "Drag and drop an image file onto this window;", 20, 150);
-            font.draw(batch, "a palette-reduced copy will be written to this folder.", 20, 120);
+            font.draw(batch, "a palette-reduced copy will be shown here.", 20, 120);
         }
         batch.end();
         Gdx.graphics.setTitle(Gdx.graphics.getFramesPerSecond() + " FPS");
@@ -211,6 +212,8 @@ public class InteractiveReducer extends ApplicationAdapter {
                         break;
                     case Input.Keys.S:
                         System.out.println("Algorithm selected: " + index + ", strength: " + strength);
+//                        System.out.println(Gdx.app.getJavaHeap() + " bytes in the Java heap.");
+//                        System.out.println(Gdx.app.getNativeHeap() + " bytes in the native heap.");
                         break;
                     case Input.Keys.Q:
                     case Input.Keys.ESCAPE:
