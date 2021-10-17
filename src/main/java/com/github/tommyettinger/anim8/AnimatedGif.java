@@ -491,7 +491,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             case GRADIENT_NOISE: {
                 float pos, adj;
-                final float strength = (float) (palette.ditherStrength * palette.populationBias * 3.333);
+                final float strength = (float) (palette.ditherStrength * palette.populationBias * 3f);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
@@ -509,7 +509,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             pos -= (int) pos;
                             pos *= 52.9829189f;
                             pos -= (int) pos;
-                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
+                            adj = (pos-0.5f) * strength;
+//                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
 //                            adj = (pos * pos - 0.3f) * strength;
                             rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24)))), 0), 0xFF);
                             gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);

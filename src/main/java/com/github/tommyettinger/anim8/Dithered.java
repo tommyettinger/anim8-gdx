@@ -66,9 +66,9 @@ public interface Dithered {
          * (which is a potential problem for {@link #DIFFUSION}). There's a sometimes-noticeable diagonal line pattern
          * in the results this produces, and in animations, this pattern appears in the same place on every frame, which
          * can be either desirable (small changes won't snowball into big ones) or undesirable (it makes the pattern
-         * appear to be part of the image). Although {@link #BLUE_NOISE} is mostly similar, it can't have its strength
-         * effectively adjusted using {@link PaletteReducer#setDitherStrength(float)}, while this very much can.
-         * {@link #BLUE_NOISE} does have less noticeable patterns, though.
+         * appear to be part of the image). Although {@link #BLUE_NOISE} is mostly similar, it has a "scaly" artifact
+         * instead of the diagonal line artifact this can have. {@link #BLUE_NOISE} does have less noticeable patterns,
+         * though, in many cases.
          */
         GRADIENT_NOISE,
         /**
@@ -86,13 +86,15 @@ public interface Dithered {
          */
         PATTERN,
         /**
-         * Floyd-Steinberg error-diffusion dithering; this is the best option for still images, and it's an OK option
+         * Floyd-Steinberg error-diffusion dithering; this is a good option for still images, and it's an OK option
          * for some animated images. It doesn't lighten the image like {@link #PATTERN}, while still preserving most
          * details on shapes, but small changes in one part of an animation will affect different frames very
          * differently (which makes this less well-suited for animations). It may look better even in an animation than
          * {@link #GRADIENT_NOISE}, depending on the animation, but this isn't often. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} can improve the results with DIFFUSION tremendously, but the
          * dither strength shouldn't go above about 1.5 or maybe 2.0 (this shows artifacts at higher strength).
+         * {@link #SCATTER} is based on this, and is generally able to break up visible artifacts that Floyd-Steinberg
+         * can have; SCATTER is now recommended over DIFFUSION.
          */
         DIFFUSION,
         /**
@@ -103,7 +105,7 @@ public interface Dithered {
          * are in the middle of its range and very few are at the extremely bright or dark. This yields closer results
          * to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; it preserves soft gradients
          * reasonably well, and it keeps lightness as well as {@link #DIFFUSION} and {@link #SCATTER} do, but it tends
-         * to introduce a blue-noise artifact that looks web-like, particularly for mid-size palettes. For reference,
+         * to introduce a blue-noise artifact that looks web-like, or scaly, particularly for mid-size palettes. For reference,
          * the blue noise texture this uses looks like <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this
          * small image</a>; it looks different from a purely-random white noise texture because blue noise has no low
          * frequencies in any direction, while white noise has all frequencies in equal measure. This has been optimized
@@ -117,7 +119,7 @@ public interface Dithered {
          * change wildly from frame to frame, taking an ordered dither (one which uses the same blue noise texture that
          * {@link #BLUE_NOISE} does) and incorporating one of the qualities of an error-diffusion dither to make each
          * frame dither differently. This can look very good for moving images, but it is, true to its name, both
-         * chaotic and noisy. Setting the dither strength with
+         * chaotic and noisy. It can make many images look "rough" and "scratchy." Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} won't do much here, but the result will have more of a
          * regular blue-noise pattern when dither strength is very low, and small changes will be introduced as dither
          * strength approaches 1.

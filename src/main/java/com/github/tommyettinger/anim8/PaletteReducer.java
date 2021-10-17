@@ -1045,9 +1045,9 @@ public class PaletteReducer {
                 for (int j = 0; j < limit; j++) {
                     if(counts.get(paletteArray[j], 0) < currentCount)
                     {
-                        currentCount = paletteArray[j];
+                        int temp = paletteArray[j];
                         paletteArray[j] = paletteArray[i];
-                        paletteArray[i] = currentCount;
+                        paletteArray[i] = temp;
                         continue COLORS;
                     }
                 }
@@ -1061,13 +1061,11 @@ public class PaletteReducer {
                         worst = i;
                     }
                 }
-                if(worst == 0) paletteArray[0] = 0;
-                else {
+                if (worst != 0) {
                     paletteArray[worst] = paletteArray[0];
-                    paletteArray[0] = 0;
                 }
+                paletteArray[0] = 0;
             }
-            //TODO: sort paletteArray here by count frequency
 //            COLORS:
 //            for (; mid < out.length; mid += jump) {
 //                int currentCount = counts.get(out[mid], 0);
@@ -1617,7 +1615,15 @@ public class PaletteReducer {
         pixmap.setBlending(blending);
         return pixmap;
     }
-    
+
+    /**
+     * It's interleaved gradient noise, by Jorge Jimenez! It's very fast! It's an ordered dither!
+     * It's not particularly high-quality when compared to other preprocessing dithers, but it is
+     * one of the better dithers when used real-time in a shader. It has noticeable diagonal lines
+     * in some places, but these tend to have mixed directions that obscure larger patterns.
+     * @param pixmap
+     * @return
+     */
     public Pixmap reduceJimenez(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
@@ -1625,7 +1631,7 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used;
         float pos, adj;
-        final float strength = (float) (ditherStrength * populationBias * 3.333);
+        final float strength = (float) (ditherStrength * populationBias * 3f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -1642,8 +1648,9 @@ public class PaletteReducer {
                     pos -= (int) pos;
                     pos *= 52.9829189f;
                     pos -= (int) pos;
-                    adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                            adj = (pos * pos - 0.3f) * strength;
+                    adj = (pos-0.5f) * strength;
+//                    adj = MathUtils.sin(pos * 2f - 1f) * strength;
+//                    adj = (pos * pos - 0.3f) * strength;
                     rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
                     gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
                     bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
@@ -1660,8 +1667,9 @@ public class PaletteReducer {
     /**
      * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
      * with {@link #RAW_BLUE_NOISE}, but shouldn't usually be modified) as well as a fine-grained checkerboard pattern
-     * and a roughly-white-noise pattern obtained by distorting th blue noise, but only applies these noisy pattern
-     * when there's error matching a color from the image to a color in the palette.
+     * and a roughly-white-noise pattern obtained by distorting the blue noise. The dither strength needs to be
+     * evaluated carefully here; if it is too high, a blue-noise "scaly" pattern will appear over the image, and if it
+     * is too low, the image won't look dithered at all.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
@@ -1697,8 +1705,8 @@ public class PaletteReducer {
     /**
      * A white-noise-based dither; uses the colors encountered so far during dithering as a sort of state for basic
      * pseudo-random number generation, while also using some blue noise from a tiling texture to offset clumping.
-     * This tends to be less "flat" than {@link #reduceBlueNoise(Pixmap)}, permitting more pixels to be different from
-     * what {@link #reduceSolid(Pixmap)} would produce, but this generally looks good, especially with larger palettes.
+     * This tends to be very rough-looking, and generally only looks good with larger palettes or with animations. It
+     * could be a good aesthetic choice if you want a scratchy, "distressed-looking" image.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */

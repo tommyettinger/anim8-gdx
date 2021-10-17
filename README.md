@@ -43,7 +43,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.2.11"
+  api "com.github.tommyettinger:anim8-gdx:0.2.12"
 }
 ```
 
@@ -51,7 +51,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/f8afbbb229). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.11:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.2.12:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -67,6 +67,7 @@ different API).
     - No dither. Solid blocks of color only. Often looks bad unless the original image had few colors.
   - GRADIENT_NOISE
     - A solid choice of an ordered dither, though it may have visible artifacts in the form of zig-zag diagonal lines.
+    - This changed slightly in 0.2.12, and should have less noticeable artifacts starting in that version.
     - A variant on Jorge Jimenez' Gradient Interleaved Noise.
   - PATTERN
     - A more traditional ordered dither that emphasizes accurately representing lightness changes.
@@ -95,6 +96,7 @@ different API).
         range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
     - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
+    - This changed in 0.2.12, and handles smooth gradients better now.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and can look somewhat more chaotic.
     - This is probably the third-best algorithm here for animations, after SCATTER and PATTERN in either order.

@@ -933,7 +933,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte paletteIndex;
             float pos, adj;
-            final float strength = (float) (palette.ditherStrength * palette.populationBias * 3.333);
+            final float strength = (float) (palette.ditherStrength * palette.populationBias * 3f);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -953,8 +953,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         pos -= (int)pos;
                         pos *= 52.9829189f;
                         pos -= (int)pos;
-                        adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                            adj = (pos * pos - 0.3f) * strength;
+                        adj = (pos-0.5f) * strength;
+//                        adj = MathUtils.sin(pos * 2f - 1f) * strength;
+//                        adj = (pos * pos - 0.3f) * strength;
                         rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
                         gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
                         bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
@@ -2063,7 +2064,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte paletteIndex;
             float pos, adj;
-            final float strength = (float) (palette.ditherStrength * palette.populationBias * 3.333);
+            final float strength = (float) (palette.ditherStrength * palette.populationBias * 3f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2121,7 +2122,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             pos -= (int)pos;
                             pos *= 52.9829189f;
                             pos -= (int)pos;
-                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
+                            adj = (pos-0.5f) * strength;
+//                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
 //                            adj = (pos * pos - 0.3f) * strength;
                             rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
                             gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
