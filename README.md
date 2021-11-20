@@ -134,105 +134,105 @@ because it can use all the colors):
 
 Pattern dither:
 
-![Flashy Gif, pattern dither](images/AnimatedGif-flashy-pattern.gif)
+![Flashy Gif, pattern dither](images/animated/AnimatedGif-flashy-pattern.gif)
 
 Gradient dither:
 
-![Flashy Gif, gradient dither](images/AnimatedGif-flashy-gradient.gif)
+![Flashy Gif, gradient dither](images/animated/AnimatedGif-flashy-gradient.gif)
 
 Diffusion dither (Floyd-Steinberg):
 
-![Flashy Gif, diffusion dither](images/AnimatedGif-flashy-diffusion.gif)
+![Flashy Gif, diffusion dither](images/animated/AnimatedGif-flashy-diffusion.gif)
 
 Blue Noise dither:
 
-![Flashy Gif, blue noise dither](images/AnimatedGif-flashy-blueNoise.gif)
+![Flashy Gif, blue noise dither](images/animated/AnimatedGif-flashy-blueNoise.gif)
 
 Chaotic Noise dither:
 
-![Flashy Gif, chaotic noise dither](images/AnimatedGif-flashy-chaoticNoise.gif)
+![Flashy Gif, chaotic noise dither](images/animated/AnimatedGif-flashy-chaoticNoise.gif)
 
 Scatter dither:
 
-![Flashy Gif, scatter dither](images/AnimatedGif-flashy-scatter.gif)
+![Flashy Gif, scatter dither](images/animated/AnimatedGif-flashy-scatter.gif)
 
 No dither:
 
-![Flashy Gif, no dither](images/AnimatedGif-flashy-none.gif)
+![Flashy Gif, no dither](images/animated/AnimatedGif-flashy-none.gif)
 
 Pattern dither:
 
-![Pastel Gif, pattern dither](images/AnimatedGif-pastel-pattern.gif)
+![Pastel Gif, pattern dither](images/animated/AnimatedGif-pastel-pattern.gif)
 
 Gradient dither:
 
-![Pastel Gif, gradient dither](images/AnimatedGif-pastel-gradient.gif)
+![Pastel Gif, gradient dither](images/animated/AnimatedGif-pastel-gradient.gif)
 
 Diffusion dither (Floyd-Steinberg):
 
-![Pastel Gif, diffusion dither](images/AnimatedGif-pastel-diffusion.gif)
+![Pastel Gif, diffusion dither](images/animated/AnimatedGif-pastel-diffusion.gif)
 
 Blue Noise dither:
 
-![Pastel Gif, blue noise dither](images/AnimatedGif-pastel-blueNoise.gif)
+![Pastel Gif, blue noise dither](images/animated/AnimatedGif-pastel-blueNoise.gif)
 
 Chaotic Noise dither:
 
-![Pastel Gif, chaotic noise dither](images/AnimatedGif-pastel-chaoticNoise.gif)
+![Pastel Gif, chaotic noise dither](images/animated/AnimatedGif-pastel-chaoticNoise.gif)
 
 Scatter dither:
 
-![Pastel Gif, scatter dither](images/AnimatedGif-pastel-scatter.gif)
+![Pastel Gif, scatter dither](images/animated/AnimatedGif-pastel-scatter.gif)
 
 No dither:
 
-![Pastel Gif, no dither](images/AnimatedGif-pastel-none.gif)
+![Pastel Gif, no dither](images/animated/AnimatedGif-pastel-none.gif)
 
 Some .gif animations that reduce the colors of the first two animations shown:
 
 Black and white pattern dither:
 
-![BW Gif, pattern dither](images/AnimatedGif-bw-pattern.gif)
+![BW Gif, pattern dither](images/animated/AnimatedGif-bw-pattern.gif)
 
 Black and white gradient dither:
 
-![BW Gif, gradient dither](images/AnimatedGif-bw-gradient.gif)
+![BW Gif, gradient dither](images/animated/AnimatedGif-bw-gradient.gif)
 
 Black and white diffusion dither (Floyd-Steinberg):
 
-![BW Gif, diffusion dither](images/AnimatedGif-bw-diffusion.gif)
+![BW Gif, diffusion dither](images/animated/AnimatedGif-bw-diffusion.gif)
 
 Black and white blue noise dither:
 
-![BW Gif, blue noise dither](images/AnimatedGif-bw-blueNoise.gif)
+![BW Gif, blue noise dither](images/animated/AnimatedGif-bw-blueNoise.gif)
 
 Black and white scatter dither:
 
-![BW Gif, scatter dither](images/AnimatedGif-bw-scatter.gif)
+![BW Gif, scatter dither](images/animated/AnimatedGif-bw-scatter.gif)
 
 Black and white no dither:
 
-![BW Gif, no dither](images/AnimatedGif-bw-none.gif)
+![BW Gif, no dither](images/animated/AnimatedGif-bw-none.gif)
 
 4-color green-scale pattern dither:
 
-![GB Gif, pattern dither](images/AnimatedGif-gb-pattern.gif)
+![GB Gif, pattern dither](images/animated/AnimatedGif-gb-pattern.gif)
 
 4-color green-scale gradient dither:
 
-![GB Gif, gradient dither](images/AnimatedGif-gb-gradient.gif)
+![GB Gif, gradient dither](images/animated/AnimatedGif-gb-gradient.gif)
 
 4-color green-scale diffusion dither (Floyd-Steinberg):
 
-![GB Gif, diffusion dither](images/AnimatedGif-gb-diffusion.gif)
+![GB Gif, diffusion dither](images/animated/AnimatedGif-gb-diffusion.gif)
 
 4-color green-scale blue noise dither:
 
-![GB Gif, blue noise dither](images/AnimatedGif-gb-blueNoise.gif)
+![GB Gif, blue noise dither](images/animated/AnimatedGif-gb-blueNoise.gif)
 
 4-color green-scale scatter dither:
 
-![GB Gif, scatter dither](images/AnimatedGif-gb-scatter.gif)
+![GB Gif, scatter dither](images/animated/AnimatedGif-gb-scatter.gif)
 
 And some .png animations, using full color:
 
