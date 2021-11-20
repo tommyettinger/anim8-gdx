@@ -346,7 +346,16 @@ public class PaletteReducer {
     public int colorCount;
 
     public IntIntMap reverseMap;
-    double ditherStrength = 0.5, populationBias = 0.5;
+    /**
+     * Determines how strongly to apply noise or other effects during dithering. This is usually half the value set with
+     * {@link #setDitherStrength(float)}.
+     */
+    protected float ditherStrength = 0.5f;
+    /**
+     * Typically between 0.5 and 1, this should get closer to 1 with larger palette sizes, and closer to 0.5 with
+     * smaller palettes. Within anim8-gdx, this is generally calculated with {@code Math.exp(-1.375 / colorCount)}.
+     */
+    protected float populationBias = 0.5f;
 
 
     /**
@@ -647,7 +656,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, limit), rgbaPalette.length);
         colorCount = plen;
-        populationBias = Math.exp(-1.375/colorCount);
+        populationBias = (float) Math.exp(-1.375/colorCount);
         int color, c2;
         double dist;
         reverseMap = new IntIntMap(colorCount);
@@ -698,7 +707,7 @@ public class PaletteReducer {
             System.arraycopy(HALTONIC, 0,  paletteArray, 0, 256);
             System.arraycopy(ENCODED_HALTONIC, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
-            populationBias = Math.exp(-0.00537109375);
+            populationBias = (float) Math.exp(-0.00537109375);
             for (int i = 0; i < colorCount; i++) {
                 reverseMap.put(paletteArray[i], i);
             }
@@ -711,7 +720,7 @@ public class PaletteReducer {
         for (int i = 0; i < colorCount; i++) {
             reverseMap.put(paletteArray[i], i);
         }
-        populationBias = Math.exp(-1.375/colorCount);
+        populationBias = (float) Math.exp(-1.375/colorCount);
     }
 
     /**
@@ -748,7 +757,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, colorPalette.length), limit);
         colorCount = plen;
-        populationBias = Math.exp(-1.375/colorCount);
+        populationBias = (float) Math.exp(-1.375/colorCount);
         int color, c2;
         double dist;
         reverseMap = new IntIntMap(colorCount);
@@ -885,7 +894,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -901,7 +910,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
         reverseMap = new IntIntMap(colorCount);
         for (int i = 0; i < colorCount; i++) {
@@ -1082,7 +1091,7 @@ public class PaletteReducer {
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = limit;
-            populationBias = Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
         else
         { 
@@ -1093,7 +1102,7 @@ public class PaletteReducer {
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = counts.size + hasTransparent;
-            populationBias = Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
         reverseMap = new IntIntMap(colorCount);
         for (int i = 0; i < colorCount; i++) {
@@ -1274,7 +1283,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -1293,7 +1302,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
         reverseMap = new IntIntMap(colorCount);
         for (int i = 0; i < colorCount; i++) {
@@ -1458,7 +1467,7 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float ditherStrength = (float)(this.ditherStrength * 20.0), halfDitherStrength = ditherStrength * 0.5f;
+        float ditherStrength = this.ditherStrength * 20, halfDitherStrength = ditherStrength * 0.5f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1554,7 +1563,7 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = (float)(ditherStrength * 4.0), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = ditherStrength * 4, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1631,7 +1640,7 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used;
         float pos, adj;
-        final float strength = (float) (ditherStrength * populationBias * 3f);
+        final float strength = ditherStrength * populationBias * 3f;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -1679,7 +1688,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, strength = (float) (48.0 * ditherStrength / populationBias);
+        float adj, strength = 48 * ditherStrength / populationBias;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -1795,7 +1804,7 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = (float)(ditherStrength * 3.5), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1857,6 +1866,116 @@ public class PaletteReducer {
         pixmap.setBlending(blending);
         return pixmap;
     }
+
+    /**
+     * An error-diffusion dither based on {@link #reduceFloydSteinberg(Pixmap)}, but adding in triangular-mapped blue
+     * noise before diffusing, like {@link #reduceBlueNoise(Pixmap)}. This looks like {@link #reduceScatter(Pixmap)} in
+     * many cases, but smooth gradients are much smoother with Neue than Scatter. Scatter multiplies error by a blue
+     * noise value, where this adds blue noise regardless of error. This also preserves color better than TrueBlue,
+     * while keeping similar gradient smoothness. The algorithm here uses a 4x4 rough checkerboard pattern to offset
+     * some roughness that can appear in blue noise; the checkerboard can appear in some cases when a dithered image is
+     * zoomed with certain image filters.
+     * <br>
+     * Neue is a German word for "new," and this is a new look at Scatter's technique.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceNeue(Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedFloats == null) {
+            curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedFloats = new FloatArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenFloats = new FloatArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenFloats = new FloatArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueFloats = new FloatArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueFloats = new FloatArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedFloats.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedFloats.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenFloats.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used;
+        float rdiff, gdiff, bdiff;
+        float er, eg, eb;
+        byte paletteIndex;
+        float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                adj, strength = (40f * ditherStrength / populationBias);
+        for (int y = 0; y < h; y++) {
+            int ny = y + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    adj = ((TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                    adj = Math.min(Math.max(adj * strength + ((px + y << 4 & 24) - 12f), -16f), 16f);
+                    er = adj + (curErrorRed[px]);
+                    eg = adj + (curErrorGreen[px]);
+                    eb = adj + (curErrorBlue[px]);
+
+                    int rr = MathUtils.clamp((int)(((color >>> 24)       ) + er + 0.5f), 0, 0xFF);
+                    int gg = MathUtils.clamp((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
+                    int bb = MathUtils.clamp((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0, 0xFF);
+                    paletteIndex =
+                            paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))];
+                    used = paletteArray[paletteIndex & 0xFF];
+                    pixmap.drawPixel(px, y, used);
+                    rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    if(px < lineLen - 1)
+                    {
+                        curErrorRed[px+1]   += rdiff * w7;
+                        curErrorGreen[px+1] += gdiff * w7;
+                        curErrorBlue[px+1]  += bdiff * w7;
+                    }
+                    if(ny < h)
+                    {
+                        if(px > 0)
+                        {
+                            nextErrorRed[px-1]   += rdiff * w3;
+                            nextErrorGreen[px-1] += gdiff * w3;
+                            nextErrorBlue[px-1]  += bdiff * w3;
+                        }
+                        if(px < lineLen - 1)
+                        {
+                            nextErrorRed[px+1]   += rdiff * w1;
+                            nextErrorGreen[px+1] += gdiff * w1;
+                            nextErrorBlue[px+1]  += bdiff * w1;
+                        }
+                        nextErrorRed[px]   += rdiff * w5;
+                        nextErrorGreen[px] += gdiff * w5;
+                        nextErrorBlue[px]  += bdiff * w5;
+                    }
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
 
     /**
      * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
@@ -2014,7 +2133,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, cr, cg, cb, usedIndex;
-        final float errorMul = (float) (ditherStrength * populationBias);
+        final float errorMul = (ditherStrength * populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -2071,7 +2190,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used, cr, cg, cb, usedIndex;
-        final float errorMul = (float) (ditherStrength * populationBias * 1.25);
+        final float errorMul = ditherStrength * populationBias * 1.25f;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
