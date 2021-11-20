@@ -77,6 +77,8 @@ public class StillImageDemo extends ApplicationAdapter {
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-ChaoticNoise-" + count + ".png"), pixmap, false, true);
 			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
 			png8.write(Gdx.files.local("images/" + name + "-PNG8-Scatter-" + count + ".png"), pixmap, false, true);
+			png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+			png8.write(Gdx.files.local("images/" + name + "-PNG8-Neue-" + count + ".png"), pixmap, false, true);
 			total += 1;
 		}
 		reducer.exact(new int[]{0, 255, -1});
@@ -95,6 +97,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/" + name + "-PNG8-ChaoticNoise-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
 		png8.write(Gdx.files.local("images/" + name + "-PNG8-Scatter-BW.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+		png8.write(Gdx.files.local("images/" + name + "-PNG8-Neue-BW.png"), pixmap, false, true);
 		total += 1;
 	}
 
@@ -135,6 +139,8 @@ public class StillImageDemo extends ApplicationAdapter {
 			gif.write(Gdx.files.local("images/" + name + "-Gif-ChaoticNoise-" + count + ".gif"), pixmaps, 1);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
 			gif.write(Gdx.files.local("images/" + name + "-Gif-Scatter-" + count + ".gif"), pixmaps, 1);
+			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+			gif.write(Gdx.files.local("images/" + name + "-Gif-Neue-" + count + ".gif"), pixmaps, 1);
 			total += 1;
 		}
 		reducer.exact(new int[]{0, 255, -1});
@@ -153,6 +159,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/" + name + "-Gif-ChaoticNoise-BW.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
 		gif.write(Gdx.files.local("images/" + name + "-Gif-Scatter-BW.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+		gif.write(Gdx.files.local("images/" + name + "-Gif-Neue-BW.gif"), pixmaps, 1);
 		total += 1;
 
 	}

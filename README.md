@@ -285,6 +285,10 @@ Scatter:
 
 ![](images/Mona_Lisa-Gif-Scatter-16.gif)
 
+Neue:
+
+![](images/Mona_Lisa-Gif-Neue-16.gif)
+
 None (no dither):
 
 ![](images/Mona_Lisa-Gif-None-16.gif)
