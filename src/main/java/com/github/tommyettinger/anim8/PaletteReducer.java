@@ -1360,7 +1360,7 @@ public class PaletteReducer {
     /**
      * Uses the given {@link Dithered.DitherAlgorithm} to decide how to dither {@code pixmap}.
      * @param pixmap a pixmap that will be modified in-place
-     * @param ditherAlgorithm a dithering algorithm enum value; if not recognized, defaults to {@link Dithered.DitherAlgorithm#SCATTER}
+     * @param ditherAlgorithm a dithering algorithm enum value; if not recognized, defaults to {@link Dithered.DitherAlgorithm#NEUE}
      * @return {@code pixmap} after modifications
      */
     public Pixmap reduce(Pixmap pixmap, Dithered.DitherAlgorithm ditherAlgorithm){
@@ -1379,9 +1379,11 @@ public class PaletteReducer {
                 return reduceFloydSteinberg(pixmap);
             case BLUE_NOISE:
                 return reduceBlueNoise(pixmap); 
-            default:
             case SCATTER:
                 return reduceScatter(pixmap);
+            default:
+            case NEUE:
+                return reduceNeue(pixmap);
         }
     }
 
@@ -1912,8 +1914,8 @@ public class PaletteReducer {
         byte paletteIndex;
         float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 adj, strength = (40f * ditherStrength / populationBias);
-        for (int y = 0; y < h; y++) {
-            int ny = y + 1;
+        for (int py = 0; py < h; py++) {
+            int ny = py + 1;
             for (int i = 0; i < lineLen; i++) {
                 curErrorRed[i] = nextErrorRed[i];
                 curErrorGreen[i] = nextErrorGreen[i];
@@ -1923,12 +1925,12 @@ public class PaletteReducer {
                 nextErrorBlue[i] = 0;
             }
             for (int px = 0; px < lineLen; px++) {
-                color = pixmap.getPixel(px, y);
+                color = pixmap.getPixel(px, py);
                 if ((color & 0x80) == 0 && hasTransparent)
-                    pixmap.drawPixel(px, y, 0);
+                    pixmap.drawPixel(px, py, 0);
                 else {
-                    adj = ((TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                    adj = Math.min(Math.max(adj * strength + ((px + y << 4 & 24) - 12f), -16f), 16f);
+                    adj = ((TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                    adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 24) - 12f), -16f), 16f);
                     er = adj + (curErrorRed[px]);
                     eg = adj + (curErrorGreen[px]);
                     eb = adj + (curErrorBlue[px]);
@@ -1941,7 +1943,7 @@ public class PaletteReducer {
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
-                    pixmap.drawPixel(px, y, used);
+                    pixmap.drawPixel(px, py, used);
                     rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
                     gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
                     bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );

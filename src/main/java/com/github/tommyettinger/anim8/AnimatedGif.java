@@ -415,7 +415,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             case PATTERN:
             {
                 int cr, cg, cb, usedIndex;
-                final float errorMul = (float) (palette.ditherStrength * palette.populationBias);
+                final float errorMul = palette.ditherStrength * palette.populationBias;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
@@ -491,7 +491,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             case GRADIENT_NOISE: {
                 float pos, adj;
-                final float strength = (float) (palette.ditherStrength * palette.populationBias * 3f);
+                final float strength = palette.ditherStrength * palette.populationBias * 3;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
@@ -529,7 +529,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 float rdiff, gdiff, bdiff;
                 float er, eg, eb;
                 byte paletteIndex;
-                float w1 = (float)(palette.ditherStrength * 4.0), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+                float w1 = palette.ditherStrength * 4, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
                 float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedFloats == null) {
@@ -613,7 +613,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case BLUE_NOISE: {
-                float adj, strength = (float) (48.0 * palette.ditherStrength / palette.populationBias);
+                float adj, strength = 48 * palette.ditherStrength / palette.populationBias;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
@@ -640,7 +640,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 float rdiff, gdiff, bdiff;
                 float er, eg, eb;
                 byte paletteIndex;
-                float w1 = (float)(palette.ditherStrength * 3.5), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+                float w1 = palette.ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
                 float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedFloats == null) {
