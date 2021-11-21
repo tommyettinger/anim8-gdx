@@ -4,12 +4,14 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.github.tommyettinger.anim8.PNG8;
@@ -43,6 +45,8 @@ public class InteractiveReducer extends ApplicationAdapter {
                 if (files != null && files.length > 0) {
                     if (files[0].endsWith(".png") || files[0].endsWith(".jpg") || files[0].endsWith(".jpeg"))
                         app.load(files[0]);
+                    else if(files[0].endsWith("hex"))
+                        app.loadPalette(files[0]);
                 }
             }
         });
@@ -62,27 +66,64 @@ public class InteractiveReducer extends ApplicationAdapter {
         screenTexture = new Texture(p);
         refresh();
     }
-    
+    public void loadPalette(String name) {
+        try {
+            if(name == null || name.isEmpty()) return;
+            FileHandle fh = Gdx.files.absolute(name);
+            String text;
+            if(fh.exists() && "hex".equals(fh.extension()))
+                text = fh.readString();
+            else
+                return;
+            int start = 0, end = 6, len = text.length();
+            int gap = (text.charAt(7) == '\n') ? 8 : 7;
+            int sz = ((len + 2) / gap);
+            palette = new int[sz + 1];
+            for (int i = 1; i <= sz; i++) {
+                palette[i] = Integer.parseInt(text.substring(start, end), 16) << 8 | 0xFF;
+                start += gap;
+                end += gap;
+            }
+            reducer.exact(palette);
+        } catch (GdxRuntimeException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public void refresh(){
         p.drawPixmap(this.p0, 0, 0);
         switch (index) {
-            case 0: reducer.reduceSolid(p);
+            case 0:
+                reducer.reduceSolid(p);
                 break;
-            case 1: reducer.reduceBlueNoise(p);
+            case 1:
+                reducer.reduceBlueNoise(p);
                 break;
-            case 2: reducer.reduceChaoticNoise(p);
+            case 2:
+                reducer.reduceChaoticNoise(p);
                 break;
-            case 3: reducer.reduceJimenez(p);
+            case 3:
+                reducer.reduceJimenez(p);
                 break;
-            case 4: reducer.reduceKnollRoberts(p);
+            case 4:
+                reducer.reduceKnollRoberts(p);
                 break;
-            case 5: reducer.reduceKnoll(p);
+            case 5:
+                reducer.reduceKnoll(p);
                 break;
-            case 6: reducer.reduceSierraLite(p);
+            case 6:
+                reducer.reduceSierraLite(p);
                 break;
-            case 7: reducer.reduceFloydSteinberg(p);
+            case 7:
+                reducer.reduceFloydSteinberg(p);
                 break;
-            default: reducer.reduceScatter(p);
+            case 8:
+                reducer.reduceScatter(p);
+                break;
+            default:
+                reducer.reduceNeue(p);
+                break;
         }
         screenTexture.draw(p, 0, 0);
     }
@@ -194,12 +235,12 @@ public class InteractiveReducer extends ApplicationAdapter {
                         break;
                     case Input.Keys.LEFT:
                     case Input.Keys.LEFT_BRACKET:
-                        index = (index + 8) % 9;
+                        index = (index + 9) % 10;
                         refresh();
                         break;
                     case Input.Keys.RIGHT:
                     case Input.Keys.RIGHT_BRACKET:
-                        index = (index + 1) % 9;
+                        index = (index + 1) % 10;
                         refresh();
                         break;
                     case Input.Keys.UP:
