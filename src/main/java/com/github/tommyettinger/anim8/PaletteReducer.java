@@ -1914,7 +1914,7 @@ public class PaletteReducer {
         byte paletteIndex;
         float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 adj, strength = (24f * ditherStrength / populationBias);
-        int initialSum = -1600894625;
+        int sum = -1600894625;
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
@@ -1926,9 +1926,8 @@ public class PaletteReducer {
                 nextErrorGreen[i] = 0;
                 nextErrorBlue[i] = 0;
             }
-            int sum = initialSum;
             for (int px = 0; px < lineLen; px++) {
-                sum ^= color = pixmap.getPixel(px, py);
+                sum += color = pixmap.getPixel(px, py);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, py, 0);
                 else {
