@@ -1914,7 +1914,7 @@ public class PaletteReducer {
         byte paletteIndex;
         float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 adj, strength = (24f * ditherStrength / populationBias);
-        int sum = -1600894625;
+        int sum = (lineLen * 0x9E373 ^ 0xC79E7B1D) ^ (h * 0xB9C9B ^ 0xD1B54A35);
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;

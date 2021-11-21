@@ -752,7 +752,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     Arrays.fill(nextErrorBlue, (byte) 0);
                 }
 
-                int sum = (seq * 0x9E373 ^ 0xC79E7B1D) * 0x9E373 ^ 0xD1B54A35;
+                int sum = (width * 0x9E373 ^ 0xC79E7B1D) ^ (height * 0xB9C9B ^ 0xD1B54A35);
 
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
