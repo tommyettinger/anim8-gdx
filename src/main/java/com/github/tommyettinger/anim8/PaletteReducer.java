@@ -1874,7 +1874,7 @@ public class PaletteReducer {
      * noise before diffusing, like {@link #reduceBlueNoise(Pixmap)}. This looks like {@link #reduceScatter(Pixmap)} in
      * many cases, but smooth gradients are much smoother with Neue than Scatter. Scatter multiplies error by a blue
      * noise value, where this adds blue noise regardless of error. This also preserves color better than TrueBlue,
-     * while keeping similar gradient smoothness. The algorithm here uses a 4x4 rough checkerboard pattern to offset
+     * while keeping similar gradient smoothness. The algorithm here uses a 2x2 rough checkerboard pattern to offset
      * some roughness that can appear in blue noise; the checkerboard can appear in some cases when a dithered image is
      * zoomed with certain image filters.
      * <br>
@@ -1913,7 +1913,7 @@ public class PaletteReducer {
         float er, eg, eb;
         byte paletteIndex;
         float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                adj, strength = (40f * ditherStrength / populationBias);
+                adj, strength = (24f * ditherStrength / populationBias);
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1930,7 +1930,7 @@ public class PaletteReducer {
                     pixmap.drawPixel(px, py, 0);
                 else {
                     adj = ((TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                    adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 24) - 12f), -16f), 16f);
+                    adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 16) - 8f), -16f), 16f);
                     er = adj + (curErrorRed[px]);
                     eg = adj + (curErrorGreen[px]);
                     eb = adj + (curErrorBlue[px]);

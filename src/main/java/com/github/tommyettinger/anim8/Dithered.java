@@ -140,7 +140,7 @@ public interface Dithered {
         /**
          * An error diffusion dither that mixes in ordered noise from a triangular-mapped blue noise texture; this is
          * the best-behaving dither here when it comes to smooth gradients. The approach to blue noise here is to add it
-         * to the pixel channels before calculating error diffusion for that pixel; a 4x4 checkerboard-like pattern is
+         * to the pixel channels before calculating error diffusion for that pixel; a 2x2 checkerboard-like pattern is
          * also used. This is different from {@link #SCATTER} in only a few ways, but a main one is that Scatter
          * multiplies the current error by a blue noise value, where this adds in blue noise regardless of current
          * error. The exact reason isn't clear, but this is drastically better when dithering smooth gradients, and can

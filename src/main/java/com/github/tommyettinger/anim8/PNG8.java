@@ -1835,7 +1835,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float er, eg, eb;
             byte paletteIndex;
             float w1 = palette.ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (40f * palette.ditherStrength / palette.populationBias);
+                    adj, strength = (24f * palette.ditherStrength / palette.populationBias);
 
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
@@ -1872,7 +1872,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         curLine[px] = 0;
                     else {
                         adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                        adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 24) - 12f), -16f), 16f);
+                        adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 16) - 8f), -16f), 16f);
                         er = adj + (curErrorRed[px]);
                         eg = adj + (curErrorGreen[px]);
                         eb = adj + (curErrorBlue[px]);
@@ -3353,7 +3353,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float er, eg, eb;
             byte paletteIndex;
             float w1 = palette.ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (40f * palette.ditherStrength / palette.populationBias);
+                    adj, strength = (24f * palette.ditherStrength / palette.populationBias);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -3411,7 +3411,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             curLine[px] = 0;
                         else {
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                            adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 24) - 12f), -16f), 16f);
+                            adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 16) - 8f), -16f), 16f);
                             er = adj + (curErrorRed[px]);
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);
