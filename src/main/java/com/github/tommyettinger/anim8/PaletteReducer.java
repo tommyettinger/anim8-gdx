@@ -1914,6 +1914,8 @@ public class PaletteReducer {
         byte paletteIndex;
         float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 adj, strength = (24f * ditherStrength / populationBias);
+        int initialSum = -1600894625;
+
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -1924,13 +1926,15 @@ public class PaletteReducer {
                 nextErrorGreen[i] = 0;
                 nextErrorBlue[i] = 0;
             }
+            int sum = initialSum;
             for (int px = 0; px < lineLen; px++) {
-                color = pixmap.getPixel(px, py);
+                sum ^= color = pixmap.getPixel(px, py);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, py, 0);
                 else {
                     adj = ((TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                    adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 16) - 8f), -16f), 16f);
+//                    adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 16) - 8f), -16f), 16f);
+                    adj = Math.min(Math.max(adj * strength + ((px + py << 3 & 8) + ((sum >>> 29 ^ sum >>> 21 ^ sum >>> 13) & 7) - 7.5f), -16f), 16f);
                     er = adj + (curErrorRed[px]);
                     eg = adj + (curErrorGreen[px]);
                     eb = adj + (curErrorBlue[px]);

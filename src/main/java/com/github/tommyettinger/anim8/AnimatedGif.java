@@ -752,6 +752,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     Arrays.fill(nextErrorBlue, (byte) 0);
                 }
 
+                int initialSum = (seq * 0x9E373 ^ 0xC79E7B1D) * 0x9E373 ^ 0xD1B54A35;
+
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
                     System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
@@ -763,14 +765,14 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
                     int py = flipped + flipDir * y,
                             ny = y + 1;
-
+                    int sum = initialSum;
                     for (int px = 0; px < width & i < nPix; px++) {
-                        color = image.getPixel(px, py);
+                        sum ^= color = image.getPixel(px, py);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                            adj = Math.min(Math.max(adj * strength + ((px + py << 4 & 16) - 8f), -16f), 16f);
+                            adj = Math.min(Math.max(adj * strength + ((px + py << 3 & 8) + ((sum >>> 29 ^ sum >>> 21 ^ sum >>> 13) & 7) - 7.5f), -16f), 16f);
                             er = adj + (curErrorRed[px]);
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);
