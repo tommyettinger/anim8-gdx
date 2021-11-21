@@ -104,11 +104,20 @@ different API).
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
       error with blue-noise values. 
-    - This is the default and often the best of the bunch.
+    - This used to be the default and can still sometimes be the best here.
     - Unlike DIFFUSION, this is quite suitable for animations, but some fluid shapes look better with CHAOTIC_NOISE or
       GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN.
     - You may want to use a lower dither strength with SCATTER if you encounter horizontal line artifacts; 0.75 or 0.5
-      should be low enough to eliminate them (not all palettes will experience these artifacts). 
+      should be low enough to eliminate them (not all palettes will experience these artifacts).
+  - NEUE
+    - Another hybrid of DIFFUSION and BLUE_NOISE, this has much better behavior on smooth gradients than SCATTER, at the
+      price of almost always looking slightly rough (like fine sand).
+    - This is the default and often the best of the bunch.
+    - The code for NEUE is almost the same as for SCATTER, but where SCATTER *multiplies* the current error by a blue
+      noise value (which can mean the blue noise could have no effect if error is 0), NEUE always *adds* in
+      triangular-mapped blue noise to each pixel at the same amount (as well as a 2x2 checkerboard pattern).
+    - SCATTER, as well as all other dither algorithms here except BLUE_NOISE, tend to have banding on smooth gradients,
+      while this doesn't usually have any banding.
 
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
@@ -156,6 +165,10 @@ Scatter dither:
 
 ![Flashy Gif, scatter dither](images/animated/AnimatedGif-flashy-scatter.gif)
 
+Neue dither:
+
+![Flashy Gif, neue dither](images/animated/AnimatedGif-flashy-neue.gif)
+
 No dither:
 
 ![Flashy Gif, no dither](images/animated/AnimatedGif-flashy-none.gif)
@@ -184,6 +197,10 @@ Scatter dither:
 
 ![Pastel Gif, scatter dither](images/animated/AnimatedGif-pastel-scatter.gif)
 
+Neue dither:
+
+![Pastel Gif, neue dither](images/animated/AnimatedGif-pastel-neue.gif)
+
 No dither:
 
 ![Pastel Gif, no dither](images/animated/AnimatedGif-pastel-none.gif)
@@ -210,6 +227,10 @@ Black and white scatter dither:
 
 ![BW Gif, scatter dither](images/animated/AnimatedGif-bw-scatter.gif)
 
+Black and white neue dither:
+
+![BW Gif, neue dither](images/animated/AnimatedGif-bw-neue.gif)
+
 Black and white no dither:
 
 ![BW Gif, no dither](images/animated/AnimatedGif-bw-none.gif)
@@ -234,13 +255,17 @@ Black and white no dither:
 
 ![GB Gif, scatter dither](images/animated/AnimatedGif-gb-scatter.gif)
 
+4-color green-scale neue dither:
+
+![GB Gif, neue dither](images/animated/AnimatedGif-gb-neue.gif)
+
 And some .png animations, using full color:
 
-![Flashy Full-Color PNG](images/AnimatedPNG-flashy.png)
+![Flashy Full-Color PNG](images/animated/AnimatedPNG-flashy.png)
 
-![Pastel Full-Color PNG](images/AnimatedPNG-pastel.png)
+![Pastel Full-Color PNG](images/animated/AnimatedPNG-pastel.png)
 
-![Green Full-Color PNG](images/AnimatedPNG-green.png)
+![Green Full-Color PNG](images/animated/AnimatedPNG-green.png)
 
 A more intense usage is to encode a high-color video as an indexed-color GIF; why you might do this, I don't know,
 but someone probably wants videos as GIFs. The images here are 90 frames from
@@ -250,7 +275,7 @@ they use as a source has some block artifacts. [You can see the effects of diffe
 
 Animated PNG can support full alpha as well (though file sizes can be large):
 
-![Full-Color PNG with Alpha](images/AnimatedPNG-alpha.png)
+![Full-Color PNG with Alpha](images/animated/AnimatedPNG-alpha.png)
 
 Anim8 also can be used to support writing non-animated GIF images and indexed-mode PNG images.
 Here's a retouched version of the Mona Lisa,
@@ -309,5 +334,6 @@ a public domain oil painting. Mona_Lisa.jpg is also a public domain oil painting
 Vinci, and [remastered by pixel8tor](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif) to reduce
 the appearance of damage over time. Pixel_Art.png is a snippet of a texture atlas made from some [wargame pixel art I
 previously released into the public domain](https://opengameart.org/content/pixvoxel-revised-isometric-wargame-sprites).
+Anemone.png is just a noise texture I generated with a tool I wrote; the image is public domain.
 The only image I am not certain on the licensing of is Hamiltonian 1 (AllRGB.png); if there are any issues with it, I
 will remove it and ideally replace it with another image with all colors.
