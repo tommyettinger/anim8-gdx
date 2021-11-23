@@ -262,7 +262,7 @@ public class PaletteReducer {
                     mf = OtherMath.cbrt(0.2118591070f * rf + 0.6807189584f * gf + 0.1074065790f * bf);
                     sf = OtherMath.cbrt(0.0883097947f * rf + 0.2818474174f * gf + 0.6302613616f * bf);
 
-                    OKLAB[0][idx] = reverseLight(0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
+                    OKLAB[0][idx] = forwardLight(0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
                     OKLAB[1][idx] = 1.9779984951f * lf - 2.4285922050f * mf + 0.4505937099f * sf;
                     OKLAB[2][idx] = 0.0259040371f * lf + 0.7827717662f * mf - 0.8086757660f * sf;
 
@@ -367,7 +367,7 @@ public class PaletteReducer {
      * Determines how strongly to apply noise or other effects during dithering. This is usually half the value set with
      * {@link #setDitherStrength(float)}.
      */
-    protected float ditherStrength = 0.5f;
+    protected float ditherStrength = 1f;
     /**
      * Typically between 0.5 and 1, this should get closer to 1 with larger palette sizes, and closer to 0.5 with
      * smaller palettes. Within anim8-gdx, this is generally calculated with {@code Math.exp(-1.375 / colorCount)}.
@@ -524,11 +524,11 @@ public class PaletteReducer {
         if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
-        double
+        float
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L *= L;
+        L = forwardLight(L * L);
         A *= A;
         B *= B;
         return (L * L + A * A + B * B) * 0x1.2p+22;
@@ -562,11 +562,11 @@ public class PaletteReducer {
         if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        double
+        float
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L *= L;
+        L = forwardLight(L * L);
         A *= A;
         B *= B;
         return (L * L + A * A + B * B) * 0x1.2p+22;
@@ -599,11 +599,11 @@ public class PaletteReducer {
     public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
         int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        double
+        float
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L *= L;
+        L = forwardLight(L * L);
         A *= A;
         B *= B;
         return (L * L + A * A + B * B) * 0x1.2p+22;
@@ -1349,6 +1349,17 @@ public class PaletteReducer {
     }
 
     /**
+     * Gets the "strength" of the dither effect applied during {@link #reduce(Pixmap)} calls. The default is 1f,
+     * and while both values higher than 1f and lower than 1f are valid, they should not be negative.
+     * If ditherStrength is too high, all sorts of artifacts will appear; if it is too low, the effect of the dither to
+     * smooth out changes in color will be very hard to notice.
+     * @return the current dither strength; typically near 1.0f and always non-negative
+     */
+    public float getDitherStrength() {
+        return ditherStrength;
+    }
+
+    /**
      * Changes the "strength" of the dither effect applied during {@link #reduce(Pixmap)} calls. The default is 1f,
      * and while both values higher than 1f and lower than 1f are valid, they should not be negative. If you want dither
      * to be eliminated, don't set dither strength to 0; use {@link #reduceSolid(Pixmap)} instead of reduce().
@@ -1357,7 +1368,7 @@ public class PaletteReducer {
      * @param ditherStrength dither strength as a non-negative float that should be close to 1f
      */
     public void setDitherStrength(float ditherStrength) {
-        this.ditherStrength = Math.max(0f, 0.5f * ditherStrength);
+        this.ditherStrength = Math.max(0f, ditherStrength);
     }
 
     /**
