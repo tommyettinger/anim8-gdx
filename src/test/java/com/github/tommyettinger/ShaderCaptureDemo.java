@@ -133,8 +133,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
 
-        Gdx.files.local("images").mkdirs();
-//		renderAPNG(nmsSmall, sds); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
+        Gdx.files.local("images/animated/").mkdirs();
+		renderAPNG(nmsSmall, sds); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
 		renderPNG8(nms, pals, sds);
         renderGif(nms, pals, sds);
     }
@@ -168,7 +168,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
     public void renderAPNG(String[] names, long[] seeds) {
         AnimatedPNG apng = new AnimatedPNG();
-        apng.setCompression(7);
+        apng.setCompression(2);
         for (int n = 0; n < names.length && n < seeds.length; n++) {
             name = names[n];
             long state = seeds[n];
@@ -193,7 +193,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
     
     public void renderPNG8(String[] names, int[][] palettes, long[] seeds) {
         PNG8 png8 = new PNG8();
-        png8.setCompression(7);
+        png8.setCompression(2);
         png8.palette = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             name = names[n];

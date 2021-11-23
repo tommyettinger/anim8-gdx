@@ -79,10 +79,10 @@ public interface Dithered {
          * {@link #GRADIENT_NOISE}, but isn't nearly as noisy (though it isn't noisy, it instead has regular
          * square-shaped artifacts, which are mostly noticeable with small palettes). Earlier versions of Pattern Dither
          * here had issues with lightness changing strangely based on dither strength, but these are mostly fixed now.
-         * {@link #SCATTER} is the current default; it does a better job at obscuring artifacts from dither and
-         * it maintains lightness well. Setting the dither strength with {@link PaletteReducer#setDitherStrength(float)}
-         * can really change how strongly artifacts appear here, but artifacts may be very hard to spot with a full
-         * 255-color palette.
+         * {@link #NEUE} is the current default; it does a better job at obscuring artifacts from dither, it maintains
+         * lightness well, and it handles gradients without banding. Setting the dither strength with
+         * {@link PaletteReducer#setDitherStrength(float)} can really change how strongly artifacts appear here, but
+         * artifacts may be very hard to spot with a full 255-color palette.
          */
         PATTERN,
         /**

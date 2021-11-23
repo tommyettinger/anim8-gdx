@@ -43,7 +43,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.2.12"
+  api "com.github.tommyettinger:anim8-gdx:0.3.0"
 }
 ```
 
@@ -51,7 +51,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/f8afbbb229). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.2.12:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.0:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -98,9 +98,10 @@ different API).
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
     - This changed in 0.2.12, and handles smooth gradients better now.
   - CHAOTIC_NOISE
-    - Like BLUE_NOISE, but it will dither different frames differently, and can look somewhat more chaotic.
-    - This is probably the third-best algorithm here for animations, after SCATTER and PATTERN in either order.
+    - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
+    - This is an okay algorithm here for animations, but NEUE is much better, followed by SCATTER or PATTERN.
     - This may be more useful when using many colors than when using just a few.
+    - It's rather ugly with small palettes, and really not much better on large palettes.
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
       error with blue-noise values. 
@@ -116,14 +117,23 @@ different API).
     - The code for NEUE is almost the same as for SCATTER, but where SCATTER *multiplies* the current error by a blue
       noise value (which can mean the blue noise could have no effect if error is 0), NEUE always *adds* in
       triangular-mapped blue noise to each pixel at the same amount (as well as a 2x2 checkerboard pattern).
-    - SCATTER, as well as all other dither algorithms here except BLUE_NOISE, tend to have banding on smooth gradients,
-      while this doesn't usually have any banding.
+    - SCATTER, as well as all other dither algorithms here except BLUE_NOISE and PATTERN, tend to have banding on smooth
+      gradients, while this doesn't usually have any banding.
+    - Only CHAOTIC_NOISE and NEUE use temporal dithering, but NEUE does the process differently; if two frames are
+      identical, they will dither with the same slightly-rough pattern in NEUE, and a very different one in
+      CHAOTIC_NOISE.
+      - Some other algorithms have artifacts that stay the same across frames, which can be distracting. 
+        - PATTERN has an obvious square grid.
+        - BLUE_NOISE and SCATTER have a spongy blue noise texture.
+        - GRADIENT_NOISE has a network of diagonal lines.
+        - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
 
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
-will approach the appearance of NONE, while setting it close to 1.0 (or higher) will make the dither much stronger and
-may make the image less legible. SCATTER and also DIFFUSION have trouble with very high dither strengths, though how
-much trouble varies based on the palette, and they also tend to look good just before major issues appear.
+will approach the appearance of NONE, setting it close to 1.0 is the default, and strengths higher than 1 will make the
+dither much stronger and may make the image less legible. NEUE, SCATTER, and DIFFUSION sometimes have trouble with very
+high dither strengths, though how much trouble varies based on the palette, and they also tend to look good just before
+major issues appear.
 
 # Palette Generation
 
