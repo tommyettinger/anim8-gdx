@@ -3394,7 +3394,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         prevLine[ln] = 0;
                 }
 
-                int sum = (w * 0x9E373 ^ 0xC79E7B1D) ^ (h * 0xB9C9B ^ 0xD1B54A35);
+                int sum = ((w + seq) * 0x9E373 ^ 0xC79E7B1D) ^ ((h ^ seq) * 0xB9C9B ^ 0xD1B54A35);
 
                 for (int y = 0; y < h; y++) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
