@@ -17,7 +17,7 @@ import java.io.IOException;
 
 /**
  * Currently just dithers a few pictures (my cat, then from Wikimedia Commons, a tropical frog, a public domain
- * landscape painting, a remastered Mona Lisa, and a noise texture) as a still GIF, PNG8, and full-color PNG.
+ * landscape painting, a remastered Mona Lisa, and a smooth noise texture) as a still GIF, PNG8, and full-color PNG.
  */
 public class StillImageDemo extends ApplicationAdapter {
     private long startTime, total = 0;
@@ -27,7 +27,6 @@ public class StillImageDemo extends ApplicationAdapter {
         startTime = System.currentTimeMillis();
 
         Gdx.files.local("images").mkdirs();
-        Gdx.files.local("tmp/imagesPaeth").mkdirs();
 //        for(String name : new String[]{"AllRGB.png", "Mona_Lisa.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
         for(String name : new String[]{"Mona_Lisa.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png", "Anemone.png",}) {
 			renderPNG8(name);
@@ -57,9 +56,9 @@ public class StillImageDemo extends ApplicationAdapter {
 		// gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
 		PaletteReducer reducer = new PaletteReducer();
-		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
+		for (int count : new int[]{16, 255}) {
 //			reducer.analyzeNQ(pixmap, count); //Dithered all 392 images in 42784 ms
-			reducer.analyze(pixmap, 400 - count, count); //Dithered all 392 images in 42237 ms
+			reducer.analyze(pixmap, 399 - count, count + 1); //Dithered all 392 images in 42237 ms
 
 //			reducer.analyze(pixmap, 10000 / count + count * 4, count);
 			png8.setPalette(reducer);
@@ -120,9 +119,9 @@ public class StillImageDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
         PaletteReducer reducer = new PaletteReducer();
-		for (int count : new int[]{3, 5, 8, 16, 32, 64, 256}) {
+		for (int count : new int[]{16, 255}) {
 //			reducer.analyzeNQ(pixmaps, count); //Dithered all 392 images in 42784 ms
-			reducer.analyze(pixmaps, 400 - count, count); //Dithered all 392 images in 42237 ms
+			reducer.analyze(pixmaps, 399 - count, count + 1); //Dithered all 392 images in 42237 ms
 
 			gif.setPalette(reducer);
 			gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);

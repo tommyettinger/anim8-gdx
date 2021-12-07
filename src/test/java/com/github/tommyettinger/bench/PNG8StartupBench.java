@@ -23,7 +23,6 @@ public class PNG8StartupBench extends ApplicationAdapter {
     public void create() {
 
         Gdx.files.local("tmp/imagesClean").mkdirs();
-        Gdx.files.local("tmp/imagesPaeth").mkdirs();
         long startTime = TimeUtils.millis();
         PNG8 png8 = new PNG8();
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct a PNG8");

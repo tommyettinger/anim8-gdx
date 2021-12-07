@@ -729,8 +729,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 float rdiff, gdiff, bdiff;
                 float er, eg, eb;
                 byte paletteIndex;
-                float w1 = palette.ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                        adj, strength = (24f * palette.ditherStrength / palette.populationBias);;
+                float w1 = palette.ditherStrength * 4.125f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                        adj, strength = (64f * palette.ditherStrength * palette.populationBias);;
 
                 float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedFloats == null) {
@@ -772,7 +772,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             indexedPixels[i++] = 0;
                         else {
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
-                            adj = Math.min(Math.max(adj * strength + ((px + py << 2 & 4) + sum - 5.5f), -16f), 16f);
+                            adj = Math.min(Math.max(adj * strength + ((px + py << 2 & 4) + sum - 5.5f), -32f), 32f);
                             er = adj + (curErrorRed[px]);
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);
