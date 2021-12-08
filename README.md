@@ -118,15 +118,15 @@ different API).
       noise value (which can mean the blue noise could have no effect if error is 0), NEUE always *adds* in
       triangular-mapped blue noise to each pixel at the same amount (as well as a 2x2 checkerboard pattern).
     - SCATTER, as well as all other dither algorithms here except BLUE_NOISE and PATTERN, tend to have banding on smooth
-      gradients, while this doesn't usually have any banding.
-    - Only CHAOTIC_NOISE and NEUE use temporal dithering, but NEUE does the process differently; if two frames are
-      identical, they will dither with the same slightly-rough pattern in NEUE, and a very different one in
-      CHAOTIC_NOISE.
-      - Some other algorithms have artifacts that stay the same across frames, which can be distracting. 
-        - PATTERN has an obvious square grid.
-        - BLUE_NOISE and SCATTER have a spongy blue noise texture.
-        - GRADIENT_NOISE has a network of diagonal lines.
-        - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
+      gradients, while NEUE doesn't usually have any banding.
+  - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
+    input images.
+    - PATTERN has an obvious square grid.
+    - BLUE_NOISE, SCATTER, ane NEUE have varying forms of a spongy blue noise texture.
+    - GRADIENT_NOISE has a network of diagonal lines.
+    - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
+    - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
+      identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
 
 You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0

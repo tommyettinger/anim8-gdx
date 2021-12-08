@@ -44,8 +44,7 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  *     and has very little, if any, banding when using large palettes. There's always a catch, though; in this case, all
  *     of a dithered image has a slight grain to it, like fine sand. If there are close enough colors in the palette, as
  *     is typically the case if you use {@link #analyze(Pixmap)}, then the grain will alternate very subtly different
- *     colors, and this tends to improve the appearance of pixels that are visually in-between those two colors. In Gif
- *     and PNG8 animations, Neue does some temporal dithering, as well, by changing the grain pattern between frames.
+ *     colors, and this tends to improve the appearance of pixels that are visually in-between those two colors.
  *     Neue is the default currently because it is the only dither that both handles gradients well and preserves color
  *     well. Blue Noise dither also handles gradients well, but doesn't always recognize color changes. Scatter handles
  *     color well, but can have some banding. Pattern dither usually handles gradients exceptionally well, but can have
