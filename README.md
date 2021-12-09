@@ -94,6 +94,7 @@ different API).
       such as [this introduction](https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/).
       - This also uses a triangular-mapped blue noise texture, which means most of its pixels are in the middle of the
         range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
+      - Blue noise is also used normally by SCATTER and NEUE, as well as used strangely by CHAOTIC_NOISE.
     - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
     - This changed in 0.2.12, and handles smooth gradients better now.
@@ -112,7 +113,7 @@ different API).
       should be low enough to eliminate them (not all palettes will experience these artifacts).
   - NEUE
     - Another hybrid of DIFFUSION and BLUE_NOISE, this has much better behavior on smooth gradients than SCATTER, at the
-      price of almost always looking slightly rough (like fine sand).
+      price of not producing many flat areas of solid colors (it prefers to dither when possible).
     - This is the default and often the best of the bunch.
     - The code for NEUE is almost the same as for SCATTER, but where SCATTER *multiplies* the current error by a blue
       noise value (which can mean the blue noise could have no effect if error is 0), NEUE always *adds* in
@@ -148,6 +149,10 @@ palette, or almost any practical 250+ color palette, because with so many colors
 PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use HALTONIC.
 
 # Samples
+
+All the images below are probably **broken links**. You can feel free to blame GitHub's LFS implementation while I try to
+figure out a better way to host these many images and animations.
+
 Some .gif animations, using 255 colors taken from the most-used in the animation (`analyze()`, which does well here
 because it can use all the colors):
 
@@ -271,11 +276,11 @@ Black and white no dither:
 
 And some .png animations, using full color:
 
-![Flashy Full-Color PNG](images/animated/AnimatedPNG-flashy.png)
+![Flashy Full-Color PNG](images/animated/AnimatedPNG-flashy-full.png)
 
-![Pastel Full-Color PNG](images/animated/AnimatedPNG-pastel.png)
+![Pastel Full-Color PNG](images/animated/AnimatedPNG-pastel-full.png)
 
-![Green Full-Color PNG](images/animated/AnimatedPNG-green.png)
+![Green Full-Color PNG](images/animated/AnimatedPNG-green-full.png)
 
 A more intense usage is to encode a high-color video as an indexed-color GIF; why you might do this, I don't know,
 but someone probably wants videos as GIFs. The images here are 90 frames from

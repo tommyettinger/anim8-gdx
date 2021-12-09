@@ -41,10 +41,10 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  *     to 2.0 or above, where most of the other dithers have problems, and looks similar to Floyd-Steinberg if using low
  *     ditherStrength.)</li>
  *     <li>{@link #reduceNeue(Pixmap)} (This is a variant on Scatter, above, that tends to be much smoother on gradients
- *     and has very little, if any, banding when using large palettes. There's always a catch, though; in this case, all
- *     of a dithered image has a slight grain to it, like fine sand. If there are close enough colors in the palette, as
- *     is typically the case if you use {@link #analyze(Pixmap)}, then the grain will alternate very subtly different
- *     colors, and this tends to improve the appearance of pixels that are visually in-between those two colors.
+ *     and has very little, if any, banding when using large palettes. A quirk this has is that it doesn't usually
+ *     produce large flat areas of one color, instead preferring to dither softly between two similar colors if it can.
+ *     This tends to look similar to Floyd-Steinberg and Scatter, because it is related to both of them, but also tends
+ *     to have softer transitions between adjacent pixel colors, leading to less of a rough appearance from dithering.
  *     Neue is the default currently because it is the only dither that both handles gradients well and preserves color
  *     well. Blue Noise dither also handles gradients well, but doesn't always recognize color changes. Scatter handles
  *     color well, but can have some banding. Pattern dither usually handles gradients exceptionally well, but can have
@@ -75,7 +75,7 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  *     distribution, to disturb what would otherwise be flat bands. This does introduce chaotic or static-looking
  *     pixels, but with larger palettes they won't be far from the original. This works fine as a last resort when you
  *     can tolerate chaotic/fuzzy patches of poorly-defined shapes, but other dithers aren't doing well. It tends to
- *     still have flat bands when the palette is small, and it generally looks... a little ugly.)</li>
+ *     still have flat bands when the palette is small, and it generally looks... rather ugly.)</li>
  *     <li>{@link #reduceKnollRoberts(Pixmap)} (This is a modified version of Thomas Knoll's Pattern Dithering; it skews
  *     a grid-based ordered dither and also handles lightness differently from the non-Knoll dithers. It preserves shape
  *     somewhat well, but is almost never 100% faithful to the original colors. This algorithm is rather slow; most of
