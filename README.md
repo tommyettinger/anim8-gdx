@@ -20,7 +20,10 @@ public void writeGif() {
         // this assumes you're calling this from a class that uses render() to draw to the screen.
         render();
         // this gets a screenshot of the current window and adds it to the Array of Pixmap.
+        // there are two ways to do this; this is the older way, but it is deprecated in current libGDX: 
         pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        // the newer way is only available in more-recent libGDX (I know 1.10.0 has it); it is not deprecated:
+        // pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
     }
     // AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from
     // the given pixmaps and use that for all frames, dithering any colors that don't match.
@@ -272,39 +275,39 @@ various 15-color dithers using a palette derived from the most frequent and diff
 
 Original (full-color):
 
-![](images/png/Mona_Lisa-PNG-Full.png)
+![](https://i.imgur.com/h4Kenjj.png)
+
+Neue (default):
+
+![](https://i.imgur.com/y6ghpt1.png)
 
 Pattern:
 
-![](images/png/Mona_Lisa-Gif-Pattern-16.gif)
+![](https://i.imgur.com/fYoLY7x.png)
 
 Diffusion:
 
-![](images/png/Mona_Lisa-Gif-Diffusion-16.gif)
+![](https://i.imgur.com/ut7p1zY.png)
 
 Gradient Noise:
 
-![](images/png/Mona_Lisa-Gif-Gradient-16.gif)
+![](https://i.imgur.com/Nv61IIN.png)
 
 Blue Noise:
 
-![](images/png/Mona_Lisa-Gif-BlueNoise-16.gif)
+![](https://i.imgur.com/sB1rElC.png)
 
 Chaotic Noise:
 
-![](images/png/Mona_Lisa-Gif-ChaoticNoise-16.gif)
+![](https://i.imgur.com/PlMdAjq.png)
 
 Scatter:
 
-![](images/png/Mona_Lisa-Gif-Scatter-16.gif)
-
-Neue:
-
-![](images/png/Mona_Lisa-Gif-Neue-16.gif)
+![](https://i.imgur.com/L75Rywa.png)
 
 None (no dither):
 
-![](images/png/Mona_Lisa-Gif-None-16.gif)
+![](https://i.imgur.com/fH6RqKg.png)
 
 The analysis step that PaletteReducer performs prefers the most frequent colors in the image, and the Mona Lisa has
 mostly dark gray, blue, and brown-to-flesh-tone colors. As such, the small amounts of green get forgotten when color
@@ -313,8 +316,8 @@ count is low.
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
 
-There are other generated images, both .gif and .png, with different color counts and algorithms used in the images/
-folder. AllRGB.png uses all possible RGB colors exactly once; it was made by user Meyermagic and called Hamiltonian 1,
+There are other test images used in the src/test/resources/ folder and its subfolders.
+AllRGB.png uses all possible RGB colors exactly once; it was made by user Meyermagic and called Hamiltonian 1,
 [available here](https://allrgb.com/hamiltonian-1). Cat.jpg is my cat, Satchmo. Frog.jpg is a public-domain image of a
 red-eyed tree frog, [taken by Carey James Balboa](https://commons.wikimedia.org/wiki/File:Red_eyed_tree_frog_edit2.jpg).
 Landscape.jpg is [Among the Sierra Nevada by Albert Bierstadt](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg),
