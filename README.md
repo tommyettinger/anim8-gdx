@@ -221,27 +221,31 @@ Black and white no dither:
 
 4-color green-scale neue dither (default):
 
-![GB Gif, neue dither](images/gif/animated/AnimatedGif-gb-neue.gif)
+![GB Gif, neue dither](https://i.imgur.com/bG7fyAj.gif)
 
 4-color green-scale pattern dither:
 
-![GB Gif, pattern dither](images/gif/animated/AnimatedGif-gb-pattern.gif)
+![GB Gif, pattern dither](https://i.imgur.com/hISfaoS.gif)
 
 4-color green-scale gradient dither:
 
-![GB Gif, gradient dither](images/gif/animated/AnimatedGif-gb-gradient.gif)
+![GB Gif, gradient dither](https://i.imgur.com/LTMqDF9.gif)
 
 4-color green-scale diffusion dither (Floyd-Steinberg):
 
-![GB Gif, diffusion dither](images/gif/animated/AnimatedGif-gb-diffusion.gif)
+![GB Gif, diffusion dither](https://i.imgur.com/hssSX9D.gif)
 
 4-color green-scale blue noise dither:
 
-![GB Gif, blue noise dither](images/gif/animated/AnimatedGif-gb-blueNoise.gif)
+![GB Gif, blue noise dither](https://i.imgur.com/blnOyyh.gif)
 
 4-color green-scale scatter dither:
 
-![GB Gif, scatter dither](images/gif/animated/AnimatedGif-gb-scatter.gif)
+![GB Gif, scatter dither](https://i.imgur.com/RgnqY6Z.gif)
+
+4-color green-scale no dither:
+
+![GB Gif, no dither](https://i.imgur.com/SxUEPVc.gif)
 
 And some .png animations, using full color:
 
