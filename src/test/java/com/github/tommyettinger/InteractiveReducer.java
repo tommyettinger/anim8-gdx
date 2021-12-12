@@ -211,10 +211,14 @@ public class InteractiveReducer extends ApplicationAdapter {
                                 reducer.analyzeMC(p0, keycode - 5);
                         }
                         else {
-                            if (UIUtils.shift())
-                                reducer.analyze(p0, (35 - keycode) * (40 - keycode), (keycode - 6) * keycode);
-                            else
-                                reducer.analyze(p0, 700 - keycode * keycode, keycode - 5);
+                            if (UIUtils.shift()) {
+                                int kc = (keycode - 6) * keycode;
+                                reducer.analyze(p0, 150, kc);
+                            }
+                            else {
+                                int kc = keycode - 5;
+                                reducer.analyze(p0, 150, kc);
+                            }
                         }
                         refresh();
                         break;
@@ -222,7 +226,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                         if(UIUtils.ctrl())
                             reducer.analyzeMC(p0, 256);
                         else
-                            reducer.analyze(p0);
+                            reducer.analyze(p0, 150);
                         refresh();
                         break;
                     case Input.Keys.B:
@@ -252,7 +256,8 @@ public class InteractiveReducer extends ApplicationAdapter {
                         refresh();
                         break;
                     case Input.Keys.S:
-                        System.out.println("Algorithm selected: " + index + ", strength: " + strength);
+                        System.out.println("Algorithm selected: " + index + ", strength: " + strength
+                                + ", colors: " + reducer.colorCount);
 //                        System.out.println(Gdx.app.getJavaHeap() + " bytes in the Java heap.");
 //                        System.out.println(Gdx.app.getNativeHeap() + " bytes in the native heap.");
                         break;

@@ -510,12 +510,12 @@ public class PaletteReducer {
     }
     /**
      * Constructs a PaletteReducer that analyzes the given Pixmap for color count and frequency to generate a palette
-     * (see {@link #analyze(Pixmap, int)} for more info).
+     * (see {@link #analyze(Pixmap, double)} for more info).
      *
      * @param pixmap    a Pixmap to analyze in detail to produce a palette
      * @param threshold the minimum difference between colors required to put them in the palette (default 150)
      */
-    public PaletteReducer(Pixmap pixmap, int threshold) {
+    public PaletteReducer(Pixmap pixmap, double threshold) {
         analyze(pixmap, threshold);
     }
     
@@ -530,7 +530,7 @@ public class PaletteReducer {
         L = forwardLight(L * L);
         A *= A;
         B *= B;
-        return (L * L + A * A + B * B) * 0x1.2p+22;
+        return (L * L + A * A + B * B) * 0x1p+27;
     }
 //
 //    public static double difference(int color1, int color2) {
@@ -568,7 +568,7 @@ public class PaletteReducer {
         L = forwardLight(L * L);
         A *= A;
         B *= B;
-        return (L * L + A * A + B * B) * 0x1.2p+22;
+        return (L * L + A * A + B * B) * 0x1p+27;
     }
 //
 //    public static double difference(int color1, int r2, int g2, int b2) {
@@ -605,7 +605,7 @@ public class PaletteReducer {
         L = forwardLight(L * L);
         A *= A;
         B *= B;
-        return (L * L + A * A + B * B) * 0x1.2p+22;
+        return (L * L + A * A + B * B) * 0x1p+27;
     }
 //    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
 //        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
@@ -849,7 +849,7 @@ public class PaletteReducer {
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      */
-    public void analyze(Pixmap pixmap, int threshold) {
+    public void analyze(Pixmap pixmap, double threshold) {
         analyze(pixmap, threshold, 256);
     }
     /**
@@ -872,11 +872,12 @@ public class PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
-    public void analyze(Pixmap pixmap, int threshold, int limit) {
+    public void analyze(Pixmap pixmap, double threshold, int limit) {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
-        threshold >>>= 2;
+        limit = Math.min(Math.max(limit, 2), 256);
+        threshold /= Math.pow(limit, 1.5) * 0.00105;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         int hasTransparent = 0;
@@ -1208,7 +1209,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      */
-    public void analyze(Array<Pixmap> pixmaps, int threshold){
+    public void analyze(Array<Pixmap> pixmaps, double threshold){
         analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
     }
 
@@ -1231,7 +1232,7 @@ public class PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
-    public void analyze(Array<Pixmap> pixmaps, int threshold, int limit){
+    public void analyze(Array<Pixmap> pixmaps, double threshold, int limit){
         analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
     }
     /**
@@ -1254,11 +1255,12 @@ public class PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
-    public void analyze(Pixmap[] pixmaps, int pixmapCount, int threshold, int limit) {
+    public void analyze(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
-        threshold >>>= 2;
+        limit = Math.min(Math.max(limit, 2), 256);
+        threshold /= Math.pow(limit, 1.5) * 0.00105;
         IntIntMap counts = new IntIntMap(limit);
         int hasTransparent = 0;
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
@@ -1372,7 +1374,7 @@ public class PaletteReducer {
 
     /**
      * Modifies the given Pixmap so it only uses colors present in this PaletteReducer, dithering when it can
-     * using Scatter dithering (this merely delegates to {@link #reduceScatter(Pixmap)}).
+     * using Neue dithering (this merely delegates to {@link #reduceNeue(Pixmap)}).
      * If you want to reduce the colors in a Pixmap based on what it currently contains, call
      * {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
      * Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
@@ -1381,7 +1383,7 @@ public class PaletteReducer {
      * @return the given Pixmap, for chaining
      */
     public Pixmap reduce (Pixmap pixmap) {
-        return reduceScatter(pixmap);
+        return reduceNeue(pixmap);
     }
 
     /**
