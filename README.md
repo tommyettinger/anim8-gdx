@@ -153,9 +153,6 @@ PaletteReducer without arguments, or calling `setDefaultPalette()` later, will s
 
 # Samples
 
-Many images below are probably **broken links**. You can feel free to blame GitHub's LFS implementation while I try to
-figure out a better way to host these many images and animations.
-
 Some .gif animations, using 255 colors taken from the most-used in the animation (`analyze()`, which does well here
 because it can use all the colors):
 
@@ -271,7 +268,7 @@ Animated PNG can support full alpha as well (though file sizes can be large):
 Anim8 also can be used to support writing non-animated GIF images and indexed-mode PNG images.
 Here's a retouched version of the Mona Lisa,
 [source on Wikimedia Commons here](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif), and
-various 15-color dithers using a palette derived from the most frequent and different colors in the original:
+various 16-color dithers using a palette derived from the most frequent and different colors in the original:
 
 Original (full-color):
 
@@ -279,39 +276,40 @@ Original (full-color):
 
 Neue (default):
 
-![](https://i.imgur.com/y6ghpt1.png)
+![](https://i.imgur.com/qLm5Ftk.png)
 
 Pattern:
 
-![](https://i.imgur.com/fYoLY7x.png)
+![](https://i.imgur.com/JGDiSjQ.png)
 
 Diffusion:
 
-![](https://i.imgur.com/ut7p1zY.png)
+![](https://i.imgur.com/FHIL1G9.png)
 
 Gradient Noise:
 
-![](https://i.imgur.com/Nv61IIN.png)
+![](https://i.imgur.com/nWrDQ0E.png)
 
 Blue Noise:
 
-![](https://i.imgur.com/sB1rElC.png)
+![](https://i.imgur.com/3zhS5hK.png)
 
 Chaotic Noise:
 
-![](https://i.imgur.com/PlMdAjq.png)
+![](https://i.imgur.com/hTchHcD.png)
 
 Scatter:
 
-![](https://i.imgur.com/L75Rywa.png)
+![](https://i.imgur.com/pYZEOh0.png)
 
 None (no dither):
 
-![](https://i.imgur.com/fH6RqKg.png)
+![](https://i.imgur.com/m0gweE8.png)
 
 The analysis step that PaletteReducer performs prefers the most frequent colors in the image, and the Mona Lisa has
 mostly dark gray, blue, and brown-to-flesh-tone colors. As such, the small amounts of green get forgotten when color
-count is low.
+count is too low. This shows some green because the color count is 16 (not including transparent, which isn't present).
+Lower color counts naturally have fewer colors.
 
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
