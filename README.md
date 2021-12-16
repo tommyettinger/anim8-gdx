@@ -153,107 +153,21 @@ PaletteReducer without arguments, or calling `setDefaultPalette()` later, will s
 
 # Samples
 
-Some .gif animations, using 255 colors taken from the most-used in the animation (`analyze()`, which does well here
-because it can use all the colors):
+Some animations, using 255 colors taken from the most-used in the animation (`analyze()`, which does well here
+because it can use all the colors), are [here on Imgur](https://imgur.com/a/USbGtfZ). Imgur unfortunately uses a lossy
+compression for these GIFs; if anyone has a recommendation for a lossless GIF host, please post an issue or get in touch
+however you prefer.
 
-Neue dither (default):
-
-![Flashy Gif, neue dither](https://i.imgur.com/entuyTj.gif)
-
-Pattern dither:
-
-![Flashy Gif, pattern dither](https://i.imgur.com/HrZqoji.gif)
-
-Gradient dither:
-
-![Flashy Gif, gradient dither](https://i.imgur.com/2n8n8cT.gif)
-
-Diffusion dither (Floyd-Steinberg):
-
-![Flashy Gif, diffusion dither](https://i.imgur.com/a77exZM.gif)
-
-Blue Noise dither:
-
-![Flashy Gif, blue noise dither](https://i.imgur.com/C7o4KfS.gif)
-
-Chaotic Noise dither:
-
-![Flashy Gif, chaotic noise dither](https://i.imgur.com/QO6uz2t.gif)
-
-Scatter dither:
-
-![Flashy Gif, scatter dither](https://i.imgur.com/neCNsNJ.gif)
-
-No dither:
-
-![Flashy Gif, no dither](https://i.imgur.com/W6SBPQM.gif)
-
-
-Some .gif animations that reduce the colors of the "flashy" animation shown:
-
-Black and white neue dither (default):
-
-![BW Gif, neue dither](https://i.imgur.com/JDwfRLM.gif)
-
-Black and white pattern dither:
-
-![BW Gif, pattern dither](https://i.imgur.com/HZYNsci.gif)
-
-Black and white gradient dither:
-
-![BW Gif, gradient dither](https://i.imgur.com/pH0unRR.gif)
-
-Black and white diffusion dither (Floyd-Steinberg):
-
-![BW Gif, diffusion dither](https://i.imgur.com/zzk45Wz.gif)
-
-Black and white blue noise dither:
-
-![BW Gif, blue noise dither](https://i.imgur.com/jBgk3iL.gif)
-
-Black and white scatter dither:
-
-![BW Gif, scatter dither](https://i.imgur.com/VbUwr5w.gif)
-
-Black and white no dither:
-
-![BW Gif, no dither](https://i.imgur.com/5Db2L6p.gif)
-
-4-color green-scale neue dither (default):
-
-![GB Gif, neue dither](https://i.imgur.com/bG7fyAj.gif)
-
-4-color green-scale pattern dither:
-
-![GB Gif, pattern dither](https://i.imgur.com/hISfaoS.gif)
-
-4-color green-scale gradient dither:
-
-![GB Gif, gradient dither](https://i.imgur.com/LTMqDF9.gif)
-
-4-color green-scale diffusion dither (Floyd-Steinberg):
-
-![GB Gif, diffusion dither](https://i.imgur.com/hssSX9D.gif)
-
-4-color green-scale blue noise dither:
-
-![GB Gif, blue noise dither](https://i.imgur.com/blnOyyh.gif)
-
-4-color green-scale scatter dither:
-
-![GB Gif, scatter dither](https://i.imgur.com/RgnqY6Z.gif)
-
-4-color green-scale no dither:
-
-![GB Gif, no dither](https://i.imgur.com/SxUEPVc.gif)
+Some .gif animations that reduce the colors of the "flashy" animation shown are [here on Imgur, reduced to black and
+white](https://imgur.com/a/1bkxPFH), and [here on Imgur, reduced to 4-color "green-scale"](https://imgur.com/a/5G7amXn).
 
 And some .png animations, using full color:
 
-![Flashy Full-Color PNG](https://i.imgur.com/UE6wYkO.png)
+![Flashy Full-Color PNG](https://i.imgur.com/Sgy7HE8.png)
 
-![Pastel Full-Color PNG](https://i.imgur.com/tFVw2Tu.png)
+![Pastel Full-Color PNG](https://i.imgur.com/22KiFSZ.png)
 
-![Green Full-Color PNG](https://i.imgur.com/JwzriKd.png)
+![Green Ogre Full-Color PNG](https://i.imgur.com/1GCnHq4.png)
 
 A more intense usage is to encode a high-color video as an indexed-color GIF; why you might do this, I don't know,
 but someone probably wants videos as GIFs. There's some test footage here from
