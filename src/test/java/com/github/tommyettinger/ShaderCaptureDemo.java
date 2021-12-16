@@ -136,9 +136,9 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/gif/animated/").mkdirs();
         Gdx.files.local("images/apng/animated/").mkdirs();
         Gdx.files.local("images/png/animated/").mkdirs();
-		renderAPNG(nmsSmall, sds); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-//		renderPNG8(nms, pals, sds);
-        renderGif(nms, pals, sds);
+//		renderAPNG(nmsSmall, sds); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+		renderPNG8(nms, pals, sds);
+//        renderGif(nms, pals, sds);
     }
 
     @Override

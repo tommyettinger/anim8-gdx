@@ -154,14 +154,13 @@ PaletteReducer without arguments, or calling `setDefaultPalette()` later, will s
 # Samples
 
 Some animations, using 255 colors taken from the most-used in the animation (`analyze()`, which does well here
-because it can use all the colors), are [here on Imgur](https://imgur.com/a/USbGtfZ). Imgur unfortunately uses a lossy
-compression for these GIFs; if anyone has a recommendation for a lossless GIF host, please post an issue or get in touch
-however you prefer.
+because it can use all the colors), are [here on Imgur](https://imgur.com/a/JTyni5w). These are all indexed-color
+animated PNG files, produced with the PNG8 class; using this seems to avoid lossy compression on Imgur.
 
 Some .gif animations that reduce the colors of the "flashy" animation shown are [here on Imgur, reduced to black and
 white](https://imgur.com/a/1bkxPFH), and [here on Imgur, reduced to 4-color "green-scale"](https://imgur.com/a/5G7amXn).
 
-And some .png animations, using full color:
+And some .png animations, using full color (made with the AnimatedPNG class):
 
 ![Flashy Full-Color PNG](https://i.imgur.com/Sgy7HE8.png)
 
