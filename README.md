@@ -46,7 +46,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.1"
+  api "com.github.tommyettinger:anim8-gdx:0.3.2"
 }
 ```
 
@@ -54,7 +54,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/f8afbbb229). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.1:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.2:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -228,14 +228,14 @@ Lower color counts naturally have fewer colors.
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
 
 There are other test images used in the src/test/resources/ folder and its subfolders.
-AllRGB.png uses all possible RGB colors exactly once; it was made by user Meyermagic and called Hamiltonian 1,
-[available here](https://allrgb.com/hamiltonian-1). Cat.jpg is my cat, Satchmo. Frog.jpg is a public-domain image of a
-red-eyed tree frog, [taken by Carey James Balboa](https://commons.wikimedia.org/wiki/File:Red_eyed_tree_frog_edit2.jpg).
+Cat.jpg is a portrait of my cat, Satchmo; the image is public domain, the cat is not. Frog.jpg is a public-domain image
+of a red-eyed tree frog, [taken by Carey James Balboa](https://commons.wikimedia.org/wiki/File:Red_eyed_tree_frog_edit2.jpg).
 Landscape.jpg is [Among the Sierra Nevada by Albert Bierstadt](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg),
 a public domain oil painting. Mona_Lisa.jpg is also a public domain oil painting, this one the Mona Lisa by Leonardo da
 Vinci, and [remastered by pixel8tor](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif) to reduce
 the appearance of damage over time. Pixel_Art.png is a snippet of a texture atlas made from some [wargame pixel art I
 previously released into the public domain](https://opengameart.org/content/pixvoxel-revised-isometric-wargame-sprites).
-Anemone.png is just a noise texture I generated with a tool I wrote; the image is public domain.
-The only image I am not certain on the licensing of is Hamiltonian 1 (AllRGB.png); if there are any issues with it, I
-will remove it and ideally replace it with another image with all colors.
+Anemone.png is just a noise texture I generated with a tool I wrote; the image is public domain. The animation frames in
+the subfolders globe, oklab, tank, tree, and tyrant all come from other projects of mine; all of these frames are public
+domain. The animation frames in market are freely licensed without requirements, and are from
+["Video Of A Market" by Olivier Polome](https://www.pexels.com/video/video-of-a-market-4236787/).
