@@ -137,7 +137,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/apng/animated/").mkdirs();
         Gdx.files.local("images/png/animated/").mkdirs();
 		renderAPNG(nmsSmall, sds); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-		renderPNG8(nms, pals, sds);
+//		renderPNG8(nms, pals, sds);
         renderGif(nms, pals, sds);
     }
 
@@ -176,13 +176,13 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
-            Array<Pixmap> pixmaps = new Array<>(40);
-            for (int i = 1; i <= 40; i++) {
+            Array<Pixmap> pixmaps = new Array<>(80);
+            for (int i = 1; i <= 80; i++) {
                 Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
                 Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
                 batch.begin();
                 shader.setUniformf("seed", seed);
-                shader.setUniformf("tm", i * 2.5f);
+                shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, 0, width, height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -202,13 +202,13 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
-            Array<Pixmap> pixmaps = new Array<>(40);
-            for (int i = 1; i <= 40; i++) {
+            Array<Pixmap> pixmaps = new Array<>(80);
+            for (int i = 1; i <= 80; i++) {
                 Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
                 Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
                 batch.begin();
                 shader.setUniformf("seed", seed);
-                shader.setUniformf("tm", i * 2.5f);
+                shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, 0, width, height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -252,13 +252,13 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
-            Array<Pixmap> pixmaps = new Array<>(40);
-            for (int i = 1; i <= 40; i++) {
+            Array<Pixmap> pixmaps = new Array<>(80);
+            for (int i = 1; i <= 80; i++) {
                 Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
                 Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
                 batch.begin();
                 shader.setUniformf("seed", seed);
-                shader.setUniformf("tm", i * 2.5f);
+                shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, 0, width, height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));

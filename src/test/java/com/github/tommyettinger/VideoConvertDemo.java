@@ -35,10 +35,10 @@ public class VideoConvertDemo extends ApplicationAdapter {
                         0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}
         };
 
-        renderVideoGif(names, palettes);
+//        renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
-        renderOklabGif(names, palettes);
+//        renderGlobeGif(names, palettes);
+//        renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
@@ -61,7 +61,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         AnimatedPNG apng = new AnimatedPNG();
         apng.setCompression(7);
         apng.setFlipY(false);
-        apng.write(Gdx.files.local("images/animated/AnimatedPNG-" + name + ".png"), pixmaps, 20);
+        apng.write(Gdx.files.local("images/apng/"+name+"AnimatedPNG-" + name + ".png"), pixmaps, 20);
     }
     
     public void renderPNG8() {
@@ -85,21 +85,21 @@ public class VideoConvertDemo extends ApplicationAdapter {
         png8.setFlipY(false);
         png8.setCompression(7);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-None.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-None.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-Diffusion.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Diffusion.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-GradientNoise.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-GradientNoise.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-ChaoticNoise.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-ChaoticNoise.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-        png8.write(Gdx.files.local("images/" + name + "/PNG8-" + namePalette + "-Neue.png"), pixmaps, 20);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Neue.png"), pixmaps, 20);
     }
 
     public void renderVideoGif(String[] names, int[][] palettes) {
@@ -118,22 +118,22 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 20);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 20);
         }
 //        String[] ns = new String[]{"-Analyzed", "-Haltonic", "-BW", "-Green"};
 //        int[][] is = new int[][]{
@@ -173,21 +173,21 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
             gif.setFlipY(false);
 //            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 12);
+//            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 12);
 //            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 12);
+//            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 12);
 //            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 12);
+//            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 12);
 //            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 12);
+//            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 12);
 //            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 12);
+//            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 12);
 //            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 12);
+//            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 12);
 //            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 12);
+//            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 12);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 12);
         }
     }
 
@@ -207,22 +207,22 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 1);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 1);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 1);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 1);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 1);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 1);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 1);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 1);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 1);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 1);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 1);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 1);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 1);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 1);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 1);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 1);
         }
     }
 
@@ -242,22 +242,22 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 20);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 20);
         }
     }
 
@@ -277,22 +277,22 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
-//            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-//            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local("images/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 20);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 20);
         }
     }
 
