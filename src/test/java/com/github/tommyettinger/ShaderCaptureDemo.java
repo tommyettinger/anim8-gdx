@@ -138,7 +138,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/png/animated/").mkdirs();
 //		renderAPNG(nmsSmall, sds); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
 		renderPNG8(nms, pals, sds);
-//        renderGif(nms, pals, sds);
+        renderGif(nms, pals, sds);
     }
 
     @Override
@@ -246,7 +246,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
     public void renderGif(String[] names, int[][] palettes, long[] seeds) {
         AnimatedGif gif = new AnimatedGif();
-        gif.palette = new PaletteReducer();
+        PaletteReducer pal = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             name = names[n];
             long state = seeds[n];
@@ -264,9 +264,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             if (palettes[n] == null)
-                gif.palette.analyze(pixmaps);
-            else
-                gif.palette.exact(palettes[n]);
+                gif.palette = null;
+            else {
+                pal.exact(palettes[n]);
+                gif.palette = pal;
+            }
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-pattern.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);

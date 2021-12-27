@@ -80,9 +80,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      */
     @Override
     public void write(OutputStream output, Array<Pixmap> frames, int fps) {
-        boolean clearPalette;
-        if (clearPalette = (palette == null))
-            palette = new PaletteReducer(frames);
+        if(frames == null || frames.isEmpty()) return;
+        clearPalette = (palette == null);
+        if (clearPalette)
+            palette = new PaletteReducer(frames.first());
         if(!start(output)) return;
         setFrameRate(fps);
         for (int i = 0; i < frames.size; i++) {
@@ -136,7 +137,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     protected boolean sizeSet = false; // if false, get size from first frame
 
     protected int seq = 0;
-    
+
+    private boolean clearPalette;
+
     public PaletteReducer palette;
 
     /**
@@ -379,7 +382,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     protected void analyzePixels() {
         int nPix = width * height;
         indexedPixels = new byte[nPix];
-//        palette.analyze(image);
+        if(seq > 1 && clearPalette)
+            palette.analyze(image);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
