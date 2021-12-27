@@ -137,8 +137,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/apng/animated/").mkdirs();
         Gdx.files.local("images/png/animated/").mkdirs();
 //		renderAPNG(nmsSmall, sds); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-		renderPNG8(nms, pals, sds);
+//		renderPNG8(nms, pals, sds);
         renderGif(nms, pals, sds);
+//Analyzing each frame individually takes 137131 ms.
+//Analyzing all frames as a batch takes    31025 ms.
+        System.out.println("Finished writing in " + TimeUtils.timeSinceMillis(startTime) + " ms.");
     }
 
     @Override

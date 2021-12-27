@@ -73,7 +73,13 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     /**
      * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF in the OutputStream
-     * {@code output}. The resulting GIF will play back at {@code fps} frames per second.
+     * {@code output}. The resulting GIF will play back at {@code fps} frames per second. If {@link #palette}
+     * is null, then this will make a palette for the first frame using {@link PaletteReducer#analyze(Pixmap)},
+     * then reuse that object with a different analyzed palette on each subsequent frame. This results in the
+     * highest-quality color quantization for any given frame, but is relatively slow; it takes over 4x as long
+     * when the palette is null vs. when the palette was analyzed all-frames-at-once with
+     * {@link PaletteReducer#analyze(Array)}. Using a null palette also means the final image can use more than
+     * 256 total colors over the course of the animation.
      * @param output the OutputStream to write to; will not be closed by this method
      * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
      * @param fps how many frames (from {@code frames}) to play back per second

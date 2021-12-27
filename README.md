@@ -26,8 +26,10 @@ public void writeGif() {
         // pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
     }
     // AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from
-    // the given pixmaps and use that for all frames, dithering any colors that don't match.
-    // see Dithering Algorithms below for visual things to be aware of and choices you can take.
+    // each given frame and use the most appropriate palette for each frame, dithering any colors that don't
+    // match. The other file-writing classes don't do this; PNG8 doesn't currently support a palette per-frame,
+    // while AnimatedPNG doesn't restrict colors to a palette. See Dithering Algorithms below for visual things
+    // to be aware of and choices you can make.
     AnimatedGif gif = new AnimatedGif();
     // you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
     // here, pixmaps is usually an Array of Pixmap for any of the animated image types.
@@ -150,6 +152,13 @@ image being dithered. Typically, between 150 and 600 are used, with higher value
 (that is, ones with fewer similar colors to try to keep). Usually you will do just fine with the default "HALTONIC"
 palette, or almost any practical 250+ color palette, because with so many colors it's hard to go wrong. Creating a
 PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use HALTONIC.
+
+As of 0.3.3 (not yet released; available via JitPack), GIF supports using a different palette for each frame of an
+animation, analyzing colors separately for each frame. This supplements the previous behavior where a palette would
+analyze all frames of an animation and find a 255-color palette that approximates the whole set of all frames
+well-enough. PNG8 still uses the previous behavior, and you can use it with AnimatedGif by creating a PaletteReducer
+with an `Array<Pixmap>` or calling `PaletteReducer.analyze(Array<Pixmap>)`. To analyze each frame separately, just make
+sure the `palette` field of your `AnimatedGif` is null when you start writing a GIF.
 
 # Samples
 

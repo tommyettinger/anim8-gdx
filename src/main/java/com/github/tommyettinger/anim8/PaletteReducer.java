@@ -929,7 +929,11 @@ public class PaletteReducer {
             colorCount = i;
             populationBias = (float) Math.exp(-1.375/colorCount);
         }
-        reverseMap = new IntIntMap(colorCount);
+        if(reverseMap == null)
+            reverseMap = new IntIntMap(colorCount);
+        else
+            reverseMap.clear(colorCount);
+
         for (int i = 0; i < colorCount; i++) {
             reverseMap.put(paletteArray[i], i);
         }
