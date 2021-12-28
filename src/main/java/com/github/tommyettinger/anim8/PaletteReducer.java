@@ -959,6 +959,129 @@ public class PaletteReducer {
         }
     }
     
+    /**
+     * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
+     * If there are {@code limit} or less colors, this uses the exact colors (although with at most one transparent
+     * color, and no alpha for other colors); if there are more than {@code limit} colors or any colors have 50% or less
+     * alpha, it will reserve a palette entry for transparent (even if the image has no transparency). Because calling
+     * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
+     * works better when the palette can choose colors that are sufficiently different, this takes a threshold value to
+     * determine whether it should permit a less-common color into the palette, and if the second color is different
+     * enough (as measured by {@link #difference(int, int)}) by a value of at least {@code threshold}, it is allowed in
+     * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
+     * 100 and 1000, and 150 is a good default. If the threshold is too high, then some colors that would be useful to
+     * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
+     * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
+     * Pixmap.
+     * <br>
+     * This does a faster and less accurate analysis, and is more suitable to do on each frame of a large animation when
+     * time is better spent making more images than fewer images at higher quality. It should be about 5 times faster
+     * than {@link #analyze(Pixmap, double, int)} with the same parameters.
+     *
+     * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
+     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyzeFast(Pixmap pixmap, double threshold, int limit) {
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        limit = Math.min(Math.max(limit, 2), 256);
+        threshold /= Math.pow(limit, 1.5) * 0.00105;
+        final int width = pixmap.getWidth(), height = pixmap.getHeight();
+        IntIntMap counts = new IntIntMap(limit);
+        int hasTransparent = 0;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                color = pixmap.getPixel(x, y);
+                if ((color & 0x80) != 0) {
+                    color |= (color >>> 5 & 0x07070700) | 0xFF;
+                    counts.getAndIncrement(color, 0, 1);
+                } else {
+                    hasTransparent = 1;
+                }
+            }
+        }
+        int cs = counts.size;
+        Array<IntIntMap.Entry> es = new Array<>(cs);
+        for(IntIntMap.Entry e : counts)
+        {
+            IntIntMap.Entry e2 = new IntIntMap.Entry();
+            e2.key = e.key;
+            e2.value = e.value;
+            es.add(e2);
+        }
+        es.sort(entryComparator);
+        if (cs + hasTransparent <= limit) {
+            int i = hasTransparent;
+            for(IntIntMap.Entry e : es) {
+                color = e.key;
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.375/colorCount);
+        } else // reduce color count
+        {
+            int i = 1, c = 0;
+            PER_BEST:
+            while (i < limit && c < cs) {
+                color = es.get(c++).key;
+                for (int j = 1; j < i; j++) {
+                    if (difference(color, paletteArray[j]) < threshold)
+                        continue PER_BEST;
+                }
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.375/colorCount);
+        }
+        if(reverseMap == null)
+            reverseMap = new IntIntMap(colorCount);
+        else
+            reverseMap.clear(colorCount);
+
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
+        }
+        if(colorCount <= 1)
+            return;
+        int c2;
+        byte bt;
+        int numUnassigned = 1;
+        byte[] buffer = Arrays.copyOf(paletteMapping, 0x8000);
+        while (numUnassigned != 0) {
+            numUnassigned = 0;
+            for (int r = 0; r < 32; r++) {
+                for (int g = 0; g < 32; g++) {
+                    for (int b = 0; b < 32; b++) {
+                        c2 = r << 10 | g << 5 | b;
+                        if (buffer[c2] == 0) {
+                            if (b < 31 && (bt = paletteMapping[c2 + 1]) != 0)
+                                buffer[c2] = bt;
+                            else if (g < 31 && (bt = paletteMapping[c2 + 32]) != 0)
+                                buffer[c2] = bt;
+                            else if (r < 31 && (bt = paletteMapping[c2 + 1024]) != 0)
+                                buffer[c2] = bt;
+                            else if (b > 0 && (bt = paletteMapping[c2 - 1]) != 0)
+                                buffer[c2] = bt;
+                            else if (g > 0 && (bt = paletteMapping[c2 - 32]) != 0)
+                                buffer[c2] = bt;
+                            else if (r > 0 && (bt = paletteMapping[c2 - 1024]) != 0)
+                                buffer[c2] = bt;
+                            else numUnassigned++;
+                        }
+                    }
+                }
+            }
+            System.arraycopy(buffer, 0, paletteMapping, 0, 0x8000);
+        }
+    }
+
     public void analyzeMC(Pixmap pixmap, int limit) {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);

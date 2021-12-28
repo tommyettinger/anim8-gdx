@@ -35,10 +35,10 @@ public class VideoConvertDemo extends ApplicationAdapter {
                         0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}
         };
 
-//        renderVideoGif(names, palettes);
+        renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
-//        renderGlobeGif(names, palettes);
-//        renderOklabGif(names, palettes);
+        renderGlobeGif(names, palettes);
+        renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
@@ -113,7 +113,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
             if(palettes[i] == null)
-                gif.setPalette(new PaletteReducer(pixmaps));
+                gif.setPalette(null);
             else
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
@@ -167,7 +167,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
             if(palettes[i] == null)
-                gif.setPalette(new PaletteReducer(pixmaps));
+                gif.setPalette(null);
             else
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
@@ -202,7 +202,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
             if(palettes[i] == null)
-                gif.setPalette(new PaletteReducer(pixmaps));
+                gif.setPalette(null);
             else
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
@@ -237,7 +237,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
             if(palettes[i] == null)
-                gif.setPalette(new PaletteReducer(pixmaps));
+                gif.setPalette(null);
             else
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
@@ -272,7 +272,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
             if(palettes[i] == null)
-                gif.setPalette(new PaletteReducer(pixmaps));
+                gif.setPalette(null);
             else
                 gif.setPalette(new PaletteReducer(palettes[i]));
 

@@ -125,10 +125,12 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 //        long state = -1L; name = "pastel"; // pastel
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
-        String[] nms = {"flashy", "pastel", "green", "bw", "gb", "haltonic"};
-        String[] nmsSmall = {"flashy", "pastel", "green"};
-        int[][] pals = {null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
+//        String[] nms = {"flashy", "pastel", "green", "bw", "gb", "haltonic"};
+//        int[][] pals = {null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
+//        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
+        String[] nms = {"flashy", "pastel", "green"};
+        int[][] pals = {null, null, null};
+        long[] sds = {0x123456789L, -1L, 0x1234567890L};
 
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
@@ -141,6 +143,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         renderGif(nms, pals, sds);
 //Analyzing each frame individually takes 137131 ms.
 //Analyzing all frames as a batch takes    31025 ms.
+        // with analyze() on each frame, 3 images: 125176 ms
+        // with analyzeFast() on each frame, 3 images: 26019 ms.
         System.out.println("Finished writing in " + TimeUtils.timeSinceMillis(startTime) + " ms.");
     }
 

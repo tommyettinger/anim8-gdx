@@ -88,8 +88,14 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     public void write(OutputStream output, Array<Pixmap> frames, int fps) {
         if(frames == null || frames.isEmpty()) return;
         clearPalette = (palette == null);
-        if (clearPalette)
-            palette = new PaletteReducer(frames.first());
+        if (clearPalette) {
+            if (fastAnalysis) {
+                palette = new PaletteReducer();
+                palette.analyzeFast(frames.first(), 150, 256);
+            }
+            else
+                palette = new PaletteReducer(frames.first());
+        }
         if(!start(output)) return;
         setFrameRate(fps);
         for (int i = 0; i < frames.size; i++) {
@@ -146,6 +152,19 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     private boolean clearPalette;
 
+    /**
+     * If true (the default) and {@link #palette} is null, this uses a lower-quality but much-faster algorithm to
+     * analyze the color palette in each frame; if false and palette is null, then this uses the normal algorithm for
+     * still images on each frame separately.
+     */
+    public boolean fastAnalysis = true;
+
+    /**
+     * Often assigned as a field, the palette can be null (which means this will analyze each frame for its palette,
+     * based on the setting for {@link #fastAnalysis}), or can be an existing PaletteReducer. You may want to create a
+     * PaletteReducer with an exact palette, such as by {@link PaletteReducer#PaletteReducer(int[])}, and then assign it
+     * to this field.
+     */
     public PaletteReducer palette;
 
     /**
@@ -389,7 +408,12 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         int nPix = width * height;
         indexedPixels = new byte[nPix];
         if(seq > 1 && clearPalette)
-            palette.analyze(image);
+        {
+            if(fastAnalysis)
+                palette.analyzeFast(image, 150, 256);
+            else
+                palette.analyze(image, 150, 256);
+        }
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
