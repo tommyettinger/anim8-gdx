@@ -1052,7 +1052,7 @@ public class PaletteReducer {
             return;
         int c2;
         byte bt;
-        int numUnassigned = 1;
+        int numUnassigned = 1, iterations = 0;
         byte[] buffer = Arrays.copyOf(paletteMapping, 0x8000);
         while (numUnassigned != 0) {
             numUnassigned = 0;
@@ -1061,19 +1061,62 @@ public class PaletteReducer {
                     for (int b = 0; b < 32; b++) {
                         c2 = r << 10 | g << 5 | b;
                         if (buffer[c2] == 0) {
-                            if (b < 31 && (bt = paletteMapping[c2 + 1]) != 0)
-                                buffer[c2] = bt;
-                            else if (g < 31 && (bt = paletteMapping[c2 + 32]) != 0)
-                                buffer[c2] = bt;
-                            else if (r < 31 && (bt = paletteMapping[c2 + 1024]) != 0)
-                                buffer[c2] = bt;
-                            else if (b > 0 && (bt = paletteMapping[c2 - 1]) != 0)
-                                buffer[c2] = bt;
-                            else if (g > 0 && (bt = paletteMapping[c2 - 32]) != 0)
-                                buffer[c2] = bt;
-                            else if (r > 0 && (bt = paletteMapping[c2 - 1024]) != 0)
-                                buffer[c2] = bt;
-                            else numUnassigned++;
+                            if(iterations++ != 2){
+                                if (b < 31 && (bt = paletteMapping[c2 + 1]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g < 31 && (bt = paletteMapping[c2 + 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (r < 31 && (bt = paletteMapping[c2 + 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b > 0 && (bt = paletteMapping[c2 - 1]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g > 0 && (bt = paletteMapping[c2 - 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (r > 0 && (bt = paletteMapping[c2 - 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else numUnassigned++;
+                            }
+                            else {
+                                iterations = 0;
+                                if (b < 31 && (bt = paletteMapping[c2 + 1]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g < 31 && (bt = paletteMapping[c2 + 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (r < 31 && (bt = paletteMapping[c2 + 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b > 0 && (bt = paletteMapping[c2 - 1]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g > 0 && (bt = paletteMapping[c2 - 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (r > 0 && (bt = paletteMapping[c2 - 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b < 31 && g < 31 && (bt = paletteMapping[c2 + 1 + 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b < 31 && r < 31 && (bt = paletteMapping[c2 + 1 + 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g < 31 && r < 31 && (bt = paletteMapping[c2 + 32 + 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b > 0 && g > 0 && (bt = paletteMapping[c2 - 1 - 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b > 0 && r > 0 && (bt = paletteMapping[c2 - 1 - 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g > 0 && r > 0 && (bt = paletteMapping[c2 - 32 - 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b < 31 && g > 0 && (bt = paletteMapping[c2 + 1 - 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b < 31 && r > 0 && (bt = paletteMapping[c2 + 1 - 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g < 31 && r > 0 && (bt = paletteMapping[c2 + 32 - 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b > 0 && g < 31 && (bt = paletteMapping[c2 - 1 + 32]) != 0)
+                                    buffer[c2] = bt;
+                                else if (b > 0 && r < 31 && (bt = paletteMapping[c2 - 1 + 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else if (g > 0 && r < 31 && (bt = paletteMapping[c2 - 32 + 1024]) != 0)
+                                    buffer[c2] = bt;
+                                else numUnassigned++;
+
+                            }
                         }
                     }
                 }
