@@ -364,22 +364,23 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 pal.exact(palettes[n]);
                 gif.palette = pal;
             }
+            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-pattern.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-pattern.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-none.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-none.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-gradient.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-gradient.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-diffusion.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-diffusion.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-blueNoise.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-blueNoise.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-chaoticNoise.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-chaoticNoise.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-scatter.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-scatter.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local("images/gif/animated/AnimatedGif-" + name + "-neue.gif"), pixmaps, 16);
+            gif.write(Gdx.files.local(prefix + name + "-neue.gif"), pixmaps, 16);
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }

@@ -74,12 +74,16 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     /**
      * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF in the OutputStream
      * {@code output}. The resulting GIF will play back at {@code fps} frames per second. If {@link #palette}
-     * is null, then this will make a palette for the first frame using {@link PaletteReducer#analyze(Pixmap)},
-     * then reuse that object with a different analyzed palette on each subsequent frame. This results in the
+     * is null, {@link #fastAnalysis} is set to false, and frames contains 2 or more Pixmaps, then this will
+     * make a palette for the first frame using {@link PaletteReducer#analyze(Pixmap)}, then reuse that PaletteReducer
+     * but recompute a different analyzed palette for each subsequent frame. This results in the
      * highest-quality color quantization for any given frame, but is relatively slow; it takes over 4x as long
-     * when the palette is null vs. when the palette was analyzed all-frames-at-once with
-     * {@link PaletteReducer#analyze(Array)}. Using a null palette also means the final image can use more than
-     * 256 total colors over the course of the animation.
+     * when the palette is null and fastAnalysis is false vs. when the palette was analyzed all-frames-at-once with
+     * {@link PaletteReducer#analyze(Array)}. An alternative is to use a null palette and set fastAnalysis to true,
+     * which is the default when frames has 2 or more Pixmaps. This does a very quick analysis of the colors in each
+     * frame, which is usually good enough, and takes about the same time as analyzing all frames as one PaletteReducer.
+     * Using a null palette also means the final image can use more than 256 total colors over the course of the
+     * animation, regardless of fastAnalysis' setting, if there is more than one Pixmap in frames.
      * @param output the OutputStream to write to; will not be closed by this method
      * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
      * @param fps how many frames (from {@code frames}) to play back per second
@@ -89,7 +93,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         if(frames == null || frames.isEmpty()) return;
         clearPalette = (palette == null);
         if (clearPalette) {
-            if (fastAnalysis) {
+            if (fastAnalysis && frames.size > 1) {
                 palette = new PaletteReducer();
                 palette.analyzeFast(frames.first(), 150, 256);
             }
@@ -155,7 +159,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     /**
      * If true (the default) and {@link #palette} is null, this uses a lower-quality but much-faster algorithm to
      * analyze the color palette in each frame; if false and palette is null, then this uses the normal algorithm for
-     * still images on each frame separately.
+     * still images on each frame separately. The case when this is false can be 4x to 5x slower than the case when it
+     * is true, but it can produce higher-quality animations. This is ignored for single-frame GIFs, and the still-image
+     * algorithm is always used there when palette is null.
      */
     public boolean fastAnalysis = true;
 

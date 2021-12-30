@@ -166,6 +166,11 @@ Some animations, using 255 colors taken from the most-used in the animation (`an
 because it can use all the colors), are [here on Imgur](https://imgur.com/a/JTyni5w). These are all indexed-color
 animated PNG files, produced with the PNG8 class; using this seems to avoid lossy compression on Imgur.
 
+Some more .gif animations were made with the new fastAnalysis option; you can compare with fastAnalysis set to true
+[here on Imgur](https://imgur.com/a/nDwYNcP), and with fastAnalysis false [here on Imgur](https://imgur.com/a/TiyBZex).
+These were all converted to APNG so Imgur won't compress them, but they kept the same palette(s). Running with
+fastAnalysis set to true took about 25 seconds; with false, over 130 seconds.
+
 Some .gif animations that reduce the colors of the "flashy" animation shown are [here on Imgur, reduced to black and
 white](https://imgur.com/a/1bkxPFH), and [here on Imgur, reduced to 4-color "green-scale"](https://imgur.com/a/5G7amXn).
 
