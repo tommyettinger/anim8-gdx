@@ -35,11 +35,12 @@ public class VideoConvertDemo extends ApplicationAdapter {
                         0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}
         };
 
-        renderVideoGif(names, palettes);
-        renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
-        renderOklabGif(names, palettes);
-        renderTankGif(names, palettes);
+//        renderVideoGif(names, palettes);
+//        renderPixelGif(names, palettes);
+//        renderGlobeGif(names, palettes);
+//        renderOklabGif(names, palettes);
+//        renderTankGif(names, palettes);
+        renderSolidsGif(names, palettes);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
@@ -263,8 +264,44 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
     public void renderOklabGif(String[] names, int[][] palettes) {
         String name = "oklab";
-        Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 120, Pixmap.class);
         for (int i = 0; i < 120; i++) {
+            pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
+        }
+        AnimatedGif gif = new AnimatedGif();
+        String namePalette;
+        for (int i = 0; i < names.length; i++) {
+            namePalette = name + names[i];
+            if(palettes[i] == null)
+                gif.setPalette(null);
+            else
+                gif.setPalette(new PaletteReducer(palettes[i]));
+
+            gif.setFlipY(false);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-None.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Diffusion.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Pattern.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-GradientNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-BlueNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-ChaoticNoise.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Scatter.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+            gif.write(Gdx.files.local("images/gif/" + name + "/AnimatedGif-" + namePalette + "-Neue.gif"), pixmaps, 20);
+        }
+    }
+
+
+    public void renderSolidsGif(String[] names, int[][] palettes) {
+        String name = "solids";
+        Array<Pixmap> pixmaps = new Array<>(true, 256, Pixmap.class);
+        for (int i = 0; i < 256; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
         AnimatedGif gif = new AnimatedGif();
