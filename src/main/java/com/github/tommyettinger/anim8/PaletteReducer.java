@@ -903,7 +903,7 @@ public class PaletteReducer {
         }
         es.sort(entryComparator);
         if (cs + hasTransparent <= limit) {
-            int i = hasTransparent;
+            int i = 1;
             for(IntIntMap.Entry e : es) {
                 color = e.key;
                 paletteArray[i] = color;
@@ -1014,7 +1014,7 @@ public class PaletteReducer {
         }
         es.sort(entryComparator);
         if (cs + hasTransparent <= limit) {
-            int i = hasTransparent;
+            int i = 1;
             for(IntIntMap.Entry e : es) {
                 color = e.key;
                 paletteArray[i] = color;

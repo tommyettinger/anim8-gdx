@@ -35,11 +35,11 @@ public class VideoConvertDemo extends ApplicationAdapter {
                         0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}
         };
 
-//        renderVideoGif(names, palettes);
-//        renderPixelGif(names, palettes);
-//        renderGlobeGif(names, palettes);
-//        renderOklabGif(names, palettes);
-//        renderTankGif(names, palettes);
+        renderVideoGif(names, palettes);
+        renderPixelGif(names, palettes);
+        renderGlobeGif(names, palettes);
+        renderOklabGif(names, palettes);
+        renderTankGif(names, palettes);
         renderSolidsGif(names, palettes);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
@@ -302,6 +302,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         String name = "solids";
         Array<Pixmap> pixmaps = new Array<>(true, 256, Pixmap.class);
         for (int i = 0; i < 256; i++) {
+//        for(int i : new int[]{0, 63, 64, 65, 127, 128, 129, 190, 191, 192, 255}) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
         AnimatedGif gif = new AnimatedGif();
