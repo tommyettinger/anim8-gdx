@@ -196,8 +196,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                         "  gl_FragColor.rgb = sin(con * 3.14159265) * 0.5 + 0.5;\n" +
                         "  gl_FragColor.a = 1.0;\n" +
                         "}\n";
-        shader = new ShaderProgram(vertex2, fragment2);
 //        shader = new ShaderProgram(vertex2, fragment2);
+        shader = new ShaderProgram(vertex, fragment);
         if (!shader.isCompiled()) {
             Gdx.app.error("Shader", "error compiling shader:\n" + shader.getLog());
             Gdx.app.exit();
@@ -211,8 +211,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 //        String[] nms = {"flashy", "pastel", "green", "bw", "gb", "haltonic"};
 //        int[][] pals = {null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
 //        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
-        String[] nms = {"blanket", "bold", "ocean"};
-//        String[] nms = {"flashy", "pastel", "green"};
+//        String[] nms = {"blanket", "bold", "ocean"};
+        String[] nms = {"flashy", "pastel", "green"};
         int[][] pals = {null, null, null};
         long[] sds = {0x123456789L, -1L, 0x1234567890L};
 
@@ -358,7 +358,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             if (palettes[n] == null) {
                 gif.palette = null;
-                gif.fastAnalysis = true;
+                gif.fastAnalysis = false;
             }
             else {
                 pal.exact(palettes[n]);

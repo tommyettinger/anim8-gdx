@@ -125,6 +125,8 @@ different API).
       triangular-mapped blue noise to each pixel at the same amount (as well as a 2x2 checkerboard pattern).
     - SCATTER, as well as all other dither algorithms here except BLUE_NOISE and PATTERN, tend to have banding on smooth
       gradients, while NEUE doesn't usually have any banding.
+    - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
+      is a problem, SCATTER can look better.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN has an obvious square grid.
@@ -163,13 +165,16 @@ sure the `palette` field of your `AnimatedGif` is null when you start writing a 
 # Samples
 
 Some animations, using 255 colors taken from the most-used in the animation (`analyze()`, which does well here
-because it can use all the colors), are [here on Imgur](https://imgur.com/a/JTyni5w). These are all indexed-color
-animated PNG files, produced with the PNG8 class; using this seems to avoid lossy compression on Imgur.
+because it can use all the colors), are [here on Imgur](https://imgur.com/a/R7rFpED). These are all indexed-color
+animated PNG files, produced with the AnimatedGif class and converted to animated PNG with a separate tool; using this
+approach seems to avoid lossy compression on Imgur. Those use AnimatedGif's new fastAnalysis option; you can compare
+them with fastAnalysis set to false [here on Imgur](https://imgur.com/a/YDsAOVy). Running with fastAnalysis set to true
+(and also generating APNG images on the side) took about 40 seconds; with fastAnalysis false, about 129 seconds.
 
 Some more .gif animations were made with the new fastAnalysis option; you can compare with fastAnalysis set to true
 [here on Imgur](https://imgur.com/a/nDwYNcP), and with fastAnalysis false [here on Imgur](https://imgur.com/a/TiyBZex).
-These were all converted to APNG so Imgur won't compress them, but they kept the same palette(s). Running with
-fastAnalysis set to true took about 25 seconds; with false, over 130 seconds.
+Like before, these were all converted to APNG so Imgur won't compress them, but they kept the same palette(s). Running
+with fastAnalysis set to true took about 25 seconds; with false, over 130 seconds.
 
 Some .gif animations that reduce the colors of the "flashy" animation shown are [here on Imgur, reduced to black and
 white](https://imgur.com/a/1bkxPFH), and [here on Imgur, reduced to 4-color "green-scale"](https://imgur.com/a/5G7amXn).
