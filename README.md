@@ -204,39 +204,39 @@ various 16-color dithers using a palette derived from the most frequent and diff
 
 Original (full-color):
 
-![](https://i.imgur.com/h4Kenjj.png)
+![](https://i.imgur.com/sDJbRh2.png)
 
 Neue (default):
 
-![](https://i.imgur.com/qLm5Ftk.png)
+![](https://i.imgur.com/aSbwOaD.png)
 
 Pattern:
 
-![](https://i.imgur.com/JGDiSjQ.png)
+![](https://i.imgur.com/mgB8qIa.png)
 
 Diffusion:
 
-![](https://i.imgur.com/FHIL1G9.png)
+![](https://i.imgur.com/5WFV6fg.png)
 
 Gradient Noise:
 
-![](https://i.imgur.com/nWrDQ0E.png)
+![](https://i.imgur.com/oDZlVkD.png)
 
 Blue Noise:
 
-![](https://i.imgur.com/3zhS5hK.png)
+![](https://i.imgur.com/kPa6BeL.png)
 
 Chaotic Noise:
 
-![](https://i.imgur.com/hTchHcD.png)
+![](https://i.imgur.com/HGsxClj.png)
 
 Scatter:
 
-![](https://i.imgur.com/pYZEOh0.png)
+![](https://i.imgur.com/17bDbzF.png)
 
 None (no dither):
 
-![](https://i.imgur.com/m0gweE8.png)
+![](https://i.imgur.com/KisqTIh.png)
 
 The analysis step that PaletteReducer performs prefers the most frequent colors in the image, and the Mona Lisa has
 mostly dark gray, blue, and brown-to-flesh-tone colors. As such, the small amounts of green get forgotten when color
@@ -255,6 +255,6 @@ Vinci, and [remastered by pixel8tor](https://commons.wikimedia.org/wiki/File:Mon
 the appearance of damage over time. Pixel_Art.png is a snippet of a texture atlas made from some [wargame pixel art I
 previously released into the public domain](https://opengameart.org/content/pixvoxel-revised-isometric-wargame-sprites).
 Anemone.png is just a noise texture I generated with a tool I wrote; the image is public domain. The animation frames in
-the subfolders globe, oklab, tank, tree, and tyrant all come from other projects of mine; all of these frames are public
-domain. The animation frames in market are freely licensed without requirements, and are from
+the subfolders globe, oklab, solids, tank, tree, and tyrant all come from other projects of mine; all of these frames
+are public domain. The animation frames in market are freely licensed without requirements, and are from
 ["Video Of A Market" by Olivier Polome](https://www.pexels.com/video/video-of-a-market-4236787/).

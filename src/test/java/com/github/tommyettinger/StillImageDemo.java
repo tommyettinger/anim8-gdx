@@ -160,7 +160,6 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-BW.gif"), pixmaps, 1);
 		total += 1;
-
 	}
 
 	public static void main(String[] args) {
