@@ -1,7 +1,5 @@
 package com.github.tommyettinger.anim8;
 
-import com.badlogic.gdx.graphics.Pixmap;
-
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -11,10 +9,10 @@ import java.io.UnsupportedEncodingException;
 class ConstantData {
 
     /**
-     * This stores a preload code for a PaletteReducer using {@link PaletteReducer#HALTONIC} with a more-involved metric. Using
-     * a preload code in the constructor {@link PaletteReducer#PaletteReducer(int[], byte[])} eliminates the time needed to fill 32 KB
-     * of palette mapping in a somewhat-intricate way that only gets more intricate with better metrics, and replaces it
-     * with a straightforward load from a String into a 32KB byte array.
+     * This stores a preload code for a PaletteReducer using {@link PaletteReducer#HALTONIC} with a more-involved
+     * metric. Using a preload code in the constructor {@link PaletteReducer#PaletteReducer(int[], byte[])} eliminates
+     * the time needed to fill 32 KB of palette mapping in a somewhat-intricate way that only gets more intricate with
+     * better metrics, and replaces it with a straightforward load from a String into a 32 KB byte array.
      */
     static byte[] ENCODED_HALTONIC;
     /**
@@ -29,9 +27,8 @@ class ConstantData {
      * Very similar to {@link #RAW_BLUE_NOISE}, a 4096-element byte array as a 64x64 grid of bytes. Unlike RAW, this
      * uses a triangular distribution for its bytes, so values near 0 are much more common.
      * <br>
-     * This is public and non-final (blame Android), so you could change the contents to some other distribution of
-     * bytes or even assign a different array here, but you should never let the length be less than 4096, or let this
-     * become null.
+     * While, for some reason, you could change the contents to some other distribution of bytes, I don't know why this
+     * would be needed.
      */
     static byte[] TRI_BLUE_NOISE;
     static {

@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.NumberUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
@@ -98,6 +97,10 @@ public class PaletteReducer {
      * preset grayscale colors) will produce a similarly-distributed palette. Typically, 64 items from this are enough
      * to make pixel art look good enough with dithering, and it continues to improve with more colors. It has exactly 8
      * colors that are purely grayscale, all right at the start after transparent.
+     * <br>
+     * While you can modify the individual items in this array, this is discouraged, because various constructors and
+     * methods in this class use HALTONIC with a pre-made distance mapping of its colors. This mapping would become
+     * incorrect if any colors in this array changed.
      */
     public static final int[] HALTONIC = new int[]{
             0x00000000, 0x010101FF, 0xFEFEFEFF, 0x7B7B7BFF, 0x555555FF, 0xAAAAAAFF, 0x333333FF, 0xE0E0E0FF,
@@ -484,7 +487,7 @@ public class PaletteReducer {
 
     /**
      * Constructs a PaletteReducer that analyzes the given Pixmaps for color count and frequency to generate a palette
-     * (see {@link #analyze(Array)} )} for more info).
+     * (see {@link #analyze(Array)} for more info).
      *
      * @param pixmaps an Array of Pixmap to analyze in detail to produce a palette
      */
@@ -805,9 +808,9 @@ public class PaletteReducer {
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
      * too many colors to store in a PNG-8 palette. If there are 256 or less colors, this uses the exact colors
-     * (although with at most one transparent color, and no alpha for other colors); if there are more than 256 colors
-     * or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even if the image has no
-     * transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
+     * (although with at most one transparent color, and no alpha for other colors); this will always reserve a palette
+     * entry for transparent (even if the image has no transparency) because it uses palette index 0 in its analysis
+     * step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
      * aren't exact, and dithering works better when the palette can choose colors that are sufficiently different, this
      * uses a threshold value to determine whether it should permit a less-common color into the palette, and if the
      * second color is different enough (as measured by {@link #difference(int, int)}) by a value of at least 150, it is
@@ -832,9 +835,9 @@ public class PaletteReducer {
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
      * too many colors to store in a PNG-8 palette. If there are 256 or less colors, this uses the exact colors
-     * (although with at most one transparent color, and no alpha for other colors); if there are more than 256 colors
-     * or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even if the image has no
-     * transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
+     * (although with at most one transparent color, and no alpha for other colors); this will always reserve a palette
+     * entry for transparent (even if the image has no transparency) because it uses palette index 0 in its analysis
+     * step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
      * aren't exact, and dithering works better when the palette can choose colors that are sufficiently different, this
      * takes a threshold value to determine whether it should permit a less-common color into the palette, and if the
      * second color is different enough (as measured by {@link #difference(int, int)}) by a value of at least
@@ -854,9 +857,9 @@ public class PaletteReducer {
     }
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
-     * If there are {@code limit} or less colors, this uses the exact colors (although with at most one transparent
-     * color, and no alpha for other colors); if there are more than {@code limit} colors or any colors have 50% or less
-     * alpha, it will reserve a palette entry for transparent (even if the image has no transparency). Because calling
+     * If there are {@code limit} or fewer colors, this uses the exact colors (although with at most one transparent
+     * color, and no alpha for other colors); this will always reserve a palette entry for transparent (even if the
+     * image has no transparency) because it uses palette index 0 in its analysis step. Because calling
      * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
      * works better when the palette can choose colors that are sufficiently different, this takes a threshold value to
      * determine whether it should permit a less-common color into the palette, and if the second color is different

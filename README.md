@@ -48,7 +48,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.2"
+  api "com.github.tommyettinger:anim8-gdx:0.3.3"
 }
 ```
 
@@ -56,7 +56,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 [JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/f8afbbb229). 
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.2:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.3:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -153,7 +153,7 @@ image being dithered. Typically, between 150 and 600 are used, with higher value
 palette, or almost any practical 250+ color palette, because with so many colors it's hard to go wrong. Creating a
 PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use HALTONIC.
 
-As of 0.3.3 (not yet released; available via JitPack), GIF supports using a different palette for each frame of an
+As of version 0.3.3, GIF supports using a different palette for each frame of an
 animation, analyzing colors separately for each frame. This supplements the previous behavior where a palette would
 analyze all frames of an animation and find a 255-color palette that approximates the whole set of all frames
 well-enough. PNG8 still uses the previous behavior, and you can use it with AnimatedGif by creating a PaletteReducer
