@@ -247,15 +247,17 @@ Lower color counts naturally have fewer colors.
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
 
-There are other test images used in the src/test/resources/ folder and its subfolders.
-Cat.jpg is a portrait of my cat, Satchmo; the image is public domain, the cat is not. Frog.jpg is a public-domain image
-of a red-eyed tree frog, [taken by Carey James Balboa](https://commons.wikimedia.org/wiki/File:Red_eyed_tree_frog_edit2.jpg).
-Landscape.jpg is [Among the Sierra Nevada by Albert Bierstadt](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg),
-a public domain oil painting. Mona_Lisa.jpg is also a public domain oil painting, this one the Mona Lisa by Leonardo da
-Vinci, and [remastered by pixel8tor](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif) to reduce
-the appearance of damage over time. Pixel_Art.png is a snippet of a texture atlas made from some [wargame pixel art I
-previously released into the public domain](https://opengameart.org/content/pixvoxel-revised-isometric-wargame-sprites).
-Anemone.png is just a noise texture I generated with a tool I wrote; the image is public domain. The animation frames in
-the subfolders globe, oklab, solids, tank, tree, and tyrant all come from other projects of mine; all of these frames
-are public domain. The animation frames in market are freely licensed without requirements, and are from
-["Video Of A Market" by Olivier Polome](https://www.pexels.com/video/video-of-a-market-4236787/).
+# License
+
+The code in this project is licensed under Apache 2.0 (see [LICENSE](LICENSE)). The test images have their own licenses,
+though most are public-domain. Of the test images used in the src/test/resources/ folder and its subfolders...
+
+  - Cat.jpg is a portrait of my cat, Satchmo; the image is public domain, the cat is not.
+  - Frog.jpg is a public-domain image of a red-eyed tree frog, [taken by Carey James Balboa](https://commons.wikimedia.org/wiki/File:Red_eyed_tree_frog_edit2.jpg).
+  - Landscape.jpg is [Among the Sierra Nevada by Albert Bierstadt](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg), a public domain oil painting.
+  - Mona_Lisa.jpg is also a public domain oil painting, this one the Mona Lisa by Leonardo da Vinci, and [remastered by pixel8tor](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif) to reduce the appearance of damage over time.
+  - Pixel_Art.png is a snippet of a texture atlas made from some [wargame pixel art I previously released into the public domain](https://opengameart.org/content/pixvoxel-revised-isometric-wargame-sprites). 
+  - Anemone.png is just a noise texture I generated with a tool I wrote; the image is public domain.
+  - The animation frames in the subfolders globe, oklab, solids, tank, tree, and tyrant all come from other projects of mine; all of these frames are public domain.
+  - The animation frames in market are freely licensed without requirements, and are from ["Video Of A Market" by Olivier Polome](https://www.pexels.com/video/video-of-a-market-4236787/).
+    - Pexels doesn't provide a standard open source license other than saying they are free to use without requirements.
