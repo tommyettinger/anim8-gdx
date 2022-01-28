@@ -191,6 +191,28 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      */
     public PaletteReducer palette;
 
+    private float ditherStrength = 1f;
+
+    /**
+     * Gets this AnimatedGif's dither strength, which will override the {@link PaletteReducer#getDitherStrength()} in
+     * the PaletteReducer this uses. This applies even if {@link #getPalette()} is null; in that case, when a temporary
+     * PaletteReducer is created, it will use this dither strength.
+     * @return the current dither strength override
+     */
+    public float getDitherStrength() {
+        return ditherStrength;
+    }
+
+    /**
+     * Sets this AnimatedGif's dither strength, which will override the {@link PaletteReducer#getDitherStrength()} in
+     * the PaletteReducer this uses. This applies even if {@link #getPalette()} is null; in that case, when a temporary
+     * PaletteReducer is created, it will use this dither strength.
+     * @param ditherStrength the desired dither strength, usually between 0 and 2 and defaulting to 1
+     */
+    public void setDitherStrength(float ditherStrength) {
+        this.ditherStrength = Math.max(0f, ditherStrength);
+    }
+
     /**
      * Gets the PaletteReducer this uses to lower the color count in an image. If the PaletteReducer is null, this
      * should try to assign itself a PaletteReducer when given a new image.
@@ -431,6 +453,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     protected void analyzePixels() {
         int nPix = width * height;
         indexedPixels = new byte[nPix];
+        palette.setDitherStrength(ditherStrength);
         if(seq > 1 && clearPalette)
         {
             if(fastAnalysis)
