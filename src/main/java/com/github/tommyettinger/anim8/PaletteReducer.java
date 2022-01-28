@@ -901,15 +901,12 @@ public class PaletteReducer {
         threshold /= Math.pow(limit, 1.5) * 0.00105;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
-        int hasTransparent = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 color = pixmap.getPixel(x, y);
                 if ((color & 0x80) != 0) {
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
                     counts.getAndIncrement(color, 0, 1);
-                } else {
-                    hasTransparent = 1;
                 }
             }
         }
@@ -923,7 +920,7 @@ public class PaletteReducer {
             es.add(e2);
         }
         es.sort(entryComparator);
-        if (cs + hasTransparent <= limit) {
+        if (cs < limit) {
             int i = 1;
             for(IntIntMap.Entry e : es) {
                 color = e.key;
@@ -1012,15 +1009,12 @@ public class PaletteReducer {
         threshold /= Math.pow(limit, 1.5) * 0.00105;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
-        int hasTransparent = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 color = pixmap.getPixel(x, y);
                 if ((color & 0x80) != 0) {
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
                     counts.getAndIncrement(color, 0, 1);
-                } else {
-                    hasTransparent = 1;
                 }
             }
         }
@@ -1034,13 +1028,13 @@ public class PaletteReducer {
             es.add(e2);
         }
         es.sort(entryComparator);
-        if (cs + hasTransparent <= limit) {
+        if (cs < limit) {
             int i = 1;
             for(IntIntMap.Entry e : es) {
                 color = e.key;
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-                i++;
+                ++i;
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.375/colorCount);
@@ -1453,7 +1447,6 @@ public class PaletteReducer {
         limit = Math.min(Math.max(limit, 2), 256);
         threshold /= Math.pow(limit, 1.5) * 0.00105;
         IntIntMap counts = new IntIntMap(limit);
-        int hasTransparent = 0;
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
             Pixmap pixmap = pixmaps[i];
@@ -1464,8 +1457,6 @@ public class PaletteReducer {
                     if ((color & 0x80) != 0) {
                         color |= (color >>> 5 & 0x07070700) | 0xFF;
                         counts.getAndIncrement(color, 0, 1);
-                    } else {
-                        hasTransparent = 1;
                     }
                 }
             }
@@ -1480,8 +1471,8 @@ public class PaletteReducer {
             es.add(e2);
         }
         es.sort(entryComparator);
-        if (cs + hasTransparent <= limit) {
-            int i = hasTransparent;
+        if (cs < limit) {
+            int i = 1;
             for(IntIntMap.Entry e : es) {
                 color = e.key;
                 paletteArray[i] = color;
