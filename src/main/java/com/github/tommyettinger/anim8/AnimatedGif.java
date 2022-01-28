@@ -184,14 +184,20 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     public boolean fastAnalysis = true;
 
     /**
-     * Often assigned as a field, the palette can be null (which means this will analyze each frame for its palette,
+     * Often assigned as a field, the palette can be null (which means this may analyze each frame for its palette,
      * based on the setting for {@link #fastAnalysis}), or can be an existing PaletteReducer. You may want to create a
      * PaletteReducer with an exact palette, such as by {@link PaletteReducer#PaletteReducer(int[])}, and then assign it
-     * to this field.
+     * to this field. Note that {@link PaletteReducer#getDitherStrength()} is ignored here and replaced with the value
+     * of {@link #getDitherStrength()} in this class. This allows palette to be null, but dither strength to still be
+     * configurable.
      */
     public PaletteReducer palette;
 
-    private float ditherStrength = 1f;
+    /**
+     * Overrides the palette's dither strength; see {@link #getDitherStrength()}.
+     * @see #getDitherStrength()
+     */
+    protected float ditherStrength = 1f;
 
     /**
      * Gets this AnimatedGif's dither strength, which will override the {@link PaletteReducer#getDitherStrength()} in

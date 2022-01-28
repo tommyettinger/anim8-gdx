@@ -147,6 +147,31 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             this.ditherAlgorithm = ditherAlgorithm;
     }
 
+    /**
+     * Overrides the palette's dither strength; see {@link #getDitherStrength()}.
+     * @see #getDitherStrength()
+     */
+    protected float ditherStrength = 1f;
+
+    /**
+     * Gets this PNG8's dither strength, which will override the {@link PaletteReducer#getDitherStrength()} in
+     * the PaletteReducer this uses. This applies even if {@link #getPalette()} is null; in that case, when a temporary
+     * PaletteReducer is created, it will use this dither strength.
+     * @return the current dither strength override
+     */
+    public float getDitherStrength() {
+        return ditherStrength;
+    }
+
+    /**
+     * Sets this PNG8's dither strength, which will override the {@link PaletteReducer#getDitherStrength()} in
+     * the PaletteReducer this uses. This applies even if {@link #getPalette()} is null; in that case, when a temporary
+     * PaletteReducer is created, it will use this dither strength.
+     * @param ditherStrength the desired dither strength, usually between 0 and 2 and defaulting to 1
+     */
+    public void setDitherStrength(float ditherStrength) {
+        this.ditherStrength = Math.max(0f, ditherStrength);
+    }
 
     public PNG8() {
         this(128 * 128);
@@ -279,7 +304,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     /**
      * Writes the pixmap to the stream without closing the stream, optionally computing an 8-bit palette from the given
      * Pixmap. If {@link #palette} is null (the default unless it has been assigned a PaletteReducer value), this will
-     * compute a palette from the given Pixmap regardless of computePalette.
+     * compute a palette from the given Pixmap regardless of computePalette. This does not consider the ditherStrength
+     * set in the palette, if non-null, but does use the {@link #getDitherStrength()} here.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      * @param computePalette if true, this will analyze the Pixmap and use the most common colors
@@ -296,6 +322,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         {
             palette.analyze(pixmap, threshold);
         }
+        palette.setDitherStrength(ditherStrength);
 
         if(dither) {
             switch (ditherAlgorithm) {
@@ -2029,7 +2056,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * Pixmaps. If {@link #palette} is null (the default unless it has been assigned a PaletteReducer value), this will
      * compute a palette from all of the frames given. Otherwise, this uses the colors already in {@link #palette}.
      * Optionally dithers the result if {@code dither} is true, using the dither algorithm selected with
-     * {@link #setDitherAlgorithm(DitherAlgorithm)} (or {@link DitherAlgorithm#PATTERN} if not set).
+     * {@link #setDitherAlgorithm(DitherAlgorithm)} (or {@link DitherAlgorithm#PATTERN} if not set). This does not
+     * consider the ditherStrength set in the palette, if non-null, but does use the {@link #getDitherStrength()} here.
      *
      * @param output an OutputStream that will not be closed
      * @param frames a Pixmap Array to write as a sequence of frames to the given output stream
@@ -2040,6 +2068,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         boolean clearPalette;
         if(clearPalette = (palette == null))
             palette = new PaletteReducer(frames);
+        palette.setDitherStrength(ditherStrength);
         if (dither)
             write(output, frames, fps);
         else
