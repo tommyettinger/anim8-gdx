@@ -238,10 +238,11 @@ public class PaletteReducer {
     public static final byte[] RAW_BLUE_NOISE = ConstantData.RAW_BLUE_NOISE;
 
     /**
-     * Very similar to {@link #RAW_BLUE_NOISE}, a 4096-element byte array as a 64x64 grid of bytes. Unlike RAW, this
-     * uses a triangular distribution for its bytes, so values near 0 are much more common. This is used inside this
-     * library to create {@link #TRI_BLUE_NOISE_MULTIPLIERS}, which is used in {@link #reduceScatter(Pixmap)}. It is
-     * also used directly by {@link #reduceBlueNoise(Pixmap)} and {@link #reduceNeue(Pixmap)}.
+     * A 4096-element byte array as a 64x64 grid of bytes. When arranged into a grid, the bytes will follow a blue noise
+     * frequency (in this case, they will have a triangular distribution for its bytes, so values near 0 are much more
+     * common). This is used inside this library to create {@link #TRI_BLUE_NOISE_MULTIPLIERS}, which is used in
+     * {@link #reduceScatter(Pixmap)}. It is also used directly by {@link #reduceBlueNoise(Pixmap)},
+     * {@link #reduceNeue(Pixmap)}, and {@link #reduceChaoticNoise(Pixmap)}.
      * <br>
      * While, for some reason, you could change the contents to some other distribution of bytes, I don't know why this
      * would be needed.
@@ -1888,7 +1889,7 @@ public class PaletteReducer {
 
     /**
      * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
-     * with {@link #RAW_BLUE_NOISE}, but shouldn't usually be modified) as well as a fine-grained checkerboard pattern
+     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a fine-grained checkerboard pattern
      * and a roughly-white-noise pattern obtained by distorting the blue noise. The dither strength needs to be
      * evaluated carefully here; if it is too high, a blue-noise "scaly" pattern will appear over the image, and if it
      * is too low, the image won't look dithered at all.
@@ -1952,7 +1953,7 @@ public class PaletteReducer {
                     used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF];
-                    adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                     adj *= adj * adj;
                     //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
                     //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be

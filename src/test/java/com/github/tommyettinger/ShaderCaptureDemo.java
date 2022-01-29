@@ -358,7 +358,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             if (palettes[n] == null) {
                 gif.palette = null;
-                gif.fastAnalysis = false;
+                gif.fastAnalysis = true;
             }
             else {
                 pal.exact(palettes[n]);

@@ -551,7 +551,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))] & 0xFF];
-                            adj = ((PaletteReducer.RAW_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                             adj *= adj * adj;
                             //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
                             //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
