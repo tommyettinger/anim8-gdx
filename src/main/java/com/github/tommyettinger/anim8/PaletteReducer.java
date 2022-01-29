@@ -229,15 +229,6 @@ public class PaletteReducer {
     public static final float[][] OKLAB = new float[3][0x8000];
 
     /**
-     * This should always be a 4096-element byte array filled with 64 sections of 64 bytes each. When arranged into a
-     * grid, the bytes will follow a blue noise frequency (and in this case, will have a uniform value distribution).
-     * <br>
-     * While, for some reason, you could change the contents to some other distribution of bytes, I don't know why this
-     * would be needed.
-     */
-    public static final byte[] RAW_BLUE_NOISE = ConstantData.RAW_BLUE_NOISE;
-
-    /**
      * A 4096-element byte array as a 64x64 grid of bytes. When arranged into a grid, the bytes will follow a blue noise
      * frequency (in this case, they will have a triangular distribution for its bytes, so values near 0 are much more
      * common). This is used inside this library to create {@link #TRI_BLUE_NOISE_MULTIPLIERS}, which is used in
