@@ -26,7 +26,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
     private SpriteBatch batch;
     private Texture pixel;
-    private ShaderProgram shader;
+    private ShaderProgram shader, shader2;
 
     private long startTime;
     private float seed;
@@ -196,25 +196,32 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                         "  gl_FragColor.rgb = sin(con * 3.14159265) * 0.5 + 0.5;\n" +
                         "  gl_FragColor.a = 1.0;\n" +
                         "}\n";
-//        shader = new ShaderProgram(vertex2, fragment2);
         shader = new ShaderProgram(vertex, fragment);
         if (!shader.isCompiled()) {
             Gdx.app.error("Shader", "error compiling shader:\n" + shader.getLog());
             Gdx.app.exit();
             return;
         }
+        shader2 = new ShaderProgram(vertex2, fragment2);
+        if (!shader2.isCompiled()) {
+            Gdx.app.error("Shader", "error compiling shader2:\n" + shader2.getLog());
+            Gdx.app.exit();
+            return;
+        }
+
         batch.setShader(shader);
 
 //        long state = -1L; name = "pastel"; // pastel
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
-//        String[] nms = {"flashy", "pastel", "green", "bw", "gb", "haltonic"};
-//        int[][] pals = {null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
-//        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
+        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "haltonic"};
+        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
+        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
+        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader};
 //        String[] nms = {"blanket", "bold", "ocean"};
-        String[] nms = {"flashy", "pastel", "green"};
-        int[][] pals = {null, null, null};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L};
+//        String[] nms = {"flashy", "pastel", "green"};
+//        int[][] pals = {null, null, null};
+//        long[] sds = {0x123456789L, -1L, 0x1234567890L};
 
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
@@ -222,9 +229,9 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/gif/animated/").mkdirs();
         Gdx.files.local("images/apng/animated/").mkdirs();
         Gdx.files.local("images/png/animated/").mkdirs();
-//		renderAPNG(nms, sds); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-//		renderPNG8(nms, pals, sds);
-        renderGif(nms, pals, sds);
+		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+		renderPNG8(nms, pals, sds, shs);
+        renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
 //Analyzing all frames as a batch takes    31025 ms.
         // with analyze() on each frame, 3 images: 125176 ms
@@ -261,10 +268,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         batch.end();
     }
 
-    public void renderAPNG(String[] names, long[] seeds) {
+    public void renderAPNG(String[] names, long[] seeds, ShaderProgram[] shaders) {
         AnimatedPNG apng = new AnimatedPNG();
         apng.setCompression(2);
         for (int n = 0; n < names.length && n < seeds.length; n++) {
+            batch.setShader(shaders[n]);
             name = names[n];
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
@@ -286,11 +294,12 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         }
     }
 
-    public void renderPNG8(String[] names, int[][] palettes, long[] seeds) {
+    public void renderPNG8(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
         PNG8 png8 = new PNG8();
         png8.setCompression(2);
         png8.palette = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
+            batch.setShader(shaders[n]);
             name = names[n];
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
@@ -337,10 +346,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
     }
 
-    public void renderGif(String[] names, int[][] palettes, long[] seeds) {
+    public void renderGif(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
         AnimatedGif gif = new AnimatedGif();
         PaletteReducer pal = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
+            batch.setShader(shaders[n]);
             name = names[n];
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
