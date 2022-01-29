@@ -1113,7 +1113,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             lastLineLen = w;
 
             int color;
-            float adj, strength = 48f * palette.ditherStrength / palette.populationBias;
+            float adj, strength = 150 * palette.ditherStrength * palette.populationBias;
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1879,8 +1879,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
             byte paletteIndex;
-            float w1 = palette.ditherStrength * 2.75f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (24f * palette.ditherStrength * palette.populationBias);
+            float w1 = palette.ditherStrength * 3f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    adj, strength = (24f * palette.ditherStrength / (palette.populationBias * palette.populationBias)), limit = (float) Math.pow(80, 1.635 - palette.populationBias);
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
             if (curLineBytes == null) {
@@ -1916,7 +1916,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         curLine[px] = 0;
                     else {
                         adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
-                        adj = Math.min(Math.max(adj * strength, -16f), 16f);
+                        adj = Math.min(Math.max(adj * strength, -limit), limit);
                         er = adj + (curErrorRed[px]);
                         eg = adj + (curErrorGreen[px]);
                         eb = adj + (curErrorBlue[px]);
@@ -2465,7 +2465,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             lastLineLen = width;
 
-            float adj, strength = 48f * palette.ditherStrength / palette.populationBias;
+            float adj, strength = 150 * palette.ditherStrength * palette.populationBias;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -3398,8 +3398,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
             byte paletteIndex;
-            float w1 = palette.ditherStrength * 2.75f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (24f * palette.ditherStrength * palette.populationBias);
+            float w1 = palette.ditherStrength * 3f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    adj, strength = (24f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
+                    limit = (float) Math.pow(80, 1.635 - palette.populationBias);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -3456,7 +3457,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             curLine[px] = 0;
                         else {
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
-                            adj = Math.min(Math.max(adj * strength, -16f), 16f);
+                            adj = Math.min(Math.max(adj * strength, -limit), limit);
                             er = adj + (curErrorRed[px]);
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);

@@ -1893,7 +1893,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, strength = 48 * ditherStrength / populationBias;
+        float adj, strength = 150 * ditherStrength * populationBias;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -2115,8 +2115,9 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = ditherStrength * 2.75f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                adj, strength = (24f * ditherStrength * populationBias);
+        float w1 = ditherStrength * 3f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                adj, strength = (24f * ditherStrength / (populationBias * populationBias)),
+                limit = (float) Math.pow(80, 1.635 - populationBias);
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
@@ -2134,7 +2135,7 @@ public class PaletteReducer {
                     pixmap.drawPixel(px, py, 0);
                 else {
                     adj = ((TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
-                    adj = Math.min(Math.max(adj * strength, -16f), 16f);
+                    adj = Math.min(Math.max(adj * strength, -limit), limit);
                     er = adj + (curErrorRed[px]);
                     eg = adj + (curErrorGreen[px]);
                     eb = adj + (curErrorBlue[px]);

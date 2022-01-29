@@ -700,7 +700,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case BLUE_NOISE: {
-                float adj, strength = 48 * palette.ditherStrength / palette.populationBias;
+                float adj, strength = 150 * palette.ditherStrength * palette.populationBias;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
@@ -816,8 +816,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 float rdiff, gdiff, bdiff;
                 float er, eg, eb;
                 byte paletteIndex;
-                float w1 = palette.ditherStrength * 2.75f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                        adj, strength = (24f * palette.ditherStrength * palette.populationBias);;
+                float w1 = palette.ditherStrength * 3f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                        adj, strength = (24f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
+                        limit = (float) Math.pow(80, 1.635 - palette.populationBias);
 
                 float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedFloats == null) {
@@ -856,7 +857,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             indexedPixels[i++] = 0;
                         else {
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
-                            adj = Math.min(Math.max(adj * strength, -16f), 16f);
+                            adj = Math.min(Math.max(adj * strength, -limit), limit);
                             er = adj + (curErrorRed[px]);
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);
