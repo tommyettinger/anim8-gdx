@@ -214,7 +214,7 @@ Original (full-color):
 
 Neue (default):
 
-![](https://i.imgur.com/aSbwOaD.png)
+![](https://i.imgur.com/i6pjFRZ.png)
 
 Pattern:
 
@@ -230,11 +230,11 @@ Gradient Noise:
 
 Blue Noise:
 
-![](https://i.imgur.com/kPa6BeL.png)
+![](https://i.imgur.com/HYy4776.png)
 
 Chaotic Noise:
 
-![](https://i.imgur.com/HGsxClj.png)
+![](https://i.imgur.com/6QGFZzm.png)
 
 Scatter:
 
