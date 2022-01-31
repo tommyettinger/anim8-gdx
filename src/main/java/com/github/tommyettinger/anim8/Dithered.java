@@ -111,8 +111,8 @@ public interface Dithered {
          * {@link #GRADIENT_NOISE}, depending on the animation, but this isn't often. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} can improve the results with DIFFUSION tremendously, but the
          * dither strength shouldn't go above about 1.5 or maybe 2.0 (this shows artifacts at higher strength).
-         * {@link #SCATTER} is based on this, and is generally able to break up visible artifacts that Floyd-Steinberg
-         * can have; SCATTER is now recommended over DIFFUSION.
+         * {@link #SCATTER} and {@link #NEUE} are based on this, and are generally able to break up visible artifacts
+         * that Floyd-Steinberg can have; Scatter and especially Neue are now recommended over Diffusion.
          */
         DIFFUSION,
         /**
@@ -144,27 +144,25 @@ public interface Dithered {
          */
         CHAOTIC_NOISE,
         /**
-         * The yin to to {@link #CHAOTIC_NOISE}'s yang; where chaotic noise actively scrambles pixels using uniform blue
-         * noise and some slightly-error-diffusion-like qualities to act as if it had a white noise source, this tries
-         * to subtly alter the more rigidly-defined error-diffusion dither of {@link #DIFFUSION} with a small amount of
-         * triangular-distributed blue noise, and doesn't introduce white noise. This offers an excellent mix of shape
-         * preservation, color preservation, animation-compatibility, and speed, and it was the default for a long time.
-         * Setting the dither strength to a low value makes this more bold, with higher contrast, while setting the
-         * strength too high (above 1.5, or sometimes higher) can introduce artifacts. This is only-just-okay at smooth
-         * gradient handling; {@link #NEUE} is much better at that and otherwise similar, which is why Neue is the
-         * current default.
+         * This tries to subtly alter the more rigidly-defined error-diffusion dither of {@link #DIFFUSION} with a small
+         * amount of triangular-distributed blue noise, and unlike {@link #CHAOTIC_NOISE}, it doesn't introduce white
+         * noise. This offers an excellent mix of shape preservation, color preservation, animation-compatibility, and
+         * speed, and it was the default for a long time. Setting the dither strength to a low value makes this more
+         * bold, with higher contrast, while setting the strength too high (above 1.5, or sometimes higher) can
+         * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE} is much better at that
+         * and otherwise similar, which is why Neue is the current default.
          */
         SCATTER,
         /**
          * An error diffusion dither that mixes in ordered noise from a triangular-mapped blue noise texture; this is
          * the best-behaving dither here when it comes to smooth gradients. The approach to blue noise here is to add it
-         * to the pixel channels before calculating error diffusion for that pixel; a 2x2 checkerboard-like pattern is
-         * also used. This is different from {@link #SCATTER} in only a few ways, but a main one is that Scatter
-         * multiplies the current error by a blue noise value, where this adds in blue noise regardless of current
-         * error. The exact reason isn't clear, but this is drastically better when dithering smooth gradients, and can
-         * avoid banding except for the very smallest palettes. While {@link #BLUE_NOISE} is similarly good with smooth
-         * gradients, it has a hard time preserving fine color information (lightness is kept by Blue_Noise, but hue and
-         * saturation aren't very well); Neue preserves both. This is currently the default dither.
+         * to the pixel channels before calculating error diffusion for that pixel. This is different from
+         * {@link #SCATTER} in only a few ways, but a main one is that Scatter multiplies the current error by a blue
+         * noise value, where this adds in blue noise regardless of current error. The exact reason isn't clear, but
+         * this is drastically better when dithering smooth gradients, and can avoid banding except for the very
+         * smallest palettes. While {@link #BLUE_NOISE} is similarly good with smooth gradients, it has a hard time
+         * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
+         * Neue preserves both. This is currently the default dither.
          */
         NEUE
     }

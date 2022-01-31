@@ -103,18 +103,19 @@ different API).
       - Blue noise is also used normally by SCATTER and NEUE, as well as used strangely by CHAOTIC_NOISE.
     - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
-    - This changed in 0.2.12, and handles smooth gradients better now.
+    - This changed in 0.2.12, and handles smooth gradients better now. In version 0.3.5, it changed again to improve
+      behavior on small palettes.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
     - This is an okay algorithm here for animations, but NEUE is much better, followed by SCATTER or PATTERN.
-    - This may be more useful when using many colors than when using just a few.
+    - This may be somewhat more useful when using many colors than when using just a few.
     - It's rather ugly with small palettes, and really not much better on large palettes.
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
       error with blue-noise values. 
     - This used to be the default and can still sometimes be the best here.
     - Unlike DIFFUSION, this is quite suitable for animations, but some fluid shapes look better with CHAOTIC_NOISE or
-      GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN.
+      GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN and well by NEUE.
     - You may want to use a lower dither strength with SCATTER if you encounter horizontal line artifacts; 0.75 or 0.5
       should be low enough to eliminate them (not all palettes will experience these artifacts).
   - NEUE
@@ -123,9 +124,10 @@ different API).
     - This is the default and often the best of the bunch.
     - The code for NEUE is almost the same as for SCATTER, but where SCATTER *multiplies* the current error by a blue
       noise value (which can mean the blue noise could have no effect if error is 0), NEUE always *adds* in
-      triangular-mapped blue noise to each pixel at the same amount (as well as a 2x2 checkerboard pattern).
+      triangular-mapped blue noise to each pixel at the same amount.
     - SCATTER, as well as all other dither algorithms here except BLUE_NOISE and PATTERN, tend to have banding on smooth
       gradients, while NEUE doesn't usually have any banding.
+      - Subtle banding sometimes happened even with NEUE on gradients before 0.3.5, but this improved in that release.
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
@@ -137,12 +139,15 @@ different API).
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
 
-You can set the strength of some of these dithers using PaletteReducer's `setDitherStrength(float)` method. For NONE,
+You can set the strength of most of these dithers using PaletteReducer's, PNG8's, or AnimatedGif's
+`setDitherStrength(float)` methods (use the method on the class that is producing output). For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
 will approach the appearance of NONE, setting it close to 1.0 is the default, and strengths higher than 1 will make the
 dither much stronger and may make the image less legible. NEUE, SCATTER, and DIFFUSION sometimes have trouble with very
 high dither strengths, though how much trouble varies based on the palette, and they also tend to look good just before
-major issues appear.
+major issues appear. NEUE is calibrated to look best at dither strength 1.0, but may stay looking good at higher
+strengths for longer than SCATTER does. The `setDitherStrength(float)` methods on PNG8 and AnimatedGif were added in
+version 0.3.5 .
 
 # Palette Generation
 
@@ -258,6 +263,7 @@ though most are public-domain. Of the test images used in the src/test/resources
   - Mona_Lisa.jpg is also a public domain oil painting, this one the Mona Lisa by Leonardo da Vinci, and [remastered by pixel8tor](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif) to reduce the appearance of damage over time.
   - Pixel_Art.png is a snippet of a texture atlas made from some [wargame pixel art I previously released into the public domain](https://opengameart.org/content/pixvoxel-revised-isometric-wargame-sprites). 
   - Anemone.png is just a noise texture I generated with a tool I wrote; the image is public domain.
+  - Earring.jpg is another public domain oil painting, "Girl with a Pearl Earring" by Johannes Vermeer, [accessed here](https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_EarringFXD.jpg).
   - The animation frames in the subfolders globe, oklab, solids, tank, tree, and tyrant all come from other projects of mine; all of these frames are public domain.
   - The animation frames in market are freely licensed without requirements, and are from ["Video Of A Market" by Olivier Polome](https://www.pexels.com/video/video-of-a-market-4236787/).
     - Pexels doesn't provide a standard open source license other than saying they are free to use without requirements.
