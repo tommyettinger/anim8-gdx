@@ -103,8 +103,9 @@ public class StillImageDemo extends ApplicationAdapter {
         PixmapIO.PNG png = new PixmapIO.PNG();
         png.setFlipY(false);
         png.setCompression(7);
+		FileHandle handle = Gdx.files.classpath(name);
 		try {
-			png.write(Gdx.files.local("images/png/"+name+"-PNG-" + startTime + ".png"), new Pixmap(Gdx.files.classpath(name)));
+			png.write(Gdx.files.local("images/png/"+handle.nameWithoutExtension()+"-PNG.png"), new Pixmap(handle));
 		} catch (IOException e) {
 			Gdx.app.error("anim8", e.getMessage());
 		}
