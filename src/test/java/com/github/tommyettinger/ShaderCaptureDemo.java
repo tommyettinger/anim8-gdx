@@ -229,8 +229,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/gif/animated/").mkdirs();
         Gdx.files.local("images/apng/animated/").mkdirs();
         Gdx.files.local("images/png/animated/").mkdirs();
-		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-		renderPNG8(nms, pals, sds, shs);
+//		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+//		renderPNG8(nms, pals, sds, shs);
         renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
 //Analyzing all frames as a batch takes    31025 ms.
@@ -272,7 +272,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         AnimatedPNG apng = new AnimatedPNG();
         apng.setCompression(2);
         for (int n = 0; n < names.length && n < seeds.length; n++) {
-            batch.setShader(shaders[n]);
+            batch.setShader(shader = shaders[n]);
             name = names[n];
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
@@ -299,7 +299,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         png8.setCompression(2);
         png8.palette = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
-            batch.setShader(shaders[n]);
+            batch.setShader(shader = shaders[n]);
             name = names[n];
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
@@ -350,7 +350,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         PaletteReducer pal = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
-            batch.setShader(shaders[n]);
+            batch.setShader(shader = shaders[n]);
             name = names[n];
             long state = seeds[n];
             // SquidLib's DiverRNG.randomize()
@@ -368,7 +368,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             if (palettes[n] == null) {
                 gif.palette = null;
-                gif.fastAnalysis = true;
+                gif.fastAnalysis = false;
             }
             else {
                 pal.exact(palettes[n]);
