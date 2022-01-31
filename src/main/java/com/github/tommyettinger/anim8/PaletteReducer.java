@@ -1893,7 +1893,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, strength = 150 * ditherStrength * populationBias;
+        float adj, strength = 48 * ditherStrength / populationBias;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);

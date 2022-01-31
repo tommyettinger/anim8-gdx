@@ -700,7 +700,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case BLUE_NOISE: {
-                float adj, strength = 150 * palette.ditherStrength * palette.populationBias;
+                float adj, strength = 48 * palette.ditherStrength / palette.populationBias;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
