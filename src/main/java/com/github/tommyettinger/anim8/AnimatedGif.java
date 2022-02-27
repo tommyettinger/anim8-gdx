@@ -816,8 +816,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 float rdiff, gdiff, bdiff;
                 float er, eg, eb;
                 byte paletteIndex;
-                float w1 = palette.ditherStrength * 3f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                        adj, strength = (24f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
+                float w1 = palette.ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                        adj, strength = (32f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
                         limit = (float) Math.pow(80, 1.635 - palette.populationBias);
 
                 float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -870,9 +870,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))]) & 255] = true;
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
-                            gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
-                            bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
+                            rdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>24)-    (used>>>24))    );
+                            gdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>16&255)-(used>>>16&255)));
+                            bdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>8&255)- (used>>>8&255)) );
                             if(px < w - 1)
                             {
                                 curErrorRed[px+1]   += rdiff * w7;
