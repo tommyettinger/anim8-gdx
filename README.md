@@ -130,6 +130,7 @@ different API).
       - Subtle banding sometimes happened even with NEUE on gradients before 0.3.5, but this improved in that release.
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
+    - NEUE is the most likely algorithm to change in new versions, unless another new algorithm is added.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN has an obvious square grid.
@@ -214,7 +215,7 @@ Original (full-color):
 
 Neue (default):
 
-![](https://i.imgur.com/i6pjFRZ.png)
+![](https://i.imgur.com/jfAqJGk.png)
 
 Pattern:
 
