@@ -564,10 +564,19 @@ public class PaletteReducer {
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
+//        L *= L;
+//        A *= A;
+//        B *= B;
+//        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
+
+//        L = forwardLight((float)(L * L));
+//        A *= A;
+//        B *= B;
+        L = reverseLight(Math.abs(L));
         L *= L;
         A *= A;
         B *= B;
-        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
+        return (L * L + A * A + B * B) * 0x1p+27;
     }
 //
 //    public static double difference(int color1, int color2) {
@@ -602,10 +611,19 @@ public class PaletteReducer {
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
+//        L *= L;
+//        A *= A;
+//        B *= B;
+//        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
+
+//        L = forwardLight((float)(L * L));
+//        A *= A;
+//        B *= B;
+        L = reverseLight(Math.abs(L));
         L *= L;
         A *= A;
         B *= B;
-        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
+        return (L * L + A * A + B * B) * 0x1p+27;
     }
 //
 //    public static double difference(int color1, int r2, int g2, int b2) {
@@ -639,10 +657,18 @@ public class PaletteReducer {
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
+//        L *= L;
+//        A *= A;
+//        B *= B;
+//        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
+//        L = forwardLight((float)(L * L));
+//        A *= A;
+//        B *= B;
+        L = reverseLight(Math.abs(L));
         L *= L;
         A *= A;
         B *= B;
-        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
+        return (L * L + A * A + B * B) * 0x1p+27;
     }
 //    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
 //        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
