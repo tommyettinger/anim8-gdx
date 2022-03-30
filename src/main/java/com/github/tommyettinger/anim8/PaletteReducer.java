@@ -188,8 +188,19 @@ public class PaletteReducer {
      * @return an adjusted L value that can be used internally
      */
     public static float forwardLight(final float L) {
-        return (L - 1.004f) / (1.0f - L * 0.4285714f) + 1.004f;
+        final float shape = 0.64516133f, turning = 0.95f;
+        final float d = turning - L;
+        float r;
+        if(d < 0)
+            r = ((1f - turning) * (L - 1f)) / (1f - (L + shape * d)) + 1f;
+        else
+            r = (turning * L) / (1e-20f + (L + shape * d));
+        return r * r;
     }
+
+//	public static float forwardLight(final float L) {
+//		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
+//	}
 
     /**
      * Changes the curve of the internally-used lightness when it is output to another format. This makes the very-dark
@@ -198,9 +209,22 @@ public class PaletteReducer {
      * @param L lightness, from 0 to 1 inclusive
      * @return an adjusted L value that can be fed into a conversion to RGBA or something similar
      */
-    public static float reverseLight(final float L) {
-        return (L - 0.993f) / (1.0f + L * 0.75f) + 0.993f;
+
+    public static double reverseLight(double L) {
+//        L = (float) Math.sqrt(L);
+        final double shape = 1.55, turning = 0.95;
+        final double d = turning - L;
+        double r;
+        if(d < 0.0)
+            r = ((1.0 - turning) * (L - 1.0)) / (1.0 - (L + shape * d)) + 1.0;
+        else
+            r = (turning * L) / (1e-50 + (L + shape * d));
+        return r;
     }
+
+//	public static float reverseLight(final float L) {
+//		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
+//	}
 
     /**
      * Stores IPT components corresponding to RGB555 indices.
@@ -275,8 +299,8 @@ public class PaletteReducer {
                     sf = OtherMath.cbrt(0.0883097947f * rf + 0.2818474174f * gf + 0.6302613616f * bf);
 
                     OKLAB[0][idx] = forwardLight(0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
-                    OKLAB[1][idx] = 1.9779984951f * lf - 2.4285922050f * mf + 0.4505937099f * sf;
-                    OKLAB[2][idx] = 0.0259040371f * lf + 0.7827717662f * mf - 0.8086757660f * sf;
+                    OKLAB[1][idx] = (1.9779984951f * lf - 2.4285922050f * mf + 0.4505937099f * sf);
+                    OKLAB[2][idx] = (0.0259040371f * lf + 0.7827717662f * mf - 0.8086757660f * sf);
 
                     idx++;
                 }
@@ -536,14 +560,14 @@ public class PaletteReducer {
         if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
-        float
+        double
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L = forwardLight(L * L);
+        L *= L;
         A *= A;
         B *= B;
-        return (L * L + A * A + B * B) * 0x1p+27;
+        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
     }
 //
 //    public static double difference(int color1, int color2) {
@@ -574,14 +598,14 @@ public class PaletteReducer {
         if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
         final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        float
+        double
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L = forwardLight(L * L);
+        L *= L;
         A *= A;
         B *= B;
-        return (L * L + A * A + B * B) * 0x1p+27;
+        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
     }
 //
 //    public static double difference(int color1, int r2, int g2, int b2) {
@@ -611,14 +635,14 @@ public class PaletteReducer {
     public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
         int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
                 indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        float
+        double
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L = forwardLight(L * L);
+        L *= L;
         A *= A;
         B *= B;
-        return (L * L + A * A + B * B) * 0x1p+27;
+        return (reverseLight(L * L) + A * A + B * B) * 0x1p+27;
     }
 //    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
 //        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
