@@ -209,9 +209,21 @@ public class PaletteReducer {
      * @param L lightness, from 0 to 1 inclusive
      * @return an adjusted L value that can be fed into a conversion to RGBA or something similar
      */
-    public static float reverseLight(final float L) {
-        return (L - 0.993f) / (1.0f + L * 0.75f) + 0.993f;
+    public static float reverseLight(float L) {
+        L = (float) Math.sqrt(L);
+        final float shape = 1.55f, turning = 0.95f;
+        final float d = turning - L;
+        float r;
+        if(d < 0)
+            r = ((1f - turning) * (L - 1f)) / (1f - (L + shape * d)) + 1f;
+        else
+            r = (turning * L) / (1e-20f + (L + shape * d));
+        return r;
     }
+
+//	public static float reverseLight(final float L) {
+//		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
+//	}
 
     /**
      * Stores IPT components corresponding to RGB555 indices.
@@ -285,7 +297,8 @@ public class PaletteReducer {
                     mf = OtherMath.cbrt(0.2118591070f * rf + 0.6807189584f * gf + 0.1074065790f * bf);
                     sf = OtherMath.cbrt(0.0883097947f * rf + 0.2818474174f * gf + 0.6302613616f * bf);
 
-                    OKLAB[0][idx] = (0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
+                    OKLAB[0][idx] = forwardLight(
+                                    0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
                     OKLAB[1][idx] = 1.9779984951f * lf - 2.4285922050f * mf + 0.4505937099f * sf;
                     OKLAB[2][idx] = 0.0259040371f * lf + 0.7827717662f * mf - 0.8086757660f * sf;
 
