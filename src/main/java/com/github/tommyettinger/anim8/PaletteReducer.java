@@ -188,8 +188,19 @@ public class PaletteReducer {
      * @return an adjusted L value that can be used internally
      */
     public static float forwardLight(final float L) {
-        return (L - 1.004f) / (1.0f - L * 0.4285714f) + 1.004f;
+        final float shape = 0.64516133f, turning = 0.95f;
+        final float d = turning - L;
+        float r;
+        if(d < 0)
+            r = ((1f - turning) * (L - 1f)) / (1f - (L + shape * d)) + 1f;
+        else
+            r = (turning * L) / (1e-20f + (L + shape * d));
+        return r * r;
     }
+
+//	public static float forwardLight(final float L) {
+//		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
+//	}
 
     /**
      * Changes the curve of the internally-used lightness when it is output to another format. This makes the very-dark
@@ -274,7 +285,7 @@ public class PaletteReducer {
                     mf = OtherMath.cbrt(0.2118591070f * rf + 0.6807189584f * gf + 0.1074065790f * bf);
                     sf = OtherMath.cbrt(0.0883097947f * rf + 0.2818474174f * gf + 0.6302613616f * bf);
 
-                    OKLAB[0][idx] = forwardLight(0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
+                    OKLAB[0][idx] = (0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
                     OKLAB[1][idx] = 1.9779984951f * lf - 2.4285922050f * mf + 0.4505937099f * sf;
                     OKLAB[2][idx] = 0.0259040371f * lf + 0.7827717662f * mf - 0.8086757660f * sf;
 
@@ -540,7 +551,8 @@ public class PaletteReducer {
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L = forwardLight(L * L);
+//        L = forwardLight(L * L);
+        L *= L;
         A *= A;
         B *= B;
         return (L * L + A * A + B * B) * 0x1p+27;
@@ -578,7 +590,8 @@ public class PaletteReducer {
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L = forwardLight(L * L);
+//        L = forwardLight(L * L);
+        L *= L;
         A *= A;
         B *= B;
         return (L * L + A * A + B * B) * 0x1p+27;
@@ -615,7 +628,8 @@ public class PaletteReducer {
                 L = OKLAB[0][indexA] - OKLAB[0][indexB],
                 A = OKLAB[1][indexA] - OKLAB[1][indexB],
                 B = OKLAB[2][indexA] - OKLAB[2][indexB];
-        L = forwardLight(L * L);
+//        L = forwardLight(L * L);
+        L *= L;
         A *= A;
         B *= B;
         return (L * L + A * A + B * B) * 0x1p+27;
