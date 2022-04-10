@@ -682,7 +682,7 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double difference(int color1, int color2) {
-        if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
+        if (((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
         return difference(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, color2 >>> 24, color2 >>> 16 & 0xFF, color2 >>> 8 & 0xFF);
     }
 
@@ -696,7 +696,7 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double difference(int color1, int r2, int g2, int b2) {
-        if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
+        if((color1 & 0x80) == 0) return Double.MAX_VALUE;
         return difference(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, r2, g2, b2);
     }
 
@@ -715,11 +715,11 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]);
-        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]);
-        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]);
+        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]); rf *= rf;
+        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]); gf *= gf;
+        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]); bf *= bf;
 
-        return (rf * rf + gf * gf + bf * bf) * 0x1p+32;
+        return (rf * rf + gf * gf + bf * bf) * 0x1.5p15;
     }
 
     /**
@@ -1036,7 +1036,7 @@ public class PaletteReducer {
                     c2 = r << 10 | g << 5 | b;
                     if (paletteMapping[c2] == 0) {
                         bb = (b << 3 | b >>> 2);
-                        dist = Double.POSITIVE_INFINITY;
+                        dist = Double.MAX_VALUE;
                         for (int i = 1; i < limit; i++) {
                             if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
@@ -1560,10 +1560,16 @@ public class PaletteReducer {
             PER_BEST:
             for (; i < limit && c < cs;) {
                 color = es.get(c++).key;
+                double minDiff = Double.MAX_VALUE, maxDiff = -1.0;
                 for (int j = 1; j < i; j++) {
-                    if (difference(color, paletteArray[j]) < threshold)
+                    double diff = difference(color, paletteArray[j]);
+                    if (diff < threshold)
                         continue PER_BEST;
+                    minDiff = Math.min(minDiff, diff);
+                    maxDiff = Math.max(maxDiff, diff);
                 }
+                //TODO: REMOVE DEBUG PRINTF
+                System.out.printf("Color 0x%08X has min diff %5.5f, max diff %8.5f\n", color, minDiff, maxDiff);
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
                 reds[i] = color >>> 24;

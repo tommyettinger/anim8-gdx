@@ -216,10 +216,15 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 //        long state = -1L; name = "pastel"; // pastel
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "haltonic"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
-        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader};
+
+//        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "haltonic"};
+//        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
+//        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
+//        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader};
+        String[] nms = {"pastel", "green", "bw", "gb", "haltonic"};
+        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
+        long[] sds = {-1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
+        ShaderProgram[] shs = {shader, shader, shader, shader, shader};
 //        String[] nms = {"blanket", "bold", "ocean"};
 //        String[] nms = {"flashy", "pastel", "green"};
 //        int[][] pals = {null, null, null};
@@ -233,7 +238,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/png/animated/").mkdirs();
 //		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
 		renderPNG8(nms, pals, sds, shs);
-        renderGif(nms, pals, sds, shs);
+//        renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
 //Analyzing all frames as a batch takes    31025 ms.
         // with analyze() on each frame, 3 images: 125176 ms
@@ -319,9 +324,12 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             if (palettes[n] == null)
+            {
                 png8.palette.analyze(pixmaps);
-            else
+            }
+            else {
                 png8.palette.exact(palettes[n]);
+            }
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-pattern.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
