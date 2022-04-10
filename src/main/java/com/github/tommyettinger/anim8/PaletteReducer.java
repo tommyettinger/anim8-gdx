@@ -719,7 +719,7 @@ public class PaletteReducer {
         double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]); gf *= gf;
         double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]); bf *= bf;
 
-        return (rf * rf + gf * gf + bf * bf) * 0x1.5p15;
+        return (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
     }
 
     /**
