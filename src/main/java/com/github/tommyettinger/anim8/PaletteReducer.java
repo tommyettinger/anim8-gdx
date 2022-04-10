@@ -273,6 +273,7 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS;
+    private static final double[] FORWARD_LOOKUP = new double[256];
 
     static {
         double r, g, b, l, m, s;
@@ -306,6 +307,10 @@ public class PaletteReducer {
                 }
             }
         }
+        for (int i = 1; i < 256; i++) {
+            FORWARD_LOOKUP[i] = forwardLight(i / 255f);
+        }
+
 //
 //        double r, g, b, x, y, z;
 //        int idx = 0;
@@ -556,20 +561,6 @@ public class PaletteReducer {
         analyze(pixmap, threshold);
     }
     
-    public static double difference(int color1, int color2) {
-        if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
-        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
-                indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
-        float
-                L = OKLAB[0][indexA] - OKLAB[0][indexB],
-                A = OKLAB[1][indexA] - OKLAB[1][indexB],
-                B = OKLAB[2][indexA] - OKLAB[2][indexB];
-//        L = forwardLight(L * L);
-        L *= L;
-        A *= A;
-        B *= B;
-        return (L * L + A * A + B * B) * 0x1p+27;
-    }
 //
 //    public static double difference(int color1, int color2) {
 //        if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
@@ -595,20 +586,6 @@ public class PaletteReducer {
 //                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - (color2 >>> 16 & 0xFF))]
 //                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - (color2 >>> 8 & 0xFF))]) * 0x1p-10;
 
-    public static double difference(int color1, int r2, int g2, int b2) {
-        if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
-        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
-                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        float
-                L = OKLAB[0][indexA] - OKLAB[0][indexB],
-                A = OKLAB[1][indexA] - OKLAB[1][indexB],
-                B = OKLAB[2][indexA] - OKLAB[2][indexB];
-//        L = forwardLight(L * L);
-        L *= L;
-        A *= A;
-        B *= B;
-        return (L * L + A * A + B * B) * 0x1p+27;
-    }
 //
 //    public static double difference(int color1, int r2, int g2, int b2) {
 //        if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
@@ -634,19 +611,6 @@ public class PaletteReducer {
 //                + RGB_POWERS[256+Math.abs((color1 >>> 16 & 0xFF) - g2)]
 //                + RGB_POWERS[512+Math.abs((color1 >>> 8 & 0xFF) - b2)]) * 0x1p-10;
 
-    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
-        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
-                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
-        float
-                L = OKLAB[0][indexA] - OKLAB[0][indexB],
-                A = OKLAB[1][indexA] - OKLAB[1][indexB],
-                B = OKLAB[2][indexA] - OKLAB[2][indexB];
-//        L = forwardLight(L * L);
-        L *= L;
-        A *= A;
-        B *= B;
-        return (L * L + A * A + B * B) * 0x1p+27;
-    }
 //    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
 //        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
 //                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
@@ -670,6 +634,93 @@ public class PaletteReducer {
 //        return (RGB_POWERS[Math.abs(r1 - r2)]
 //                + RGB_POWERS[256+Math.abs(g1 - g2)]
 //                + RGB_POWERS[512+Math.abs(b1 - b2)]) * 0x1p-10;
+
+//    public static double difference(int color1, int color2) {
+//        if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
+//        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
+//                indexB = (color2 >>> 17 & 0x7C00) | (color2 >>> 14 & 0x3E0) | (color2 >>> 11 & 0x1F);
+//        float
+//                L = OKLAB[0][indexA] - OKLAB[0][indexB],
+//                A = OKLAB[1][indexA] - OKLAB[1][indexB],
+//                B = OKLAB[2][indexA] - OKLAB[2][indexB];
+//        L *= L;
+//        A *= A;
+//        B *= B;
+//        return (L * L + A * A + B * B) * 0x1p+27;
+//    }
+//    public static double difference(int color1, int r2, int g2, int b2) {
+//        if ((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
+//        final int indexA = (color1 >>> 17 & 0x7C00) | (color1 >>> 14 & 0x3E0) | (color1 >>> 11 & 0x1F),
+//                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
+//        float
+//                L = OKLAB[0][indexA] - OKLAB[0][indexB],
+//                A = OKLAB[1][indexA] - OKLAB[1][indexB],
+//                B = OKLAB[2][indexA] - OKLAB[2][indexB];
+//        L *= L;
+//        A *= A;
+//        B *= B;
+//        return (L * L + A * A + B * B) * 0x1p+27;
+//    }
+//    public static double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
+//        int indexA = (r1 << 7 & 0x7C00) | (g1 << 2 & 0x3E0) | (b1 >>> 3),
+//                indexB = (r2 << 7 & 0x7C00) | (g2 << 2 & 0x3E0) | (b2 >>> 3);
+//        float
+//                L = OKLAB[0][indexA] - OKLAB[0][indexB],
+//                A = OKLAB[1][indexA] - OKLAB[1][indexB],
+//                B = OKLAB[2][indexA] - OKLAB[2][indexB];
+//        L *= L;
+//        A *= A;
+//        B *= B;
+//        return (L * L + A * A + B * B) * 0x1p+27;
+//    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * If you want to change this, just change {@link #difference(int, int, int, int, int, int)}, which this calls.
+     * @param color1 the first color, as an RGBA8888 int
+     * @param color2 the second color, as an RGBA8888 int
+     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     */
+    public double difference(int color1, int color2) {
+        if (((color1 ^ color2) & 0x80) == 0x80) return Double.POSITIVE_INFINITY;
+        return difference(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, color2 >>> 24, color2 >>> 16 & 0xFF, color2 >>> 8 & 0xFF);
+    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * If you want to change this, just change {@link #difference(int, int, int, int, int, int)}, which this calls.
+     * @param color1 the first color, as an RGBA8888 int
+     * @param r2 red of the second color, from 0 to 255
+     * @param g2 green of the second color, from 0 to 255
+     * @param b2 blue of the second color, from 0 to 255
+     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     */
+    public double difference(int color1, int r2, int g2, int b2) {
+        if((color1 & 0x80) == 0) return Double.POSITIVE_INFINITY;
+        return difference(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, r2, g2, b2);
+    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * This can be changed in an extending (possibly anonymous) class to use a different squared metric.
+     * <br>
+     * This currently uses a metric called "RGB Stupid;" it is called that because initially it was an attempt to try
+     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid.
+     * @param r1 red of the first color, from 0 to 255
+     * @param g1 green of the first color, from 0 to 255
+     * @param b1 blue of the first color, from 0 to 255
+     * @param r2 red of the second color, from 0 to 255
+     * @param g2 green of the second color, from 0 to 255
+     * @param b2 blue of the second color, from 0 to 255
+     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     */
+    public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
+        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]);
+        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]);
+        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]);
+
+        return (rf * rf + gf * gf + bf * bf) * 0x1p+32;
+    }
 
     /**
      * Resets the palette to the 256-color (including transparent) "Haltonic" palette. PaletteReducer already
