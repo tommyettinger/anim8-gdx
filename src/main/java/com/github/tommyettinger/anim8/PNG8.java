@@ -44,6 +44,8 @@ import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
+
 /** 
  * PNG-8 encoder with compression; can write animated and non-animated PNG images in indexed-mode.
  * An instance can be reused to encode multiple PNGs with minimal allocation.
@@ -1578,7 +1580,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        palette.candidates[i | 16] = PaletteReducer.shrink(used = palette.candidates[i] = paletteArray[usedIndex]);
+                        palette.candidates[i | 16] = PaletteReducer.shrink(palette.candidates[i] = used = paletteArray[usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
@@ -3058,7 +3060,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                 usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))] & 0xFF;
-                                palette.candidates[c | 16] = PaletteReducer.shrink(used = palette.candidates[c] = paletteArray[usedIndex]);
+                                palette.candidates[c | 16] = shrink(palette.candidates[c] = used = paletteArray[usedIndex]);
                                 er += cr - (used >>> 24);
                                 eg += cg - (used >>> 16 & 0xFF);
                                 eb += cb - (used >>> 8 & 0xFF);

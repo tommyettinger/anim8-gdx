@@ -1037,7 +1037,7 @@ public class PaletteReducer {
                     if (paletteMapping[c2] == 0) {
                         bb = (b << 3 | b >>> 2);
                         dist = Double.MAX_VALUE;
-                        for (int i = 1; i < limit; i++) {
+                        for (int i = 1; i < colorCount; i++) {
                             if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
@@ -1392,7 +1392,7 @@ public class PaletteReducer {
                     if (paletteMapping[c2] == 0) {
                         bb = (b << 3 | b >>> 2);
                         dist = Double.POSITIVE_INFINITY;
-                        for (int i = 1; i < limit; i++) {
+                        for (int i = 1; i < colorCount; i++) {
                             if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
@@ -1560,16 +1560,14 @@ public class PaletteReducer {
             PER_BEST:
             for (; i < limit && c < cs;) {
                 color = es.get(c++).key;
-                double minDiff = Double.MAX_VALUE, maxDiff = -1.0;
+//                double minDiff = Double.MAX_VALUE, maxDiff = -1.0;
                 for (int j = 1; j < i; j++) {
                     double diff = difference(color, paletteArray[j]);
                     if (diff < threshold)
                         continue PER_BEST;
-                    minDiff = Math.min(minDiff, diff);
-                    maxDiff = Math.max(maxDiff, diff);
+//                    minDiff = Math.min(minDiff, diff);
+//                    maxDiff = Math.max(maxDiff, diff);
                 }
-                //TODO: REMOVE DEBUG PRINTF
-                System.out.printf("Color 0x%08X has min diff %5.5f, max diff %8.5f\n", color, minDiff, maxDiff);
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
                 reds[i] = color >>> 24;
@@ -1596,8 +1594,8 @@ public class PaletteReducer {
                     c2 = r << 10 | g << 5 | b;
                     if (paletteMapping[c2] == 0) {
                         bb = (b << 3 | b >>> 2);
-                        dist = Double.POSITIVE_INFINITY;
-                        for (int i = 1; i < limit; i++) {
+                        dist = Double.MAX_VALUE;
+                        for (int i = 1; i < colorCount; i++) {
                             if (dist > (dist = Math.min(dist, difference(reds[i], greens[i], blues[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
