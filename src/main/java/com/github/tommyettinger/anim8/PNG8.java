@@ -1881,8 +1881,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
             byte paletteIndex;
-            float w1 = palette.ditherStrength * 2.55f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (27f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
+            float w1 = palette.ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    adj, strength = (32f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
                     limit = (float) Math.pow(80, 1.635 - palette.populationBias);
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
@@ -3401,8 +3401,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
             byte paletteIndex;
-            float w1 = palette.ditherStrength * 2.55f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (27f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
+            float w1 = palette.ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    adj, strength = (32f * palette.ditherStrength / (palette.populationBias * palette.populationBias)),
                     limit = (float) Math.pow(80, 1.635 - palette.populationBias);
 
             int seq = 0;

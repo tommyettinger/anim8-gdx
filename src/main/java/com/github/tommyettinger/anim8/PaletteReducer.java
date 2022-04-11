@@ -308,7 +308,7 @@ public class PaletteReducer {
             }
         }
         for (int i = 1; i < 256; i++) {
-            FORWARD_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.36f);
+            FORWARD_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.5f);
         }
 
 //
@@ -715,9 +715,9 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]); rf *= rf;// * 0.875;
-        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]); gf *= gf;// * 0.75;
-        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]); bf *= bf;// * 1.375;
+        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]);// rf *= rf;// * 0.875;
+        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]);// gf *= gf;// * 0.75;
+        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]);// bf *= bf;// * 1.375;
 
         return (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
     }
@@ -968,7 +968,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.5) * 0.003;
+        threshold /= Math.pow(limit, 1.35) * 0.00016;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1076,7 +1076,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.5) * 0.003;
+        threshold /= Math.pow(limit, 1.35) * 0.00016;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1515,7 +1515,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.5) * 0.003;
+        threshold /= Math.pow(limit, 1.35) * 0.00016;
         IntIntMap counts = new IntIntMap(limit);
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
@@ -2197,8 +2197,8 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = ditherStrength * 2.55f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                adj, strength = (27f * ditherStrength / (populationBias * populationBias)),
+        float w1 = ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                adj, strength = (32f * ditherStrength / (populationBias * populationBias)),
                 limit = (float) Math.pow(80, 1.635 - populationBias);
 
         for (int py = 0; py < h; py++) {
