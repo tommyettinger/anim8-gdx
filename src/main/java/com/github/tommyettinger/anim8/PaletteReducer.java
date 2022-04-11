@@ -715,9 +715,9 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]); rf *= rf;
-        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]); gf *= gf;
-        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]); bf *= bf;
+        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]); rf *= rf;// * 0.875;
+        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]); gf *= gf;// * 0.75;
+        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]); bf *= bf;// * 1.375;
 
         return (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
     }
@@ -968,7 +968,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.5) * 0.00105;
+        threshold /= Math.pow(limit, 1.4) * 0.0105;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -2440,7 +2440,7 @@ public class PaletteReducer {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        candidates[i | 16] = shrink(used = candidates[i] = paletteArray[usedIndex]);
+                        candidates[i | 16] = shrink(candidates[i] = used = paletteArray[usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
@@ -2497,7 +2497,7 @@ public class PaletteReducer {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        candidates[c | 16] = shrink(used = candidates[c] = paletteArray[usedIndex]);
+                        candidates[c | 16] = shrink(candidates[c] = used = paletteArray[usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
