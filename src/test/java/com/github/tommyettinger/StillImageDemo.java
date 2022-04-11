@@ -28,7 +28,8 @@ public class StillImageDemo extends ApplicationAdapter {
 
         Gdx.files.local("images").mkdirs();
 //        for(String name : new String[]{"Mona_Lisa.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
-        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png", "Anemone.png",}) {
+        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
+//        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png", "Anemone.png",}) {
 			renderPNG8(name);
 			renderGif(name);
 //			renderPNG(name);

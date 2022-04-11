@@ -308,7 +308,7 @@ public class PaletteReducer {
             }
         }
         for (int i = 1; i < 256; i++) {
-            FORWARD_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.42f);
+            FORWARD_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.36f);
         }
 
 //
@@ -968,7 +968,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.5) * 0.007;
+        threshold /= Math.pow(limit, 1.5) * 0.003;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1076,7 +1076,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.5) * 0.00105;
+        threshold /= Math.pow(limit, 1.5) * 0.003;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1515,7 +1515,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.5) * 0.00105;
+        threshold /= Math.pow(limit, 1.5) * 0.003;
         IntIntMap counts = new IntIntMap(limit);
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
