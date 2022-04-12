@@ -747,9 +747,9 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double differenceMatch(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (EXACT_LOOKUP[r1] - EXACT_LOOKUP[r2]);// rf *= rf;// * 0.875;
-        double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]);// gf *= gf;// * 0.75;
-        double bf = (EXACT_LOOKUP[b1] - EXACT_LOOKUP[b2]);// bf *= bf;// * 1.375;
+        double rf = (EXACT_LOOKUP[r1] - EXACT_LOOKUP[r2]) * 1.55;// rf *= rf;// * 0.875;
+        double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]) * 2.05;// gf *= gf;// * 0.75;
+        double bf = (EXACT_LOOKUP[b1] - EXACT_LOOKUP[b2]) * 0.90;// bf *= bf;// * 1.375;
 
         double d2 = (rf * rf + gf * gf + bf * bf);
         return d2 * d2 * 0x1.8p17;
