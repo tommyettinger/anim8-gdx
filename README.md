@@ -48,16 +48,16 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.5"
+  api "com.github.tommyettinger:anim8-gdx:0.3.6"
 }
 ```
 
 You can also get a specific commit using JitPack, by following the instructions on
-[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/f8afbbb229). (You usually want to select a recent
+[JitPack's page for anim8](https://jitpack.io/#tommyettinger/anim8-gdx/da4f27d14b). (You usually want to select a recent
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.5:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.6:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -157,7 +157,7 @@ analyze an existing image or animation (which can work well for large palette si
 default palette (called "HALTONIC", it has 255 colors plus transparent). Of these, using `analyze()` is the trickiest,
 and it generally should be permitted all 256 colors to work with. With `analyze()`, you can specify the threshold
 between colors for it to consider adding one to the palette, and this is a challenging value to set that depends on the
-image being dithered. Typically, between 150 and 600 are used, with higher values for smaller or more diverse palettes
+image being dithered. Typically, between 50 and 600 are used, with higher values for smaller or more diverse palettes
 (that is, ones with fewer similar colors to try to keep). Usually you will do just fine with the default "HALTONIC"
 palette, or almost any practical 250+ color palette, because with so many colors it's hard to go wrong. Creating a
 PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use HALTONIC.
@@ -167,7 +167,12 @@ animation, analyzing colors separately for each frame. This supplements the prev
 analyze all frames of an animation and find a 255-color palette that approximates the whole set of all frames
 well-enough. PNG8 still uses the previous behavior, and you can use it with AnimatedGif by creating a PaletteReducer
 with an `Array<Pixmap>` or calling `PaletteReducer.analyze(Array<Pixmap>)`. To analyze each frame separately, just make
-sure the `palette` field of your `AnimatedGif` is null when you start writing a GIF.
+sure the `palette` field of your `AnimatedGif` is null when you start writing a GIF. The `fastAnalysis` field on an
+`AnimatedGif` object determines whether (if true) it uses a fast but approximate algorithm per frame, or (if false) it
+uses the same analysis for each frame that it normally would for a still image. You can also create a `PaletteReducer`,
+passing it an `Array<Pixmap>`, and assign that to the `palette` field; this is reasonably fast and also ensures every
+frame will use the same palette (which means regions of solid color that don't change in the source won't change in the
+GIF; this isn't true if `palette` is null).
 
 # Samples
 
@@ -188,11 +193,11 @@ white](https://imgur.com/a/1bkxPFH), and [here on Imgur, reduced to 4-color "gre
 
 And some .png animations, using full color (made with the AnimatedPNG class):
 
-![Flashy Full-Color PNG](https://i.imgur.com/Sgy7HE8.png)
+![Flashy Full-Color PNG](https://i.imgur.com/36e4mXL.png)
 
 ![Pastel Full-Color PNG](https://i.imgur.com/22KiFSZ.png)
 
-![Green Ogre Full-Color PNG](https://i.imgur.com/1GCnHq4.png)
+![Green Ogre Full-Color PNG](https://i.imgur.com/vjFiH5A.png)
 
 A more intense usage is to encode a high-color video as an indexed-color GIF; why you might do this, I don't know,
 but someone probably wants videos as GIFs. There's some test footage here from

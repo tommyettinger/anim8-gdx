@@ -22,13 +22,14 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * Meant to store large constant arrays as Strings that get converted to byte arrays, for internal use.
- * Right now it only stores a large palette preload code, {@link #ENCODED_HALTONIC}.
+ * Right now it stores a large palette preload code, {@link #ENCODED_HALTONIC}, as well as the blue noise data used by
+ * BLUE_NOISE, CHAOTIC_NOISE, NEUE, and SCATTER dithers.
  */
 class ConstantData {
 
     /**
-     * This stores a preload code for a PaletteReducer using {@link PaletteReducer#HALTONIC} with a more-involved
-     * metric. Using a preload code in the constructor {@link PaletteReducer#PaletteReducer(int[], byte[])} eliminates
+     * This stores a preload code for a PaletteReducer using {@link PaletteReducer#HALTONIC} with the same metric as
+     * normal. Using a preload code in the constructor {@link PaletteReducer#PaletteReducer(int[], byte[])} eliminates
      * the time needed to fill 32 KB of palette mapping in a somewhat-intricate way that only gets more intricate with
      * better metrics, and replaces it with a straightforward load from a String into a 32 KB byte array.
      */

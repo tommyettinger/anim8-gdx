@@ -737,7 +737,14 @@ public class PaletteReducer {
      * when matching to an existing palette, as with {@link #exact(int[])}.
      * <br>
      * This currently uses a metric called "RGB Stupid;" it is called that because initially it was an attempt to try
-     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid.
+     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid. The
+     * difference between colors used by exact() is not the same as the difference used by analyze(), just because they
+     * seem to need precision in different ways. Both methods treat low values for RGB channels as very similar to other
+     * low values, and the same for high values compared to high values. Mid-range values tend to be considered very
+     * different from similar but non-identical mid-range values. In the differenceMatch() methods, red, green, and blue
+     * are all multiplied by different constants based on the eye's sensitivity to that wavelength. In the
+     * differenceAnalyzing() methods, red, green, and blue are treated identically.
+     *
      * @param r1 red of the first color, from 0 to 255
      * @param g1 green of the first color, from 0 to 255
      * @param b1 blue of the first color, from 0 to 255
@@ -751,8 +758,8 @@ public class PaletteReducer {
         double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]) * 2.05;// gf *= gf;// * 0.75;
         double bf = (EXACT_LOOKUP[b1] - EXACT_LOOKUP[b2]) * 0.90;// bf *= bf;// * 1.375;
 
-        double d2 = (rf * rf + gf * gf + bf * bf);
-        return d2 * d2 * 0x1.8p17;
+        return  (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
+//        return d2 * d2 * 0x1.8p17;
     }
 
     /**
@@ -761,7 +768,14 @@ public class PaletteReducer {
      * when analyzing an image, as with {@link #analyze(Pixmap)}.
      * <br>
      * This currently uses a metric called "RGB Stupid;" it is called that because initially it was an attempt to try
-     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid.
+     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid. The
+     * difference between colors used by exact() is not the same as the difference used by analyze(), just because they
+     * seem to need precision in different ways. Both methods treat low values for RGB channels as very similar to other
+     * low values, and the same for high values compared to high values. Mid-range values tend to be considered very
+     * different from similar but non-identical mid-range values. In the differenceMatch() methods, red, green, and blue
+     * are all multiplied by different constants based on the eye's sensitivity to that wavelength. In the
+     * differenceAnalyzing() methods, red, green, and blue are treated identically.
+     *
      * @param r1 red of the first color, from 0 to 255
      * @param g1 green of the first color, from 0 to 255
      * @param b1 blue of the first color, from 0 to 255
