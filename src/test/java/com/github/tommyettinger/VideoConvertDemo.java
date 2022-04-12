@@ -18,7 +18,7 @@ import com.github.tommyettinger.anim8.*;
 public class VideoConvertDemo extends ApplicationAdapter {
     private long startTime;
     private static final String name = "market";
-    private boolean fastAnalysis = false;
+    private boolean fastAnalysis = true;
     @Override
     public void create() {
         startTime = TimeUtils.millis();

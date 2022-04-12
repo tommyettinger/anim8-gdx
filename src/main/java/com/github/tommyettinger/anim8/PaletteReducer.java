@@ -273,7 +273,8 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS;
-    private static final double[] FORWARD_LOOKUP = new double[256];
+    private static final double[] EXACT_LOOKUP = new double[256];
+    private static final double[] ANALYTIC_LOOKUP = new double[256];
 
     static {
         double r, g, b, l, m, s;
@@ -308,7 +309,8 @@ public class PaletteReducer {
             }
         }
         for (int i = 1; i < 256; i++) {
-            FORWARD_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.5f);
+            EXACT_LOOKUP[i] = Math.pow(OtherMath.barronSpline(i / 255f, 25f, 0.5f), 4);
+            ANALYTIC_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.5f);
         }
 
 //
@@ -676,33 +678,63 @@ public class PaletteReducer {
 
     /**
      * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
-     * If you want to change this, just change {@link #difference(int, int, int, int, int, int)}, which this calls.
+     * If you want to change this, just change {@link #differenceMatch(int, int, int, int, int, int)}, which this
+     * calls.
      * @param color1 the first color, as an RGBA8888 int
      * @param color2 the second color, as an RGBA8888 int
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
-    public double difference(int color1, int color2) {
+    public double differenceMatch(int color1, int color2) {
         if (((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
-        return difference(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, color2 >>> 24, color2 >>> 16 & 0xFF, color2 >>> 8 & 0xFF);
+        return differenceMatch(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, color2 >>> 24, color2 >>> 16 & 0xFF, color2 >>> 8 & 0xFF);
     }
 
     /**
      * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
-     * If you want to change this, just change {@link #difference(int, int, int, int, int, int)}, which this calls.
+     * If you want to change this, just change {@link #differenceAnalyzing(int, int, int, int, int, int)}, which this
+     * calls.
+     * @param color1 the first color, as an RGBA8888 int
+     * @param color2 the second color, as an RGBA8888 int
+     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     */
+    public double differenceAnalyzing(int color1, int color2) {
+        if (((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
+        return differenceAnalyzing(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, color2 >>> 24, color2 >>> 16 & 0xFF, color2 >>> 8 & 0xFF);
+    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * If you want to change this, just change {@link #differenceMatch(int, int, int, int, int, int)}, which this calls.
      * @param color1 the first color, as an RGBA8888 int
      * @param r2 red of the second color, from 0 to 255
      * @param g2 green of the second color, from 0 to 255
      * @param b2 blue of the second color, from 0 to 255
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
-    public double difference(int color1, int r2, int g2, int b2) {
+    public double differenceMatch(int color1, int r2, int g2, int b2) {
         if((color1 & 0x80) == 0) return Double.MAX_VALUE;
-        return difference(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, r2, g2, b2);
+        return differenceMatch(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, r2, g2, b2);
+    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100. If
+     * you want to change this, just change {@link #differenceAnalyzing(int, int, int, int, int, int)}, which this
+     * calls.
+     * @param color1 the first color, as an RGBA8888 int
+     * @param r2 red of the second color, from 0 to 255
+     * @param g2 green of the second color, from 0 to 255
+     * @param b2 blue of the second color, from 0 to 255
+     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     */
+    public double differenceAnalyzing(int color1, int r2, int g2, int b2) {
+        if((color1 & 0x80) == 0) return Double.MAX_VALUE;
+        return differenceAnalyzing(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, r2, g2, b2);
     }
 
     /**
      * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
-     * This can be changed in an extending (possibly anonymous) class to use a different squared metric.
+     * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
+     * when matching to an existing palette, as with {@link #exact(int[])}.
      * <br>
      * This currently uses a metric called "RGB Stupid;" it is called that because initially it was an attempt to try
      * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid.
@@ -714,12 +746,35 @@ public class PaletteReducer {
      * @param b2 blue of the second color, from 0 to 255
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
-    public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (FORWARD_LOOKUP[r1] - FORWARD_LOOKUP[r2]);// rf *= rf;// * 0.875;
-        double gf = (FORWARD_LOOKUP[g1] - FORWARD_LOOKUP[g2]);// gf *= gf;// * 0.75;
-        double bf = (FORWARD_LOOKUP[b1] - FORWARD_LOOKUP[b2]);// bf *= bf;// * 1.375;
+    public double differenceMatch(int r1, int g1, int b1, int r2, int g2, int b2) {
+        double rf = (EXACT_LOOKUP[r1] - EXACT_LOOKUP[r2]);// rf *= rf;// * 0.875;
+        double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]);// gf *= gf;// * 0.75;
+        double bf = (EXACT_LOOKUP[b1] - EXACT_LOOKUP[b2]);// bf *= bf;// * 1.375;
 
         return (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
+    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
+     * when analyzing an image, as with {@link #analyze(Pixmap)}.
+     * <br>
+     * This currently uses a metric called "RGB Stupid;" it is called that because initially it was an attempt to try
+     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid.
+     * @param r1 red of the first color, from 0 to 255
+     * @param g1 green of the first color, from 0 to 255
+     * @param b1 blue of the first color, from 0 to 255
+     * @param r2 red of the second color, from 0 to 255
+     * @param g2 green of the second color, from 0 to 255
+     * @param b2 blue of the second color, from 0 to 255
+     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     */
+    public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
+        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);// rf *= rf;// * 0.875;
+        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);// gf *= gf;// * 0.75;
+        double bf = (ANALYTIC_LOOKUP[b1] - ANALYTIC_LOOKUP[b2]);// bf *= bf;// * 1.375;
+
+        return (rf * rf + gf * gf + bf * bf) * 0x1.4p17;
     }
 
     /**
@@ -763,7 +818,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, limit), rgbaPalette.length);
         colorCount = plen;
-        populationBias = (float) Math.exp(-1.375/colorCount);
+        populationBias = (float) Math.exp(-1.125/colorCount);
         int color, c2;
         double dist;
         reverseMap = new IntIntMap(colorCount);
@@ -787,7 +842,7 @@ public class PaletteReducer {
                         bb = (b << 3 | b >>> 2);
                         dist = 0x7FFFFFFF;
                         for (int i = 1; i < plen; i++) {
-                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
+                            if (dist > (dist = Math.min(dist, differenceMatch(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
@@ -814,7 +869,7 @@ public class PaletteReducer {
             System.arraycopy(HALTONIC, 0,  paletteArray, 0, 256);
             System.arraycopy(ENCODED_HALTONIC, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
-            populationBias = (float) Math.exp(-0.00537109375);
+            populationBias = (float) Math.exp(-1.125 / 256.0);
             for (int i = 0; i < colorCount; i++) {
                 reverseMap.put(paletteArray[i], i);
             }
@@ -827,7 +882,7 @@ public class PaletteReducer {
         for (int i = 0; i < colorCount; i++) {
             reverseMap.put(paletteArray[i], i);
         }
-        populationBias = (float) Math.exp(-1.375/colorCount);
+        populationBias = (float) Math.exp(-1.125/colorCount);
     }
 
     /**
@@ -864,7 +919,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, colorPalette.length), limit);
         colorCount = plen;
-        populationBias = (float) Math.exp(-1.375/colorCount);
+        populationBias = (float) Math.exp(-1.125/colorCount);
         int color, c2;
         double dist;
         reverseMap = new IntIntMap(colorCount);
@@ -885,7 +940,7 @@ public class PaletteReducer {
                         bb = (b << 3 | b >>> 2);
                         dist = 0x7FFFFFFF;
                         for (int i = 1; i < plen; i++) {
-                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
+                            if (dist > (dist = Math.min(dist, differenceMatch(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
@@ -901,7 +956,8 @@ public class PaletteReducer {
      * step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
      * aren't exact, and dithering works better when the palette can choose colors that are sufficiently different, this
      * uses a threshold value to determine whether it should permit a less-common color into the palette, and if the
-     * second color is different enough (as measured by {@link #difference(int, int)}) by a value of at least 150, it is
+     * second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a value of at least
+     * 150, it is
      * allowed in the palette, otherwise it is kept out for being too similar to existing colors. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} field or can be used directly to {@link #reduce(Pixmap)} a Pixmap.
@@ -928,7 +984,7 @@ public class PaletteReducer {
      * step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
      * aren't exact, and dithering works better when the palette can choose colors that are sufficiently different, this
      * takes a threshold value to determine whether it should permit a less-common color into the palette, and if the
-     * second color is different enough (as measured by {@link #difference(int, int)}) by a value of at least
+     * second color is different enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least
      * {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar to existing
      * colors. The threshold is usually between 100 and 1000, and 150 is a good default. Because this always uses the
      * maximum color limit, threshold should be lower than cases where the color limit is small. If the threshold is too
@@ -938,7 +994,7 @@ public class PaletteReducer {
      * directly to {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)} ; usually between 100 and 1000, 150 is a good default
      */
     public void analyze(Pixmap pixmap, double threshold) {
         analyze(pixmap, threshold, 256);
@@ -951,7 +1007,7 @@ public class PaletteReducer {
      * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
      * works better when the palette can choose colors that are sufficiently different, this takes a threshold value to
      * determine whether it should permit a less-common color into the palette, and if the second color is different
-     * enough (as measured by {@link #difference(int, int)}) by a value of at least {@code threshold}, it is allowed in
+     * enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
      * 100 and 1000, and 150 is a good default. If the threshold is too high, then some colors that would be useful to
      * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
@@ -960,7 +1016,7 @@ public class PaletteReducer {
      * Pixmap.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap pixmap, double threshold, int limit) {
@@ -999,7 +1055,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -1007,7 +1063,7 @@ public class PaletteReducer {
             while (i < limit && c < cs) {
                 color = es.get(c++).key;
                 for (int j = 1; j < i; j++) {
-                    if (difference(color, paletteArray[j]) < threshold)
+                    if (differenceAnalyzing(color, paletteArray[j]) < threshold)
                         continue PER_BEST;
                 }
                 paletteArray[i] = color;
@@ -1015,7 +1071,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         }
         if(reverseMap == null)
             reverseMap = new IntIntMap(colorCount);
@@ -1038,7 +1094,7 @@ public class PaletteReducer {
                         bb = (b << 3 | b >>> 2);
                         dist = Double.MAX_VALUE;
                         for (int i = 1; i < colorCount; i++) {
-                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
@@ -1055,7 +1111,7 @@ public class PaletteReducer {
      * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
      * works better when the palette can choose colors that are sufficiently different, this takes a threshold value to
      * determine whether it should permit a less-common color into the palette, and if the second color is different
-     * enough (as measured by {@link #difference(int, int)}) by a value of at least {@code threshold}, it is allowed in
+     * enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
      * 100 and 1000, and 150 is a good default. If the threshold is too high, then some colors that would be useful to
      * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
@@ -1068,7 +1124,7 @@ public class PaletteReducer {
      * than {@link #analyze(Pixmap, double, int)} with the same parameters.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeFast(Pixmap pixmap, double threshold, int limit) {
@@ -1107,7 +1163,7 @@ public class PaletteReducer {
                 ++i;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -1115,7 +1171,7 @@ public class PaletteReducer {
             while (i < limit && c < cs) {
                 color = es.get(c++).key;
                 for (int j = 1; j < i; j++) {
-                    if (difference(color, paletteArray[j]) < threshold)
+                    if (differenceAnalyzing(color, paletteArray[j]) < threshold)
                         continue PER_BEST;
                 }
                 paletteArray[i] = color;
@@ -1123,7 +1179,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         }
         if(reverseMap == null)
             reverseMap = new IntIntMap(colorCount);
@@ -1363,7 +1419,7 @@ public class PaletteReducer {
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = limit;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         }
         else
         { 
@@ -1374,7 +1430,7 @@ public class PaletteReducer {
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = counts.size + hasTransparent;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         }
         reverseMap = new IntIntMap(colorCount);
         for (int i = 0; i < colorCount; i++) {
@@ -1393,7 +1449,7 @@ public class PaletteReducer {
                         bb = (b << 3 | b >>> 2);
                         dist = Double.POSITIVE_INFINITY;
                         for (int i = 1; i < colorCount; i++) {
-                            if (dist > (dist = Math.min(dist, difference(paletteArray[i], rr, gg, bb))))
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
@@ -1434,7 +1490,8 @@ public class PaletteReducer {
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
      * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
-     * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
+     * into the palette, and if the second color is different enough (as measured by
+     * {@link #differenceAnalyzing(int, int, int, int)}) by a
      * value of at least 150, it is allowed in the palette, otherwise it is kept out for being too similar to existing
      * colors. This doesn't return a value but instead stores the palette info in this object; a PaletteReducer can be
      * assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
@@ -1454,7 +1511,7 @@ public class PaletteReducer {
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
      * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
-     * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
+     * into the palette, and if the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
      * to existing colors. The threshold is usually between 100 and 1000, and 150 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
@@ -1462,7 +1519,7 @@ public class PaletteReducer {
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 1000, 150 is a good default
      */
     public void analyze(Array<Pixmap> pixmaps, double threshold){
         analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
@@ -1476,7 +1533,7 @@ public class PaletteReducer {
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
      * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
-     * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
+     * into the palette, and if the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
      * to existing colors. The threshold is usually between 100 and 1000, and 150 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
@@ -1484,7 +1541,7 @@ public class PaletteReducer {
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Array<Pixmap> pixmaps, double threshold, int limit){
@@ -1498,7 +1555,7 @@ public class PaletteReducer {
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
      * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
-     * into the palette, and if the second color is different enough (as measured by {@link #difference(int, int)}) by a
+     * into the palette, and if the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
      * to existing colors. The threshold is usually between 100 and 1000, and 150 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
@@ -1507,7 +1564,7 @@ public class PaletteReducer {
      *
      * @param pixmaps   a Pixmap array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      * @param pixmapCount the maximum number of Pixmap entries in pixmaps to use
-     * @param threshold a minimum color difference as produced by {@link #difference(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 1000, 150 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
@@ -1553,7 +1610,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -1562,7 +1619,7 @@ public class PaletteReducer {
                 color = es.get(c++).key;
 //                double minDiff = Double.MAX_VALUE, maxDiff = -1.0;
                 for (int j = 1; j < i; j++) {
-                    double diff = difference(color, paletteArray[j]);
+                    double diff = differenceAnalyzing(color, paletteArray[j]);
                     if (diff < threshold)
                         continue PER_BEST;
 //                    minDiff = Math.min(minDiff, diff);
@@ -1576,7 +1633,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.375/colorCount);
+            populationBias = (float) Math.exp(-1.125/colorCount);
         }
         reverseMap = new IntIntMap(colorCount);
         for (int i = 0; i < colorCount; i++) {
@@ -1596,7 +1653,7 @@ public class PaletteReducer {
                         bb = (b << 3 | b >>> 2);
                         dist = Double.MAX_VALUE;
                         for (int i = 1; i < colorCount; i++) {
-                            if (dist > (dist = Math.min(dist, difference(reds[i], greens[i], blues[i], rr, gg, bb))))
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(reds[i], greens[i], blues[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
