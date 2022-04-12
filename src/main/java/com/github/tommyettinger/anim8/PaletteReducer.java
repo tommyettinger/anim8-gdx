@@ -309,7 +309,7 @@ public class PaletteReducer {
             }
         }
         for (int i = 1; i < 256; i++) {
-            EXACT_LOOKUP[i] = Math.pow(OtherMath.barronSpline(i / 255f, 25f, 0.5f), 4);
+            EXACT_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 4f, 0.5f);
             ANALYTIC_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.5f);
         }
 
@@ -751,7 +751,8 @@ public class PaletteReducer {
         double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]);// gf *= gf;// * 0.75;
         double bf = (EXACT_LOOKUP[b1] - EXACT_LOOKUP[b2]);// bf *= bf;// * 1.375;
 
-        return (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
+        double d2 = (rf * rf + gf * gf + bf * bf);
+        return d2 * d2 * 0x1.8p17;
     }
 
     /**
