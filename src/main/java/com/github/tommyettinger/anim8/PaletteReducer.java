@@ -783,11 +783,16 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);// rf *= rf;// * 0.875;
-        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);// gf *= gf;// * 0.75;
-        double bf = (ANALYTIC_LOOKUP[b1] - ANALYTIC_LOOKUP[b2]);// bf *= bf;// * 1.375;
+        double rf = (r1 - r2);
+        double gf = (g1 - g2);
+        double bf = (b1 - b2);
+        return (rf * rf + gf * gf + bf * bf);
 
-        return (rf * rf + gf * gf + bf * bf) * 0x1.4p17;
+//        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);
+//        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);
+//        double bf = (ANALYTIC_LOOKUP[b1] - ANALYTIC_LOOKUP[b2]);
+
+//        return (rf * rf + gf * gf + bf * bf) * 0x1.4p17;
     }
 
     /**
@@ -1377,7 +1382,8 @@ public class PaletteReducer {
                 if ((color & 0x80) != 0) {
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
                     counts.getAndIncrement(color, 0, 1);
-                    enc.add(shrink(color));
+                    if(((x & y) * 5 & 31) < 3)
+                        enc.add(shrink(color));
                 }
             }
         }
