@@ -34,28 +34,6 @@ public final class OtherMath {
     private OtherMath(){}
 
     /**
-     * A generalization on bias and gain functions that can represent both; this version is branch-less.
-     * This is based on <a href="https://arxiv.org/abs/2010.09714">this micro-paper</a> by Jon Barron, which
-     * generalizes the earlier bias and gain rational functions by Schlick. The second and final page of the
-     * paper has useful graphs of what the s (shape) and t (turning point) parameters do; shape should be 0
-     * or greater, while turning must be between 0 and 1, inclusive. This effectively combines two different
-     * curving functions so they continue into each other when x equals turning. The shape parameter will
-     * cause this to imitate "smoothstep-like" splines when greater than 1 (where the values ease into their
-     * starting and ending levels), or to be the inverse when less than 1 (where values start like square
-     * root does, taking off very quickly, but also end like square does, landing abruptly at the ending
-     * level). You should only give x values between 0 and 1, inclusive.
-     * @param x progress through the spline, from 0 to 1, inclusive
-     * @param shape must be greater than or equal to 0; values greater than 1 are "normal interpolations"
-     * @param turning a value between 0.0 and 1.0, inclusive, where the shape changes
-     * @return a float between 0 and 1, inclusive
-     */
-    public static float barronSpline(final float x, final float shape, final float turning) {
-        final float d = turning - x;
-        final int f = com.badlogic.gdx.utils.NumberUtils.floatToRawIntBits(d) >> 31, n = f | 1;
-        return ((turning * n - f) * (x + f)) / (Float.MIN_NORMAL - f + (x + shape * d) * n) - f;
-    }
-
-    /**
      * Given a byte, pushes any value that isn't extreme toward the center of the 0 to 255 range, and keeps extreme
      * values (such as the channel values in the colors max green or black) as they are.
      * @param v a byte value that will be treated as if in the 0-255 range (as if unsigned)
@@ -160,6 +138,77 @@ public final class OtherMath {
     }
 
     /**
+     * A variant on {@link Math#atan(double)} that does not tolerate infinite inputs and takes/returns floats.
+     * @param i any finite float
+     * @return an output from the inverse tangent function, from PI/-2.0 to PI/2.0 inclusive
+     */
+    private static float atanUnchecked(final float i) {
+        final float n = Math.abs(i);
+        final float c = (n - 1f) / (n + 1f);
+        final float c2 = c * c;
+        final float c3 = c * c2;
+        final float c5 = c3 * c2;
+        final float c7 = c5 * c2;
+        return Math.copySign(0.7853981633974483f +
+                (0.999215f * c - 0.3211819f * c3 + 0.1462766f * c5 - 0.0389929f * c7), i);
+    }
+
+    /**
+     * Close approximation of the frequently-used trigonometric method atan2, with higher precision than libGDX's atan2
+     * approximation. Maximum error is below 0.00009 radians.
+     * Takes y and x (in that unusual order) as floats, and returns the angle from the origin to that point in radians.
+     * It is about 5 times faster than {@link Math#atan2(double, double)} (roughly 12 ns instead of roughly 62 ns for
+     * Math, on Java 8 HotSpot). It is slightly faster than libGDX' MathUtils approximation of the same method;
+     * MathUtils seems to have worse average error, though.
+     * <br>
+     * Credit for this goes to the 1955 research study "Approximations for Digital Computers," by RAND Corporation. This
+     * is sheet 9's algorithm, which is the second-fastest and second-least precise. The algorithm on sheet 8 is faster,
+     * but only by a very small degree, and is considerably less precise. That study provides an {@link #atan(float)}
+     * method, and the small code to make that work as atan2() was worked out from Wikipedia.
+     * @param y y-component of the point to find the angle towards; note the parameter order is unusual by convention
+     * @param x x-component of the point to find the angle towards; note the parameter order is unusual by convention
+     * @return the angle to the given point, in radians as a float; ranges from -PI to PI
+     */
+    public static float atan2(final float y, float x) {
+        float n = y / x;
+        if(n != n) n = (y == x ? 1f : -1f); // if both y and x are infinite, n would be NaN
+        else if(n - n != n - n) x = 0f; // if n is infinite, y is infinitely larger than x.
+        if(x > 0)
+            return atanUnchecked(n);
+        else if(x < 0) {
+            if(y >= 0)
+                return atanUnchecked(n) + 3.14159265358979323846f;
+            else
+                return atanUnchecked(n) - 3.14159265358979323846f;
+        }
+        else if(y > 0) return x + 1.5707963267948966f;
+        else if(y < 0) return x - 1.5707963267948966f;
+        else return x + y; // returns 0 for 0,0 or NaN if either y or x is NaN
+    }
+
+    /**
+     * A generalization on bias and gain functions that can represent both; this version is branch-less.
+     * This is based on <a href="https://arxiv.org/abs/2010.09714">this micro-paper</a> by Jon Barron, which
+     * generalizes the earlier bias and gain rational functions by Schlick. The second and final page of the
+     * paper has useful graphs of what the s (shape) and t (turning point) parameters do; shape should be 0
+     * or greater, while turning must be between 0 and 1, inclusive. This effectively combines two different
+     * curving functions so they continue into each other when x equals turning. The shape parameter will
+     * cause this to imitate "smoothstep-like" splines when greater than 1 (where the values ease into their
+     * starting and ending levels), or to be the inverse when less than 1 (where values start like square
+     * root does, taking off very quickly, but also end like square does, landing abruptly at the ending
+     * level). You should only give x values between 0 and 1, inclusive.
+     * @param x progress through the spline, from 0 to 1, inclusive
+     * @param shape must be greater than or equal to 0; values greater than 1 are "normal interpolations"
+     * @param turning a value between 0.0 and 1.0, inclusive, where the shape changes
+     * @return a float between 0 and 1, inclusive
+     */
+    public static float barronSpline(final float x, final float shape, final float turning) {
+        final float d = turning - x;
+        final int f = com.badlogic.gdx.utils.NumberUtils.floatToIntBits(d) >> 31, n = f | 1;
+        return ((turning * n - f) * (x + f)) / (Float.MIN_NORMAL - f + (x + shape * d) * n) - f;
+    }
+
+    /**
      * A wrapper around {@link #barronSpline(float, float, float)} to use it as an Interpolation.
      * Useful because it can imitate the wide variety of symmetrical Interpolations by setting turning to 0.5 and shape
      * to some value greater than 1, while also being able to produce the inverse of those interpolations by setting
@@ -178,6 +227,21 @@ public final class OtherMath {
          */
         public final float turning;
 
+        /**
+         * Constructs a useful default BiasGain interpolation with a smoothstep-like shape.
+         * This has a shape of 2.0f and a turning of 0.5f .
+         */
+        public BiasGain() {
+            this(2f, 0.5f);
+        }
+
+        /**
+         * Constructs a BiasGain interpolation with the specified (positive) shape and specified turning (between 0 and
+         * 1 inclusive).
+         * @param shape must be positive; similar to a straight line when near 1, becomes smoothstep-like above 1, and
+         *              becomes shaped like transpose of smoothstep below 1
+         * @param turning where, between 0 and 1 inclusive, this should change from the starting curve to the ending one
+         */
         public BiasGain (float shape, float turning) {
             this.shape = shape;
             this.turning = turning;

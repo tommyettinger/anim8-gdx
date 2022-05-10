@@ -205,26 +205,40 @@ public class InteractiveReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_8:
                     case Input.Keys.NUM_9:
                         if(UIUtils.ctrl()) {
+//                            if (UIUtils.shift()) {
+//                                int kc = (keycode - 6) * keycode;
+//                                reducer.analyzeHueWise(p0, 25 + kc, kc);
+//                            }
+//                            else {
+//                                int kc = keycode - 5;
+//                                reducer.analyzeHueWise(p0, 25 + kc, kc);
+//                            }
+
                             if (UIUtils.shift())
-                                reducer.analyzeMC(p0, (keycode - 6) * keycode);
+                                reducer.exact(PaletteReducer.HALTONIC, (keycode - 6) * keycode);
                             else
-                                reducer.analyzeMC(p0, keycode - 5);
+                                reducer.exact(PaletteReducer.HALTONIC, keycode - 5);
+
+//                            if (UIUtils.shift())
+//                                reducer.analyzeMC(p0, (keycode - 6) * keycode);
+//                            else
+//                                reducer.analyzeMC(p0, keycode - 5);
                         }
                         else {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducer.analyze(p0, 150, kc);
+                                reducer.analyze(p0, 25 + kc, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducer.analyze(p0, 150, kc);
+                                reducer.analyze(p0, 25 + kc, kc);
                             }
                         }
                         refresh();
                         break;
                     case Input.Keys.NUM_0:
                         if(UIUtils.ctrl())
-                            reducer.analyzeMC(p0, 256);
+                            reducer.exact(PaletteReducer.HALTONIC, 256);
                         else
                             reducer.analyze(p0, 150);
                         refresh();

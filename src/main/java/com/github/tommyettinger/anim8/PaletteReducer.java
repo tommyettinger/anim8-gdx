@@ -23,11 +23,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.FloatArray;
-import com.badlogic.gdx.utils.IntArray;
-import com.badlogic.gdx.utils.IntIntMap;
-import com.badlogic.gdx.utils.NumberUtils;
+import com.badlogic.gdx.utils.*;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -243,13 +239,14 @@ public class PaletteReducer {
      * OKLAB[0] stores L (lightness) from 0.0 to 1.0 .
      * OKLAB[1] stores A, which is something like a green-magenta axis, from -0.5 (green) to 0.5 (red).
      * OKLAB[2] stores B, which is something like a blue-orange axis, from -0.5 (blue) to 0.5 (yellow).
+     * OKLAB[3] stores the hue in radians from -PI to PI, with red at 0, yellow at PI/2, and blue at -PI/2.
      * <br>
      * The indices into each of these float[] values store red in bits 10-14, green in bits 5-9, and blue in bits 0-4.
      * It's ideal to work with these indices with bitwise operations, as with {@code (r << 10 | g << 5 | b)}, where r,
      * g, and b are all in the 0-31 range inclusive. It's usually easiest to convert an RGBA8888 int color to an RGB555
      * color with {@link #shrink(int)}.
      */
-    public static final float[][] OKLAB = new float[3][0x8000];
+    public static final float[][] OKLAB = new float[4][0x8000];
 
     /**
      * A 4096-element byte array as a 64x64 grid of bytes. When arranged into a grid, the bytes will follow a blue noise
@@ -303,6 +300,7 @@ public class PaletteReducer {
                                     0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
                     OKLAB[1][idx] = 1.9779984951f * lf - 2.4285922050f * mf + 0.4505937099f * sf;
                     OKLAB[2][idx] = 0.0259040371f * lf + 0.7827717662f * mf - 0.8086757660f * sf;
+                    OKLAB[3][idx] = OtherMath.atan2(OKLAB[2][idx], OKLAB[1][idx]);
 
                     idx++;
                 }
@@ -990,6 +988,13 @@ public class PaletteReducer {
         }
     };
 
+    private static final Comparator<IntFloatMap.Entry> ifEntryComparator = new Comparator<IntFloatMap.Entry>() {
+        @Override
+        public int compare(IntFloatMap.Entry o1, IntFloatMap.Entry o2) {
+            return NumberUtils.floatToIntBits(o2.value - o1.value);
+        }
+    };
+
 
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
@@ -1044,7 +1049,7 @@ public class PaletteReducer {
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                color = pixmap.getPixel(x, y);
+                color = pixmap.getPixel(x, y) & 0xF8F8F880;
                 if ((color & 0x80) != 0) {
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
                     counts.getAndIncrement(color, 0, 1);
@@ -1120,6 +1125,114 @@ public class PaletteReducer {
     
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
+     * If there are {@code limit} or fewer colors, this uses the exact colors (although with at most one transparent
+     * color, and no alpha for other colors); this will always reserve a palette entry for transparent (even if the
+     * image has no transparency) because it uses palette index 0 in its analysis step. Because calling
+     * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
+     * works better when the palette can choose colors that are sufficiently different, this takes a threshold value to
+     * determine whether it should permit a less-common color into the palette, and if the second color is different
+     * enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least {@code threshold}, it is allowed in
+     * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
+     * 100 and 1000, and 150 is a good default. If the threshold is too high, then some colors that would be useful to
+     * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
+     * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
+     * Pixmap.
+     *
+     * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyzeHueWise(Pixmap pixmap, double threshold, int limit) {
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        limit = Math.min(Math.max(limit, 2), 256);
+        threshold /= Math.pow(limit, 1.35) * 0.00016;
+        final int width = pixmap.getWidth(), height = pixmap.getHeight();
+        IntIntMap counts = new IntIntMap(limit);
+//        IntIntMap hues = new IntIntMap(limit);
+        IntArray enc = new IntArray(width * height);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                color = pixmap.getPixel(x, y) & 0xF8F8F880;
+                if ((color & 0x80) != 0) {
+                    color |= (color >>> 5 & 0x07070700) | 0xFF;
+                    counts.getAndIncrement(color, 0, 1);
+                    enc.add(shrink(color));
+//                    hues.getAndIncrement((int)(OKLAB[3][shrink(color)] * 65536f), 0, 1);
+                }
+            }
+        }
+        int cs = counts.size;
+        Array<IntIntMap.Entry> es = new Array<>(cs);
+        for(IntIntMap.Entry e : counts)
+        {
+            IntIntMap.Entry e2 = new IntIntMap.Entry();
+            e2.key = e.key;
+            e2.value = e.value;
+            es.add(e2);
+        }
+        es.sort(entryComparator);
+        if (cs < limit) {
+            int i = 1;
+            for(IntIntMap.Entry e : es) {
+                color = e.key;
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.125/colorCount);
+        } else // reduce color count
+        {
+            int i = 1, c = 0;
+            PER_BEST:
+            while (i < limit && c < cs) {
+                color = es.get(c++).key;
+                for (int j = 1; j < i; j++) {
+                    if (differenceAnalyzing(color, paletteArray[j]) < threshold)
+                        continue PER_BEST;
+                }
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.125/colorCount);
+        }
+        if(reverseMap == null)
+            reverseMap = new IntIntMap(colorCount);
+        else
+            reverseMap.clear(colorCount);
+
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
+        }
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.MAX_VALUE;
+                        for (int i = 1; i < colorCount; i++) {
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(paletteArray[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
      * If there are {@code limit} or less colors, this uses the exact colors (although with at most one transparent
      * color, and no alpha for other colors); if there are more than {@code limit} colors or any colors have 50% or less
      * alpha, it will reserve a palette entry for transparent (even if the image has no transparency). Because calling
@@ -1152,7 +1265,7 @@ public class PaletteReducer {
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                color = pixmap.getPixel(x, y);
+                color = pixmap.getPixel(x, y) & 0xF8F8F880;
                 if ((color & 0x80) != 0) {
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
                     counts.getAndIncrement(color, 0, 1);
@@ -1292,7 +1405,7 @@ public class PaletteReducer {
         int rangeR, rangeG, rangeB;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                color = pixmap.getPixel(x, y);
+                color = pixmap.getPixel(x, y) & 0xF8F8F880;
                 if ((color & 0x80) != 0) {
                     bin.add(color |= (color >>> 5 & 0x07070700) | 0xFF);
                     counts.getAndIncrement(color, 0, 1);
@@ -1632,13 +1745,10 @@ public class PaletteReducer {
             PER_BEST:
             for (; i < limit && c < cs;) {
                 color = es.get(c++).key;
-//                double minDiff = Double.MAX_VALUE, maxDiff = -1.0;
                 for (int j = 1; j < i; j++) {
                     double diff = differenceAnalyzing(color, paletteArray[j]);
                     if (diff < threshold)
                         continue PER_BEST;
-//                    minDiff = Math.min(minDiff, diff);
-//                    maxDiff = Math.max(maxDiff, diff);
                 }
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
