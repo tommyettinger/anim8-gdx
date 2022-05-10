@@ -1407,25 +1407,34 @@ public class PaletteReducer {
             sort(ei, 0, enc.size, hueComparator);
             paletteArray[1] = -1; // white
             paletteArray[2] = 255; // black
-            int i = 3, c = 0, encs = enc.size, segments = Math.min(encs, limit - 3), e = 0;
+            int i = 3, encs = enc.size, segments = Math.min(encs, limit - 3) + 1 >> 1, e = 0;
             PER_BEST:
-            for (int s = 0; s < segments && e < encs && i < limit; s++) {
-                float totalL = 0.0f, totalA = 0.0f, totalB = 0.0f;
-                int start = e, end = Math.min(start + (int)Math.ceil(encs / (double)segments), encs), len = end - start;
-                for (; e < end; e++) {
-                    int index = ei[e];
-                    totalL += OKLAB[0][index];
-                    totalA += OKLAB[1][index];
-                    totalB += OKLAB[2][index];
+            for (int s = 0; i < limit; s++) {
+                if(e > (e %= encs)){
+                    segments++;
                 }
-                color = oklabToRGB(totalL / len, totalA / len, totalB / len, 1f);
-                for (int j = 3; j < i; j++) {
-                    if (differenceAnalyzing(color, paletteArray[j]) < threshold)
-                        continue PER_BEST;
+                s %= segments;
+                int segStart = e, segEnd = Math.min(segStart + (int)Math.ceil(encs / (double)segments), encs), segLen = segEnd - segStart;
+                sort(ei, segStart, segLen, lightnessComparator);
+                for (int li = 0; li < 2 && li < segLen && i < limit; li++) {
+                    int start = e, end = Math.min(encs, start + (int)Math.ceil(segLen * 0.5)), len = end - start;
+
+                    float totalL = 0.0f, totalA = 0.0f, totalB = 0.0f;
+                    for (; e < end; e++) {
+                        int index = ei[e];
+                        totalL += OKLAB[0][index];
+                        totalA += OKLAB[1][index];
+                        totalB += OKLAB[2][index];
+                    }
+                    color = oklabToRGB(totalL / len, totalA / len, totalB / len, 1f);
+                    for (int j = 3; j < i; j++) {
+                        if (differenceAnalyzing(color, paletteArray[j]) < threshold)
+                            continue PER_BEST;
+                    }
+                    paletteArray[i] = color;
+                    paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                    i++;
                 }
-                paletteArray[i] = color;
-                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-                i++;
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);

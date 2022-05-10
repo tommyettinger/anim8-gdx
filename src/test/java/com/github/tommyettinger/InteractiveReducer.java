@@ -207,11 +207,11 @@ public class InteractiveReducer extends ApplicationAdapter {
                         if(UIUtils.ctrl()) {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducer.analyzeHueWise(p0, 5 + kc, kc);
+                                reducer.analyzeHueWise(p0, 25 + kc, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducer.analyzeHueWise(p0, 5 + kc, kc);
+                                reducer.analyzeHueWise(p0, 25 + kc, kc);
                             }
 
 //                            if (UIUtils.shift())
