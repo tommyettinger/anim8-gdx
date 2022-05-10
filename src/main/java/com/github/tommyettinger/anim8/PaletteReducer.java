@@ -363,7 +363,7 @@ public class PaletteReducer {
 
     public static int oklabToRGB(float L, float A, float B, float alpha)
     {
-        L = forwardLight(L);
+        L = reverseLight(L);
         float l = (L + 0.3963377774f * A + 0.2158037573f * B);
         float m = (L - 0.1055613458f * A - 0.0638541728f * B);
         float s = (L - 0.0894841775f * A - 1.2914855480f * B);
@@ -1370,7 +1370,6 @@ public class PaletteReducer {
         threshold /= Math.pow(limit, 1.35) * 0.00016;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
-//        IntIntMap hues = new IntIntMap(limit);
         IntArray enc = new IntArray(width * height);
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -1379,7 +1378,6 @@ public class PaletteReducer {
                     color |= (color >>> 5 & 0x07070700) | 0xFF;
                     counts.getAndIncrement(color, 0, 1);
                     enc.add(shrink(color));
-//                    hues.getAndIncrement((int)(OKLAB[3][shrink(color)] * 65536f), 0, 1);
                 }
             }
         }
@@ -1421,7 +1419,7 @@ public class PaletteReducer {
                     totalB += OKLAB[2][index];
                 }
                 color = oklabToRGB(totalL / len, totalA / len, totalB / len, 1f);
-                for (int j = 1; j < i; j++) {
+                for (int j = 3; j < i; j++) {
                     if (differenceAnalyzing(color, paletteArray[j]) < threshold)
                         continue PER_BEST;
                 }

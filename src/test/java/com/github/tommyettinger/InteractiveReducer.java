@@ -205,19 +205,19 @@ public class InteractiveReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_8:
                     case Input.Keys.NUM_9:
                         if(UIUtils.ctrl()) {
-//                            if (UIUtils.shift()) {
-//                                int kc = (keycode - 6) * keycode;
-//                                reducer.analyzeHueWise(p0, 25 + kc, kc);
-//                            }
-//                            else {
-//                                int kc = keycode - 5;
-//                                reducer.analyzeHueWise(p0, 25 + kc, kc);
-//                            }
+                            if (UIUtils.shift()) {
+                                int kc = (keycode - 6) * keycode;
+                                reducer.analyzeHueWise(p0, 5 + kc, kc);
+                            }
+                            else {
+                                int kc = keycode - 5;
+                                reducer.analyzeHueWise(p0, 5 + kc, kc);
+                            }
 
-                            if (UIUtils.shift())
-                                reducer.exact(PaletteReducer.HALTONIC, (keycode - 6) * keycode);
-                            else
-                                reducer.exact(PaletteReducer.HALTONIC, keycode - 5);
+//                            if (UIUtils.shift())
+//                                reducer.exact(PaletteReducer.HALTONIC, (keycode - 6) * keycode);
+//                            else
+//                                reducer.exact(PaletteReducer.HALTONIC, keycode - 5);
 
 //                            if (UIUtils.shift())
 //                                reducer.analyzeMC(p0, (keycode - 6) * keycode);
