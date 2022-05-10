@@ -1367,7 +1367,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 3), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.00016;
+        threshold /= Math.pow(limit, 1.35) * 0.0002;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         IntArray enc = new IntArray(width * height);
@@ -1408,16 +1408,19 @@ public class PaletteReducer {
             paletteArray[1] = -1; // white
             paletteArray[2] = 255; // black
             int i = 3, encs = enc.size, segments = Math.min(encs, limit - 3) + 1 >> 1, e = 0;
+            double lightPieces = Math.ceil(Math.log(limit));
             PER_BEST:
             for (int s = 0; i < limit; s++) {
                 if(e > (e %= encs)){
                     segments++;
+                    lightPieces++;
+                    threshold *= 0.9;
                 }
                 s %= segments;
                 int segStart = e, segEnd = Math.min(segStart + (int)Math.ceil(encs / (double)segments), encs), segLen = segEnd - segStart;
                 sort(ei, segStart, segLen, lightnessComparator);
-                for (int li = 0; li < 2 && li < segLen && i < limit; li++) {
-                    int start = e, end = Math.min(encs, start + (int)Math.ceil(segLen * 0.5)), len = end - start;
+                for (int li = 0; li < lightPieces && li < segLen && i < limit; li++) {
+                    int start = e, end = Math.min(encs, start + (int)Math.ceil(segLen / lightPieces)), len = end - start;
 
                     float totalL = 0.0f, totalA = 0.0f, totalB = 0.0f;
                     for (; e < end; e++) {
@@ -1426,7 +1429,7 @@ public class PaletteReducer {
                         totalA += OKLAB[1][index];
                         totalB += OKLAB[2][index];
                     }
-                    color = oklabToRGB(totalL / len, totalA / len, totalB / len, 1f);
+                    color = oklabToRGB(OtherMath.barronSpline(totalL / len, 3f, 0.5f), totalA / len, totalB / len, 1f);
                     for (int j = 3; j < i; j++) {
                         if (differenceAnalyzing(color, paletteArray[j]) < threshold)
                             continue PER_BEST;
