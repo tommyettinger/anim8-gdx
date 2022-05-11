@@ -701,6 +701,18 @@ public class PaletteReducer {
     }
 
     /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
+     * If you want to change this, just change {@link #differenceHW(int, int, int, int, int, int)}, which this calls.
+     * @param color1 the first color, as an RGBA8888 int
+     * @param color2 the second color, as an RGBA8888 int
+     * @return the squared Euclidean distance between colors 1 and 2
+     */
+    public double differenceHW(int color1, int color2) {
+        if (((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
+        return differenceHW(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, color2 >>> 24, color2 >>> 16 & 0xFF, color2 >>> 8 & 0xFF);
+    }
+
+    /**
      * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
      * If you want to change this, just change {@link #differenceMatch(int, int, int, int, int, int)}, which this calls.
      * @param color1 the first color, as an RGBA8888 int
@@ -727,6 +739,20 @@ public class PaletteReducer {
     public double differenceAnalyzing(int color1, int r2, int g2, int b2) {
         if((color1 & 0x80) == 0) return Double.MAX_VALUE;
         return differenceAnalyzing(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, r2, g2, b2);
+    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25. If
+     * you want to change this, just change {@link #differenceHW(int, int, int, int, int, int)}, which this calls.
+     * @param color1 the first color, as an RGBA8888 int
+     * @param r2 red of the second color, from 0 to 255
+     * @param g2 green of the second color, from 0 to 255
+     * @param b2 blue of the second color, from 0 to 255
+     * @return the squared Euclidean distance between colors 1 and 2
+     */
+    public double differenceHW(int color1, int r2, int g2, int b2) {
+        if((color1 & 0x80) == 0) return Double.MAX_VALUE;
+        return differenceHW(color1 >>> 24, color1 >>> 16 & 0xFF, color1 >>> 8 & 0xFF, r2, g2, b2);
     }
 
     /**
@@ -783,6 +809,29 @@ public class PaletteReducer {
      * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
      */
     public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
+        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);
+        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);
+        double bf = (ANALYTIC_LOOKUP[b1] - ANALYTIC_LOOKUP[b2]);
+
+        return (rf * rf + gf * gf + bf * bf) * 0x1.4p17;
+    }
+
+    /**
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
+     * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
+     * when analyzing an image with {@link #analyzeHueWise(Pixmap, double, int)} .
+     * <br>
+     * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube.
+     *
+     * @param r1 red of the first color, from 0 to 255
+     * @param g1 green of the first color, from 0 to 255
+     * @param b1 blue of the first color, from 0 to 255
+     * @param r2 red of the second color, from 0 to 255
+     * @param g2 green of the second color, from 0 to 255
+     * @param b2 blue of the second color, from 0 to 255
+     * @return the squared Euclidean distance, between colors 1 and 2
+     */
+    public double differenceHW(int r1, int g1, int b1, int r2, int g2, int b2) {
         double rf = (r1 - r2);
         double gf = (g1 - g2);
         double bf = (b1 - b2);
@@ -1268,7 +1317,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.00016;
+        threshold /= Math.pow(limit, 1.35) * 0.0007;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1355,7 +1404,7 @@ public class PaletteReducer {
      * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
      * works better when the palette can choose colors that are sufficiently different, this takes a threshold value to
      * determine whether it should permit a less-common color into the palette, and if the second color is different
-     * enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least {@code threshold}, it is allowed in
+     * enough (as measured by {@link #differenceHW(int, int)} ) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
      * 100 and 1000, and 150 is a good default. If the threshold is too high, then some colors that would be useful to
      * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
@@ -1437,7 +1486,7 @@ public class PaletteReducer {
                     }
                     color = oklabToRGB(OtherMath.barronSpline(totalL / len, 3f, 0.5f), totalA / len, totalB / len, 1f);
                     for (int j = 3; j < i; j++) {
-                        if (differenceAnalyzing(color, paletteArray[j]) < threshold)
+                        if (differenceHW(color, paletteArray[j]) < threshold)
                             continue PER_BEST;
                     }
                     paletteArray[i] = color;
@@ -1469,7 +1518,7 @@ public class PaletteReducer {
                         bb = (b << 3 | b >>> 2);
                         dist = Double.MAX_VALUE;
                         for (int i = 1; i < colorCount; i++) {
-                            if (dist > (dist = Math.min(dist, differenceAnalyzing(paletteArray[i], rr, gg, bb))))
+                            if (dist > (dist = Math.min(dist, differenceHW(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
