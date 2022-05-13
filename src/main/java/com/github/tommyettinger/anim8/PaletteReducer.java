@@ -2101,6 +2101,222 @@ public class PaletteReducer {
     }
 
     /**
+     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
+     * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
+     * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
+     * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
+     * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
+     * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
+     * into the palette, and if the second color is different enough (as measured by
+     * {@link #differenceHW(int, int, int, int)}) by a
+     * value of at least 150, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * colors. This doesn't return a value but instead stores the palette info in this object; a PaletteReducer can be
+     * assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     *
+     * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     */
+    public void analyzeHueWise(Array<Pixmap> pixmaps){
+        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, 100, 256);
+    }
+
+    /**
+     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
+     * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
+     * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
+     * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
+     * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
+     * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
+     * into the palette, and if the second color is different enough (as measured by {@link #differenceHW(int, int)}) by a
+     * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
+     * to existing colors. The threshold is usually between 50 and 500, and 100 is a good default. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     *
+     * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 50 and 500, 100 is a good default
+     */
+    public void analyzeHueWise(Array<Pixmap> pixmaps, double threshold){
+        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
+    }
+    /**
+     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most {@code limit} colors. If there are {@code limit} or less colors, this uses the
+     * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
+     * {@code limit} colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
+     * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
+     * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
+     * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
+     * into the palette, and if the second color is different enough (as measured by {@link #differenceHW(int, int)}) by a
+     * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
+     * to existing colors. The threshold is usually between 50 and 500, and 100 is a good default. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     *
+     * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 50 and 500, 100 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyzeHueWise(Array<Pixmap> pixmaps, double threshold, int limit){
+        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
+    }
+    /**
+     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most {@code limit} colors. If there are {@code limit} or less colors, this uses the
+     * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
+     * {@code limit} colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
+     * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
+     * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
+     * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
+     * into the palette, and if the second color is different enough (as measured by {@link #differenceHW(int, int)}) by a
+     * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
+     * to existing colors. The threshold is usually between 50 and 500, and 100 is a good default. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     *
+     * @param pixmaps   a Pixmap array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     * @param pixmapCount the maximum number of Pixmap entries in pixmaps to use
+     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 50 and 500, 100 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyzeHueWise(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        limit = Math.min(Math.max(limit, 3), 256);
+        threshold /= Math.pow(limit, 1.35) * 0.000215;
+        final int w0 = pixmaps[0].getWidth(), h0 = pixmaps[0].getHeight();
+        IntIntMap counts = new IntIntMap(limit);
+        IntArray enc = new IntArray(w0 * h0 * pixmapCount / 10);
+        int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
+        for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
+            Pixmap pixmap = pixmaps[i];
+            final int width = pixmap.getWidth(), height = pixmap.getHeight();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    color = pixmap.getPixel(x, y) & 0xF8F8F880;
+                    if ((color & 0x80) != 0) {
+                        color |= (color >>> 5 & 0x07070700) | 0xFF;
+                        counts.getAndIncrement(color, 0, 1);
+                        if(((x & y) * 5 - i & 31) < 3)
+                            enc.add(shrink(color));
+                    }
+                }
+            }
+        }
+        final int cs = counts.size;
+        if (cs < limit) {
+            Array<IntIntMap.Entry> es = new Array<>(cs);
+            for(IntIntMap.Entry e : counts)
+            {
+                IntIntMap.Entry e2 = new IntIntMap.Entry();
+                e2.key = e.key;
+                e2.value = e.value;
+                es.add(e2);
+            }
+            es.sort(entryComparator);
+            int i = 1;
+            for(IntIntMap.Entry e : es) {
+                color = e.key;
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                reds[i] = color >>> 24;
+                greens[i] = color >>> 16 & 255;
+                blues[i] = color >>> 8 & 255;
+                i++;
+            }
+            colorCount = i;
+        }
+        else // generate colors
+        {
+            final int[] ei = enc.items;
+            sort(ei, 0, enc.size, hueComparator);
+            paletteArray[1] = -1; // white
+            paletteArray[2] = 255; // black
+            int i = 3, encs = enc.size, segments = Math.min(encs, limit - 3) + 1 >> 1, e = 0;
+            double lightPieces = Math.ceil(Math.log(limit));
+            PER_BEST:
+            for (int s = 0; i < limit; s++) {
+                if(e > (e %= encs)){
+                    segments++;
+                    lightPieces++;
+                    threshold *= 0.9;
+                }
+                s %= segments;
+                int segStart = e, segEnd = Math.min(segStart + (int)Math.ceil(encs / (double)segments), encs), segLen = segEnd - segStart;
+                sort(ei, segStart, segLen, lightnessComparator);
+                for (int li = 0; li < lightPieces && li < segLen && i < limit; li++) {
+                    int start = e, end = Math.min(encs, start + (int)Math.ceil(segLen / lightPieces)), len = end - start;
+
+                    float totalL = 0.0f, totalA = 0.0f, totalB = 0.0f;
+                    for (; e < end; e++) {
+                        int index = ei[e];
+                        totalL += OKLAB[0][index];
+                        totalA += OKLAB[1][index];
+                        totalB += OKLAB[2][index];
+                    }
+                    totalA /= len;
+                    totalB /= len;
+                    color = oklabToRGB(
+                            OtherMath.barronSpline(totalL / len, 3f, 0.5f),
+                            totalA,//(OtherMath.cbrt(totalA) + 31f * totalA) * 0x1p-5f,
+                            totalB,//(OtherMath.cbrt(totalB) + 31f * totalB) * 0x1p-5f,
+                            1f);
+//                    (OtherMath.barronSpline(totalA / (len<<1)+0.5f, 2f, 0.5f)-0.5f)*2f,
+//                    (OtherMath.barronSpline(totalB / (len<<1)+0.5f, 2f, 0.5f)-0.5f)*2f,
+
+                    for (int j = 3; j < i; j++) {
+                        if (differenceHW(color, paletteArray[j]) < threshold)
+                            continue PER_BEST;
+                    }
+                    paletteArray[i] = color;
+                    paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                    reds[i] = color >>> 24;
+                    greens[i] = color >>> 16 & 255;
+                    blues[i] = color >>> 8 & 255;
+                    i++;
+                }
+            }
+            colorCount = i;
+        }
+        populationBias = (float) Math.exp(-1.125/colorCount);
+        if(reverseMap == null)
+            reverseMap = new IntIntMap(colorCount);
+        else
+            reverseMap.clear(colorCount);
+
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
+        }
+
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.MAX_VALUE;
+                        for (int i = 1; i < colorCount; i++) {
+                            if (dist > (dist = Math.min(dist, differenceHW(reds[i], greens[i], blues[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Gets the "strength" of the dither effect applied during {@link #reduce(Pixmap)} calls. The default is 1f,
      * and while both values higher than 1f and lower than 1f are valid, they should not be negative.
      * If ditherStrength is too high, all sorts of artifacts will appear; if it is too low, the effect of the dither to
