@@ -1317,7 +1317,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.0007;
+        threshold /= Math.pow(limit, 1.35) * 0.0003;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1484,7 +1484,14 @@ public class PaletteReducer {
                         totalA += OKLAB[1][index];
                         totalB += OKLAB[2][index];
                     }
-                    color = oklabToRGB(OtherMath.barronSpline(totalL / len, 3f, 0.5f), totalA / len, totalB / len, 1f);
+                    color = oklabToRGB(
+                            OtherMath.barronSpline(totalL / len, 3f, 0.5f),
+                            (totalA / (len * 0.75f)),
+                            (totalB / (len * 0.75f)),
+                            1f);
+//                    (OtherMath.barronSpline(totalA / (len<<1)+0.5f, 2f, 0.5f)-0.5f)*2f,
+//                    (OtherMath.barronSpline(totalB / (len<<1)+0.5f, 2f, 0.5f)-0.5f)*2f,
+
                     for (int j = 3; j < i; j++) {
                         if (differenceHW(color, paletteArray[j]) < threshold)
                             continue PER_BEST;

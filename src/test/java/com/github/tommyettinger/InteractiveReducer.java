@@ -227,11 +227,11 @@ public class InteractiveReducer extends ApplicationAdapter {
                         else {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducer.analyze(p0, 5 + kc, kc);
+                                reducer.analyze(p0, 100, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducer.analyze(p0, 5 + kc, kc);
+                                reducer.analyze(p0, 100, kc);
                             }
                         }
                         refresh();

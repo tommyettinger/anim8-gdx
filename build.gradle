@@ -2,7 +2,6 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         gradlePluginPortal()
     }
     dependencies {
@@ -28,7 +27,7 @@ group 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:anim8-gdx:0.3.6"
 
-def gdxVersion = '1.10.1-SNAPSHOT'
+def gdxVersion = '1.10.0'
 //def gdxVersion = '1.9.11'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'ISO-8859-1'
@@ -51,6 +50,7 @@ javadoc.destinationDir = file('docs/apidocs')
 
 jar {
     archiveBaseName.set(projectName)
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     manifest {
         attributes 'Implementation-Title': projectName, 'Implementation-Version': archiveVersion
     }
