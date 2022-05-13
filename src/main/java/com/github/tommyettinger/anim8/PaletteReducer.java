@@ -1406,14 +1406,22 @@ public class PaletteReducer {
      * determine whether it should permit a less-common color into the palette, and if the second color is different
      * enough (as measured by {@link #differenceHW(int, int)} ) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
-     * 100 and 1000, and 150 is a good default. If the threshold is too high, then some colors that would be useful to
+     * 50 and 500, and 100 is a good default. If the threshold is too high, then some colors that would be useful to
      * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
      * Pixmap.
+     * <br>
+     * The algorithm here isn't incredibly fast, but is often better at preserving colors that are used often enough to
+     * be important to an image, but not often enough to appear in a small palette produced by {@link #analyze(Pixmap)}.
+     * It involves sorting about 10% of the pixels in the image by hue, dividing up those pixels into evenly-sized
+     * ranges, then sorting those ranges individually by lightness and dividing those into sub-ranges. The sub-ranges
+     * have their chroma channels averaged (these already have similar hue, so this mostly affects saturation), and
+     * their lightness averaged but pushed towards more extreme values using
+     * {@link OtherMath#barronSpline(float, float, float)}. This last step works well with dithering.
      *
-     * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 1000, 150 is a good default
+     * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by PNG8, or by AnimatedGif
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 500, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeHueWise(Pixmap pixmap, double threshold, int limit) {
@@ -1421,7 +1429,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 3), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.0002;
+        threshold /= Math.pow(limit, 1.35) * 0.000215;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         IntArray enc = new IntArray(width * height);
@@ -1484,10 +1492,12 @@ public class PaletteReducer {
                         totalA += OKLAB[1][index];
                         totalB += OKLAB[2][index];
                     }
+                    totalA /= len;
+                    totalB /= len;
                     color = oklabToRGB(
                             OtherMath.barronSpline(totalL / len, 3f, 0.5f),
-                            (totalA / (len * 0.75f)),
-                            (totalB / (len * 0.75f)),
+                            totalA,//(OtherMath.cbrt(totalA) + 31f * totalA) * 0x1p-5f,
+                            totalB,//(OtherMath.cbrt(totalB) + 31f * totalB) * 0x1p-5f,
                             1f);
 //                    (OtherMath.barronSpline(totalA / (len<<1)+0.5f, 2f, 0.5f)-0.5f)*2f,
 //                    (OtherMath.barronSpline(totalB / (len<<1)+0.5f, 2f, 0.5f)-0.5f)*2f,
