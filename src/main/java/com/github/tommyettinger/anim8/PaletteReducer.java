@@ -2254,7 +2254,13 @@ public class PaletteReducer {
             final int[] ei = enc.items;
             sort(ei, 0, enc.size, hueComparator);
             paletteArray[1] = -1; // white
+            reds[1] = 255;
+            greens[1] = 255;
+            blues[1] = 255;
             paletteArray[2] = 255; // black
+            reds[2] = 0;
+            greens[2] = 0;
+            blues[2] = 0;
             int i = 3, encs = enc.size, segments = Math.min(encs, limit - 3) + 1 >> 1, e = 0;
             double lightPieces = Math.ceil(Math.log(limit));
             PER_BEST:

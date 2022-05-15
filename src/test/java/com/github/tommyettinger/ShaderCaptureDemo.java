@@ -379,15 +379,19 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
+            String prefix;
             if (palettes[n] == null) {
-                gif.palette = null;
-                gif.fastAnalysis = false;
+                pal.analyzeHueWise(pixmaps, 75, 255);
+                gif.palette = pal;
+                gif.fastAnalysis = true;
+                prefix = "images/gif/animatedHue/AnimatedGif-";
+//                prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             }
             else {
                 pal.exact(palettes[n]);
                 gif.palette = pal;
+                prefix = "images/gif/animated/AnimatedGif-";
             }
-            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local(prefix + name + "-pattern.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
