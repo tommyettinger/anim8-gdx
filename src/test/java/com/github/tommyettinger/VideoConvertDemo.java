@@ -18,7 +18,7 @@ import com.github.tommyettinger.anim8.*;
 public class VideoConvertDemo extends ApplicationAdapter {
     private long startTime;
     private static final String name = "market";
-    private boolean fastAnalysis = false;
+    private boolean fastAnalysis = true;
     @Override
     public void create() {
         startTime = TimeUtils.millis();
@@ -26,14 +26,16 @@ public class VideoConvertDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 //		renderPNG8();
-        String[] names = new String[]{"-Analyzed", "-Haltonic", "-BW", "-Green"};
+        String[] names = new String[]{"-Analyzed", "-Haltonic", "-BW", "-Green", "-DB8"};
         int[][] palettes = new int[][]{
                 null,
                 PaletteReducer.HALTONIC,
                 new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF},
                 new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
-                        0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}
+                        0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF},
+                new int[]{0x00000000,
+                        0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}
         };
 
         renderVideoGif(names, palettes);
@@ -140,26 +142,6 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-neue.gif"), pixmaps, 20);
         }
 
-//        String[] ns = new String[]{"-Analyzed", "-Haltonic", "-BW", "-Green"};
-//        int[][] is = new int[][]{
-//                null,
-//                PaletteReducer.HALTONIC,
-//                new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF},
-//                new int[]{0x00000000,
-//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
-//                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}
-//        };
-//        namePalette = name + "-Analyzed";
-//        // Haltonic palette
-//        gif.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
-//        // BW
-//        gif.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
-//        // GB-16 Green
-//        gif.palette = new PaletteReducer(new int[]{0x00000000,
-//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
-//                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
-//        namePalette = name + "-Green";
-
         for (Pixmap pm : pixmaps)
             pm.dispose();
 
@@ -241,7 +223,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
     public void renderGlobeGif(String[] names, int[][] palettes) {
         String name = "globe";
-        Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 180, Pixmap.class);
         for (int i = 0; i < 180; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
