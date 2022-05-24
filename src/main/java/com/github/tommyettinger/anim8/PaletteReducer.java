@@ -675,12 +675,12 @@ public class PaletteReducer {
 //    }
 
     /**
-     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
      * If you want to change this, just change {@link #differenceMatch(int, int, int, int, int, int)}, which this
      * calls.
      * @param color1 the first color, as an RGBA8888 int
      * @param color2 the second color, as an RGBA8888 int
-     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceMatch(int color1, int color2) {
         if (((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
@@ -688,12 +688,12 @@ public class PaletteReducer {
     }
 
     /**
-     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
      * If you want to change this, just change {@link #differenceAnalyzing(int, int, int, int, int, int)}, which this
      * calls.
      * @param color1 the first color, as an RGBA8888 int
      * @param color2 the second color, as an RGBA8888 int
-     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceAnalyzing(int color1, int color2) {
         if (((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
@@ -713,13 +713,13 @@ public class PaletteReducer {
     }
 
     /**
-     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
      * If you want to change this, just change {@link #differenceMatch(int, int, int, int, int, int)}, which this calls.
      * @param color1 the first color, as an RGBA8888 int
      * @param r2 red of the second color, from 0 to 255
      * @param g2 green of the second color, from 0 to 255
      * @param b2 blue of the second color, from 0 to 255
-     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceMatch(int color1, int r2, int g2, int b2) {
         if((color1 & 0x80) == 0) return Double.MAX_VALUE;
@@ -727,14 +727,14 @@ public class PaletteReducer {
     }
 
     /**
-     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100. If
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25. If
      * you want to change this, just change {@link #differenceAnalyzing(int, int, int, int, int, int)}, which this
      * calls.
      * @param color1 the first color, as an RGBA8888 int
      * @param r2 red of the second color, from 0 to 255
      * @param g2 green of the second color, from 0 to 255
      * @param b2 blue of the second color, from 0 to 255
-     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceAnalyzing(int color1, int r2, int g2, int b2) {
         if((color1 & 0x80) == 0) return Double.MAX_VALUE;
@@ -756,18 +756,17 @@ public class PaletteReducer {
     }
 
     /**
-     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
      * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
      * when matching to an existing palette, as with {@link #exact(int[])}.
      * <br>
-     * This currently uses a metric called "RGB Stupid;" it is called that because initially it was an attempt to try
-     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid. The
-     * difference between colors used by exact() is not the same as the difference used by analyze(), just because they
-     * seem to need precision in different ways. Both methods treat low values for RGB channels as very similar to other
-     * low values, and the same for high values compared to high values. Mid-range values tend to be considered very
-     * different from similar but non-identical mid-range values. In the differenceMatch() methods, red, green, and blue
-     * are all multiplied by different constants based on the eye's sensitivity to that wavelength. In the
-     * differenceAnalyzing() methods, red, green, and blue are treated identically.
+     * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube. This does absolutely
+     * nothing fancy with the colors, but this approach does well often. The same code is used by
+     * {@link #differenceMatch(int, int, int, int, int, int)},
+     * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
+     * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
+     * PaletteReducer to change one, some, or all of these methods. The other difference methods call the 6-argument
+     * overloads, so the override only needs to affect one method.
      *
      * @param r1 red of the first color, from 0 to 255
      * @param g1 green of the first color, from 0 to 255
@@ -775,30 +774,33 @@ public class PaletteReducer {
      * @param r2 red of the second color, from 0 to 255
      * @param g2 green of the second color, from 0 to 255
      * @param b2 blue of the second color, from 0 to 255
-     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceMatch(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (EXACT_LOOKUP[r1] - EXACT_LOOKUP[r2]) * 1.55;// rf *= rf;// * 0.875;
-        double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]) * 2.05;// gf *= gf;// * 0.75;
-        double bf = (EXACT_LOOKUP[b1] - EXACT_LOOKUP[b2]) * 0.90;// bf *= bf;// * 1.375;
+        int rf = (r1 - r2);
+        int gf = (g1 - g2);
+        int bf = (b1 - b2);
+        return (rf * rf + gf * gf + bf * bf);
 
-        return  (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
-//        return d2 * d2 * 0x1.8p17;
+//        double rf = (EXACT_LOOKUP[r1] - EXACT_LOOKUP[r2]) * 1.55;// rf *= rf;// * 0.875;
+//        double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]) * 2.05;// gf *= gf;// * 0.75;
+//        double bf = (EXACT_LOOKUP[b1] - EXACT_LOOKUP[b2]) * 0.90;// bf *= bf;// * 1.375;
+//
+//        return  (rf * rf + gf * gf + bf * bf) * 0x1.8p17;
     }
 
     /**
-     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 100.
+     * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
      * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
      * when analyzing an image, as with {@link #analyze(Pixmap)}.
      * <br>
-     * This currently uses a metric called "RGB Stupid;" it is called that because initially it was an attempt to try
-     * a metric that would be stupid if it worked. It seems to work quite well here, so I guess I'm with stupid. The
-     * difference between colors used by exact() is not the same as the difference used by analyze(), just because they
-     * seem to need precision in different ways. Both methods treat low values for RGB channels as very similar to other
-     * low values, and the same for high values compared to high values. Mid-range values tend to be considered very
-     * different from similar but non-identical mid-range values. In the differenceMatch() methods, red, green, and blue
-     * are all multiplied by different constants based on the eye's sensitivity to that wavelength. In the
-     * differenceAnalyzing() methods, red, green, and blue are treated identically.
+     * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube. This does absolutely
+     * nothing fancy with the colors, but this approach does well often. The same code is used by
+     * {@link #differenceMatch(int, int, int, int, int, int)},
+     * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
+     * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
+     * PaletteReducer to change one, some, or all of these methods. The other difference methods call the 6-argument
+     * overloads, so the override only needs to affect one method.
      *
      * @param r1 red of the first color, from 0 to 255
      * @param g1 green of the first color, from 0 to 255
@@ -806,14 +808,19 @@ public class PaletteReducer {
      * @param r2 red of the second color, from 0 to 255
      * @param g2 green of the second color, from 0 to 255
      * @param b2 blue of the second color, from 0 to 255
-     * @return the squared distance, in some Euclidean approximation, between colors 1 and 2
+     * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);
-        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);
-        double bf = (ANALYTIC_LOOKUP[b1] - ANALYTIC_LOOKUP[b2]);
+        int rf = (r1 - r2);
+        int gf = (g1 - g2);
+        int bf = (b1 - b2);
+        return (rf * rf + gf * gf + bf * bf);
 
-        return (rf * rf + gf * gf + bf * bf) * 0x1.4p17;
+//        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);
+//        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);
+//        double bf = (ANALYTIC_LOOKUP[b1] - ANALYTIC_LOOKUP[b2]);
+//
+//        return (rf * rf + gf * gf + bf * bf) * 0x1.4p17;
     }
 
     /**
@@ -821,7 +828,13 @@ public class PaletteReducer {
      * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
      * when analyzing an image with {@link #analyzeHueWise(Pixmap, double, int)} .
      * <br>
-     * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube.
+     * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube. This does absolutely
+     * nothing fancy with the colors, but this approach does well often. The same code is used by
+     * {@link #differenceMatch(int, int, int, int, int, int)},
+     * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
+     * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
+     * PaletteReducer to change one, some, or all of these methods. The other difference methods call the 6-argument
+     * overloads, so the override only needs to affect one method.
      *
      * @param r1 red of the first color, from 0 to 255
      * @param g1 green of the first color, from 0 to 255
@@ -832,9 +845,9 @@ public class PaletteReducer {
      * @return the squared Euclidean distance, between colors 1 and 2
      */
     public double differenceHW(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (r1 - r2);
-        double gf = (g1 - g2);
-        double bf = (b1 - b2);
+        int rf = (r1 - r2);
+        int gf = (g1 - g2);
+        int bf = (b1 - b2);
         return (rf * rf + gf * gf + bf * bf);
 
 //        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);
@@ -940,6 +953,10 @@ public class PaletteReducer {
             System.arraycopy(ENCODED_HALTONIC, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
             populationBias = (float) Math.exp(-1.125 / 256.0);
+            if(reverseMap == null)
+                reverseMap = new IntIntMap(colorCount);
+            else
+                reverseMap.clear(colorCount);
             for (int i = 0; i < colorCount; i++) {
                 reverseMap.put(paletteArray[i], i);
             }
