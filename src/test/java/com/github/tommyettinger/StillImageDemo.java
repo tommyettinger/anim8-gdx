@@ -121,6 +121,42 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-GB.png"), pixmap, false, true);
 
+		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Pattern-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-None-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Gradient-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Diffusion-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-BlueNoise-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-ChaoticNoise-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Scatter-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-DB8.png"), pixmap, false, true);
+
+		reducer.setDefaultPalette();
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Pattern-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-None-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Gradient-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Diffusion-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-BlueNoise-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-ChaoticNoise-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Scatter-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-Default.png"), pixmap, false, true);
+
 		total += 1;
 	}
 
@@ -207,6 +243,42 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-GB.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-GB.gif"), pixmaps, 1);
+
+		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Pattern-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-None-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Gradient-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Diffusion-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-BlueNoise-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-ChaoticNoise-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-DB8.gif"), pixmaps, 1);
+
+		reducer.setDefaultPalette();
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Pattern-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-None-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Gradient-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Diffusion-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-BlueNoise-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-ChaoticNoise-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-Default.gif"), pixmaps, 1);
 
 		total += 1;
 	}
