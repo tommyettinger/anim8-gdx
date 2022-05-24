@@ -209,7 +209,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             return;
         }
 
-        batch.setShader(shader);
+        batch.setShader(shader2);
 // used when we need to write a new preload file
 //        new PaletteReducer(PaletteReducer.HALTONIC).writePreloadFile(Gdx.files.local("EncodedHaltonic.txt"));
 
@@ -217,10 +217,10 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
 
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "haltonic"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
-        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader};
+        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "haltonic", "db8"};
+        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}};
+        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
+        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader};
 
 //        String[] nms = {"pastel", "green", "bw", "gb", "haltonic"};
 //        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
@@ -381,11 +381,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             String prefix;
             if (palettes[n] == null) {
-                pal.analyzeHueWise(pixmaps, 75, 255);
+                pal.analyze(pixmaps, 75, 256);
                 gif.palette = pal;
                 gif.fastAnalysis = true;
-                prefix = "images/gif/animatedHue/AnimatedGif-";
-//                prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+//                prefix = "images/gif/animatedHue/AnimatedGif-";
+                prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             }
             else {
                 pal.exact(palettes[n]);
