@@ -149,8 +149,8 @@ public final class OtherMath {
         final float c3 = c * c2;
         final float c5 = c3 * c2;
         final float c7 = c5 * c2;
-        return Math.copySign(0.7853981633974483f +
-                (0.999215f * c - 0.3211819f * c3 + 0.1462766f * c5 - 0.0389929f * c7), i);
+        return Math.signum(i) * (0.7853981633974483f +
+                (0.999215f * c - 0.3211819f * c3 + 0.1462766f * c5 - 0.0389929f * c7));
     }
 
     /**
@@ -163,7 +163,7 @@ public final class OtherMath {
      * <br>
      * Credit for this goes to the 1955 research study "Approximations for Digital Computers," by RAND Corporation. This
      * is sheet 9's algorithm, which is the second-fastest and second-least precise. The algorithm on sheet 8 is faster,
-     * but only by a very small degree, and is considerably less precise. That study provides an {@link #atan(float)}
+     * but only by a very small degree, and is considerably less precise. That study provides an atan(float)
      * method, and the small code to make that work as atan2() was worked out from Wikipedia.
      * @param y y-component of the point to find the angle towards; note the parameter order is unusual by convention
      * @param x x-component of the point to find the angle towards; note the parameter order is unusual by convention

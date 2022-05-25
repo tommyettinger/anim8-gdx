@@ -61,7 +61,8 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  *     Neue is the default currently because it is the only dither that both handles gradients well and preserves color
  *     well. Blue Noise dither also handles gradients well, but doesn't always recognize color changes. Scatter handles
  *     color well, but can have some banding. Pattern dither usually handles gradients exceptionally well, but can have
- *     severe issues when it doesn't preserve lightness faithfully with small palettes. The list goes on.)</li>
+ *     severe issues when it doesn't preserve lightness faithfully with small palettes. The list goes on. Neue can
+ *     introduce error if the palette perfectly matches the image already; in that case, use Solid.)</li>
  *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim; this version has
  *     a heavy grid pattern that looks like an artifact. While the square grid here is a bit bad, it becomes very hard
  *     to see when the palette is large enough. This reduction is the slowest here, currently, and may noticeably delay
@@ -95,7 +96,8 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  *     the other algorithms take comparable amounts of time to each other, but KnollRoberts and especially Knoll are
  *     sluggish.)</li>
  *     <li>{@link #reduceSolid(Pixmap)} (No dither! Solid colors! Mostly useful when you want to preserve blocky parts
- *     of a source image, or for some kinds of pixel/low-color art.)</li>
+ *     of a source image, or for some kinds of pixel/low-color art. If you have a palette that perfectly matches the
+ *     image you are dithering, then you won't need dither, and this will be the best option.)</li>
  *     </ul>
  *     </li>
  * </ul>
@@ -257,19 +259,18 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS;
-    private static final double[] EXACT_LOOKUP = new double[256];
-    private static final double[] ANALYTIC_LOOKUP = new double[256];
+//    private static final double[] EXACT_LOOKUP = new double[256];
+//    private static final double[] ANALYTIC_LOOKUP = new double[256];
 
     static {
-        double r, g, b, l, m, s;
         float rf, gf, bf, lf, mf, sf;
         int idx = 0;
         for (int ri = 0; ri < 32; ri++) {
-            rf = (float) (r = ri * ri * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
+            rf = (float) (ri * ri * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
             for (int gi = 0; gi < 32; gi++) {
-                gf = (float) (g = gi * gi * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
+                gf = (float) (gi * gi * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
                 for (int bi = 0; bi < 32; bi++) {
-                    bf = (float) (b = bi * bi * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
+                    bf = (float) (bi * bi * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
 
                     lf = OtherMath.cbrt(0.4121656120f * rf + 0.5362752080f * gf + 0.0514575653f * bf);
                     mf = OtherMath.cbrt(0.2118591070f * rf + 0.6807189584f * gf + 0.1074065790f * bf);
@@ -285,10 +286,10 @@ public class PaletteReducer {
                 }
             }
         }
-        for (int i = 1; i < 256; i++) {
-            EXACT_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 4f, 0.5f);
-            ANALYTIC_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.5f);
-        }
+//        for (int i = 1; i < 256; i++) {
+//            EXACT_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 4f, 0.5f);
+//            ANALYTIC_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.5f);
+//        }
 
 //
 //        double r, g, b, x, y, z;
