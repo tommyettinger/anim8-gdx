@@ -14,26 +14,26 @@ public void writeGif() {
     final int frameCount = 20;
     Array<Pixmap> pixmaps = new Array<>(frameCount);
     for (int i = 0; i < frameCount; i++) {
-        // you could set the proper state for a frame here.
+// you could set the proper state for a frame here.
 
-        // you don't need to call render() in all cases, especially if you have Pixmaps already.
-        // this assumes you're calling this from a class that uses render() to draw to the screen.
+// you don't need to call render() in all cases, especially if you have Pixmaps already.
+// this assumes you're calling this from a class that uses render() to draw to the screen.
         render();
-        // this gets a screenshot of the current window and adds it to the Array of Pixmap.
-        // there are two ways to do this; this is the older way, but it is deprecated in current libGDX: 
+// this gets a screenshot of the current window and adds it to the Array of Pixmap.
+// there are two ways to do this; this is the older way, but it is deprecated in current libGDX: 
         pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-        // the newer way is only available in more-recent libGDX (I know 1.10.0 has it); it is not deprecated:
+// the newer way is only available in more-recent libGDX (I know 1.10.0 and 1.11.0 have it); it is not deprecated:
         // pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
     }
-    // AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from
-    // each given frame and use the most appropriate palette for each frame, dithering any colors that don't
-    // match. The other file-writing classes don't do this; PNG8 doesn't currently support a palette per-frame,
-    // while AnimatedPNG doesn't restrict colors to a palette. See Dithering Algorithms below for visual things
-    // to be aware of and choices you can make.
+// AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from
+// each given frame and use the most appropriate palette for each frame, dithering any colors that don't
+// match. The other file-writing classes don't do this; PNG8 doesn't currently support a palette per-frame,
+// while AnimatedPNG doesn't restrict colors to a palette. See Dithering Algorithms below for visual things
+// to be aware of and choices you can make.
     AnimatedGif gif = new AnimatedGif();
-    // you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
-    // here, pixmaps is usually an Array of Pixmap for any of the animated image types.
-    // 16 is how many frames per second the animated GIF should play back at.
+// you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
+// here, pixmaps is usually an Array of Pixmap for any of the animated image types.
+// 16 is how many frames per second the animated GIF should play back at.
     gif.write(Gdx.files.local("AnimatedGif.gif"), pixmaps, 16);
 }
 ```
@@ -47,8 +47,8 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
-  // libGDX 1.10.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.6"
+  // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
+  api "com.github.tommyettinger:anim8-gdx:0.3.7"
 }
 ```
 
@@ -57,7 +57,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.6:sources"`. The PNG-related code isn't available on GWT because
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.7:sources"`. The PNG-related code isn't available on GWT because
 it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
 inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -173,6 +173,13 @@ uses the same analysis for each frame that it normally would for a still image. 
 passing it an `Array<Pixmap>`, and assign that to the `palette` field; this is reasonably fast and also ensures every
 frame will use the same palette (which means regions of solid color that don't change in the source won't change in the
 GIF; this isn't true if `palette` is null).
+
+Starting in version 0.3.7, you can use any of the `PaletteReducer.analyzeHueWise()` methods to analyze the palette of a
+`Pixmap` or multiple `Pixmap`s. This approach works well with rather small palettes (about 16 colors) because it tries
+to ensure some colors from every hue present in the image will be available in the palette. It stops being noticeably
+better than `analyze()` at around 25-30 colors in a palette (this can vary based on the image), and is almost always
+slower than `analyze()`. Thanks to [caramel](https://caramellow.dev/) for (very quickly) devising this algorithm for
+palette construction.
 
 # Samples
 
