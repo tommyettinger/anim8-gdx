@@ -248,6 +248,24 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final byte[] TRI_BLUE_NOISE = ConstantData.TRI_BLUE_NOISE;
+    /**
+     * A 4096-element byte array as a 64x64 grid of bytes. When arranged into a grid, the bytes will follow a blue noise
+     * frequency (in this case, they will have a triangular distribution for its bytes, so values near 0 are much more
+     * common). This is used inside this library by {@link #reduceBlueNoise(Pixmap)}.
+     * <br>
+     * While, for some reason, you could change the contents to some other distribution of bytes, I don't know why this
+     * would be needed.
+     */
+    public static final byte[] TRI_BLUE_NOISE_B = ConstantData.TRI_BLUE_NOISE_B;
+    /**
+     * A 4096-element byte array as a 64x64 grid of bytes. When arranged into a grid, the bytes will follow a blue noise
+     * frequency (in this case, they will have a triangular distribution for its bytes, so values near 0 are much more
+     * common). This is used inside this library by {@link #reduceBlueNoise(Pixmap)}.
+     * <br>
+     * While, for some reason, you could change the contents to some other distribution of bytes, I don't know why this
+     * would be needed.
+     */
+    public static final byte[] TRI_BLUE_NOISE_C = ConstantData.TRI_BLUE_NOISE_C;
 
     /**
      * A 64x64 grid of floats, with a median value of about 1.0, generated using the triangular-distributed blue noise
