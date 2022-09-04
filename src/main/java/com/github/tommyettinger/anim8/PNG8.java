@@ -2468,7 +2468,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             lastLineLen = width;
 
-            float adj, strength = 48 * palette.ditherStrength / palette.populationBias;
+            float adj, strength = 24 * palette.ditherStrength / palette.populationBias;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2513,10 +2513,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                            adj *= strength + (px + py << 3 & 24) - 12f;
+                            float mul = strength + (px + y << 2 & 12) - 6f;
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                            adj *= mul;
                             int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                            adj *= mul;
                             int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                            adj *= mul;
                             int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
 
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)

@@ -700,17 +700,22 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case BLUE_NOISE: {
-                float adj, strength = 48 * palette.ditherStrength / palette.populationBias;
+                float adj, strength = 24 * palette.ditherStrength / palette.populationBias;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
+                            float mul = strength + (px + y << 2 & 12) - 6f;
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                            adj *= strength + (px + y << 3 & 24) - 12f;
+                            adj *= mul;
                             int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                            adj *= mul;
                             int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
+                            adj *= mul;
                             int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
