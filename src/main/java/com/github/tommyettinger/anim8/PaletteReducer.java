@@ -266,6 +266,15 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final byte[] TRI_BLUE_NOISE_C = ConstantData.TRI_BLUE_NOISE_C;
+    /**
+     * A 4096-element byte array as a 64x64 grid of bytes. When arranged into a grid, the bytes will follow a blue noise
+     * frequency (in this case, they will have a triangular distribution for its bytes, so values near 0 are much more
+     * common). This is used inside this library by {@link #reduceBlueNoise(Pixmap)}.
+     * <br>
+     * While, for some reason, you could change the contents to some other distribution of bytes, I don't know why this
+     * would be needed.
+     */
+    public static final byte[] TRI_BLUE_NOISE_D = ConstantData.TRI_BLUE_NOISE_D;
 
     /**
      * A 64x64 grid of floats, with a median value of about 1.0, generated using the triangular-distributed blue noise
@@ -2631,15 +2640,13 @@ public class PaletteReducer {
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    float mul = strength + (px + y << 2 & 12) - 6f;
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                    adj *= mul;
+                    int ti = (px & 63) | (y & 63) << 6;
+                    float variation = (strength + 0x1.3p-5f * (PaletteReducer.TRI_BLUE_NOISE[ti] + 0.5f)) * 0.007f;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_D[ti] + 0.5f) * variation);
                     int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                    adj *= mul;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[ti] + 0.5f) * variation);
                     int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007f); // slightly inside -1 to 1 range, should be +/- 0.8925
-                    adj *= mul;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[ti] + 0.5f) * variation);
                     int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
