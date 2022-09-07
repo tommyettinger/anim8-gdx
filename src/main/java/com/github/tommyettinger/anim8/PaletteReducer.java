@@ -2619,11 +2619,12 @@ public class PaletteReducer {
     }
 
     /**
-     * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
-     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a fine-grained checkerboard pattern
-     * and a roughly-white-noise pattern obtained by distorting the blue noise. The dither strength needs to be
-     * evaluated carefully here; if it is too high, a blue-noise "scaly" pattern will appear over the image, and if it
-     * is too low, the image won't look dithered at all.
+     * A blue-noise-based dither; does not diffuse error, and uses 4 tiling blue noise patterns (which can be accessed
+     * with {@link #TRI_BLUE_NOISE}, {@link #TRI_BLUE_NOISE_B}, {@link #TRI_BLUE_NOISE_C}, and
+     * {@link #TRI_BLUE_NOISE_D}, but shouldn't usually be modified). This has a tendency to look closer to a color
+     * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
+     * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
+     * effects can appear in all the error-diffusion dithers here.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */

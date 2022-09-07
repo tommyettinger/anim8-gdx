@@ -116,18 +116,21 @@ public interface Dithered {
          */
         DIFFUSION,
         /**
-         * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern and a
-         * 4x4 checkerboard pattern. The position will be used for both the checkerboard and a lookup into a 64x64 blue
-         * noise texture (stored as a byte array), and the resulting positive or negative value will be added to the
-         * pixel's channels. This uses a triangular-mapped blue noise pattern, which means most of its values
-         * are in the middle of its range and very few are at the extremely bright or dark. This yields closer results
-         * to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; it preserves soft gradients
-         * reasonably well, and it keeps lightness as well as {@link #DIFFUSION} and {@link #SCATTER} do, but it tends
-         * to introduce a blue-noise artifact that looks web-like, or scaly, particularly for mid-size palettes. For reference,
-         * the blue noise texture this uses looks like <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this
-         * small image</a>; it looks different from a purely-random white noise texture because blue noise has no low
-         * frequencies in any direction, while white noise has all frequencies in equal measure. This has been optimized
-         * for quality on animations more so than on still images. Setting the dither strength with
+         * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern for all
+         * channels, and 3 additional blue-noise patterns for each channel separately. The all-channel pattern affects
+         * how much a particular pixel will have its channels affected by noise, and the separate channels have their
+         * resulting positive or negative values added to the pixel's channels. This uses triangular-mapped blue noise
+         * patterns, which means most of its values are in the middle of its range and very few are at the extremely
+         * bright or dark. This yields closer results to {@link #PATTERN} than other ordered dithers like
+         * {@link #GRADIENT_NOISE}; it preserves soft gradients reasonably well, and it keeps lightness as well as
+         * {@link #DIFFUSION} and {@link #SCATTER} do, but it can look "under-dithered" for small palettes. For
+         * reference, the blue noise texture this uses looks like
+         * <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this small image</a>;
+         * it looks different from a purely-random white noise texture because blue noise has no low frequencies in any
+         * direction, while white noise has all frequencies in equal measure. This has been optimized for quality on
+         * animations more so than on still images. Where error-diffusion dithers like {@link #NEUE} and
+         * {@link #DIFFUSION} can have "swimming" artifacts where the dither moves around in-place, ordered dithers are
+         * essentially immune to that type of artifact. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} has significant effect (it didn't do much in previous
          * versions), and raising it can improve depth and the appearance of some images when banding occurs.
          */

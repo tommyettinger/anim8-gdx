@@ -88,14 +88,16 @@ different API).
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
     - It tends to look very good in still images, and very bad in animations.
-    - SCATTER is mostly the same as this algorithm, but uses blue noise to break up unpleasant patterns.
-      - SCATTER is usually preferred. 
+    - SCATTER and NEUE are mostly the same as this algorithm, but use blue noise to break up unpleasant patterns.
+      - SCATTER or especially NEUE are usually preferred. 
   - BLUE_NOISE
     - Blue noise, if you haven't heard the term, refers to a kind of sequence of values where low-frequency patterns
       don't appear at all, but mid- and high-frequency patterns are very common. 2D blue noise is common in graphics
       code, often as a texture but sometimes as a sequence of points; it is used here because most vertebrate eyes
       employ a blue-noise distribution for sensory cells, and this makes blue noise appear natural to the human eye.
-    - Not the typical blue-noise dither; this incorporates a checkerboard pattern as well as a 64x64 blue noise texture.
+    - This is probably a typical blue-noise dither; it uses a different blue noise texture for each channel, and one
+      texture that is shared across all RGB channels.
+    - BLUE_NOISE looks good for many animations because the dithered pixels don't move around between frames. 
     - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise,
       such as [this introduction](https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/).
       - This also uses a triangular-mapped blue noise texture, which means most of its pixels are in the middle of the
@@ -104,7 +106,7 @@ different API).
     - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
     - This changed in 0.2.12, and handles smooth gradients better now. In version 0.3.5, it changed again to improve
-      behavior on small palettes.
+      behavior on small palettes. It changed again in 0.3.8 to improve saturation's appearance.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
     - This is an okay algorithm here for animations, but NEUE is much better, followed by SCATTER or PATTERN.
@@ -115,7 +117,7 @@ different API).
       error with blue-noise values. 
     - This used to be the default and can still sometimes be the best here.
     - Unlike DIFFUSION, this is quite suitable for animations, but some fluid shapes look better with CHAOTIC_NOISE or
-      GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN and well by NEUE.
+      GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN and well by NEUE and BLUE_NOISE.
     - You may want to use a lower dither strength with SCATTER if you encounter horizontal line artifacts; 0.75 or 0.5
       should be low enough to eliminate them (not all palettes will experience these artifacts).
   - NEUE
@@ -131,6 +133,7 @@ different API).
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
     - NEUE is the most likely algorithm to change in new versions, unless another new algorithm is added.
+    - BLUE_NOISE will likely look better in pixel art animations, but NEUE can look better for still pixel art.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN has an obvious square grid.
