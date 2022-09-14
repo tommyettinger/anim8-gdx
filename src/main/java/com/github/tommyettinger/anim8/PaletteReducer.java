@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
-import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
+import static com.github.tommyettinger.anim8.ConstantData.ENCODED_YAMPED;
 
 /**
  * Data that can be used to limit the colors present in a Pixmap or other image, here with the goal of using 256 or less
@@ -105,6 +105,52 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  * Created by Tommy Ettinger on 6/23/2018.
  */
 public class PaletteReducer {
+    /**
+     * This 255-color (plus transparent) palette was constructed geometrically by essentially cutting 12 wedges out of
+     * the cylindrical Oklab color space, with each wedge a different hue, but the same size as the other wedges. The
+     * way this was constructed makes its colors clustered somewhat, so if you want a color between blue and cyan, this
+     * might have it (which is more likely for very saturated colors), but it is more likely that that color would have
+     * to be imitated with dithering. For the 12 hues this has as its primary focus, and also for grayscale, this does
+     * very well.
+     * <br>
+     * This palette is sometimes called Yam3 in other libraries, such as colorful-gdx. Because there isn't a Yam1 or
+     * Yam2 in this library, the name was changed.
+     */
+    public static final int[] YAMPED = new int[]{
+            0x00000000, 0x000000FF, 0x151515FF, 0x262626FF, 0x373737FF, 0x494949FF, 0x595959FF, 0x6A6A6AFF,
+            0x7C7C7CFF, 0x8F8F8FFF, 0xA1A1A1FF, 0xB4B4B4FF, 0xC8C8C8FF, 0xDCDCDCFF, 0xF1F1F1FF, 0xFFFFFFFF,
+            0x5E3028FF, 0x7A463DFF, 0x986055FF, 0xBA7D71FF, 0xE2A093FF, 0x5C473EFF, 0x796258FF, 0x937A6FFF,
+            0xAE9488FF, 0xD0B4A8FF, 0x62432EFF, 0x7C5A43FF, 0x98745BFF, 0xB89177FF, 0xDEB498FF, 0x635339FF,
+            0x837255FF, 0xA08D6EFF, 0xBCA887FF, 0xDBC6A3FF, 0x5C5E33FF, 0x797B4CFF, 0x939564FF, 0xB2B580FF,
+            0xD9DCA4FF, 0x465735FF, 0x5E714CFF, 0x7A8E66FF, 0x9AB085FF, 0xC2DAACFF, 0x38643CFF, 0x538256FF,
+            0x6C9E6FFF, 0x85BA88FF, 0xA4DCA7FF, 0x3C5C5AFF, 0x537573FF, 0x6D918FFF, 0x8AB1AEFF, 0xAED8D5FF,
+            0x314474FF, 0x496094FF, 0x6079B1FF, 0x7690CBFF, 0x8DA9E7FF, 0x4F3E68FF, 0x695785FF, 0x806E9FFF,
+            0x9A86BAFF, 0xBAA5DDFF, 0x553563FF, 0x6D4B7DFF, 0x89649AFF, 0xA881BAFF, 0xCDA3E1FF, 0x684068FF,
+            0x875B87FF, 0xA474A4FF, 0xBE8CBEFF, 0xDEA9DEFF, 0x8E3029FF, 0xB34C42FF, 0xDE6E62FF, 0x815648FF,
+            0xA17363FF, 0xC59281FF, 0x90552EFF, 0xB17248FF, 0xDB966AFF, 0x946D3EFF, 0xBB915EFF, 0xDDB17BFF,
+            0x8D8E32FF, 0xAFB051FF, 0xD8DA76FF, 0x688837FF, 0x88AB55FF, 0xB1D87CFF, 0x369440FF, 0x56B85EFF,
+            0x76DB7CFF, 0x388C8DFF, 0x57ADAFFF, 0x7ED8D9FF, 0x1F40A3FF, 0x375EC9FF, 0x4E7AEBFF, 0x603E93FF,
+            0x7D59B5FF, 0x9C77D9FF, 0x733494FF, 0x9350B7FF, 0xBA73E1FF, 0x953F90FF, 0xBA5EB4FF, 0xDD7BD6FF,
+            0xC3241EFF, 0xD6362CFF, 0xEE493CFF, 0xB34934FF, 0xC65741FF, 0xD8654EFF, 0xAD553EFF, 0xBE634BFF,
+            0xD4755BFF, 0xA6674CFF, 0xB9775BFF, 0xCB8668FF, 0xAF6748FF, 0xC07555FF, 0xD48665FF, 0xAE6A43FF,
+            0xC07951FF, 0xD68C62FF, 0xC3682AFF, 0xD7793AFF, 0xEC8A4AFF, 0xBF7530FF, 0xD0843FFF, 0xE6974FFF,
+            0xC87E25FF, 0xDD9138FF, 0xF0A148FF, 0xC28733FF, 0xD59843FF, 0xEBAC55FF, 0xC49417FF, 0xD7A52EFF,
+            0xF0BC45FF, 0xC4AF3BFF, 0xD7C24CFF, 0xEAD55EFF, 0xC1C01FFF, 0xD3D337FF, 0xEAEA4EFF, 0xAEBA32FF,
+            0xC1CE46FF, 0xD9E75DFF, 0x9EC429FF, 0xAFD73EFF, 0xC2EC52FF, 0x8DC13BFF, 0x9DD34CFF, 0xB2EA60FF,
+            0x78C622FF, 0x8ADB39FF, 0x99EC4AFF, 0x56C33EFF, 0x66D54EFF, 0x7AEB61FF, 0x21C02CFF, 0x39D33EFF,
+            0x51EC54FF, 0x3EC285FF, 0x52D696FF, 0x64E9A8FF, 0x1AC0A1FF, 0x36D3B3FF, 0x4FEAC8FF, 0x39C3C4FF,
+            0x4FD8D9FF, 0x62ECEDFF, 0x22A8C9FF, 0x38BBDCFF, 0x4CCEF0FF, 0x3080BAFF, 0x4292CFFF, 0x56A8E8FF,
+            0x0C2ED1FF, 0x1540E6FF, 0x1F4FF8FF, 0x3932BBFF, 0x4341CEFF, 0x5051E3FF, 0x5721C9FF, 0x6434DDFF,
+            0x7447F5FF, 0x7533BDFF, 0x8543D1FF, 0x9452E4FF, 0x7F27C8FF, 0x8E38DCFF, 0xA14BF3FF, 0x8A36BEFF,
+            0x9D48D5FF, 0xAD57E7FF, 0x9828CBFF, 0xAA3ADFFF, 0xBD4CF4FF, 0xA032BBFF, 0xB242CFFF, 0xC855E6FF,
+            0xB92DCEFF, 0xCE40E2FF, 0xE050F5FF, 0xBD38BDFF, 0xD049CFFF, 0xE65BE5FF, 0xC4207FFF, 0xD83390FF,
+            0xF148A3FF, 0xC3335AFF, 0xD54167FF, 0xE95075FF, 0xFF0000FF, 0xE24A30FF, 0xDA6340FF, 0xCD7351FF,
+            0xDA7A4BFF, 0xE37F49FF, 0xF97A1BFF, 0xF98A15FF, 0xFF9600FF, 0xF6A319FF, 0xFCBA00FF, 0xFEDA2DFF,
+            0xFDFA00FF, 0xE1F62DFF, 0xC6F500FF, 0xB0FA34FF, 0x82FC00FF, 0x61FA23FF, 0x00FE1BFF, 0x2FF59FFF,
+            0x00F9CFFF, 0x20F6F7FF, 0x00D0FFFF, 0x119FF1FF, 0x0900FFFF, 0x401BF0FF, 0x6A00FFFF, 0x8A22EFFF,
+            0x9F00FFFF, 0xA324F1FF, 0xC200FFFF, 0xCB2AF8FF, 0xEA14FFFF, 0xF52AF6FF, 0xFF00A4FF, 0xF82162FF,
+    };
+
     /**
      * This 255-color (plus transparent) palette uses the (3,5,7) Halton sequence to get 3D points, treats those as IPT
      * channel values, and rejects out-of-gamut colors. This also rejects any color that is too similar to an existing
@@ -433,7 +479,7 @@ public class PaletteReducer {
      * runtime, but as pre-calculated data it works very well.
      */
     public PaletteReducer() {
-        exact(HALTONIC, ENCODED_HALTONIC);
+        exact(YAMPED, ENCODED_YAMPED);
     }
 
     /**
@@ -445,7 +491,7 @@ public class PaletteReducer {
     public PaletteReducer(int[] rgbaPalette) {
         if(rgbaPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         exact(rgbaPalette);
@@ -460,7 +506,7 @@ public class PaletteReducer {
     public PaletteReducer(int[] rgbaPalette, int limit) {
         if(rgbaPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         exact(rgbaPalette, limit);
@@ -475,7 +521,7 @@ public class PaletteReducer {
     public PaletteReducer(Color[] colorPalette) {
         if(colorPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         exact(colorPalette);
@@ -490,7 +536,7 @@ public class PaletteReducer {
     public PaletteReducer(Color[] colorPalette, int limit) {
         if(colorPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         exact(colorPalette, limit);
@@ -505,7 +551,7 @@ public class PaletteReducer {
     public PaletteReducer(Pixmap pixmap) {
         if(pixmap == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         analyze(pixmap);
@@ -520,7 +566,7 @@ public class PaletteReducer {
     public PaletteReducer(Array<Pixmap> pixmaps) {
         if(pixmaps == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         analyze(pixmaps);
@@ -782,7 +828,7 @@ public class PaletteReducer {
      * runtime, but as pre-calculated data it works very well.
      */
     public void setDefaultPalette(){
-        exact(HALTONIC, ENCODED_HALTONIC);
+        exact(YAMPED, ENCODED_YAMPED);
     }
     /**
      * Builds the palette information this PNG8 stores from the RGBA8888 ints in {@code rgbaPalette}, up to 256 colors.
@@ -808,7 +854,7 @@ public class PaletteReducer {
      */
     public void exact(int[] rgbaPalette, int limit) {
         if (rgbaPalette == null || rgbaPalette.length < 2 || limit < 2) {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         Arrays.fill(paletteArray, 0);
@@ -840,7 +886,7 @@ public class PaletteReducer {
                     c2 = r << 10 | g << 5 | b;
                     if (paletteMapping[c2] == 0) {
                         bb = (b << 3 | b >>> 2);
-                        dist = 0x7FFFFFFF;
+                        dist = 1E100;
                         for (int i = 1; i < plen; i++) {
                             if (dist > (dist = Math.min(dist, differenceMatch(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
@@ -866,8 +912,8 @@ public class PaletteReducer {
     {
         if(palette == null || preload == null)
         {
-            System.arraycopy(HALTONIC, 0,  paletteArray, 0, 256);
-            System.arraycopy(ENCODED_HALTONIC, 0,  paletteMapping, 0, 0x8000);
+            System.arraycopy(YAMPED, 0,  paletteArray, 0, 256);
+            System.arraycopy(ENCODED_YAMPED, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
             populationBias = (float) Math.exp(-1.125 / 256.0);
             if(reverseMap == null)
@@ -919,7 +965,7 @@ public class PaletteReducer {
      */
     public void exact(Color[] colorPalette, int limit) {
         if (colorPalette == null || colorPalette.length < 2 || limit < 2) {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(YAMPED, ENCODED_YAMPED);
             return;
         }
         Arrays.fill(paletteArray, 0);
