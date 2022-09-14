@@ -2619,16 +2619,57 @@ public class PaletteReducer {
     }
 
     /**
+     * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
+     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a 8x8 threshold matrix (the kind
+     * used by {@link #reduceKnoll(Pixmap)}, but larger). This has a tendency to look closer to a color
+     * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
+     * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
+     * effects can appear in all the error-diffusion dithers here. If you can tolerate "spongy" artifacts appearing
+     * (which look worse on small palettes), you may get very good handling of lightness by raising dither strength.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceBlueNoise (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color;
+        float adj, pos, strength = 0.27f * ditherStrength / populationBias;
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    pos = (thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.16f;//0.011f;
+                    adj = ((TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                    int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                    int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
+                    int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
+
+                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
      * A blue-noise-based dither; does not diffuse error, and uses 4 tiling blue noise patterns (which can be accessed
      * with {@link #TRI_BLUE_NOISE}, {@link #TRI_BLUE_NOISE_B}, {@link #TRI_BLUE_NOISE_C}, and
      * {@link #TRI_BLUE_NOISE_D}, but shouldn't usually be modified). This has a tendency to look closer to a color
      * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
      * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
-     * effects can appear in all the error-diffusion dithers here.
+     * effects can appear in all the error-diffusion dithers here. This is called "Separated" because each RGB channel
+     * is affected by a separate blue noise pattern.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
-    public Pixmap reduceBlueNoise (Pixmap pixmap) {
+    public Pixmap reduceBlueNoiseSeparated (Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
@@ -2944,6 +2985,20 @@ public class PaletteReducer {
             8,   4,  11,   7,
             2,  14,   1,  13,
             10,  6,   9,   5,
+    };
+
+    /**
+     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
+     */
+    static final int[] thresholdMatrix64 = {
+            0,  48,  12,  60,   3,  51,  15,  63,
+            32,  16,  44,  28,  35,  19,  47,  31,
+            8,  56,   4,  52,  11,  59,   7,  55,
+            40,  24,  36,  20,  43,  27,  39,  23,
+            2,  50,  14,  62,   1,  49,  13,  61,
+            34,  18,  46,  30,  33,  17,  45,  29,
+            10,  58,   6,  54,   9,  57,   5,  53,
+            42,  26,  38,  22,  41,  25,  37,  21
     };
 
     final int[] candidates = new int[32];
