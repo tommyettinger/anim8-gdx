@@ -2635,15 +2635,15 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, pos, strength = 0.27f * ditherStrength / populationBias;
+        float adj, pos, strength = 0.1375f * ditherStrength / populationBias;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    pos = (thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.16f;//0.011f;
-                    adj = ((TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                    pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.25f;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
                     int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
                     int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
                     int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);

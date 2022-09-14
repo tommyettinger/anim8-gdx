@@ -240,7 +240,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                         if(UIUtils.ctrl())
                             reducer.analyzeHueWise(p0, 100, 256);
                         else
-                            reducer.analyze(p0, 150);
+                            reducer.analyze(p0, 100);
                         refresh();
                         break;
                     case Input.Keys.B:
