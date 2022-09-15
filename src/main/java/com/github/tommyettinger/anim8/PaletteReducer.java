@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
-import static com.github.tommyettinger.anim8.ConstantData.ENCODED_YAMPED;
+import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
 
 /**
  * Data that can be used to limit the colors present in a Pixmap or other image, here with the goal of using 256 or less
@@ -106,49 +106,54 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_YAMPED;
  */
 public class PaletteReducer {
     /**
-     * This 255-color (plus transparent) palette was constructed geometrically by essentially cutting 12 wedges out of
-     * the cylindrical Oklab color space, with each wedge a different hue, but the same size as the other wedges. The
-     * way this was constructed makes its colors clustered somewhat, so if you want a color between blue and cyan, this
-     * might have it (which is more likely for very saturated colors), but it is more likely that that color would have
-     * to be imitated with dithering. For the 12 hues this has as its primary focus, and also for grayscale, this does
-     * very well.
+     * DawnBringer's 256-color Aurora palette, modified slightly to fit one transparent color by removing one gray.
+     * Aurora is available in <a href="http://pixeljoint.com/forum/forum_posts.asp?TID=26080&KW=">this set of tools</a>
+     * for a pixel art editor, but it is usable for lots of high-color purposes.
      * <br>
-     * This palette is sometimes called Yam3 in other libraries, such as colorful-gdx. Because there isn't a Yam1 or
-     * Yam2 in this library, the name was changed.
+     * These colors all have names, which can be seen <a href="https://i.imgur.com/2oChRYC.png">previewed here</a>. The
+     * linked image preview also shows a nearby lighter color and two darker colors on the same sphere as the main
+     * color; the second-lightest color is what has the listed name. The names here are used by a few other libraries,
+     * such as <a href="https://github.com/tommyettinger/colorful-gdx">colorful-gdx</a>, but otherwise don't matter.
+     * <br>
+     * This replaced another palette, Haltonic, that wasn't hand-chosen and was much more "randomized."
+     * <br>
+     * While you can modify the individual items in this array, this is discouraged, because various constructors and
+     * methods in this class use AURORA with a pre-made distance mapping of its colors. This mapping would become
+     * incorrect if any colors in this array changed.
      */
-    public static final int[] YAMPED = new int[]{
-            0x00000000, 0x000000FF, 0x151515FF, 0x262626FF, 0x373737FF, 0x494949FF, 0x595959FF, 0x6A6A6AFF,
-            0x7C7C7CFF, 0x8F8F8FFF, 0xA1A1A1FF, 0xB4B4B4FF, 0xC8C8C8FF, 0xDCDCDCFF, 0xF1F1F1FF, 0xFFFFFFFF,
-            0x5E3028FF, 0x7A463DFF, 0x986055FF, 0xBA7D71FF, 0xE2A093FF, 0x5C473EFF, 0x796258FF, 0x937A6FFF,
-            0xAE9488FF, 0xD0B4A8FF, 0x62432EFF, 0x7C5A43FF, 0x98745BFF, 0xB89177FF, 0xDEB498FF, 0x635339FF,
-            0x837255FF, 0xA08D6EFF, 0xBCA887FF, 0xDBC6A3FF, 0x5C5E33FF, 0x797B4CFF, 0x939564FF, 0xB2B580FF,
-            0xD9DCA4FF, 0x465735FF, 0x5E714CFF, 0x7A8E66FF, 0x9AB085FF, 0xC2DAACFF, 0x38643CFF, 0x538256FF,
-            0x6C9E6FFF, 0x85BA88FF, 0xA4DCA7FF, 0x3C5C5AFF, 0x537573FF, 0x6D918FFF, 0x8AB1AEFF, 0xAED8D5FF,
-            0x314474FF, 0x496094FF, 0x6079B1FF, 0x7690CBFF, 0x8DA9E7FF, 0x4F3E68FF, 0x695785FF, 0x806E9FFF,
-            0x9A86BAFF, 0xBAA5DDFF, 0x553563FF, 0x6D4B7DFF, 0x89649AFF, 0xA881BAFF, 0xCDA3E1FF, 0x684068FF,
-            0x875B87FF, 0xA474A4FF, 0xBE8CBEFF, 0xDEA9DEFF, 0x8E3029FF, 0xB34C42FF, 0xDE6E62FF, 0x815648FF,
-            0xA17363FF, 0xC59281FF, 0x90552EFF, 0xB17248FF, 0xDB966AFF, 0x946D3EFF, 0xBB915EFF, 0xDDB17BFF,
-            0x8D8E32FF, 0xAFB051FF, 0xD8DA76FF, 0x688837FF, 0x88AB55FF, 0xB1D87CFF, 0x369440FF, 0x56B85EFF,
-            0x76DB7CFF, 0x388C8DFF, 0x57ADAFFF, 0x7ED8D9FF, 0x1F40A3FF, 0x375EC9FF, 0x4E7AEBFF, 0x603E93FF,
-            0x7D59B5FF, 0x9C77D9FF, 0x733494FF, 0x9350B7FF, 0xBA73E1FF, 0x953F90FF, 0xBA5EB4FF, 0xDD7BD6FF,
-            0xC3241EFF, 0xD6362CFF, 0xEE493CFF, 0xB34934FF, 0xC65741FF, 0xD8654EFF, 0xAD553EFF, 0xBE634BFF,
-            0xD4755BFF, 0xA6674CFF, 0xB9775BFF, 0xCB8668FF, 0xAF6748FF, 0xC07555FF, 0xD48665FF, 0xAE6A43FF,
-            0xC07951FF, 0xD68C62FF, 0xC3682AFF, 0xD7793AFF, 0xEC8A4AFF, 0xBF7530FF, 0xD0843FFF, 0xE6974FFF,
-            0xC87E25FF, 0xDD9138FF, 0xF0A148FF, 0xC28733FF, 0xD59843FF, 0xEBAC55FF, 0xC49417FF, 0xD7A52EFF,
-            0xF0BC45FF, 0xC4AF3BFF, 0xD7C24CFF, 0xEAD55EFF, 0xC1C01FFF, 0xD3D337FF, 0xEAEA4EFF, 0xAEBA32FF,
-            0xC1CE46FF, 0xD9E75DFF, 0x9EC429FF, 0xAFD73EFF, 0xC2EC52FF, 0x8DC13BFF, 0x9DD34CFF, 0xB2EA60FF,
-            0x78C622FF, 0x8ADB39FF, 0x99EC4AFF, 0x56C33EFF, 0x66D54EFF, 0x7AEB61FF, 0x21C02CFF, 0x39D33EFF,
-            0x51EC54FF, 0x3EC285FF, 0x52D696FF, 0x64E9A8FF, 0x1AC0A1FF, 0x36D3B3FF, 0x4FEAC8FF, 0x39C3C4FF,
-            0x4FD8D9FF, 0x62ECEDFF, 0x22A8C9FF, 0x38BBDCFF, 0x4CCEF0FF, 0x3080BAFF, 0x4292CFFF, 0x56A8E8FF,
-            0x0C2ED1FF, 0x1540E6FF, 0x1F4FF8FF, 0x3932BBFF, 0x4341CEFF, 0x5051E3FF, 0x5721C9FF, 0x6434DDFF,
-            0x7447F5FF, 0x7533BDFF, 0x8543D1FF, 0x9452E4FF, 0x7F27C8FF, 0x8E38DCFF, 0xA14BF3FF, 0x8A36BEFF,
-            0x9D48D5FF, 0xAD57E7FF, 0x9828CBFF, 0xAA3ADFFF, 0xBD4CF4FF, 0xA032BBFF, 0xB242CFFF, 0xC855E6FF,
-            0xB92DCEFF, 0xCE40E2FF, 0xE050F5FF, 0xBD38BDFF, 0xD049CFFF, 0xE65BE5FF, 0xC4207FFF, 0xD83390FF,
-            0xF148A3FF, 0xC3335AFF, 0xD54167FF, 0xE95075FF, 0xFF0000FF, 0xE24A30FF, 0xDA6340FF, 0xCD7351FF,
-            0xDA7A4BFF, 0xE37F49FF, 0xF97A1BFF, 0xF98A15FF, 0xFF9600FF, 0xF6A319FF, 0xFCBA00FF, 0xFEDA2DFF,
-            0xFDFA00FF, 0xE1F62DFF, 0xC6F500FF, 0xB0FA34FF, 0x82FC00FF, 0x61FA23FF, 0x00FE1BFF, 0x2FF59FFF,
-            0x00F9CFFF, 0x20F6F7FF, 0x00D0FFFF, 0x119FF1FF, 0x0900FFFF, 0x401BF0FF, 0x6A00FFFF, 0x8A22EFFF,
-            0x9F00FFFF, 0xA324F1FF, 0xC200FFFF, 0xCB2AF8FF, 0xEA14FFFF, 0xF52AF6FF, 0xFF00A4FF, 0xF82162FF,
+    public static final int[] AURORA = {
+            0x00000000, 0x010101FF, 0x131313FF, 0x252525FF, 0x373737FF, 0x494949FF, 0x5B5B5BFF, 0x6E6E6EFF,
+            0x808080FF, 0x929292FF, 0xA4A4A4FF, 0xB6B6B6FF, 0xC9C9C9FF, 0xDBDBDBFF, 0xEDEDEDFF, 0xFFFFFFFF,
+            0x007F7FFF, 0x3FBFBFFF, 0x00FFFFFF, 0xBFFFFFFF, 0x8181FFFF, 0x0000FFFF, 0x3F3FBFFF, 0x00007FFF,
+            0x0F0F50FF, 0x7F007FFF, 0xBF3FBFFF, 0xF500F5FF, 0xFD81FFFF, 0xFFC0CBFF, 0xFF8181FF, 0xFF0000FF,
+            0xBF3F3FFF, 0x7F0000FF, 0x551414FF, 0x7F3F00FF, 0xBF7F3FFF, 0xFF7F00FF, 0xFFBF81FF, 0xFFFFBFFF,
+            0xFFFF00FF, 0xBFBF3FFF, 0x7F7F00FF, 0x007F00FF, 0x3FBF3FFF, 0x00FF00FF, 0xAFFFAFFF, 0xBCAFC0FF,
+            0xCBAA89FF, 0xA6A090FF, 0x7E9494FF, 0x6E8287FF, 0x7E6E60FF, 0xA0695FFF, 0xC07872FF, 0xD08A74FF,
+            0xE19B7DFF, 0xEBAA8CFF, 0xF5B99BFF, 0xF6C8AFFF, 0xF5E1D2FF, 0x573B3BFF, 0x73413CFF, 0x8E5555FF,
+            0xAB7373FF, 0xC78F8FFF, 0xE3ABABFF, 0xF8D2DAFF, 0xE3C7ABFF, 0xC49E73FF, 0x8F7357FF, 0x73573BFF,
+            0x3B2D1FFF, 0x414123FF, 0x73733BFF, 0x8F8F57FF, 0xA2A255FF, 0xB5B572FF, 0xC7C78FFF, 0xDADAABFF,
+            0xEDEDC7FF, 0xC7E3ABFF, 0xABC78FFF, 0x8EBE55FF, 0x738F57FF, 0x587D3EFF, 0x465032FF, 0x191E0FFF,
+            0x235037FF, 0x3B573BFF, 0x506450FF, 0x3B7349FF, 0x578F57FF, 0x73AB73FF, 0x64C082FF, 0x8FC78FFF,
+            0xA2D8A2FF, 0xE1F8FAFF, 0xB4EECAFF, 0xABE3C5FF, 0x87B48EFF, 0x507D5FFF, 0x0F6946FF, 0x1E2D23FF,
+            0x234146FF, 0x3B7373FF, 0x64ABABFF, 0x8FC7C7FF, 0xABE3E3FF, 0xC7F1F1FF, 0xBED2F0FF, 0xABC7E3FF,
+            0xA8B9DCFF, 0x8FABC7FF, 0x578FC7FF, 0x57738FFF, 0x3B5773FF, 0x0F192DFF, 0x1F1F3BFF, 0x3B3B57FF,
+            0x494973FF, 0x57578FFF, 0x736EAAFF, 0x7676CAFF, 0x8F8FC7FF, 0xABABE3FF, 0xD0DAF8FF, 0xE3E3FFFF,
+            0xAB8FC7FF, 0x8F57C7FF, 0x73578FFF, 0x573B73FF, 0x3C233CFF, 0x463246FF, 0x724072FF, 0x8F578FFF,
+            0xAB57ABFF, 0xAB73ABFF, 0xEBACE1FF, 0xFFDCF5FF, 0xE3C7E3FF, 0xE1B9D2FF, 0xD7A0BEFF, 0xC78FB9FF,
+            0xC87DA0FF, 0xC35A91FF, 0x4B2837FF, 0x321623FF, 0x280A1EFF, 0x401811FF, 0x621800FF, 0xA5140AFF,
+            0xDA2010FF, 0xD5524AFF, 0xFF3C0AFF, 0xF55A32FF, 0xFF6262FF, 0xF6BD31FF, 0xFFA53CFF, 0xD79B0FFF,
+            0xDA6E0AFF, 0xB45A00FF, 0xA04B05FF, 0x5F3214FF, 0x53500AFF, 0x626200FF, 0x8C805AFF, 0xAC9400FF,
+            0xB1B10AFF, 0xE6D55AFF, 0xFFD510FF, 0xFFEA4AFF, 0xC8FF41FF, 0x9BF046FF, 0x96DC19FF, 0x73C805FF,
+            0x6AA805FF, 0x3C6E14FF, 0x283405FF, 0x204608FF, 0x0C5C0CFF, 0x149605FF, 0x0AD70AFF, 0x14E60AFF,
+            0x7DFF73FF, 0x4BF05AFF, 0x00C514FF, 0x05B450FF, 0x1C8C4EFF, 0x123832FF, 0x129880FF, 0x06C491FF,
+            0x00DE6AFF, 0x2DEBA8FF, 0x3CFEA5FF, 0x6AFFCDFF, 0x91EBFFFF, 0x55E6FFFF, 0x7DD7F0FF, 0x08DED5FF,
+            0x109CDEFF, 0x055A5CFF, 0x162C52FF, 0x0F377DFF, 0x004A9CFF, 0x326496FF, 0x0052F6FF, 0x186ABDFF,
+            0x2378DCFF, 0x699DC3FF, 0x4AA4FFFF, 0x90B0FFFF, 0x5AC5FFFF, 0xBEB9FAFF, 0x00BFFFFF, 0x007FFFFF,
+            0x4B7DC8FF, 0x786EF0FF, 0x4A5AFFFF, 0x6241F6FF, 0x3C3CF5FF, 0x101CDAFF, 0x0010BDFF, 0x231094FF,
+            0x0C2148FF, 0x5010B0FF, 0x6010D0FF, 0x8732D2FF, 0x9C41FFFF, 0x7F00FFFF, 0xBD62FFFF, 0xB991FFFF,
+            0xD7A5FFFF, 0xD7C3FAFF, 0xF8C6FCFF, 0xE673FFFF, 0xFF52FFFF, 0xDA20E0FF, 0xBD29FFFF, 0xBD10C5FF,
+            0x8C14BEFF, 0x5A187BFF, 0x641464FF, 0x410062FF, 0x320A46FF, 0x551937FF, 0xA01982FF, 0xC80078FF,
+            0xFF50BFFF, 0xFF6AC5FF, 0xFAA0B9FF, 0xFC3A8CFF, 0xE61E78FF, 0xBD1039FF, 0x98344DFF, 0x911437FF,
     };
 
     /**
@@ -479,7 +484,7 @@ public class PaletteReducer {
      * runtime, but as pre-calculated data it works very well.
      */
     public PaletteReducer() {
-        exact(YAMPED, ENCODED_YAMPED);
+        exact(AURORA, ENCODED_AURORA);
     }
 
     /**
@@ -491,7 +496,7 @@ public class PaletteReducer {
     public PaletteReducer(int[] rgbaPalette) {
         if(rgbaPalette == null)
         {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(rgbaPalette);
@@ -506,7 +511,7 @@ public class PaletteReducer {
     public PaletteReducer(int[] rgbaPalette, int limit) {
         if(rgbaPalette == null)
         {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(rgbaPalette, limit);
@@ -521,7 +526,7 @@ public class PaletteReducer {
     public PaletteReducer(Color[] colorPalette) {
         if(colorPalette == null)
         {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(colorPalette);
@@ -536,7 +541,7 @@ public class PaletteReducer {
     public PaletteReducer(Color[] colorPalette, int limit) {
         if(colorPalette == null)
         {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(colorPalette, limit);
@@ -551,7 +556,7 @@ public class PaletteReducer {
     public PaletteReducer(Pixmap pixmap) {
         if(pixmap == null)
         {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         analyze(pixmap);
@@ -566,7 +571,7 @@ public class PaletteReducer {
     public PaletteReducer(Array<Pixmap> pixmaps) {
         if(pixmaps == null)
         {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         analyze(pixmaps);
@@ -828,7 +833,7 @@ public class PaletteReducer {
      * runtime, but as pre-calculated data it works very well.
      */
     public void setDefaultPalette(){
-        exact(YAMPED, ENCODED_YAMPED);
+        exact(AURORA, ENCODED_AURORA);
     }
     /**
      * Builds the palette information this PNG8 stores from the RGBA8888 ints in {@code rgbaPalette}, up to 256 colors.
@@ -854,7 +859,7 @@ public class PaletteReducer {
      */
     public void exact(int[] rgbaPalette, int limit) {
         if (rgbaPalette == null || rgbaPalette.length < 2 || limit < 2) {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         Arrays.fill(paletteArray, 0);
@@ -912,8 +917,8 @@ public class PaletteReducer {
     {
         if(palette == null || preload == null)
         {
-            System.arraycopy(YAMPED, 0,  paletteArray, 0, 256);
-            System.arraycopy(ENCODED_YAMPED, 0,  paletteMapping, 0, 0x8000);
+            System.arraycopy(AURORA, 0,  paletteArray, 0, 256);
+            System.arraycopy(ENCODED_AURORA, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
             populationBias = (float) Math.exp(-1.125 / 256.0);
             if(reverseMap == null)
@@ -965,7 +970,7 @@ public class PaletteReducer {
      */
     public void exact(Color[] colorPalette, int limit) {
         if (colorPalette == null || colorPalette.length < 2 || limit < 2) {
-            exact(YAMPED, ENCODED_YAMPED);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         Arrays.fill(paletteArray, 0);
