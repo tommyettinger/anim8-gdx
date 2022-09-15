@@ -18,7 +18,7 @@ import com.github.tommyettinger.anim8.*;
 public class VideoConvertDemo extends ApplicationAdapter {
     private long startTime;
     private static final String name = "market";
-    private boolean fastAnalysis = true;
+    private final boolean fastAnalysis = true;
     @Override
     public void create() {
         startTime = TimeUtils.millis();
@@ -26,10 +26,10 @@ public class VideoConvertDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 //		renderPNG8();
-        String[] names = new String[]{"-Analyzed", "-Haltonic", "-BW", "-Green", "-DB8"};
+        String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
         int[][] palettes = new int[][]{
                 null,
-                PaletteReducer.HALTONIC,
+                PaletteReducer.AURORA,
                 new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF},
                 new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
@@ -107,6 +107,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderVideoGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering video GIF");
         String name = "market";
         Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
         for (int i = 1; i <= 90; i++) {
@@ -148,6 +149,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderPixelGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering tyrant GIF");
         String name = "tyrant";
         Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap.class);
         for (int i = 0; i < 64; i++) {
@@ -185,6 +187,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderTankGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering pixel tank GIF");
         String name = "tank";
         Array<Pixmap> pixmaps = new Array<>(true, 16, Pixmap.class);
         for (int i = 0; i < 16; i++) {
@@ -222,6 +225,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderGlobeGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering globe GIF");
         String name = "globe";
         Array<Pixmap> pixmaps = new Array<>(true, 180, Pixmap.class);
         for (int i = 0; i < 180; i++) {
@@ -259,6 +263,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderOklabGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering oklab GIF");
         String name = "oklab";
         Array<Pixmap> pixmaps = new Array<>(true, 120, Pixmap.class);
         for (int i = 0; i < 120; i++) {
@@ -297,6 +302,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
 
     public void renderSolidsGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering solids GIF");
         String name = "solids";
         Array<Pixmap> pixmaps = new Array<>(true, 256, Pixmap.class);
         for (int i = 0; i < 256; i++) {

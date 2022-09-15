@@ -164,10 +164,6 @@ public class PaletteReducer {
      * preset grayscale colors) will produce a similarly-distributed palette. Typically, 64 items from this are enough
      * to make pixel art look good enough with dithering, and it continues to improve with more colors. It has exactly 8
      * colors that are purely grayscale, all right at the start after transparent.
-     * <br>
-     * While you can modify the individual items in this array, this is discouraged, because various constructors and
-     * methods in this class use HALTONIC with a pre-made distance mapping of its colors. This mapping would become
-     * incorrect if any colors in this array changed.
      */
     public static final int[] HALTONIC = new int[]{
             0x00000000, 0x010101FF, 0xFEFEFEFF, 0x7B7B7BFF, 0x555555FF, 0xAAAAAAFF, 0x333333FF, 0xE0E0E0FF,
@@ -478,9 +474,9 @@ public class PaletteReducer {
     }
     
     /**
-     * Constructs a default PaletteReducer that uses the "Haltonic" 255-color-plus-transparent palette.
+     * Constructs a default PaletteReducer that uses the "Aurora" 255-color-plus-transparent palette.
      * Note that this uses a more-detailed and higher-quality metric than you would get by just specifying
-     * {@code new PaletteReducer(PaletteReducer.HALTONIC)}; this metric would be too slow to calculate at
+     * {@code new PaletteReducer(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
      * runtime, but as pre-calculated data it works very well.
      */
     public PaletteReducer() {
@@ -593,7 +589,7 @@ public class PaletteReducer {
      * (see {@link #analyze(Pixmap, double)} for more info).
      *
      * @param pixmap    a Pixmap to analyze in detail to produce a palette
-     * @param threshold the minimum difference between colors required to put them in the palette (default 150)
+     * @param threshold the minimum difference between colors required to put them in the palette (default 100)
      */
     public PaletteReducer(Pixmap pixmap, double threshold) {
         analyze(pixmap, threshold);
@@ -826,10 +822,10 @@ public class PaletteReducer {
     }
 
     /**
-     * Resets the palette to the 256-color (including transparent) "Haltonic" palette. PaletteReducer already
+     * Resets the palette to the 256-color (including transparent) "Aurora" palette. PaletteReducer already
      * stores most of the calculated data needed to use this one palette. Note that this uses a more-detailed
      * and higher-quality metric than you would get by just specifying
-     * {@code new PaletteReducer(PaletteReducer.HALTONIC)}; this metric would be too slow to calculate at
+     * {@code new PaletteReducer(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
      * runtime, but as pre-calculated data it works very well.
      */
     public void setDefaultPalette(){
@@ -839,7 +835,7 @@ public class PaletteReducer {
      * Builds the palette information this PNG8 stores from the RGBA8888 ints in {@code rgbaPalette}, up to 256 colors.
      * Alpha is not preserved except for the first item in rgbaPalette, and only if it is {@code 0} (fully transparent
      * black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only has one color, then
-     * this defaults to the "Haltonic" palette with 256 well-distributed colors (including transparent).
+     * this defaults to the "Aurora" palette with 256 well-distributed colors (including transparent).
      *
      * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
      */
@@ -851,7 +847,7 @@ public class PaletteReducer {
      * or {@code limit}, whichever is less.
      * Alpha is not preserved except for the first item in rgbaPalette, and only if it is {@code 0} (fully transparent
      * black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only has one color, or if
-     * limit is less than 2, then this defaults to the "Haltonic" palette with 256 well-distributed colors (including
+     * limit is less than 2, then this defaults to the "Aurora" palette with 256 well-distributed colors (including
      * transparent).
      *
      * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
@@ -948,7 +944,7 @@ public class PaletteReducer {
      * 256 colors.
      * Alpha is not preserved except for the first item in colorPalette, and only if its r, g, b, and a values are all
      * 0f (fully transparent black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only
-     * has one color, then this defaults to the "Haltonic" palette with 256 well-distributed colors (including
+     * has one color, then this defaults to the "Aurora" palette with 256 well-distributed colors (including
      * transparent).
      *
      * @param colorPalette an array of Color objects; all will be used up to 256 items or the length of the array
@@ -962,7 +958,7 @@ public class PaletteReducer {
      * 256 colors or {@code limit}, whichever is less.
      * Alpha is not preserved except for the first item in colorPalette, and only if its r, g, b, and a values are all
      * 0f (fully transparent black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, only has
-     * one color, or limit is less than 2, then this defaults to the "Haltonic" palette with 256 well-distributed
+     * one color, or limit is less than 2, then this defaults to the "Aurora" palette with 256 well-distributed
      * colors (including transparent).
      *
      * @param colorPalette an array of Color objects; all will be used up to 256 items, limit, or the length of the array
@@ -1019,7 +1015,7 @@ public class PaletteReducer {
      * aren't exact, and dithering works better when the palette can choose colors that are sufficiently different, this
      * uses a threshold value to determine whether it should permit a less-common color into the palette, and if the
      * second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a value of at least
-     * 150, it is
+     * 100, it is
      * allowed in the palette, otherwise it is kept out for being too similar to existing colors. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} field or can be used directly to {@link #reduce(Pixmap)} a Pixmap.
@@ -1027,7 +1023,7 @@ public class PaletteReducer {
      * @param pixmap a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      */
     public void analyze(Pixmap pixmap) {
-        analyze(pixmap, 150);
+        analyze(pixmap, 100);
     }
 
     private static final Comparator<IntIntMap.Entry> entryComparator = new Comparator<IntIntMap.Entry>() {
@@ -1921,7 +1917,7 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by
      * {@link #differenceAnalyzing(int, int, int, int)}) by a
-     * value of at least 150, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * value of at least 100, it is allowed in the palette, otherwise it is kept out for being too similar to existing
      * colors. This doesn't return a value but instead stores the palette info in this object; a PaletteReducer can be
      * assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
@@ -2102,7 +2098,7 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by
      * {@link #differenceHW(int, int, int, int)}) by a
-     * value of at least 150, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * value of at least 100, it is allowed in the palette, otherwise it is kept out for being too similar to existing
      * colors. This doesn't return a value but instead stores the palette info in this object; a PaletteReducer can be
      * assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.

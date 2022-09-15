@@ -30,7 +30,9 @@ public class StillImageDemo extends ApplicationAdapter {
 //        for(String name : new String[]{"Mona_Lisa.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
         for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
 //        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png", "Anemone.png",}) {
+			System.out.println("Rendering PNG8 for " + name);
 			renderPNG8(name);
+			System.out.println("Rendering GIF for " + name);
 			renderGif(name);
 //			renderPNG(name);
 		}
