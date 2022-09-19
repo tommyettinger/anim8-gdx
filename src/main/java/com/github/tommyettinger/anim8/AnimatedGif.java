@@ -577,31 +577,22 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case GRADIENT_NOISE: {
-                float pos, adj;
-                final float strength = palette.ditherStrength * palette.populationBias * 3;
+                float pos;
+                final float strength = 40f * palette.ditherStrength / (palette.populationBias * palette.populationBias);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            color |= (color >>> 5 & 0x07070700) | 0xFE;
-                            int rr = ((color >>> 24));
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8) & 0xFF);
-                            used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))] & 0xFF];
                             pos = (px * 0.06711056f + y * 0.00583715f);
                             pos -= (int) pos;
                             pos *= 52.9829189f;
                             pos -= (int) pos;
-                            adj = (pos-0.5f) * strength;
-//                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                            adj = (pos * pos - 0.3f) * strength;
-                            rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24)))), 0), 0xFF);
-                            gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                            bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8 & 0xFF)))), 0), 0xFF);
+                            pos = (pos-0.5f) * strength;
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + pos), 0), 255);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + pos), 0), 255);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + pos), 0), 255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;

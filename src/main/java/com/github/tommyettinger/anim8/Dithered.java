@@ -79,14 +79,16 @@ public interface Dithered {
          */
         NONE,
         /**
-         * Jorge Jimenez' Gradient Interleaved Noise, modified slightly to use as an ordered dither here; this can be,
-         * well, noisy, but doesn't have different amounts of noise on different frames or different parts of an image
-         * (which is a potential problem for {@link #DIFFUSION}). There's a sometimes-noticeable diagonal line pattern
-         * in the results this produces, and in animations, this pattern appears in the same place on every frame, which
-         * can be either desirable (small changes won't snowball into big ones) or undesirable (it makes the pattern
-         * appear to be part of the image). Although {@link #BLUE_NOISE} is mostly similar, it has a "scaly" artifact
-         * instead of the diagonal line artifact this can have. {@link #BLUE_NOISE} does have less noticeable patterns,
-         * though, in many cases.
+         * Jorge Jimenez' Gradient Interleaved Noise, modified slightly to use as an ordered dither here; this can have
+         * subtle repetitive artifacts, but doesn't have different amounts of noise on different frames or different
+         * parts of an image (which is a potential problem for {@link #DIFFUSION} and the other error-diffusion
+         * dithers). There's a sometimes-noticeable diagonal line pattern in the results this produces, and in
+         * animations, this pattern appears in the same place on every frame, which can be either desirable (small
+         * changes won't snowball into big ones) or undesirable (it makes the pattern appear to be part of the image).
+         * Although {@link #BLUE_NOISE} is mostly similar, it has a "spongy" artifact instead of the diagonal line
+         * artifact this can have. {@link #BLUE_NOISE} does have less noticeable small-scale patterns, though, for many
+         * input images. This handles gradients quite well. For pixel art, you may want to reduce the dither strength to
+         * 0.5 or so.
          */
         GRADIENT_NOISE,
         /**

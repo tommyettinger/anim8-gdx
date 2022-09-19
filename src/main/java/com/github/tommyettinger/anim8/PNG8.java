@@ -978,11 +978,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             lastLineLen = w;
 
-            int color, used;
-
-            byte paletteIndex;
-            float pos, adj;
-            final float strength = palette.ditherStrength * palette.populationBias * 3f;
+            int color;
+            float pos;
+            final float strength = 40f * palette.ditherStrength / (palette.populationBias * palette.populationBias);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -990,24 +988,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if ((color & 0x80) == 0 && hasTransparent)
                         curLine[px] = 0;
                     else {
-                        int rr = ((color >>> 24)       );
-                        int gg = ((color >>> 16) & 0xFF);
-                        int bb = ((color >>> 8)  & 0xFF);
-                        paletteIndex =
-                                paletteMapping[((rr << 7) & 0x7C00)
-                                        | ((gg << 2) & 0x3E0)
-                                        | ((bb >>> 3))];
-                        used = paletteArray[paletteIndex & 0xFF];
-                        pos = (px * 0.06711056f + py * 0.00583715f);
-                        pos -= (int)pos;
+                        pos = (px * 0.06711056f + y * 0.00583715f);
+                        pos -= (int) pos;
                         pos *= 52.9829189f;
-                        pos -= (int)pos;
-                        adj = (pos-0.5f) * strength;
-//                        adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                        adj = (pos * pos - 0.3f) * strength;
-                        rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
-                        gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                        bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
+                        pos -= (int) pos;
+                        pos = (pos-0.5f) * strength;
+                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + pos), 0), 255);
+                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + pos), 0), 255);
+                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + pos), 0), 255);
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
@@ -2301,13 +2289,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            int color, used;
+            int color;
 
             lastLineLen = width;
-
-            byte paletteIndex;
-            float pos, adj;
-            final float strength = palette.ditherStrength * palette.populationBias * 3f;
+;
+            float pos;
+            final float strength = 40f * palette.ditherStrength / (palette.populationBias * palette.populationBias);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -2353,28 +2340,17 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            int rr = ((color >>> 24)       );
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8)  & 0xFF);
-                            paletteIndex =
-                                    paletteMapping[((rr << 7) & 0x7C00)
-                                            | ((gg << 2) & 0x3E0)
-                                            | ((bb >>> 3))];
-                            used = paletteArray[paletteIndex & 0xFF];
-                            pos = (px * 0.06711056f + py * 0.00583715f);
-                            pos -= (int)pos;
+                            pos = (px * 0.06711056f + y * 0.00583715f);
+                            pos -= (int) pos;
                             pos *= 52.9829189f;
-                            pos -= (int)pos;
-                            adj = (pos-0.5f) * strength;
-//                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                            adj = (pos * pos - 0.3f) * strength;
-                            rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
-                            gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                            bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
+                            pos -= (int) pos;
+                            pos = (pos-0.5f) * strength;
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + pos), 0), 255);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + pos), 0), 255);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + pos), 0), 255);
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];
-
                         }
                     }
 //                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
