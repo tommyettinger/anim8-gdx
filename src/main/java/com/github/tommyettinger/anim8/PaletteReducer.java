@@ -2625,8 +2625,8 @@ public class PaletteReducer {
      * It's interleaved gradient noise, by Jorge Jimenez! It's very fast! It's an ordered dither!
      * It's pretty good with gradients, though it may introduce artifacts. It has noticeable diagonal
      * lines in some places, but these tend to have mixed directions that obscure larger patterns.
-     * @param pixmap
-     * @return
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
      */
     public Pixmap reduceJimenez(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
@@ -2655,6 +2655,46 @@ public class PaletteReducer {
                             | ((bb >>> 3))] & 0xFF]);
                 }
             }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
+     * An ordered dither that uses a sub-random sequence by Martin Roberts to disperse lightness adjustments across the
+     * image. This is very similar to {@link #reduceJimenez(Pixmap)}, but is affected more strongly by changes in dither
+     * strength, and has subtly different artifacts.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceRoberts (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color;
+        float adj, str = (32f * ditherStrength / (populationBias * populationBias));
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    adj = (px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.8p-23f - 0.75f;
+                    // sign-preserving square root, emphasizes extremes
+//                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
+                    // sign-preserving square, emphasizes low-magnitude values
+//                    adj *= Math.abs(adj);
+                    adj = adj * str + 0.5f;
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+
         }
         pixmap.setBlending(blending);
         return pixmap;

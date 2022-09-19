@@ -101,7 +101,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                 reducer.reduceBlueNoise(p);
                 break;
             case 2:
-                reducer.reduceChaoticNoise(p);
+                reducer.reduceRoberts(p); // was reduceChaotic(), but it's trash
                 break;
             case 3:
                 reducer.reduceJimenez(p);
