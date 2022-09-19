@@ -63,6 +63,11 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
  *     color well, but can have some banding. Pattern dither usually handles gradients exceptionally well, but can have
  *     severe issues when it doesn't preserve lightness faithfully with small palettes. The list goes on. Neue can
  *     introduce error if the palette perfectly matches the image already; in that case, use Solid.)</li>
+ *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
+ *     the amount of color correction applied to each mismatched pixel; also uses an 8x8 Bayer matrix. This adds in
+ *     a blue noise amount to each pixel, which is also what Neue does, but because this is a pure ordered dither, it
+ *     doesn't take into consideration cumulative error built up over several poorly-matched pixels. It can often fill a
+ *     whole region of color incorrectly if the palette isn't just right, though this is rare.)</li>
  *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim; this version has
  *     a heavy grid pattern that looks like an artifact. While the square grid here is a bit bad, it becomes very hard
  *     to see when the palette is large enough. This reduction is the slowest here, currently, and may noticeably delay
@@ -72,14 +77,10 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
  *     </li>
  *     <li>OTHER TIER
  *     <ul>
- *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
- *     the amount of color correction applied to each mismatched pixel; also uses a checkerboard pattern. This adds in
- *     a blue noise amount to each pixel, which is also what Neue does, but because this is a pure ordered dither, it
- *     doesn't take into consideration cumulative error built up over several poorly-matched pixels. It can often fill a
- *     whole region of color incorrectly if the palette isn't just right.)</li>
  *     <li>{@link #reduceJimenez(Pixmap)} (This is a modified version of Gradient Interleaved Noise by Jorge Jimenez;
  *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks. It does well on
- *     some animations and on smooth or rounded shapes, but still has issues with gradients. Consider Neue first.)</li>
+ *     some animations and on smooth or rounded shapes, but still has issues with gradients. Also consider Neue for
+ *     still images and Blue Noise for animations.)</li>
  *     <li>{@link #reduceSierraLite(Pixmap)} (Like Floyd-Steinberg, Sierra Lite is an error-diffusion dither, and it
  *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small. Sierra
  *     Lite tends to look comparable to Floyd-Steinberg if the Floyd-Steinberg dither was done with a lower
@@ -115,7 +116,8 @@ public class PaletteReducer {
      * color; the second-lightest color is what has the listed name. The names here are used by a few other libraries,
      * such as <a href="https://github.com/tommyettinger/colorful-gdx">colorful-gdx</a>, but otherwise don't matter.
      * <br>
-     * This replaced another palette, Haltonic, that wasn't hand-chosen and was much more "randomized."
+     * This replaced another palette, Haltonic, that wasn't hand-chosen and was much more "randomized." Aurora was the
+     * first palette used as a default here, and it was replaced because the color metric at the time made it look bad.
      * <br>
      * While you can modify the individual items in this array, this is discouraged, because various constructors and
      * methods in this class use AURORA with a pre-made distance mapping of its colors. This mapping would become
@@ -164,6 +166,8 @@ public class PaletteReducer {
      * preset grayscale colors) will produce a similarly-distributed palette. Typically, 64 items from this are enough
      * to make pixel art look good enough with dithering, and it continues to improve with more colors. It has exactly 8
      * colors that are purely grayscale, all right at the start after transparent.
+     * <br>
+     * Haltonic was the default palette from a fairly early version until 0.3.9, when it was replaced with Aurora.
      */
     public static final int[] HALTONIC = new int[]{
             0x00000000, 0x010101FF, 0xFEFEFEFF, 0x7B7B7BFF, 0x555555FF, 0xAAAAAAFF, 0x333333FF, 0xE0E0E0FF,
@@ -2619,9 +2623,8 @@ public class PaletteReducer {
 
     /**
      * It's interleaved gradient noise, by Jorge Jimenez! It's very fast! It's an ordered dither!
-     * It's not particularly high-quality when compared to other preprocessing dithers, but it is
-     * one of the better dithers when used real-time in a shader. It has noticeable diagonal lines
-     * in some places, but these tend to have mixed directions that obscure larger patterns.
+     * It's pretty good with gradients, though it may introduce artifacts. It has noticeable diagonal
+     * lines in some places, but these tend to have mixed directions that obscure larger patterns.
      * @param pixmap
      * @return
      */
@@ -2630,31 +2633,23 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used;
-        float pos, adj;
-        final float strength = ditherStrength * populationBias * 3f;
+        int color;
+        float pos;
+        final float strength = 40f * ditherStrength / (populationBias * populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    int rr = ((color >>> 24)       );
-                    int gg = ((color >>> 16) & 0xFF);
-                    int bb = ((color >>> 8)  & 0xFF);
-                    used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
-                            | ((gg << 2) & 0x3E0)
-                            | ((bb >>> 3))] & 0xFF];
                     pos = (px * 0.06711056f + y * 0.00583715f);
                     pos -= (int) pos;
                     pos *= 52.9829189f;
                     pos -= (int) pos;
-                    adj = (pos-0.5f) * strength;
-//                    adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                    adj = (pos * pos - 0.3f) * strength;
-                    rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
-                    gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                    bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
+                    pos = (pos-0.5f) * strength;
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + pos), 0), 255);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + pos), 0), 255);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + pos), 0), 255);
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
