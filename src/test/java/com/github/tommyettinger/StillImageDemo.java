@@ -73,6 +73,8 @@ public class StillImageDemo extends ApplicationAdapter {
 				png8.write(Gdx.files.local("images/png/" + name + "-PNG8-None-" + type + count + ".png"), pixmap, false, true);
 				png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 				png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Gradient-" + type + count + ".png"), pixmap, false, true);
+				png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+				png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Roberts-" + type + count + ".png"), pixmap, false, true);
 				png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 				png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Diffusion-" + type + count + ".png"), pixmap, false, true);
 				png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -94,6 +96,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-None-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Gradient-BW.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Roberts-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Diffusion-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -112,6 +116,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-None-GB.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Gradient-GB.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Roberts-GB.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Diffusion-GB.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -130,6 +136,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-None-DB8.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Gradient-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Roberts-DB8.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Diffusion-DB8.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -148,6 +156,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-None-Default.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Gradient-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Roberts-Default.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Diffusion-Default.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -196,6 +206,8 @@ public class StillImageDemo extends ApplicationAdapter {
 				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-None-" + type + count + ".gif"), pixmaps, 1);
 				gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Gradient-" + type + count + ".gif"), pixmaps, 1);
+				gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Roberts-" + type + count + ".gif"), pixmaps, 1);
 				gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Diffusion-" + type + count + ".gif"), pixmaps, 1);
 				gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -217,6 +229,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-None-BW.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Gradient-BW.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Roberts-BW.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Diffusion-BW.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -235,6 +249,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-None-GB.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Gradient-GB.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Roberts-GB.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Diffusion-GB.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -253,6 +269,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-None-DB8.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Gradient-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Roberts-DB8.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Diffusion-DB8.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -271,6 +289,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-None-Default.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Gradient-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Roberts-Default.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Diffusion-Default.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);

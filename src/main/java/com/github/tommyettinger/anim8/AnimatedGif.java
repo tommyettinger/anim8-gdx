@@ -577,7 +577,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
             break;
             case GRADIENT_NOISE: {
-                float pos;
+                float adj;
                 final float strength = 60f * palette.ditherStrength / (palette.populationBias * palette.populationBias);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
@@ -585,14 +585,38 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            pos = (px * 0.06711056f + y * 0.00583715f);
-                            pos -= (int) pos;
-                            pos *= 52.9829189f;
-                            pos -= (int) pos;
-                            pos = (pos-0.5f) * strength;
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + pos), 0), 255);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + pos), 0), 255);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + pos), 0), 255);
+                            adj = (px * 0.06711056f + y * 0.00583715f);
+                            adj -= (int) adj;
+                            adj *= 52.9829189f;
+                            adj -= (int) adj;
+                            adj = (adj-0.5f) * strength;
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))]) & 255] = true;
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
+            case ROBERTS: {
+                float adj;
+                final float strength = 32f * palette.ditherStrength / (palette.populationBias * palette.populationBias);
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    for (int px = 0; px < width & i < nPix; px++) {
+                        color = image.getPixel(px, flipped + flipDir * y);
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            // Gets R2-based noise and puts it in the -0.75 to 0.75 range
+                            adj = (px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.8p-23f - 0.75f;
+                            adj = adj * strength + 0.5f;
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;

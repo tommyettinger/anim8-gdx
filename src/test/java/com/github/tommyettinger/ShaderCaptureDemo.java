@@ -338,6 +338,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-none.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-gradient.png"), pixmaps, 16);
+            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-roberts.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-diffusion.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -398,6 +400,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + name + "-none.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + name + "-gradient.gif"), pixmaps, 16);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + name + "-roberts.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + name + "-diffusion.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
