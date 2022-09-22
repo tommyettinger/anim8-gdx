@@ -2359,7 +2359,7 @@ public class PaletteReducer {
      */
     public Pixmap reduce(Pixmap pixmap, Dithered.DitherAlgorithm ditherAlgorithm){
         if(pixmap == null) return null;
-        if(ditherAlgorithm == null) return reduceScatter(pixmap);
+        if(ditherAlgorithm == null) return reduceNeue(pixmap);
         switch (ditherAlgorithm) {
             case NONE:
                 return reduceSolid(pixmap);
@@ -2375,6 +2375,8 @@ public class PaletteReducer {
                 return reduceBlueNoise(pixmap); 
             case SCATTER:
                 return reduceScatter(pixmap);
+            case ROBERTS:
+                return reduceRoberts(pixmap);
             default:
             case NEUE:
                 return reduceNeue(pixmap);
@@ -2625,6 +2627,8 @@ public class PaletteReducer {
      * It's interleaved gradient noise, by Jorge Jimenez! It's very fast! It's an ordered dither!
      * It's pretty good with gradients, though it may introduce artifacts. It has noticeable diagonal
      * lines in some places, but these tend to have mixed directions that obscure larger patterns.
+     * This is very similar to {@link #reduceRoberts(Pixmap)}, but has different artifacts, and this
+     * dither tends to be stronger by default.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
@@ -2634,22 +2638,26 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float pos;
-        final float strength = 40f * ditherStrength / (populationBias * populationBias);
+        float adj;
+        final float strength = 60f * ditherStrength / (populationBias * populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    pos = (px * 0.06711056f + y * 0.00583715f);
-                    pos -= (int) pos;
-                    pos *= 52.9829189f;
-                    pos -= (int) pos;
-                    pos = (pos-0.5f) * strength;
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + pos), 0), 255);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + pos), 0), 255);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + pos), 0), 255);
+                    adj = (px * 0.06711056f + y * 0.00583715f);
+                    adj -= (int) adj;
+                    adj *= 52.9829189f;
+                    adj -= (int) adj;
+                    adj -= 0.5f;
+//                    adj *= adj * adj;
+//                    adj *= Math.abs(adj);
+//                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
+                    adj *= strength;
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
@@ -2662,8 +2670,9 @@ public class PaletteReducer {
 
     /**
      * An ordered dither that uses a sub-random sequence by Martin Roberts to disperse lightness adjustments across the
-     * image. This is very similar to {@link #reduceJimenez(Pixmap)}, but is affected more strongly by changes in dither
-     * strength, and has subtly different artifacts.
+     * image. This is very similar to {@link #reduceJimenez(Pixmap)}, but is milder by default, and has subtly different
+     * artifacts. This should look excellent for animations, especially with small palettes, but the lightness
+     * adjustments may be noticeable even in very large palettes.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
@@ -2680,6 +2689,7 @@ public class PaletteReducer {
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
+                    // Gets R2-based noise and puts it in the -0.75 to 0.75 range
                     adj = (px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.8p-23f - 0.75f;
                     // sign-preserving square root, emphasizes extremes
 //                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);

@@ -169,6 +169,15 @@ public interface Dithered {
          * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
          * Neue preserves both. This is currently the default dither.
          */
-        NEUE
+        NEUE,
+        /**
+         * An ordered dither built around the lightness-dispersing R2 point sequence, by Martin Roberts. This is
+         * similar to {@link #GRADIENT_NOISE}; both add or subtract from lightness at each pixel, but usually add a very
+         * different value to each pixel than to any of its neighbors. Compared to GRADIENT_NOISE, this is milder,
+         * softer, and may need larger changes to dither strength to get a noticeable effect. This is an ordered dither,
+         * so it won't change what artifacts it shows across different frames of an animation (the behavior here is
+         * usually desirable, but not always).
+         */
+        ROBERTS
     }
 }
