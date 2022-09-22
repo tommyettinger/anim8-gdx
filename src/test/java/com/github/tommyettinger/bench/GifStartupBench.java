@@ -13,8 +13,34 @@ import com.github.tommyettinger.anim8.AnimatedGif;
 import com.github.tommyettinger.anim8.PaletteReducer;
 
 /**
- * Startup time: between 1622 and 1660 ms in most cases.     File size: 10992 KB
- * This includes loading 90 Pixmaps from separate files, dithering them with SCATTER, and assembling an animated GIF.
+ * Timing:
+ * <pre>
+ * Took 1 ms to construct an AnimatedGif
+ * Took 179 ms to load the Array of Pixmap
+ * Took 52 ms to configure
+ * Took 2021 ms to write Scatter
+ * Took 1700 ms to write Neue
+ * Took 1045 ms to write Gradient
+ * Took 969 ms to write Roberts
+ * Took 748 ms to write None
+ * Took 7851 ms to write Pattern
+ * Took 1526 ms to write Diffusion
+ * Took 1130 ms to write BlueNoise
+ * Took 1105 ms to write ChaoticNoise
+ * Took 18327 ms total
+ * </pre>
+ * File sizes:
+ * <pre>
+ *  13MB AnimatedGif-market-BlueNoise.gif
+ * 9.7MB AnimatedGif-market-ChaoticNoise.gif
+ *  13MB AnimatedGif-market-Diffusion.gif
+ *  11MB AnimatedGif-market-Gradient.gif
+ *  16MB AnimatedGif-market-Neue.gif
+ * 7.0MB AnimatedGif-market-None.gif
+ *  13MB AnimatedGif-market-Pattern.gif
+ *  11MB AnimatedGif-market-Roberts.gif
+ *  15MB AnimatedGif-market-Scatter.gif
+ * </pre>
  */
 public class GifStartupBench extends ApplicationAdapter {
     private static final String name = "market";
@@ -30,7 +56,7 @@ public class GifStartupBench extends ApplicationAdapter {
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
-        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to load the Array<Pixmap>");
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to load the Array of Pixmap");
         String namePalette;
         namePalette = name;
         subTime = TimeUtils.millis();
