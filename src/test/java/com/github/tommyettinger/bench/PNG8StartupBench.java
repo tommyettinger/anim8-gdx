@@ -21,8 +21,8 @@ public class PNG8StartupBench extends ApplicationAdapter {
     private static final String name = "market";
     @Override
     public void create() {
-
         Gdx.files.local("tmp/imagesClean").mkdirs();
+        Gdx.files.local("tmp/imagesClean").deleteDirectory();
         long startTime = TimeUtils.millis();
         PNG8 png8 = new PNG8();
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct a PNG8");
@@ -46,9 +46,19 @@ public class PNG8StartupBench extends ApplicationAdapter {
         System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Scatter");
 
         subTime = TimeUtils.millis();
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Neue.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Neue");
+
+        subTime = TimeUtils.millis();
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
         png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Gradient.png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Gradient");
+
+        subTime = TimeUtils.millis();
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+        png8.write(Gdx.files.local("tmp/imagesClean/" + name + "/PNG8-" + namePalette + "-Roberts.png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write Roberts");
 
         subTime = TimeUtils.millis();
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);

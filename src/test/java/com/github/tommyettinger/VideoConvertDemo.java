@@ -7,13 +7,19 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.github.tommyettinger.anim8.*;
+import com.github.tommyettinger.anim8.AnimatedGif;
+import com.github.tommyettinger.anim8.AnimatedPNG;
+import com.github.tommyettinger.anim8.Dithered;
+import com.github.tommyettinger.anim8.PNG8;
+import com.github.tommyettinger.anim8.PaletteReducer;
 
 /**
  * This takes two multiple-frame images/videos and dithers both of them in all the ways this can before writing to GIF
  * and optionally PNG files. There is a 90-frame "Video Of A Market" by Olivier Polome,
- * <a href="https://www.pexels.com/video/video-of-a-market-4236787/">available freely at Pexels</a>, and a rotating
- * cartoon-style pixel-art monster animation (self-made, public domain).
+ * <a href="https://www.pexels.com/video/video-of-a-market-4236787/">available freely at Pexels</a>, a rotating
+ * cartoon-style pixel-art monster animation (self-made, public domain), a procedurally-generated globe (self-made,
+ * public domain), another pixel-art animation of a tank (self-made, public domain), and two animations of slices of
+ * color solids (both self-made, public domain).
  */
 public class VideoConvertDemo extends ApplicationAdapter {
     private long startTime;
@@ -37,6 +43,9 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 new int[]{0x00000000,
                         0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}
         };
+//        fastAnalysis = false;
+//        String[] names = new String[]{"-Analyzed"};
+//        int[][] palettes = new int[][]{null};
 
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
@@ -96,6 +105,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-GradientNoise.png"), pixmaps, 20);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Roberts.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
@@ -131,6 +142,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -173,6 +186,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 12);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -211,6 +226,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 12);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -249,6 +266,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -287,6 +306,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -327,6 +348,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);

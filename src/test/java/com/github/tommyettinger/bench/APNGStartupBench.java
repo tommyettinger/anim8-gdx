@@ -44,8 +44,8 @@ public class APNGStartupBench extends ApplicationAdapter {
     private static final String name = "market";
     @Override
     public void create() {
-
-        Gdx.files.local("tmp/imagesSub").mkdirs();
+        Gdx.files.local("tmp/imagesClean").mkdirs();
+        Gdx.files.local("tmp/imagesClean").deleteDirectory();
         long startTime = TimeUtils.millis();
         AnimatedPNG apng = new AnimatedPNG();
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct an AnimatedPNG");
@@ -57,7 +57,7 @@ public class APNGStartupBench extends ApplicationAdapter {
         namePalette = name;
         apng.setFlipY(false);
         apng.setCompression(1);
-        apng.write(Gdx.files.local("tmp/imagesSub/" + name + "/APNG-" + namePalette + "1.png"), pixmaps, 20);
+        apng.write(Gdx.files.local("tmp/imagesClean/" + name + "/APNG-" + namePalette + "1.png"), pixmaps, 20);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
