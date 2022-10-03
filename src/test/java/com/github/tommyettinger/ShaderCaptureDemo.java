@@ -383,9 +383,9 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             String prefix;
             if (palettes[n] == null) {
-                pal.analyze(pixmaps, 75, 256);
-                gif.palette = pal;
-                gif.fastAnalysis = true;
+//                pal.analyze(pixmaps, 75, 256);
+                gif.palette = null;
+                if(!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
 //                prefix = "images/gif/animatedHue/AnimatedGif-";
                 prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             }
