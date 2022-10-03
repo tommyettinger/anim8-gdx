@@ -1312,7 +1312,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.log(limit + 64) * 0.125;
+        threshold /= Math.log(limit + 64) * 0.0625;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -2682,7 +2682,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, str = (32f * ditherStrength / (populationBias * populationBias));
+        float adj, str = (32f * ditherStrength / (populationBias * populationBias * populationBias));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -2995,7 +2995,7 @@ public class PaletteReducer {
         float er, eg, eb;
         byte paletteIndex;
         float w1 = ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                adj, strength = (32f * ditherStrength / (populationBias * populationBias)),
+                adj, strength = (32f * ditherStrength / (populationBias * populationBias * populationBias)),
                 limit = (float) Math.pow(80, 1.635 - populationBias);
 
         for (int py = 0; py < h; py++) {
