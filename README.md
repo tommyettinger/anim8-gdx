@@ -48,7 +48,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.9"
+  api "com.github.tommyettinger:anim8-gdx:0.3.10"
 }
 ```
 
@@ -57,9 +57,9 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.9:sources"`. The PNG-related code isn't available on GWT because
-it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The GWT
-inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.10:sources"`. The PNG-related code isn't available on GWT
+because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The
+GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
 ``<inherits name="anim8" />
 ```
@@ -74,7 +74,9 @@ different API).
   - GRADIENT_NOISE
     - A solid choice of an ordered dither, though it may have visible artifacts in the form of zig-zag diagonal lines.
     - This changed slightly in 0.2.12, and should have less noticeable artifacts starting in that version.
+      - It changed again in 0.3.10, and now essentially has no artifacts at the boundaries between large similar areas. 
     - A variant on Jorge Jimenez' Gradient Interleaved Noise.
+    - This is very similar to ROBERTS dither, but is a little stronger, usually. 
   - PATTERN
     - A more traditional ordered dither that emphasizes accurately representing lightness changes.
     - Has a strong "quilt-like" square artifact that is more noticeable with small palette sizes.
@@ -110,8 +112,11 @@ different API).
       palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
     - This changed in 0.2.12, and handles smooth gradients better now. In version 0.3.5, it changed again to improve
       behavior on small palettes. It changed again in 0.3.8 and 0.3.9 to improve saturation's appearance.
+    - As of 0.3.10, this acts like ROBERTS and GRADIENT_NOISE, but is weaker than either of those (it is closer to using
+      the NONE dither mode than the other two are).
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
+      - This is much "harsher" than BLUE_NOISE currently is. 
     - This is an okay algorithm here for animations, but BLUE_NOISE is much better, followed by NEUE or PATTERN.
     - This may be somewhat more useful when using many colors than when using just a few.
     - It's rather ugly with small palettes, and really not much better on large palettes.
@@ -136,12 +141,20 @@ different API).
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
     - NEUE is the most likely algorithm to change in new versions, unless another new algorithm is added.
-    - BLUE_NOISE will likely look better in pixel art animations, but NEUE can look better for still pixel art.
+    - BLUE_NOISE, GRADIENT_NOISE, or ROBERTS will likely look better in pixel art animations, but NEUE can look better
+      for still pixel art.
+  - ROBERTS
+    - This is another ordered dither, this time using a softer, "fuzzy" pattern discovered by Dr. Martin Roberts that
+      distributes extra error well, but always adds some error to an image.
+    - The dithering algorithm is really just adding or subtracting a relatively small amount of error from each pixel,
+      before finding the closest color to that pixel's value with error.
+    - This is much like GRADIENT_NOISE, but milder, or BLUE_NOISE, but stronger.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN has an obvious square grid.
     - BLUE_NOISE, SCATTER, ane NEUE have varying forms of a spongy blue noise texture.
     - GRADIENT_NOISE has a network of diagonal lines.
+    - ROBERTS has a tilted grid pattern, approximately, of lighter or darker pixels.
     - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
