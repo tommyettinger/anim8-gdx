@@ -2703,6 +2703,9 @@ public class PaletteReducer {
                     adj -= (int) adj;
                     adj *= 52.9829189f;
                     adj -= (int) adj;
+                    adj -= 0.5f;
+                    adj *= adj * adj * 4f;
+                    adj += 0.5f;
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-2) * 0xC13FA9A902A6328FL + (y+2) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.0p-23f - adj) * str + 0.5f), 0), 255);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.0p-23f - adj) * str + 0.5f), 0), 255);
                     int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+1) * 0xC13FA9A902A6328FL + (y-3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.0p-23f - adj) * str + 0.5f), 0), 255);
@@ -2711,7 +2714,6 @@ public class PaletteReducer {
                             | ((bb >>> 3))] & 0xFF]);
                 }
             }
-
         }
         pixmap.setBlending(blending);
         return pixmap;
