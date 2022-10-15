@@ -2683,7 +2683,7 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
 //        float str = (32f * ditherStrength / (populationBias * populationBias));
-        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.125 + 4));
+        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
