@@ -604,19 +604,16 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             case ROBERTS: {
                 float adj;
-                final float strength = 32f * palette.ditherStrength / (palette.populationBias * palette.populationBias * palette.populationBias);
+                final float str = (float) (64 * ditherStrength / Math.log(palette.colorCount * 0.3 + 1.5));
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            // Gets R2-based noise and puts it in the -0.75 to 0.75 range
-                            adj = (px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.8p-23f - 0.75f;
-                            adj = adj * strength + 0.5f;
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-1) * 0xC13FA9A902A6328FL + (y+2) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+2) * 0xC13FA9A902A6328FL + (y+3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
