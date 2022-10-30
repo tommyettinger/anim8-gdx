@@ -45,7 +45,8 @@ public class PaletteTwister extends ApplicationAdapter {
     }
 
     public void load(String name) {
-        FileHandle out = Gdx.files.local(System.currentTimeMillis() + ".png"), in;
+        Gdx.files.local("tmp/twister").mkdirs();
+        FileHandle out = Gdx.files.local("tmp/twister/" + System.currentTimeMillis() + ".png"), in;
         //// loads a file by its full path, which we get via drag+drop
         if (Gdx.files.internal(name).exists())
             in = Gdx.files.internal(name);
@@ -166,7 +167,7 @@ public class PaletteTwister extends ApplicationAdapter {
         batch.enableBlending();
         Gdx.input.setInputProcessor(inputProcessor());
 
-        load("images/Cat-PNG8-Scatter-256.png");
+        load("images/png/Cat-PNG8-Neue-255.png");
     }
 
 
@@ -193,19 +194,19 @@ public class PaletteTwister extends ApplicationAdapter {
             public boolean keyDown(int keycode) {
                 switch (keycode) {
                     case Input.Keys.C:
-                        load("images/Cat-PNG8-Scatter-256.png");
+                        load("images/png/Cat-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.M:
-                        load("images/Mona_Lisa-PNG8-Scatter-256.png");
+                        load("images/png/Mona_Lisa-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.L:
-                        load("images/Landscape-PNG8-Scatter-256.png");
+                        load("images/png/Landscape-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.F:
-                        load("images/Frog-PNG8-Scatter-256.png");
+                        load("images/png/Frog-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.G:
-                        load("images/PNG8-green-pattern.png");
+                        load("images/apng/animated/PNG8-green-neue.png");
                         break;
                     case Input.Keys.P:
                         load("Pixel_Art.png");
