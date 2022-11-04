@@ -85,6 +85,8 @@ public class StillImageDemo extends ApplicationAdapter {
 				png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Scatter-" + type + count + ".png"), pixmap, false, true);
 				png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 				png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-" + type + count + ".png"), pixmap, false, true);
+				png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+				png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Woven-" + type + count + ".png"), pixmap, false, true);
 				total += 1;
 			}
 		}
@@ -108,6 +110,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Scatter-BW.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-BW.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Woven-BW.png"), pixmap, false, true);
 
 		reducer.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -128,6 +132,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Scatter-GB.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-GB.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Woven-GB.png"), pixmap, false, true);
 
 		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -148,6 +154,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Scatter-DB8.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-DB8.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Woven-DB8.png"), pixmap, false, true);
 
 		reducer.setDefaultPalette();
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -168,6 +176,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Scatter-Default.png"), pixmap, false, true);
 		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Neue-Default.png"), pixmap, false, true);
+		png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		png8.write(Gdx.files.local("images/png/" + name + "-PNG8-Woven-Default.png"), pixmap, false, true);
 
 		total += 1;
 	}
@@ -218,6 +228,8 @@ public class StillImageDemo extends ApplicationAdapter {
 				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-" + type + count + ".gif"), pixmaps, 1);
 				gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-" + type + count + ".gif"), pixmaps, 1);
+				gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Woven-" + type + count + ".gif"), pixmaps, 1);
 				total += 1;
 			}
 		}
@@ -241,6 +253,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-BW.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-BW.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Woven-BW.gif"), pixmaps, 1);
 
 		reducer.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -261,6 +275,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-GB.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-GB.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Woven-GB.gif"), pixmaps, 1);
 
 		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -281,6 +297,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-DB8.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-DB8.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Woven-DB8.gif"), pixmaps, 1);
 
 		reducer.setDefaultPalette();
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -301,6 +319,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Scatter-Default.gif"), pixmaps, 1);
 		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
 		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Neue-Default.gif"), pixmaps, 1);
+		gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+		gif.write(Gdx.files.local("images/gif/" + name + "-Gif-Woven-Default.gif"), pixmaps, 1);
 
 		total += 1;
 	}
