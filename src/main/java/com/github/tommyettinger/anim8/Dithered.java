@@ -178,6 +178,18 @@ public interface Dithered {
          * so it won't change what artifacts it shows across different frames of an animation (the behavior here is
          * usually desirable, but not always).
          */
-        ROBERTS
+        ROBERTS,
+        /**
+         * An error-diffusion dither much like {@link #NEUE}, except that it adds or subtracts a different error value
+         * from each RGB channel, and that it uses translated copies of the R2 dither used by {@link #ROBERTS}, instead
+         * of using blue noise in any way. Modifying each channel separately can help color quality a lot, especially if
+         * dither strength is high. R2 dither tends to have very fine-grained artifacts that are hard to notice, but
+         * using a different translation for red, green, and blue means that sometimes the artifacts align for two or
+         * more channels repeatedly, forming somewhat-noticeable light and dark patterns that look like scales or dots.
+         * The artifacts here are usually less obvious than the ones in {@link #NEUE} at the same dither strength. This
+         * is an excellent choice for still images, especially those with small, varied palettes. It is not expected to
+         * be as good for animations as an ordered dither.
+         */
+        WOVEN
     }
 }

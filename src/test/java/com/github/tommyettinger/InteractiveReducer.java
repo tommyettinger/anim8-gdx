@@ -107,7 +107,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                 reducer.reduceJimenez(p);
                 break;
             case 4:
-                reducer.reduceKnollRoberts(p);
+                reducer.reduceWoven(p); // was reduceKnollRoberts(), but it isn't very good, and is slow
                 break;
             case 5:
                 reducer.reduceKnoll(p);
