@@ -26,7 +26,7 @@ public class InteractiveReducer extends ApplicationAdapter {
     protected BitmapFont font;
     protected PaletteReducer reducer;
     protected PNG8 png8;
-    private int[] palette, altPalette;
+    private int[] palette, altPalette, eightPalette;
     private Pixmap p0, p;
     private int index = 1;
     private float strength = 1f;
@@ -167,6 +167,10 @@ public class InteractiveReducer extends ApplicationAdapter {
                 0xe296c5ff, 0xfce7f3ff, 0xf77fcaff, 0x3b052cff, 0xd64fa6ff, 0xffd0eaff, 0xd19eb8ff, 0x310720ff,
                 0xc76193ff, 0x67003fff, 0x511835ff, 0x8a365dff, 0xb4166aff, 0x93275aff, 0x784358ff, 0xb4708aff,
         };
+        eightPalette = new int[]{
+                0x00000000,
+                0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF,
+        };
         reducer = new PaletteReducer(palette);
 //        reducer = new PaletteReducer(PaletteReducer.HALTONIC);
 //        reducer.writePreloadFile(Gdx.files.local("haltonic.txt"));
@@ -285,7 +289,10 @@ public class InteractiveReducer extends ApplicationAdapter {
                         refresh();
                         break;
                     case Input.Keys.D:
-                        reducer.setDefaultPalette();
+                        if(UIUtils.shift())
+                            reducer.exact(eightPalette);
+                        else
+                            reducer.setDefaultPalette();
                         refresh();
                         break;
                     case Input.Keys.LEFT:
