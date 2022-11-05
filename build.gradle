@@ -5,7 +5,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.21.0'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.22.0'
     }
 }
 
@@ -25,7 +25,7 @@ def projectName = 'anim8-gdx'
 version "$VERSION_NAME"
 group 'com.github.tommyettinger'
 
-//api "com.github.tommyettinger:anim8-gdx:0.3.7"
+//api "com.github.tommyettinger:anim8-gdx:0.3.11"
 
 //def gdxVersion = '1.10.0'
 def gdxVersion = '1.9.11'

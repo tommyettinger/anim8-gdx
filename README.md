@@ -48,7 +48,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.10"
+  api "com.github.tommyettinger:anim8-gdx:0.3.11"
 }
 ```
 
@@ -57,7 +57,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.10:sources"`. The PNG-related code isn't available on GWT
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.11:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The
 GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
@@ -149,6 +149,7 @@ different API).
     - The dithering algorithm is really just adding or subtracting a relatively small amount of error from each pixel,
       before finding the closest color to that pixel's value with error.
     - This is much like GRADIENT_NOISE, but milder, or BLUE_NOISE, but stronger.
+    - This changed somewhat in version 0.3.11 . 
   - WOVEN
     - This is an error-diffusion dither, like NEUE or SCATTER, but instead of using blue noise patterns to add error to
       the image, this uses the finer-grained "fuzzy" pattern from ROBERTS.
