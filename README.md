@@ -149,12 +149,19 @@ different API).
     - The dithering algorithm is really just adding or subtracting a relatively small amount of error from each pixel,
       before finding the closest color to that pixel's value with error.
     - This is much like GRADIENT_NOISE, but milder, or BLUE_NOISE, but stronger.
+  - WOVEN
+    - This is an error-diffusion dither, like NEUE or SCATTER, but instead of using blue noise patterns to add error to
+      the image, this uses the finer-grained "fuzzy" pattern from ROBERTS.
+    - Unlike NEUE, SCATTER, or DIFFUSION, this uses a slightly different (offset) pattern for each RGB channel.
+      - This can allow colors that wouldn't normally be produced easily by one of those three to appear here.
+    - The artifacts in this may or may not be noticeable, depending on dither strength.
+      - Increasing dither strength improves color accuracy, but also increases how obvious artifacts are. 
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN has an obvious square grid.
     - BLUE_NOISE, SCATTER, ane NEUE have varying forms of a spongy blue noise texture.
     - GRADIENT_NOISE has a network of diagonal lines.
-    - ROBERTS has a tilted grid pattern, approximately, of lighter or darker pixels.
+    - ROBERTS and WOVEN have a tilted grid pattern, approximately, of lighter or darker pixels.
     - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
@@ -238,7 +245,7 @@ Animated PNG can support full alpha as well (though file sizes can be large):
 Anim8 also can be used to support writing non-animated GIF images and indexed-mode PNG images.
 Here's a retouched version of the Mona Lisa,
 [source on Wikimedia Commons here](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif), and
-various 16-color dithers using a palette derived from the most frequent and different colors in the original:
+various 8-color dithers using DawnBringer's carefully-chosen [DB8 palette](https://pixeljoint.com/forum/forum_posts.asp?TID=26050):
 
 Original (full-color):
 
@@ -246,40 +253,46 @@ Original (full-color):
 
 Neue (default):
 
-![](https://i.imgur.com/jfAqJGk.png)
+![](https://i.imgur.com/3hZn42m.png)
 
 Pattern:
 
-![](https://i.imgur.com/mgB8qIa.png)
+![](https://i.imgur.com/BOIPfwD.png)
 
 Diffusion:
 
-![](https://i.imgur.com/5WFV6fg.png)
+![](https://i.imgur.com/n0i0xzC.png)
 
 Gradient Noise:
 
-![](https://i.imgur.com/oDZlVkD.png)
+![](https://i.imgur.com/y2kxGC4.png)
 
 Blue Noise:
 
-![](https://i.imgur.com/HYy4776.png)
+![](https://i.imgur.com/ciGoWkZ.png)
 
 Chaotic Noise:
 
-![](https://i.imgur.com/6QGFZzm.png)
+![](https://i.imgur.com/OtaEg2l.png)
 
 Scatter:
 
-![](https://i.imgur.com/17bDbzF.png)
+![](https://i.imgur.com/SZkRA08.png)
+
+Roberts:
+
+![](https://i.imgur.com/BTTUJRO.png)
+
+Woven:
+
+![](https://i.imgur.com/weU88H9.png)
 
 None (no dither):
 
-![](https://i.imgur.com/KisqTIh.png)
+![](https://i.imgur.com/VggJ3TE.png)
 
-The analysis step that PaletteReducer performs prefers the most frequent colors in the image, and the Mona Lisa has
-mostly dark gray, blue, and brown-to-flesh-tone colors. As such, the small amounts of green get forgotten when color
-count is too low. This shows some green because the color count is 16 (not including transparent, which isn't present).
-Lower color counts naturally have fewer colors.
+This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned DB8
+palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it.
 
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
