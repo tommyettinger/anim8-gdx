@@ -122,6 +122,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Scatter.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Neue.png"), pixmaps, 20);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Woven.png"), pixmaps, 20);
     }
 
     public void renderVideoGif(String[] names, int[][] palettes) {
@@ -161,6 +163,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-scatter.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             gif.write(Gdx.files.local(prefix + namePalette + "-neue.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            gif.write(Gdx.files.local(prefix + namePalette + "-woven.gif"), pixmaps, 20);
         }
 
         for (Pixmap pm : pixmaps)
@@ -205,6 +209,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-scatter.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             gif.write(Gdx.files.local(prefix + namePalette + "-neue.gif"), pixmaps, 12);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            gif.write(Gdx.files.local(prefix + namePalette + "-woven.gif"), pixmaps, 12);
         }
     }
 
@@ -245,6 +251,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-scatter.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             gif.write(Gdx.files.local(prefix + namePalette + "-neue.gif"), pixmaps, 12);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            gif.write(Gdx.files.local(prefix + namePalette + "-woven.gif"), pixmaps, 12);
         }
     }
 
@@ -285,6 +293,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-scatter.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             gif.write(Gdx.files.local(prefix + namePalette + "-neue.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            gif.write(Gdx.files.local(prefix + namePalette + "-woven.gif"), pixmaps, 20);
         }
     }
 
@@ -325,6 +335,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-scatter.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             gif.write(Gdx.files.local(prefix + namePalette + "-neue.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            gif.write(Gdx.files.local(prefix + namePalette + "-woven.gif"), pixmaps, 20);
         }
     }
 
@@ -367,6 +379,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + namePalette + "-scatter.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             gif.write(Gdx.files.local(prefix + namePalette + "-neue.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            gif.write(Gdx.files.local(prefix + namePalette + "-woven.gif"), pixmaps, 20);
         }
     }
 

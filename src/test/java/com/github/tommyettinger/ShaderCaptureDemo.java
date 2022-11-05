@@ -350,6 +350,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-scatter.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-neue.png"), pixmaps, 16);
+            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-woven.png"), pixmaps, 16);
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }
@@ -412,6 +414,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + name + "-scatter.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
             gif.write(Gdx.files.local(prefix + name + "-neue.gif"), pixmaps, 16);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
+            gif.write(Gdx.files.local(prefix + name + "-woven.gif"), pixmaps, 16);
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }
