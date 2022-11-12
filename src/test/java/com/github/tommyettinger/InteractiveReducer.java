@@ -28,7 +28,7 @@ public class InteractiveReducer extends ApplicationAdapter {
     protected PNG8 png8;
     private int[] palette, altPalette, eightPalette;
     private Pixmap p0, p;
-    private int index = 1;
+    private int index = 1, algorithmCount = 11;
     private float strength = 1f;
 
     public static void main(String[] arg) {
@@ -94,8 +94,11 @@ public class InteractiveReducer extends ApplicationAdapter {
     public void refresh(){
         p.drawPixmap(this.p0, 0, 0);
         switch (index) {
-            case 0:
+            default:
                 reducer.reduceSolid(p);
+                break;
+            case 0:
+                reducer.reduceBlueNoiseSeparated(p);
                 break;
             case 1:
                 reducer.reduceBlueNoise(p);
@@ -121,7 +124,7 @@ public class InteractiveReducer extends ApplicationAdapter {
             case 8:
                 reducer.reduceScatter(p);
                 break;
-            default:
+            case 9:
                 reducer.reduceNeue(p);
                 break;
         }
@@ -297,12 +300,12 @@ public class InteractiveReducer extends ApplicationAdapter {
                         break;
                     case Input.Keys.LEFT:
                     case Input.Keys.LEFT_BRACKET:
-                        index = (index + 9) % 10;
+                        index = (index + algorithmCount - 1) % algorithmCount;
                         refresh();
                         break;
                     case Input.Keys.RIGHT:
                     case Input.Keys.RIGHT_BRACKET:
-                        index = (index + 1) % 10;
+                        index = (index + 1) % algorithmCount;
                         refresh();
                         break;
                     case Input.Keys.UP:
