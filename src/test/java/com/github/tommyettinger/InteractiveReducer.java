@@ -98,7 +98,7 @@ public class InteractiveReducer extends ApplicationAdapter {
                 reducer.reduceSolid(p);
                 break;
             case 0:
-                reducer.reduceBlueNoiseSeparated(p);
+                reducer.reduceIgneous(p);
                 break;
             case 1:
                 reducer.reduceBlueNoise(p);
