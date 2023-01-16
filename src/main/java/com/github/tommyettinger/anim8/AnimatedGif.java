@@ -30,6 +30,9 @@ import com.badlogic.gdx.utils.StreamUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.concurrent.ForkJoinPool;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * GIF encoder using standard LZW compression; can write animated and non-animated GIF images.
@@ -64,7 +67,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     /**
      * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF at {@code file}. Always writes at
      * 30 frames per second, so if frames has less than 30 items, this animation will be under a second long.
-     * @param file the FileHandle to write to; should generally not be internal because it must be writable
+     *
+     * @param file   the FileHandle to write to; should generally not be internal because it must be writable
      * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
      */
     @Override
@@ -75,15 +79,25 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     /**
      * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF at {@code file}. The resulting GIF
      * will play back at {@code fps} frames per second.
-     * @param file the FileHandle to write to; should generally not be internal because it must be writable
+     *
+     * @param file   the FileHandle to write to; should generally not be internal because it must be writable
      * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
-     * @param fps how many frames (from {@code frames}) to play back per second
+     * @param fps    how many frames (from {@code frames}) to play back per second
      */
     @Override
     public void write(FileHandle file, Array<Pixmap> frames, int fps) {
         OutputStream output = file.write(false);
         try {
             write(output, frames, fps);
+        } finally {
+            StreamUtils.closeQuietly(output);
+        }
+    }
+
+    public void writeOld(FileHandle file, Array<Pixmap> frames, int fps) {
+        OutputStream output = file.write(false);
+        try {
+            writeOld(output, frames, fps);
         } finally {
             StreamUtils.closeQuietly(output);
         }
@@ -102,34 +116,55 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      * frame, which is usually good enough, and takes about the same time as analyzing all frames as one PaletteReducer.
      * Using a null palette also means the final image can use more than 256 total colors over the course of the
      * animation, regardless of fastAnalysis' setting, if there is more than one Pixmap in frames.
+     *
      * @param output the OutputStream to write to; will not be closed by this method
      * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
-     * @param fps how many frames (from {@code frames}) to play back per second
+     * @param fps    how many frames (from {@code frames}) to play back per second
      */
     @Override
     public void write(OutputStream output, Array<Pixmap> frames, int fps) {
-        if(frames == null || frames.isEmpty()) return;
+        if (frames == null || frames.isEmpty()) return;
         clearPalette = (palette == null);
         if (clearPalette) {
             if (fastAnalysis && frames.size > 1) {
                 palette = new PaletteReducer();
                 palette.analyzeFast(frames.first(), 150, 256);
-            }
-            else
+            } else
                 palette = new PaletteReducer(frames.first());
         }
-        if(!start(output)) return;
+        if (!start(output)) return;
+        setFrameRate(fps);
+        addFrames(frames);
+        /*for (int i = 0; i < frames.size; i++) {
+            addFrame(frames.get(i));
+        }*/
+        finish();
+        if (clearPalette)
+            palette = null;
+    }
+
+    public void writeOld(OutputStream output, Array<Pixmap> frames, int fps) {
+        if (frames == null || frames.isEmpty()) return;
+        clearPalette = (palette == null);
+        if (clearPalette) {
+            if (fastAnalysis && frames.size > 1) {
+                palette = new PaletteReducer();
+                palette.analyzeFast(frames.first(), 150, 256);
+            } else
+                palette = new PaletteReducer(frames.first());
+        }
+        if (!start(output)) return;
         setFrameRate(fps);
         for (int i = 0; i < frames.size; i++) {
             addFrame(frames.get(i));
         }
         finish();
-        if(clearPalette)
+        if (clearPalette)
             palette = null;
     }
 
     protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.NEUE;
-    
+
     protected int width; // image size
 
     protected int height;
@@ -151,6 +186,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     protected OutputStream out;
 
     protected Pixmap image; // current frame
+
+    protected Array<Pixmap> images; // all frames
+
+    protected ForkJoinPool pool = new ForkJoinPool();
 
     protected byte[] indexedPixels; // converted frame indexed to palette
 
@@ -195,6 +234,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     /**
      * Overrides the palette's dither strength; see {@link #getDitherStrength()}.
+     *
      * @see #getDitherStrength()
      */
     protected float ditherStrength = 1f;
@@ -203,6 +243,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      * Gets this AnimatedGif's dither strength, which will override the {@link PaletteReducer#getDitherStrength()} in
      * the PaletteReducer this uses. This applies even if {@link #getPalette()} is null; in that case, when a temporary
      * PaletteReducer is created, it will use this dither strength.
+     *
      * @return the current dither strength override
      */
     public float getDitherStrength() {
@@ -213,6 +254,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      * Sets this AnimatedGif's dither strength, which will override the {@link PaletteReducer#getDitherStrength()} in
      * the PaletteReducer this uses. This applies even if {@link #getPalette()} is null; in that case, when a temporary
      * PaletteReducer is created, it will use this dither strength.
+     *
      * @param ditherStrength the desired dither strength, usually between 0 and 2 and defaulting to 1
      */
     public void setDitherStrength(float ditherStrength) {
@@ -279,6 +321,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     /**
      * Returns true if the output is flipped top-to-bottom from the inputs (the default); otherwise returns false.
+     *
      * @return true if the inputs are flipped on writing, false otherwise
      */
     public boolean isFlipY() {
@@ -287,14 +330,16 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     /**
      * Sets whether this should flip inputs top-to-bottom (true, the default setting), or leave as-is (false).
+     *
      * @param flipY true if this should flip inputs top-to-bottom when writing, false otherwise
      */
     public void setFlipY(boolean flipY) {
         this.flipY = flipY;
     }
-    
+
     /**
      * Gets the {@link DitherAlgorithm} this is currently using.
+     *
      * @return which dithering algorithm this currently uses.
      */
     public DitherAlgorithm getDitherAlgorithm() {
@@ -304,10 +349,11 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     /**
      * Sets the dither algorithm (or disables it) using an enum constant from {@link DitherAlgorithm}. If this
      * is given null, it instead does nothing.
+     *
      * @param ditherAlgorithm which {@link DitherAlgorithm} to use for upcoming output
      */
     public void setDitherAlgorithm(DitherAlgorithm ditherAlgorithm) {
-        if(ditherAlgorithm != null)
+        if (ditherAlgorithm != null)
             this.ditherAlgorithm = ditherAlgorithm;
     }
 
@@ -332,28 +378,75 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 setSize(im.getWidth(), im.getHeight());
             }
             ++seq;
+            Logger.getGlobal().log(Level.INFO, "Analyze: SEQ: " + seq);
             image = im;
-            getImagePixels(); // convert to correct format if necessary
-            analyzePixels(); // build color table & map pixels
+            getImagePixels(); // convert to correct format if necessary !!!! write
+            analyzePixels(); // build color table & map pixels !!!! can be in parallel
             if (firstFrame) {
-                writeLSD(); // logical screen descriptior
-                writePalette(); // global color table
+                writeLSD(); // logical screen descriptior !!!! write
+                writePalette(); // global color table !!!! write
                 if (repeat >= 0) {
-                    // use NS app extension to indicate reps
+                    // use NS app extension to indicate reps !!!! write
                     writeNetscapeExt();
                 }
             }
-            writeGraphicCtrlExt(); // write graphic control extension
-            writeImageDesc(); // image descriptor
+            writeGraphicCtrlExt(); // write graphic control extension !!!! write
+            writeImageDesc(); // image descriptor !!!! write
             if (!firstFrame) {
-                writePalette(); // local color table
+                writePalette(); // local color table !!!! write
             }
-            writePixels(); // encode and write pixel data
+            writePixels(); // encode and write pixel data !!!! write
             firstFrame = false;
         } catch (IOException e) {
             ok = false;
         }
 
+        return ok;
+    }
+
+    public boolean addFrames(Array<Pixmap> ims) {
+        if ((ims == null) || !started) {
+            return false;
+        }
+        Array<AnalyzedPixmap> analyzedPixmapArray = new Array<>(ims.size);
+        boolean ok = true;
+        try {
+            if (!sizeSet) {
+                // use first frame's size
+                setSize(ims.get(0).getWidth(), ims.get(0).getHeight());
+            }
+            images = ims;
+            colorDepth = 8;
+            AnalyzeTaskRecursiveOptimized analyzeTask = new AnalyzeTaskRecursiveOptimized(0, images.size, images);
+            //AnalyzeTaskRecursive analyzeTask = new AnalyzeTaskRecursive(0, images.size, images);
+            Logger.getGlobal().log(Level.INFO, "Analyze: Number of active thread before invoking: " + pool.getActiveThreadCount());
+            Logger.getGlobal().log(Level.INFO, "Analyze: Available Processors: " + Runtime.getRuntime().availableProcessors());
+            Logger.getGlobal().log(Level.INFO, "Analyze: Pool parallelism: " + pool.getParallelism());
+            Array<AnalyzedPixmap> arr = pool.invoke(analyzeTask);
+            Logger.getGlobal().log(Level.INFO, "Analyze: Number of active thread after invoking: " + pool.getActiveThreadCount());
+            Logger.getGlobal().log(Level.INFO, "Analyze: Pool size: " + pool.getPoolSize());
+            analyzedPixmapArray.addAll(arr);
+            analyzeTask.clearAnalyzedPixmapArrayAndSeqFromTasks();
+            for (int i = 0; i < analyzedPixmapArray.size; i++) {
+                if (firstFrame) {
+                    writeLSD(); // logical screen description !!!! write
+                    writePalette(analyzedPixmapArray.get(0).getColorTab()); // global color table !!!! write
+                    if (repeat >= 0) {
+                        // use NS app extension to indicate reps !!!! write
+                        writeNetscapeExt();
+                    }
+                }
+                writeGraphicCtrlExt(); // write graphic control extension !!!! write
+                writeImageDesc(); // image descriptor !!!! write
+                if (!firstFrame) {
+                    writePalette(analyzedPixmapArray.get(i).getColorTab()); // local color table !!!! write
+                }
+                writePixels(analyzedPixmapArray.get(i).getIndexedPixels()); // encode and write pixel data !!!! write
+                firstFrame = false;
+            }
+        } catch (IOException e) {
+            ok = false;
+        }
         return ok;
     }
 
@@ -380,6 +473,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         transIndex = -1;
         out = null;
         image = null;
+        images = null;
         indexedPixels = null;
         colorTab = null;
         closeStream = false;
@@ -460,9 +554,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         int nPix = width * height;
         indexedPixels = new byte[nPix];
         palette.setDitherStrength(ditherStrength);
-        if(seq > 1 && clearPalette)
-        {
-            if(fastAnalysis)
+        if (seq > 1 && clearPalette) {
+            if (fastAnalysis)
                 palette.analyzeFast(image, 150, 256);
             else
                 palette.analyze(image, 150, 256);
@@ -490,17 +583,16 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             indexedPixels[i++] = 0;
                         else {
                             usedEntry[(indexedPixels[i] = paletteMapping[
-                                      (color >>> 17 & 0x7C00)
-                                    | (color >>> 14 & 0x3E0)
-                                    | ((color >>> 11 & 0x1F))]) & 255] = true;
+                                    (color >>> 17 & 0x7C00)
+                                            | (color >>> 14 & 0x3E0)
+                                            | ((color >>> 11 & 0x1F))]) & 255] = true;
                             i++;
                         }
                     }
                 }
             }
             break;
-            case PATTERN:
-            {
+            case PATTERN: {
                 int cr, cg, cb, usedIndex;
                 final float errorMul = palette.ditherStrength * palette.populationBias;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
@@ -526,8 +618,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
                             PaletteReducer.sort16(palette.candidates);
-                            usedEntry[(indexedPixels[i] =  (byte) palette.reverseMap.get(palette.candidates[
-                                            PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1)
+                            usedEntry[(indexedPixels[i] = (byte) palette.reverseMap.get(palette.candidates[
+                                    PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1)
                             ) & 255] = true;
                             i++;
 
@@ -545,9 +637,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            int rr = ((color >>> 24)       );
+                            int rr = ((color >>> 24));
                             int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8)  & 0xFF);
+                            int bb = ((color >>> 8) & 0xFF);
                             used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))] & 0xFF];
@@ -596,7 +688,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             pos -= (int) pos;
                             pos *= 52.9829189f;
                             pos -= (int) pos;
-                            adj = (pos-0.5f) * strength;
+                            adj = (pos - 0.5f) * strength;
 //                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
 //                            adj = (pos * pos - 0.3f) * strength;
                             rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24)))), 0), 0xFF);
@@ -658,40 +750,36 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             er = curErrorRed[px];
                             eg = curErrorGreen[px];
                             eb = curErrorBlue[px];
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            int rr = Math.min(Math.max((int) (((color >>> 24)) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int) (((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int) (((color >>> 8) & 0xFF) + eb + 0.5f), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))]) & 255] = true;
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
-                            gdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
-                            bdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>8&255)- (used>>>8&255)) );
-                            if(px < w - 1)
-                            {
-                                curErrorRed[px+1]   += rdiff * w7;
-                                curErrorGreen[px+1] += gdiff * w7;
-                                curErrorBlue[px+1]  += bdiff * w7;
+                            rdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color >>> 24) - (used >>> 24)));
+                            gdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color >>> 16 & 255) - (used >>> 16 & 255)));
+                            bdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color >>> 8 & 255) - (used >>> 8 & 255)));
+                            if (px < w - 1) {
+                                curErrorRed[px + 1] += rdiff * w7;
+                                curErrorGreen[px + 1] += gdiff * w7;
+                                curErrorBlue[px + 1] += bdiff * w7;
                             }
-                            if(ny < height)
-                            {
-                                if(px > 0)
-                                {
-                                    nextErrorRed[px-1]   += rdiff * w3;
-                                    nextErrorGreen[px-1] += gdiff * w3;
-                                    nextErrorBlue[px-1]  += bdiff * w3;
+                            if (ny < height) {
+                                if (px > 0) {
+                                    nextErrorRed[px - 1] += rdiff * w3;
+                                    nextErrorGreen[px - 1] += gdiff * w3;
+                                    nextErrorBlue[px - 1] += bdiff * w3;
                                 }
-                                if(px < w - 1)
-                                {
-                                    nextErrorRed[px+1]   += rdiff * w1;
-                                    nextErrorGreen[px+1] += gdiff * w1;
-                                    nextErrorBlue[px+1]  += bdiff * w1;
+                                if (px < w - 1) {
+                                    nextErrorRed[px + 1] += rdiff * w1;
+                                    nextErrorGreen[px + 1] += gdiff * w1;
+                                    nextErrorBlue[px + 1] += bdiff * w1;
                                 }
-                                nextErrorRed[px]   += rdiff * w5;
+                                nextErrorRed[px] += rdiff * w5;
                                 nextErrorGreen[px] += gdiff * w5;
-                                nextErrorBlue[px]  += bdiff * w5;
+                                nextErrorBlue[px] += bdiff * w5;
                             }
                             i++;
                         }
@@ -710,11 +798,11 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             int ti = (px & 63) | (y & 63) << 6;
                             float variation = (strength + 0x1.3p-5f * (PaletteReducer.TRI_BLUE_NOISE[ti] + 0.5f)) * 0.007f;
                             adj = ((PaletteReducer.TRI_BLUE_NOISE_D[ti] + 0.5f) * variation);
-                            int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                            int rr = MathUtils.clamp((int) (adj + ((color >>> 24))), 0, 255);
                             adj = ((PaletteReducer.TRI_BLUE_NOISE_B[ti] + 0.5f) * variation);
                             int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
                             adj = ((PaletteReducer.TRI_BLUE_NOISE_C[ti] + 0.5f) * variation);
-                            int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
+                            int bb = MathUtils.clamp((int) (adj + ((color >>> 8) & 0xFF)), 0, 255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
@@ -772,40 +860,36 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             er = curErrorRed[px] * tbn;
                             eg = curErrorGreen[px] * tbn;
                             eb = curErrorBlue[px] * tbn;
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            int rr = Math.min(Math.max((int) (((color >>> 24)) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int) (((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int) (((color >>> 8) & 0xFF) + eb + 0.5f), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))]) & 255] = true;
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
-                            gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
-                            bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
-                            if(px < w - 1)
-                            {
-                                curErrorRed[px+1]   += rdiff * w7;
-                                curErrorGreen[px+1] += gdiff * w7;
-                                curErrorBlue[px+1]  += bdiff * w7;
+                            rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color >>> 24) - (used >>> 24)));
+                            gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color >>> 16 & 255) - (used >>> 16 & 255)));
+                            bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color >>> 8 & 255) - (used >>> 8 & 255)));
+                            if (px < w - 1) {
+                                curErrorRed[px + 1] += rdiff * w7;
+                                curErrorGreen[px + 1] += gdiff * w7;
+                                curErrorBlue[px + 1] += bdiff * w7;
                             }
-                            if(ny < height)
-                            {
-                                if(px > 0)
-                                {
-                                    nextErrorRed[px-1]   += rdiff * w3;
-                                    nextErrorGreen[px-1] += gdiff * w3;
-                                    nextErrorBlue[px-1]  += bdiff * w3;
+                            if (ny < height) {
+                                if (px > 0) {
+                                    nextErrorRed[px - 1] += rdiff * w3;
+                                    nextErrorGreen[px - 1] += gdiff * w3;
+                                    nextErrorBlue[px - 1] += bdiff * w3;
                                 }
-                                if(px < w - 1)
-                                {
-                                    nextErrorRed[px+1]   += rdiff * w1;
-                                    nextErrorGreen[px+1] += gdiff * w1;
-                                    nextErrorBlue[px+1]  += bdiff * w1;
+                                if (px < w - 1) {
+                                    nextErrorRed[px + 1] += rdiff * w1;
+                                    nextErrorGreen[px + 1] += gdiff * w1;
+                                    nextErrorBlue[px + 1] += bdiff * w1;
                                 }
-                                nextErrorRed[px]   += rdiff * w5;
+                                nextErrorRed[px] += rdiff * w5;
                                 nextErrorGreen[px] += gdiff * w5;
-                                nextErrorBlue[px]  += bdiff * w5;
+                                nextErrorBlue[px] += bdiff * w5;
                             }
                             i++;
                         }
@@ -865,40 +949,36 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);
 
-                            int rr = MathUtils.clamp((int)(((color >>> 24)       ) + er + 0.5f), 0, 0xFF);
-                            int gg = MathUtils.clamp((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
-                            int bb = MathUtils.clamp((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0, 0xFF);
+                            int rr = MathUtils.clamp((int) (((color >>> 24)) + er + 0.5f), 0, 0xFF);
+                            int gg = MathUtils.clamp((int) (((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
+                            int bb = MathUtils.clamp((int) (((color >>> 8) & 0xFF) + eb + 0.5f), 0, 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))]) & 255] = true;
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>24)-    (used>>>24))    );
-                            gdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>16&255)-(used>>>16&255)));
-                            bdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>8&255)- (used>>>8&255)) );
-                            if(px < w - 1)
-                            {
-                                curErrorRed[px+1]   += rdiff * w7;
-                                curErrorGreen[px+1] += gdiff * w7;
-                                curErrorBlue[px+1]  += bdiff * w7;
+                            rdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color >>> 24) - (used >>> 24)));
+                            gdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color >>> 16 & 255) - (used >>> 16 & 255)));
+                            bdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color >>> 8 & 255) - (used >>> 8 & 255)));
+                            if (px < w - 1) {
+                                curErrorRed[px + 1] += rdiff * w7;
+                                curErrorGreen[px + 1] += gdiff * w7;
+                                curErrorBlue[px + 1] += bdiff * w7;
                             }
-                            if(ny < height)
-                            {
-                                if(px > 0)
-                                {
-                                    nextErrorRed[px-1]   += rdiff * w3;
-                                    nextErrorGreen[px-1] += gdiff * w3;
-                                    nextErrorBlue[px-1]  += bdiff * w3;
+                            if (ny < height) {
+                                if (px > 0) {
+                                    nextErrorRed[px - 1] += rdiff * w3;
+                                    nextErrorGreen[px - 1] += gdiff * w3;
+                                    nextErrorBlue[px - 1] += bdiff * w3;
                                 }
-                                if(px < w - 1)
-                                {
-                                    nextErrorRed[px+1]   += rdiff * w1;
-                                    nextErrorGreen[px+1] += gdiff * w1;
-                                    nextErrorBlue[px+1]  += bdiff * w1;
+                                if (px < w - 1) {
+                                    nextErrorRed[px + 1] += rdiff * w1;
+                                    nextErrorGreen[px + 1] += gdiff * w1;
+                                    nextErrorBlue[px + 1] += bdiff * w1;
                                 }
-                                nextErrorRed[px]   += rdiff * w5;
+                                nextErrorRed[px] += rdiff * w5;
                                 nextErrorGreen[px] += gdiff * w5;
-                                nextErrorBlue[px]  += bdiff * w5;
+                                nextErrorBlue[px] += bdiff * w5;
                             }
                             i++;
                         }
@@ -955,7 +1035,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 0 | // 7 user input - 0 = none
                 transp); // 8 transparency flag
 
-        writeShort(Math.round(delay/10f)); // delay x 1/100 sec
+        writeShort(Math.round(delay / 10f)); // delay x 1/100 sec
         out.write(transIndex); // transparent color index
         out.write(0); // block terminator
     }
@@ -1025,10 +1105,23 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 
+    protected void writePalette(byte[] colorTab) throws IOException {
+        out.write(colorTab, 0, colorTab.length);
+        int n = (3 * 256) - colorTab.length;
+        for (int i = 0; i < n; i++) {
+            out.write(0);
+        }
+    }
+
     /**
      * Encodes and writes pixel data
      */
     protected void writePixels() throws IOException {
+        LZWEncoder encoder = new LZWEncoder(width, height, indexedPixels, colorDepth);
+        encoder.encode(out);
+    }
+
+    protected void writePixels(byte[] indexedPixels) throws IOException {
         LZWEncoder encoder = new LZWEncoder(width, height, indexedPixels, colorDepth);
         encoder.encode(out);
     }

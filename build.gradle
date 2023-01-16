@@ -12,7 +12,8 @@ buildscript {
 apply plugin: 'java-library'
 apply plugin: 'com.vanniktech.maven.publish'
 
-sourceCompatibility = 1.8
+java.targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = 11
 if(JavaVersion.current().isJava9Compatible()) {
     allprojects {
         tasks.withType(JavaCompile) {
@@ -28,7 +29,7 @@ group 'com.github.tommyettinger'
 //api "com.github.tommyettinger:anim8-gdx:0.3.7"
 
 //def gdxVersion = '1.10.0'
-def gdxVersion = '1.9.11'
+def gdxVersion = '1.11.0'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'ISO-8859-1'
 
@@ -62,7 +63,8 @@ repositories {
 }
 
 dependencies {
-  api "com.badlogicgames.gdx:gdx:$gdxVersion"
-  testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-  testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
