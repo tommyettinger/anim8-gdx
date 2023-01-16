@@ -79,14 +79,16 @@ public interface Dithered {
          */
         NONE,
         /**
-         * Jorge Jimenez' Gradient Interleaved Noise, modified slightly to use as an ordered dither here; this can be,
-         * well, noisy, but doesn't have different amounts of noise on different frames or different parts of an image
-         * (which is a potential problem for {@link #DIFFUSION}). There's a sometimes-noticeable diagonal line pattern
-         * in the results this produces, and in animations, this pattern appears in the same place on every frame, which
-         * can be either desirable (small changes won't snowball into big ones) or undesirable (it makes the pattern
-         * appear to be part of the image). Although {@link #BLUE_NOISE} is mostly similar, it has a "scaly" artifact
-         * instead of the diagonal line artifact this can have. {@link #BLUE_NOISE} does have less noticeable patterns,
-         * though, in many cases.
+         * Jorge Jimenez' Gradient Interleaved Noise, modified slightly to use as an ordered dither here; this can have
+         * subtle repetitive artifacts, but doesn't have different amounts of noise on different frames or different
+         * parts of an image (which is a potential problem for {@link #DIFFUSION} and the other error-diffusion
+         * dithers). There's a sometimes-noticeable diagonal line pattern in the results this produces, and in
+         * animations, this pattern appears in the same place on every frame, which can be either desirable (small
+         * changes won't snowball into big ones) or undesirable (it makes the pattern appear to be part of the image).
+         * Although {@link #BLUE_NOISE} is mostly similar, it has a "spongy" artifact instead of the diagonal line
+         * artifact this can have. {@link #BLUE_NOISE} does have less noticeable small-scale patterns, though, for many
+         * input images. This handles gradients quite well. For pixel art, you may want to reduce the dither strength to
+         * 0.5 or so.
          */
         GRADIENT_NOISE,
         /**
@@ -116,18 +118,21 @@ public interface Dithered {
          */
         DIFFUSION,
         /**
-         * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern and a
-         * 4x4 checkerboard pattern. The position will be used for both the checkerboard and a lookup into a 64x64 blue
-         * noise texture (stored as a byte array), and the resulting positive or negative value will be added to the
-         * pixel's channels. This uses a triangular-mapped blue noise pattern, which means most of its values
-         * are in the middle of its range and very few are at the extremely bright or dark. This yields closer results
-         * to {@link #PATTERN} than other ordered dithers like {@link #GRADIENT_NOISE}; it preserves soft gradients
-         * reasonably well, and it keeps lightness as well as {@link #DIFFUSION} and {@link #SCATTER} do, but it tends
-         * to introduce a blue-noise artifact that looks web-like, or scaly, particularly for mid-size palettes. For reference,
-         * the blue noise texture this uses looks like <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this
-         * small image</a>; it looks different from a purely-random white noise texture because blue noise has no low
-         * frequencies in any direction, while white noise has all frequencies in equal measure. This has been optimized
-         * for quality on animations more so than on still images. Setting the dither strength with
+         * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern for all
+         * channels, and 3 additional blue-noise patterns for each channel separately. The all-channel pattern affects
+         * how much a particular pixel will have its channels affected by noise, and the separate channels have their
+         * resulting positive or negative values added to the pixel's channels. This uses triangular-mapped blue noise
+         * patterns, which means most of its values are in the middle of its range and very few are at the extremely
+         * bright or dark. This yields closer results to {@link #PATTERN} than other ordered dithers like
+         * {@link #GRADIENT_NOISE}; it preserves soft gradients reasonably well, and it keeps lightness as well as
+         * {@link #DIFFUSION} and {@link #SCATTER} do, but it can look "under-dithered" for small palettes. For
+         * reference, the blue noise texture this uses looks like
+         * <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this small image</a>;
+         * it looks different from a purely-random white noise texture because blue noise has no low frequencies in any
+         * direction, while white noise has all frequencies in equal measure. This has been optimized for quality on
+         * animations more so than on still images. Where error-diffusion dithers like {@link #NEUE} and
+         * {@link #DIFFUSION} can have "swimming" artifacts where the dither moves around in-place, ordered dithers are
+         * essentially immune to that type of artifact. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} has significant effect (it didn't do much in previous
          * versions), and raising it can improve depth and the appearance of some images when banding occurs.
          */
@@ -164,6 +169,15 @@ public interface Dithered {
          * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
          * Neue preserves both. This is currently the default dither.
          */
-        NEUE
+        NEUE,
+        /**
+         * An ordered dither built around the lightness-dispersing R2 point sequence, by Martin Roberts. This is
+         * similar to {@link #GRADIENT_NOISE}; both add or subtract from lightness at each pixel, but usually add a very
+         * different value to each pixel than to any of its neighbors. Compared to GRADIENT_NOISE, this is milder,
+         * softer, and may need larger changes to dither strength to get a noticeable effect. This is an ordered dither,
+         * so it won't change what artifacts it shows across different frames of an animation (the behavior here is
+         * usually desirable, but not always).
+         */
+        ROBERTS
     }
 }

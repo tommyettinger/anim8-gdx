@@ -7,13 +7,19 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.github.tommyettinger.anim8.*;
+import com.github.tommyettinger.anim8.AnimatedGif;
+import com.github.tommyettinger.anim8.AnimatedPNG;
+import com.github.tommyettinger.anim8.Dithered;
+import com.github.tommyettinger.anim8.PNG8;
+import com.github.tommyettinger.anim8.PaletteReducer;
 
 /**
  * This takes two multiple-frame images/videos and dithers both of them in all the ways this can before writing to GIF
  * and optionally PNG files. There is a 90-frame "Video Of A Market" by Olivier Polome,
- * <a href="https://www.pexels.com/video/video-of-a-market-4236787/">available freely at Pexels</a>, and a rotating
- * cartoon-style pixel-art monster animation (self-made, public domain).
+ * <a href="https://www.pexels.com/video/video-of-a-market-4236787/">available freely at Pexels</a>, a rotating
+ * cartoon-style pixel-art monster animation (self-made, public domain), a procedurally-generated globe (self-made,
+ * public domain), another pixel-art animation of a tank (self-made, public domain), and two animations of slices of
+ * color solids (both self-made, public domain).
  */
 public class VideoConvertDemo extends ApplicationAdapter {
     private long startTime;
@@ -26,10 +32,10 @@ public class VideoConvertDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 //		renderPNG8();
-        String[] names = new String[]{"-Analyzed", "-Haltonic", "-BW", "-Green", "-DB8"};
+        String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
         int[][] palettes = new int[][]{
                 null,
-                PaletteReducer.HALTONIC,
+                PaletteReducer.AURORA,
                 new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF},
                 new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
@@ -37,6 +43,16 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 new int[]{0x00000000,
                         0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}
         };
+        renderVideoGif(names, palettes);
+        renderPixelGif(names, palettes);
+        renderGlobeGif(names, palettes);
+        renderOklabGif(names, palettes);
+        renderTankGif(names, palettes);
+        renderSolidsGif(names, palettes);
+
+        fastAnalysis = false;
+        names = new String[]{"-Analyzed"};
+        palettes = new int[][]{null};
 
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
@@ -96,6 +112,8 @@ public class VideoConvertDemo extends ApplicationAdapter {
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Pattern.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-GradientNoise.png"), pixmaps, 20);
+        png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+        png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-Roberts.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
         png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-BlueNoise.png"), pixmaps, 20);
         png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
@@ -107,6 +125,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderVideoGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering video GIF");
         String name = "market";
         Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
         for (int i = 1; i <= 90; i++) {
@@ -123,13 +142,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local(prefix + namePalette + "-pattern.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -148,6 +169,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderPixelGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering tyrant GIF");
         String name = "tyrant";
         Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap.class);
         for (int i = 0; i < 64; i++) {
@@ -164,13 +186,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local(prefix + namePalette + "-pattern.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 12);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -185,6 +209,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderTankGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering pixel tank GIF");
         String name = "tank";
         Array<Pixmap> pixmaps = new Array<>(true, 16, Pixmap.class);
         for (int i = 0; i < 16; i++) {
@@ -201,13 +226,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local(prefix + namePalette + "-pattern.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 12);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 12);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -222,6 +249,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderGlobeGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering globe GIF");
         String name = "globe";
         Array<Pixmap> pixmaps = new Array<>(true, 180, Pixmap.class);
         for (int i = 0; i < 180; i++) {
@@ -238,13 +266,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local(prefix + namePalette + "-pattern.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -259,6 +289,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderOklabGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering oklab GIF");
         String name = "oklab";
         Array<Pixmap> pixmaps = new Array<>(true, 120, Pixmap.class);
         for (int i = 0; i < 120; i++) {
@@ -275,13 +306,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local(prefix + namePalette + "-pattern.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -297,6 +330,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
 
 
     public void renderSolidsGif(String[] names, int[][] palettes) {
+        System.out.println("Rendering solids GIF");
         String name = "solids";
         Array<Pixmap> pixmaps = new Array<>(true, 256, Pixmap.class);
         for (int i = 0; i < 256; i++) {
@@ -314,13 +348,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 gif.setPalette(new PaletteReducer(palettes[i]));
 
             gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
             gif.write(Gdx.files.local(prefix + namePalette + "-pattern.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
             gif.write(Gdx.files.local(prefix + namePalette + "-none.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + namePalette + "-gradient.gif"), pixmaps, 20);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + namePalette + "-roberts.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + namePalette + "-diffusion.gif"), pixmaps, 20);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);

@@ -217,13 +217,13 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
 
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "haltonic", "db8"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}};
+        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8"};
+        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}};
         long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
         ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader};
 
-//        String[] nms = {"pastel", "green", "bw", "gb", "haltonic"};
-//        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.HALTONIC};
+//        String[] nms = {"pastel", "green", "bw", "gb", "aurora"};
+//        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA};
 //        long[] sds = {-1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L};
 //        ShaderProgram[] shs = {shader, shader, shader, shader, shader};
 
@@ -338,6 +338,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-none.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-gradient.png"), pixmaps, 16);
+            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-roberts.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-diffusion.png"), pixmaps, 16);
             png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
@@ -381,9 +383,9 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             String prefix;
             if (palettes[n] == null) {
-                pal.analyze(pixmaps, 75, 256);
-                gif.palette = pal;
-                gif.fastAnalysis = true;
+//                pal.analyze(pixmaps, 75, 256);
+                gif.palette = null;
+                if(!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
 //                prefix = "images/gif/animatedHue/AnimatedGif-";
                 prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             }
@@ -398,6 +400,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             gif.write(Gdx.files.local(prefix + name + "-none.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
             gif.write(Gdx.files.local(prefix + name + "-gradient.gif"), pixmaps, 16);
+            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
+            gif.write(Gdx.files.local(prefix + name + "-roberts.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
             gif.write(Gdx.files.local(prefix + name + "-diffusion.gif"), pixmaps, 16);
             gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);

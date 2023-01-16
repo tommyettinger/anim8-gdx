@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
-import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
+import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
 
 /**
  * Data that can be used to limit the colors present in a Pixmap or other image, here with the goal of using 256 or less
@@ -63,6 +63,11 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  *     color well, but can have some banding. Pattern dither usually handles gradients exceptionally well, but can have
  *     severe issues when it doesn't preserve lightness faithfully with small palettes. The list goes on. Neue can
  *     introduce error if the palette perfectly matches the image already; in that case, use Solid.)</li>
+ *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
+ *     the amount of color correction applied to each mismatched pixel; also uses an 8x8 Bayer matrix. This adds in
+ *     a blue noise amount to each pixel, which is also what Neue does, but because this is a pure ordered dither, it
+ *     doesn't take into consideration cumulative error built up over several poorly-matched pixels. It can often fill a
+ *     whole region of color incorrectly if the palette isn't just right, though this is rare.)</li>
  *     <li>{@link #reduceKnoll(Pixmap)} (Thomas Knoll's Pattern Dithering, used more or less verbatim; this version has
  *     a heavy grid pattern that looks like an artifact. While the square grid here is a bit bad, it becomes very hard
  *     to see when the palette is large enough. This reduction is the slowest here, currently, and may noticeably delay
@@ -72,14 +77,10 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  *     </li>
  *     <li>OTHER TIER
  *     <ul>
- *     <li>{@link #reduceBlueNoise(Pixmap)} (Uses a blue noise texture, which has almost no apparent patterns, to adjust
- *     the amount of color correction applied to each mismatched pixel; also uses a checkerboard pattern. This adds in
- *     a blue noise amount to each pixel, which is also what Neue does, but because this is a pure ordered dither, it
- *     doesn't take into consideration cumulative error built up over several poorly-matched pixels. It can often fill a
- *     whole region of color incorrectly if the palette isn't just right.)</li>
  *     <li>{@link #reduceJimenez(Pixmap)} (This is a modified version of Gradient Interleaved Noise by Jorge Jimenez;
  *     it's a kind of ordered dither that introduces a subtle wave pattern to break up solid blocks. It does well on
- *     some animations and on smooth or rounded shapes, but still has issues with gradients. Consider Neue first.)</li>
+ *     some animations and on smooth or rounded shapes, but still has issues with gradients. Also consider Neue for
+ *     still images and Blue Noise for animations.)</li>
  *     <li>{@link #reduceSierraLite(Pixmap)} (Like Floyd-Steinberg, Sierra Lite is an error-diffusion dither, and it
  *     sometimes looks better than Floyd-Steinberg, but usually is similar or worse unless the palette is small. Sierra
  *     Lite tends to look comparable to Floyd-Steinberg if the Floyd-Steinberg dither was done with a lower
@@ -106,6 +107,58 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_HALTONIC;
  */
 public class PaletteReducer {
     /**
+     * DawnBringer's 256-color Aurora palette, modified slightly to fit one transparent color by removing one gray.
+     * Aurora is available in <a href="https://pixeljoint.com/forum/forum_posts.asp?TID=26080">this set of tools</a>
+     * for a pixel art editor, but it is usable for lots of high-color purposes.
+     * <br>
+     * These colors all have names, which can be seen <a href="https://i.imgur.com/2oChRYC.png">previewed here</a>. The
+     * linked image preview also shows a nearby lighter color and two darker colors on the same sphere as the main
+     * color; the second-lightest color is what has the listed name. The names here are used by a few other libraries,
+     * such as <a href="https://github.com/tommyettinger/colorful-gdx">colorful-gdx</a>, but otherwise don't matter.
+     * <br>
+     * This replaced another palette, Haltonic, that wasn't hand-chosen and was much more "randomized." Aurora was the
+     * first palette used as a default here, and it was replaced because the color metric at the time made it look bad.
+     * <br>
+     * While you can modify the individual items in this array, this is discouraged, because various constructors and
+     * methods in this class use AURORA with a pre-made distance mapping of its colors. This mapping would become
+     * incorrect if any colors in this array changed.
+     */
+    public static final int[] AURORA = {
+            0x00000000, 0x010101FF, 0x131313FF, 0x252525FF, 0x373737FF, 0x494949FF, 0x5B5B5BFF, 0x6E6E6EFF,
+            0x808080FF, 0x929292FF, 0xA4A4A4FF, 0xB6B6B6FF, 0xC9C9C9FF, 0xDBDBDBFF, 0xEDEDEDFF, 0xFFFFFFFF,
+            0x007F7FFF, 0x3FBFBFFF, 0x00FFFFFF, 0xBFFFFFFF, 0x8181FFFF, 0x0000FFFF, 0x3F3FBFFF, 0x00007FFF,
+            0x0F0F50FF, 0x7F007FFF, 0xBF3FBFFF, 0xF500F5FF, 0xFD81FFFF, 0xFFC0CBFF, 0xFF8181FF, 0xFF0000FF,
+            0xBF3F3FFF, 0x7F0000FF, 0x551414FF, 0x7F3F00FF, 0xBF7F3FFF, 0xFF7F00FF, 0xFFBF81FF, 0xFFFFBFFF,
+            0xFFFF00FF, 0xBFBF3FFF, 0x7F7F00FF, 0x007F00FF, 0x3FBF3FFF, 0x00FF00FF, 0xAFFFAFFF, 0xBCAFC0FF,
+            0xCBAA89FF, 0xA6A090FF, 0x7E9494FF, 0x6E8287FF, 0x7E6E60FF, 0xA0695FFF, 0xC07872FF, 0xD08A74FF,
+            0xE19B7DFF, 0xEBAA8CFF, 0xF5B99BFF, 0xF6C8AFFF, 0xF5E1D2FF, 0x573B3BFF, 0x73413CFF, 0x8E5555FF,
+            0xAB7373FF, 0xC78F8FFF, 0xE3ABABFF, 0xF8D2DAFF, 0xE3C7ABFF, 0xC49E73FF, 0x8F7357FF, 0x73573BFF,
+            0x3B2D1FFF, 0x414123FF, 0x73733BFF, 0x8F8F57FF, 0xA2A255FF, 0xB5B572FF, 0xC7C78FFF, 0xDADAABFF,
+            0xEDEDC7FF, 0xC7E3ABFF, 0xABC78FFF, 0x8EBE55FF, 0x738F57FF, 0x587D3EFF, 0x465032FF, 0x191E0FFF,
+            0x235037FF, 0x3B573BFF, 0x506450FF, 0x3B7349FF, 0x578F57FF, 0x73AB73FF, 0x64C082FF, 0x8FC78FFF,
+            0xA2D8A2FF, 0xE1F8FAFF, 0xB4EECAFF, 0xABE3C5FF, 0x87B48EFF, 0x507D5FFF, 0x0F6946FF, 0x1E2D23FF,
+            0x234146FF, 0x3B7373FF, 0x64ABABFF, 0x8FC7C7FF, 0xABE3E3FF, 0xC7F1F1FF, 0xBED2F0FF, 0xABC7E3FF,
+            0xA8B9DCFF, 0x8FABC7FF, 0x578FC7FF, 0x57738FFF, 0x3B5773FF, 0x0F192DFF, 0x1F1F3BFF, 0x3B3B57FF,
+            0x494973FF, 0x57578FFF, 0x736EAAFF, 0x7676CAFF, 0x8F8FC7FF, 0xABABE3FF, 0xD0DAF8FF, 0xE3E3FFFF,
+            0xAB8FC7FF, 0x8F57C7FF, 0x73578FFF, 0x573B73FF, 0x3C233CFF, 0x463246FF, 0x724072FF, 0x8F578FFF,
+            0xAB57ABFF, 0xAB73ABFF, 0xEBACE1FF, 0xFFDCF5FF, 0xE3C7E3FF, 0xE1B9D2FF, 0xD7A0BEFF, 0xC78FB9FF,
+            0xC87DA0FF, 0xC35A91FF, 0x4B2837FF, 0x321623FF, 0x280A1EFF, 0x401811FF, 0x621800FF, 0xA5140AFF,
+            0xDA2010FF, 0xD5524AFF, 0xFF3C0AFF, 0xF55A32FF, 0xFF6262FF, 0xF6BD31FF, 0xFFA53CFF, 0xD79B0FFF,
+            0xDA6E0AFF, 0xB45A00FF, 0xA04B05FF, 0x5F3214FF, 0x53500AFF, 0x626200FF, 0x8C805AFF, 0xAC9400FF,
+            0xB1B10AFF, 0xE6D55AFF, 0xFFD510FF, 0xFFEA4AFF, 0xC8FF41FF, 0x9BF046FF, 0x96DC19FF, 0x73C805FF,
+            0x6AA805FF, 0x3C6E14FF, 0x283405FF, 0x204608FF, 0x0C5C0CFF, 0x149605FF, 0x0AD70AFF, 0x14E60AFF,
+            0x7DFF73FF, 0x4BF05AFF, 0x00C514FF, 0x05B450FF, 0x1C8C4EFF, 0x123832FF, 0x129880FF, 0x06C491FF,
+            0x00DE6AFF, 0x2DEBA8FF, 0x3CFEA5FF, 0x6AFFCDFF, 0x91EBFFFF, 0x55E6FFFF, 0x7DD7F0FF, 0x08DED5FF,
+            0x109CDEFF, 0x055A5CFF, 0x162C52FF, 0x0F377DFF, 0x004A9CFF, 0x326496FF, 0x0052F6FF, 0x186ABDFF,
+            0x2378DCFF, 0x699DC3FF, 0x4AA4FFFF, 0x90B0FFFF, 0x5AC5FFFF, 0xBEB9FAFF, 0x00BFFFFF, 0x007FFFFF,
+            0x4B7DC8FF, 0x786EF0FF, 0x4A5AFFFF, 0x6241F6FF, 0x3C3CF5FF, 0x101CDAFF, 0x0010BDFF, 0x231094FF,
+            0x0C2148FF, 0x5010B0FF, 0x6010D0FF, 0x8732D2FF, 0x9C41FFFF, 0x7F00FFFF, 0xBD62FFFF, 0xB991FFFF,
+            0xD7A5FFFF, 0xD7C3FAFF, 0xF8C6FCFF, 0xE673FFFF, 0xFF52FFFF, 0xDA20E0FF, 0xBD29FFFF, 0xBD10C5FF,
+            0x8C14BEFF, 0x5A187BFF, 0x641464FF, 0x410062FF, 0x320A46FF, 0x551937FF, 0xA01982FF, 0xC80078FF,
+            0xFF50BFFF, 0xFF6AC5FF, 0xFAA0B9FF, 0xFC3A8CFF, 0xE61E78FF, 0xBD1039FF, 0x98344DFF, 0x911437FF,
+    };
+
+    /**
      * This 255-color (plus transparent) palette uses the (3,5,7) Halton sequence to get 3D points, treats those as IPT
      * channel values, and rejects out-of-gamut colors. This also rejects any color that is too similar to an existing
      * color, which in this case made this try 130958 colors before finally getting 256 that work. Using the Halton
@@ -114,9 +167,7 @@ public class PaletteReducer {
      * to make pixel art look good enough with dithering, and it continues to improve with more colors. It has exactly 8
      * colors that are purely grayscale, all right at the start after transparent.
      * <br>
-     * While you can modify the individual items in this array, this is discouraged, because various constructors and
-     * methods in this class use HALTONIC with a pre-made distance mapping of its colors. This mapping would become
-     * incorrect if any colors in this array changed.
+     * Haltonic was the default palette from a fairly early version until 0.3.9, when it was replaced with Aurora.
      */
     public static final int[] HALTONIC = new int[]{
             0x00000000, 0x010101FF, 0xFEFEFEFF, 0x7B7B7BFF, 0x555555FF, 0xAAAAAAFF, 0x333333FF, 0xE0E0E0FF,
@@ -427,13 +478,13 @@ public class PaletteReducer {
     }
     
     /**
-     * Constructs a default PaletteReducer that uses the "Haltonic" 255-color-plus-transparent palette.
+     * Constructs a default PaletteReducer that uses the "Aurora" 255-color-plus-transparent palette.
      * Note that this uses a more-detailed and higher-quality metric than you would get by just specifying
-     * {@code new PaletteReducer(PaletteReducer.HALTONIC)}; this metric would be too slow to calculate at
+     * {@code new PaletteReducer(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
      * runtime, but as pre-calculated data it works very well.
      */
     public PaletteReducer() {
-        exact(HALTONIC, ENCODED_HALTONIC);
+        exact(AURORA, ENCODED_AURORA);
     }
 
     /**
@@ -445,7 +496,7 @@ public class PaletteReducer {
     public PaletteReducer(int[] rgbaPalette) {
         if(rgbaPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(rgbaPalette);
@@ -460,7 +511,7 @@ public class PaletteReducer {
     public PaletteReducer(int[] rgbaPalette, int limit) {
         if(rgbaPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(rgbaPalette, limit);
@@ -475,7 +526,7 @@ public class PaletteReducer {
     public PaletteReducer(Color[] colorPalette) {
         if(colorPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(colorPalette);
@@ -490,7 +541,7 @@ public class PaletteReducer {
     public PaletteReducer(Color[] colorPalette, int limit) {
         if(colorPalette == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         exact(colorPalette, limit);
@@ -505,7 +556,7 @@ public class PaletteReducer {
     public PaletteReducer(Pixmap pixmap) {
         if(pixmap == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         analyze(pixmap);
@@ -520,7 +571,7 @@ public class PaletteReducer {
     public PaletteReducer(Array<Pixmap> pixmaps) {
         if(pixmaps == null)
         {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         analyze(pixmaps);
@@ -542,7 +593,7 @@ public class PaletteReducer {
      * (see {@link #analyze(Pixmap, double)} for more info).
      *
      * @param pixmap    a Pixmap to analyze in detail to produce a palette
-     * @param threshold the minimum difference between colors required to put them in the palette (default 150)
+     * @param threshold the minimum difference between colors required to put them in the palette (default 100)
      */
     public PaletteReducer(Pixmap pixmap, double threshold) {
         analyze(pixmap, threshold);
@@ -775,20 +826,20 @@ public class PaletteReducer {
     }
 
     /**
-     * Resets the palette to the 256-color (including transparent) "Haltonic" palette. PaletteReducer already
+     * Resets the palette to the 256-color (including transparent) "Aurora" palette. PaletteReducer already
      * stores most of the calculated data needed to use this one palette. Note that this uses a more-detailed
      * and higher-quality metric than you would get by just specifying
-     * {@code new PaletteReducer(PaletteReducer.HALTONIC)}; this metric would be too slow to calculate at
+     * {@code new PaletteReducer(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
      * runtime, but as pre-calculated data it works very well.
      */
     public void setDefaultPalette(){
-        exact(HALTONIC, ENCODED_HALTONIC);
+        exact(AURORA, ENCODED_AURORA);
     }
     /**
      * Builds the palette information this PNG8 stores from the RGBA8888 ints in {@code rgbaPalette}, up to 256 colors.
      * Alpha is not preserved except for the first item in rgbaPalette, and only if it is {@code 0} (fully transparent
      * black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only has one color, then
-     * this defaults to the "Haltonic" palette with 256 well-distributed colors (including transparent).
+     * this defaults to the "Aurora" palette with 256 well-distributed colors (including transparent).
      *
      * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
      */
@@ -800,7 +851,7 @@ public class PaletteReducer {
      * or {@code limit}, whichever is less.
      * Alpha is not preserved except for the first item in rgbaPalette, and only if it is {@code 0} (fully transparent
      * black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only has one color, or if
-     * limit is less than 2, then this defaults to the "Haltonic" palette with 256 well-distributed colors (including
+     * limit is less than 2, then this defaults to the "Aurora" palette with 256 well-distributed colors (including
      * transparent).
      *
      * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
@@ -808,7 +859,7 @@ public class PaletteReducer {
      */
     public void exact(int[] rgbaPalette, int limit) {
         if (rgbaPalette == null || rgbaPalette.length < 2 || limit < 2) {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         Arrays.fill(paletteArray, 0);
@@ -840,7 +891,7 @@ public class PaletteReducer {
                     c2 = r << 10 | g << 5 | b;
                     if (paletteMapping[c2] == 0) {
                         bb = (b << 3 | b >>> 2);
-                        dist = 0x7FFFFFFF;
+                        dist = 1E100;
                         for (int i = 1; i < plen; i++) {
                             if (dist > (dist = Math.min(dist, differenceMatch(paletteArray[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
@@ -866,8 +917,8 @@ public class PaletteReducer {
     {
         if(palette == null || preload == null)
         {
-            System.arraycopy(HALTONIC, 0,  paletteArray, 0, 256);
-            System.arraycopy(ENCODED_HALTONIC, 0,  paletteMapping, 0, 0x8000);
+            System.arraycopy(AURORA, 0,  paletteArray, 0, 256);
+            System.arraycopy(ENCODED_AURORA, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
             populationBias = (float) Math.exp(-1.125 / 256.0);
             if(reverseMap == null)
@@ -897,7 +948,7 @@ public class PaletteReducer {
      * 256 colors.
      * Alpha is not preserved except for the first item in colorPalette, and only if its r, g, b, and a values are all
      * 0f (fully transparent black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only
-     * has one color, then this defaults to the "Haltonic" palette with 256 well-distributed colors (including
+     * has one color, then this defaults to the "Aurora" palette with 256 well-distributed colors (including
      * transparent).
      *
      * @param colorPalette an array of Color objects; all will be used up to 256 items or the length of the array
@@ -911,7 +962,7 @@ public class PaletteReducer {
      * 256 colors or {@code limit}, whichever is less.
      * Alpha is not preserved except for the first item in colorPalette, and only if its r, g, b, and a values are all
      * 0f (fully transparent black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, only has
-     * one color, or limit is less than 2, then this defaults to the "Haltonic" palette with 256 well-distributed
+     * one color, or limit is less than 2, then this defaults to the "Aurora" palette with 256 well-distributed
      * colors (including transparent).
      *
      * @param colorPalette an array of Color objects; all will be used up to 256 items, limit, or the length of the array
@@ -919,7 +970,7 @@ public class PaletteReducer {
      */
     public void exact(Color[] colorPalette, int limit) {
         if (colorPalette == null || colorPalette.length < 2 || limit < 2) {
-            exact(HALTONIC, ENCODED_HALTONIC);
+            exact(AURORA, ENCODED_AURORA);
             return;
         }
         Arrays.fill(paletteArray, 0);
@@ -968,7 +1019,7 @@ public class PaletteReducer {
      * aren't exact, and dithering works better when the palette can choose colors that are sufficiently different, this
      * uses a threshold value to determine whether it should permit a less-common color into the palette, and if the
      * second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a value of at least
-     * 150, it is
+     * 100, it is
      * allowed in the palette, otherwise it is kept out for being too similar to existing colors. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} field or can be used directly to {@link #reduce(Pixmap)} a Pixmap.
@@ -976,7 +1027,7 @@ public class PaletteReducer {
      * @param pixmap a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      */
     public void analyze(Pixmap pixmap) {
-        analyze(pixmap, 150);
+        analyze(pixmap, 100);
     }
 
     private static final Comparator<IntIntMap.Entry> entryComparator = new Comparator<IntIntMap.Entry>() {
@@ -1261,7 +1312,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.0003;
+        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1517,7 +1568,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.00016;
+        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1870,7 +1921,7 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by
      * {@link #differenceAnalyzing(int, int, int, int)}) by a
-     * value of at least 150, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * value of at least 100, it is allowed in the palette, otherwise it is kept out for being too similar to existing
      * colors. This doesn't return a value but instead stores the palette info in this object; a PaletteReducer can be
      * assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
@@ -1950,7 +2001,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.00016;
+        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
         IntIntMap counts = new IntIntMap(limit);
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
@@ -2051,7 +2102,7 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by
      * {@link #differenceHW(int, int, int, int)}) by a
-     * value of at least 150, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * value of at least 100, it is allowed in the palette, otherwise it is kept out for being too similar to existing
      * colors. This doesn't return a value but instead stores the palette info in this object; a PaletteReducer can be
      * assigned to the {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
@@ -2308,7 +2359,7 @@ public class PaletteReducer {
      */
     public Pixmap reduce(Pixmap pixmap, Dithered.DitherAlgorithm ditherAlgorithm){
         if(pixmap == null) return null;
-        if(ditherAlgorithm == null) return reduceScatter(pixmap);
+        if(ditherAlgorithm == null) return reduceNeue(pixmap);
         switch (ditherAlgorithm) {
             case NONE:
                 return reduceSolid(pixmap);
@@ -2324,6 +2375,8 @@ public class PaletteReducer {
                 return reduceBlueNoise(pixmap); 
             case SCATTER:
                 return reduceScatter(pixmap);
+            case ROBERTS:
+                return reduceRoberts(pixmap);
             default:
             case NEUE:
                 return reduceNeue(pixmap);
@@ -2572,42 +2625,97 @@ public class PaletteReducer {
 
     /**
      * It's interleaved gradient noise, by Jorge Jimenez! It's very fast! It's an ordered dither!
-     * It's not particularly high-quality when compared to other preprocessing dithers, but it is
-     * one of the better dithers when used real-time in a shader. It has noticeable diagonal lines
-     * in some places, but these tend to have mixed directions that obscure larger patterns.
-     * @param pixmap
-     * @return
+     * It's pretty good with gradients, though it may introduce artifacts. It has noticeable diagonal
+     * lines in some places, but these tend to have mixed directions that obscure larger patterns.
+     * This is very similar to {@link #reduceRoberts(Pixmap)}, but has different artifacts, and this
+     * dither tends to be stronger by default.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
      */
     public Pixmap reduceJimenez(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used;
-        float pos, adj;
-        final float strength = ditherStrength * populationBias * 3f;
+        int color;
+        float adj;
+        final float strength = 60f * ditherStrength / (populationBias * populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    int rr = ((color >>> 24)       );
-                    int gg = ((color >>> 16) & 0xFF);
-                    int bb = ((color >>> 8)  & 0xFF);
-                    used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                    adj = (px * 0.06711056f + y * 0.00583715f);
+                    adj -= (int) adj;
+                    adj *= 52.9829189f;
+                    adj -= (int) adj;
+                    adj -= 0.5f;
+                    adj *= strength;
+//                    adj *= adj * adj;
+//                    adj *= Math.abs(adj);
+//                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
-                            | ((bb >>> 3))] & 0xFF];
-                    pos = (px * 0.06711056f + y * 0.00583715f);
-                    pos -= (int) pos;
-                    pos *= 52.9829189f;
-                    pos -= (int) pos;
-                    adj = (pos-0.5f) * strength;
-//                    adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                    adj = (pos * pos - 0.3f) * strength;
-                    rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24       )))), 0), 0xFF);
-                    gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                    bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8  & 0xFF)))), 0), 0xFF);
+                            | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
+     * An ordered dither that uses a sub-random sequence by Martin Roberts to disperse lightness adjustments across the
+     * image. This is very similar to {@link #reduceJimenez(Pixmap)}, but is milder by default, and has subtly different
+     * artifacts. This should look excellent for animations, especially with small palettes, but the lightness
+     * adjustments may be noticeable even in very large palettes.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceRoberts (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color;
+//        float str = (32f * ditherStrength / (populationBias * populationBias));
+        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+//                    // Gets R2-based noise and puts it in the -0.75 to 0.75 range
+//                    float adj = (px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.8p-23f - 0.75f;
+//                    // sign-preserving square root, emphasizes extremes
+////                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
+//                    // sign-preserving square, emphasizes low-magnitude values
+////                    adj *= Math.abs(adj);
+//                    adj = adj * str + 0.5f;
+//                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+//                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+//                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-1) * 0xC13FA9A902A6328FL + (y+2) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+2) * 0xC13FA9A902A6328FL + (y+3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+
+
+//                    float adj = (px * 0.06711056f + y * 0.00583715f);
+//                    adj -= (int) adj;
+//                    adj *= 52.9829189f;
+//                    adj -= (int) adj;
+//                    adj -= 0.5f;
+//                    adj *= adj * adj * 4f;
+//                    adj += 0.5f;
+//                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-2) * 0xC13FA9A902A6328FL + (y+2) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.0p-23f - adj) * str + 0.5f), 0), 255);
+//                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.0p-23f - adj) * str + 0.5f), 0), 255);
+//                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+1) * 0xC13FA9A902A6328FL + (y-3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.0p-23f - adj) * str + 0.5f), 0), 255);
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
@@ -2620,14 +2728,58 @@ public class PaletteReducer {
 
     /**
      * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
-     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a fine-grained checkerboard pattern
-     * and a roughly-white-noise pattern obtained by distorting the blue noise. The dither strength needs to be
-     * evaluated carefully here; if it is too high, a blue-noise "scaly" pattern will appear over the image, and if it
-     * is too low, the image won't look dithered at all.
+     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a 8x8 threshold matrix (the kind
+     * used by {@link #reduceKnoll(Pixmap)}, but larger). This has a tendency to look closer to a color
+     * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
+     * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
+     * effects can appear in all the error-diffusion dithers here. If you can tolerate "spongy" artifacts appearing
+     * (which look worse on small palettes), you may get very good handling of lightness by raising dither strength.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
     public Pixmap reduceBlueNoise (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color;
+        float adj, strength = 0.1375f * ditherStrength / populationBias;
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                    int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                    int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_D[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                    int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
+
+                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
+     * A blue-noise-based dither; does not diffuse error, and uses 4 tiling blue noise patterns (which can be accessed
+     * with {@link #TRI_BLUE_NOISE}, {@link #TRI_BLUE_NOISE_B}, {@link #TRI_BLUE_NOISE_C}, and
+     * {@link #TRI_BLUE_NOISE_D}, but shouldn't usually be modified). This has a tendency to look closer to a color
+     * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
+     * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
+     * effects can appear in all the error-diffusion dithers here. This is called "Separated" because each RGB channel
+     * is affected by a separate blue noise pattern.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceBlueNoiseSeparated (Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
@@ -2859,7 +3011,7 @@ public class PaletteReducer {
         float er, eg, eb;
         byte paletteIndex;
         float w1 = ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                adj, strength = (32f * ditherStrength / (populationBias * populationBias)),
+                adj, strength = (32f * ditherStrength / (populationBias * populationBias * populationBias)),
                 limit = (float) Math.pow(80, 1.635 - populationBias);
 
         for (int py = 0; py < h; py++) {
@@ -2943,6 +3095,20 @@ public class PaletteReducer {
             8,   4,  11,   7,
             2,  14,   1,  13,
             10,  6,   9,   5,
+    };
+
+    /**
+     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
+     */
+    static final int[] thresholdMatrix64 = {
+            0,  48,  12,  60,   3,  51,  15,  63,
+            32,  16,  44,  28,  35,  19,  47,  31,
+            8,  56,   4,  52,  11,  59,   7,  55,
+            40,  24,  36,  20,  43,  27,  39,  23,
+            2,  50,  14,  62,   1,  49,  13,  61,
+            34,  18,  46,  30,  33,  17,  45,  29,
+            10,  58,   6,  54,   9,  57,   5,  53,
+            42,  26,  38,  22,  41,  25,  37,  21
     };
 
     final int[] candidates = new int[32];

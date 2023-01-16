@@ -39,26 +39,42 @@ import com.github.tommyettinger.anim8.AnimatedPNG;
  * <br>
  * With Sub filter, buffer-less, compression 3:
  * Startup time: between 1636 and 1782 ms in most cases.                   File size: 23799 KB
+ * <br>
+ * Timing:
+ * <pre>
+ * Took 1 ms to construct an AnimatedPNG
+ * Took 177 ms to load the Array of Pixmap
+ * Took 1768 ms to write an animation
+ * Took 1946 ms total
+ * </pre>
+ * File sizes:
+ * <pre>
+ * 25MB APNG-market.png
+ * </pre>
  */
 public class APNGStartupBench extends ApplicationAdapter {
     private static final String name = "market";
     @Override
     public void create() {
-
-        Gdx.files.local("tmp/imagesSub").mkdirs();
+        Gdx.files.local("tmp/imagesClean").mkdirs();
+        Gdx.files.local("tmp/imagesClean").deleteDirectory();
         long startTime = TimeUtils.millis();
         AnimatedPNG apng = new AnimatedPNG();
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct an AnimatedPNG");
+        long subTime = TimeUtils.millis();
         Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to load the Array of Pixmap");
         String namePalette;
         namePalette = name;
         apng.setFlipY(false);
-        apng.setCompression(1);
-        apng.write(Gdx.files.local("tmp/imagesSub/" + name + "/APNG-" + namePalette + "1.png"), pixmaps, 20);
-        System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
+        apng.setCompression(2);
+        subTime = TimeUtils.millis();
+        apng.write(Gdx.files.local("tmp/imagesClean/" + name + "/APNG-" + namePalette + ".png"), pixmaps, 20);
+        System.out.println("Took " + (TimeUtils.millis() - subTime) + " ms to write an animation");
+        System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms total");
         Gdx.app.exit();
     }
 
