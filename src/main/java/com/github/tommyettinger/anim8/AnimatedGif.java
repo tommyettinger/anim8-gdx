@@ -111,20 +111,21 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      */
     @Override
     public void write(OutputStream output, Array<Pixmap> frames, int fps) {
-        if (frames == null || frames.isEmpty()) return;
+        if(frames == null || frames.isEmpty()) return;
         clearPalette = (palette == null);
         if (clearPalette) {
             if (fastAnalysis && frames.size > 1) {
                 palette = new PaletteReducer();
-                palette.analyzeFast(frames.first(), 150, 256);
-            } else
+                palette.analyzeFast(frames.first(), 100, 256);
+            }
+            else
                 palette = new PaletteReducer(frames.first());
         }
-        if (!start(output)) return;
+        if(!start(output)) return;
         setFrameRate(fps);
         addFrames(frames);
         finish();
-        if (clearPalette)
+        if(clearPalette)
             palette = null;
     }
 
@@ -311,7 +312,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      * @param ditherAlgorithm which {@link DitherAlgorithm} to use for upcoming output
      */
     public void setDitherAlgorithm(DitherAlgorithm ditherAlgorithm) {
-        if (ditherAlgorithm != null)
+        if(ditherAlgorithm != null)
             this.ditherAlgorithm = ditherAlgorithm;
     }
 
@@ -366,6 +367,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         } catch (IOException e) {
             ok = false;
         }
+
         return ok;
     }
 
@@ -492,7 +494,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 0 | // 7 user input - 0 = none
                 transp); // 8 transparency flag
 
-        writeShort(Math.round(delay / 10f)); // delay x 1/100 sec
+        writeShort(Math.round(delay/10f)); // delay x 1/100 sec
         out.write(transIndex); // transparent color index
         out.write(0); // block terminator
     }
@@ -551,6 +553,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         out.write(0); // block terminator
     }
 
+    /**
+     * Writes color table
+     */
     protected void writePalette(byte[] colorTab) throws IOException {
         out.write(colorTab, 0, colorTab.length);
         int n = (3 * 256) - colorTab.length;
@@ -584,3 +589,4 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 }
+

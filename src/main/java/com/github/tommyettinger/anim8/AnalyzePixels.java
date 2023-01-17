@@ -48,9 +48,9 @@ class AnalyzePixels {
         palette.setDitherStrength(ditherStrength);
         if (seq > 1) {
             if (fastAnalysis)
-                palette.analyzeFast(image, 150, 256);
+                palette.analyzeFast(image, 100, 256);
             else
-                palette.analyze(image, 150, 256);
+                palette.analyze(image, 100, 256);
         }
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -75,9 +75,9 @@ class AnalyzePixels {
                             indexedPixels[i++] = 0;
                         else {
                             usedEntry[(indexedPixels[i] = paletteMapping[
-                                    (color >>> 17 & 0x7C00)
-                                            | (color >>> 14 & 0x3E0)
-                                            | ((color >>> 11 & 0x1F))]) & 255] = true;
+                                      (color >>> 17 & 0x7C00)
+                                    | (color >>> 14 & 0x3E0)
+                                    | ((color >>> 11 & 0x1F))]) & 255] = true;
                             i++;
                         }
                     }
@@ -129,9 +129,9 @@ class AnalyzePixels {
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            int rr = ((color >>> 24));
+                            int rr = ((color >>> 24)       );
                             int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8) & 0xFF);
+                            int bb = ((color >>> 8)  & 0xFF);
                             used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))] & 0xFF];
@@ -161,31 +161,43 @@ class AnalyzePixels {
             }
             break;
             case GRADIENT_NOISE: {
-                float pos, adj;
-                final float strength = palette.ditherStrength * palette.populationBias * 3;
+                float adj;
+                final float strength = 60f * palette.ditherStrength / (palette.populationBias * palette.populationBias);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            color |= (color >>> 5 & 0x07070700) | 0xFE;
-                            int rr = ((color >>> 24));
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8) & 0xFF);
-                            used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            adj = (px * 0.06711056f + y * 0.00583715f);
+                            adj -= (int) adj;
+                            adj *= 52.9829189f;
+                            adj -= (int) adj;
+                            adj = (adj-0.5f) * strength;
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+                            usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))] & 0xFF];
-                            pos = (px * 0.06711056f + y * 0.00583715f);
-                            pos -= (int) pos;
-                            pos *= 52.9829189f;
-                            pos -= (int) pos;
-                            adj = (pos - 0.5f) * strength;
-//                            adj = MathUtils.sin(pos * 2f - 1f) * strength;
-//                            adj = (pos * pos - 0.3f) * strength;
-                            rr = Math.min(Math.max((int) (rr + (adj * (rr - (used >>> 24)))), 0), 0xFF);
-                            gg = Math.min(Math.max((int) (gg + (adj * (gg - (used >>> 16 & 0xFF)))), 0), 0xFF);
-                            bb = Math.min(Math.max((int) (bb + (adj * (bb - (used >>> 8 & 0xFF)))), 0), 0xFF);
+                                    | ((bb >>> 3))]) & 255] = true;
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
+            case ROBERTS: {
+                final float populationBias = palette.populationBias;
+                final float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    for (int px = 0; px < width & i < nPix; px++) {
+                        color = image.getPixel(px, flipped + flipDir * y);
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+2) * 0xC13FA9A902A6328FL + (y+3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
@@ -242,36 +254,40 @@ class AnalyzePixels {
                             er = curErrorRed[px];
                             eg = curErrorGreen[px];
                             eb = curErrorBlue[px];
-                            int rr = Math.min(Math.max((int) (((color >>> 24)) + er + 0.5f), 0), 0xFF);
-                            int gg = Math.min(Math.max((int) (((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                            int bb = Math.min(Math.max((int) (((color >>> 8) & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))]) & 255] = true;
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color >>> 24) - (used >>> 24)));
-                            gdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color >>> 16 & 255) - (used >>> 16 & 255)));
-                            bdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color >>> 8 & 255) - (used >>> 8 & 255)));
-                            if (px < w - 1) {
-                                curErrorRed[px + 1] += rdiff * w7;
-                                curErrorGreen[px + 1] += gdiff * w7;
-                                curErrorBlue[px + 1] += bdiff * w7;
+                            rdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
+                            gdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
+                            bdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                            if(px < w - 1)
+                            {
+                                curErrorRed[px+1]   += rdiff * w7;
+                                curErrorGreen[px+1] += gdiff * w7;
+                                curErrorBlue[px+1]  += bdiff * w7;
                             }
-                            if (ny < height) {
-                                if (px > 0) {
-                                    nextErrorRed[px - 1] += rdiff * w3;
-                                    nextErrorGreen[px - 1] += gdiff * w3;
-                                    nextErrorBlue[px - 1] += bdiff * w3;
+                            if(ny < height)
+                            {
+                                if(px > 0)
+                                {
+                                    nextErrorRed[px-1]   += rdiff * w3;
+                                    nextErrorGreen[px-1] += gdiff * w3;
+                                    nextErrorBlue[px-1]  += bdiff * w3;
                                 }
-                                if (px < w - 1) {
-                                    nextErrorRed[px + 1] += rdiff * w1;
-                                    nextErrorGreen[px + 1] += gdiff * w1;
-                                    nextErrorBlue[px + 1] += bdiff * w1;
+                                if(px < w - 1)
+                                {
+                                    nextErrorRed[px+1]   += rdiff * w1;
+                                    nextErrorGreen[px+1] += gdiff * w1;
+                                    nextErrorBlue[px+1]  += bdiff * w1;
                                 }
-                                nextErrorRed[px] += rdiff * w5;
+                                nextErrorRed[px]   += rdiff * w5;
                                 nextErrorGreen[px] += gdiff * w5;
-                                nextErrorBlue[px] += bdiff * w5;
+                                nextErrorBlue[px]  += bdiff * w5;
                             }
                             i++;
                         }
@@ -280,21 +296,20 @@ class AnalyzePixels {
             }
             break;
             case BLUE_NOISE: {
-                float adj, strength = 24 * palette.ditherStrength / palette.populationBias;
+                float adj, strength = 0.1375f * palette.ditherStrength / palette.populationBias;
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
                         if ((color & 0x80) == 0 && hasTransparent)
                             indexedPixels[i++] = 0;
                         else {
-                            int ti = (px & 63) | (y & 63) << 6;
-                            float variation = (strength + 0x1.3p-5f * (PaletteReducer.TRI_BLUE_NOISE[ti] + 0.5f)) * 0.007f;
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_D[ti] + 0.5f) * variation);
-                            int rr = MathUtils.clamp((int) (adj + ((color >>> 24))), 0, 255);
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[ti] + 0.5f) * variation);
+                            float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f;
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                            int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
                             int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[ti] + 0.5f) * variation);
-                            int bb = MathUtils.clamp((int) (adj + ((color >>> 8) & 0xFF)), 0, 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_D[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                            int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
@@ -352,36 +367,131 @@ class AnalyzePixels {
                             er = curErrorRed[px] * tbn;
                             eg = curErrorGreen[px] * tbn;
                             eb = curErrorBlue[px] * tbn;
-                            int rr = Math.min(Math.max((int) (((color >>> 24)) + er + 0.5f), 0), 0xFF);
-                            int gg = Math.min(Math.max((int) (((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                            int bb = Math.min(Math.max((int) (((color >>> 8) & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))]) & 255] = true;
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color >>> 24) - (used >>> 24)));
-                            gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color >>> 16 & 255) - (used >>> 16 & 255)));
-                            bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color >>> 8 & 255) - (used >>> 8 & 255)));
-                            if (px < w - 1) {
-                                curErrorRed[px + 1] += rdiff * w7;
-                                curErrorGreen[px + 1] += gdiff * w7;
-                                curErrorBlue[px + 1] += bdiff * w7;
+                            rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
+                            gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
+                            bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
+                            if(px < w - 1)
+                            {
+                                curErrorRed[px+1]   += rdiff * w7;
+                                curErrorGreen[px+1] += gdiff * w7;
+                                curErrorBlue[px+1]  += bdiff * w7;
                             }
-                            if (ny < height) {
-                                if (px > 0) {
-                                    nextErrorRed[px - 1] += rdiff * w3;
-                                    nextErrorGreen[px - 1] += gdiff * w3;
-                                    nextErrorBlue[px - 1] += bdiff * w3;
+                            if(ny < height)
+                            {
+                                if(px > 0)
+                                {
+                                    nextErrorRed[px-1]   += rdiff * w3;
+                                    nextErrorGreen[px-1] += gdiff * w3;
+                                    nextErrorBlue[px-1]  += bdiff * w3;
                                 }
-                                if (px < w - 1) {
-                                    nextErrorRed[px + 1] += rdiff * w1;
-                                    nextErrorGreen[px + 1] += gdiff * w1;
-                                    nextErrorBlue[px + 1] += bdiff * w1;
+                                if(px < w - 1)
+                                {
+                                    nextErrorRed[px+1]   += rdiff * w1;
+                                    nextErrorGreen[px+1] += gdiff * w1;
+                                    nextErrorBlue[px+1]  += bdiff * w1;
                                 }
-                                nextErrorRed[px] += rdiff * w5;
+                                nextErrorRed[px]   += rdiff * w5;
                                 nextErrorGreen[px] += gdiff * w5;
-                                nextErrorBlue[px] += bdiff * w5;
+                                nextErrorBlue[px]  += bdiff * w5;
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
+            case WOVEN: {
+                final int w = width;
+                float rdiff, gdiff, bdiff;
+                float er, eg, eb;
+                byte paletteIndex;
+                final float populationBias = palette.populationBias;
+                float w1 = (float) (20f * Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                        strength = 48f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
+                        limit = 5f + 130f / (float)Math.sqrt(palette.colorCount+1.5f);
+
+                float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+                if (palette.curErrorRedFloats == null) {
+                    curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                    nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                    curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                    nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                    curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                    nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
+                } else {
+                    curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                    nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                    curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                    nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                    curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                    nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+                }
+
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+
+                    int py = flipped + flipDir * y,
+                            ny = y + 1;
+                    for (int px = 0; px < width && i < nPix; px++) {
+                        color = image.getPixel(px, py);
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            er = Math.min(Math.max(((((px+1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorRed[px]);
+                            eg = Math.min(Math.max(((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorGreen[px]);
+                            eb = Math.min(Math.max(((((px+2) * 0xC13FA9A902A6328FL + (y-4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorBlue[px]);
+
+                            int rr = MathUtils.clamp((int)(((color >>> 24)       ) + er + 0.5f), 0, 0xFF);
+                            int gg = MathUtils.clamp((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
+                            int bb = MathUtils.clamp((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0, 0xFF);
+                            usedEntry[(indexedPixels[i] = paletteIndex =
+                                    paletteMapping[((rr << 7) & 0x7C00)
+                                            | ((gg << 2) & 0x3E0)
+                                            | ((bb >>> 3))]) & 255] = true;
+                            used = paletteArray[paletteIndex & 0xFF];
+                            rdiff = (0x5p-10f * ((color>>>24)-    (used>>>24))    );
+                            gdiff = (0x5p-10f * ((color>>>16&255)-(used>>>16&255)));
+                            bdiff = (0x5p-10f * ((color>>>8&255)- (used>>>8&255)) );
+                            if(px < w - 1)
+                            {
+                                curErrorRed[px+1]   += rdiff * w7;
+                                curErrorGreen[px+1] += gdiff * w7;
+                                curErrorBlue[px+1]  += bdiff * w7;
+                            }
+                            if(ny < height)
+                            {
+                                if(px > 0)
+                                {
+                                    nextErrorRed[px-1]   += rdiff * w3;
+                                    nextErrorGreen[px-1] += gdiff * w3;
+                                    nextErrorBlue[px-1]  += bdiff * w3;
+                                }
+                                if(px < w - 1)
+                                {
+                                    nextErrorRed[px+1]   += rdiff * w1;
+                                    nextErrorGreen[px+1] += gdiff * w1;
+                                    nextErrorBlue[px+1]  += bdiff * w1;
+                                }
+                                nextErrorRed[px]   += rdiff * w5;
+                                nextErrorGreen[px] += gdiff * w5;
+                                nextErrorBlue[px]  += bdiff * w5;
                             }
                             i++;
                         }
@@ -441,36 +551,40 @@ class AnalyzePixels {
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);
 
-                            int rr = MathUtils.clamp((int) (((color >>> 24)) + er + 0.5f), 0, 0xFF);
-                            int gg = MathUtils.clamp((int) (((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
-                            int bb = MathUtils.clamp((int) (((color >>> 8) & 0xFF) + eb + 0.5f), 0, 0xFF);
+                            int rr = MathUtils.clamp((int)(((color >>> 24)       ) + er + 0.5f), 0, 0xFF);
+                            int gg = MathUtils.clamp((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
+                            int bb = MathUtils.clamp((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0, 0xFF);
                             usedEntry[(indexedPixels[i] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))]) & 255] = true;
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color >>> 24) - (used >>> 24)));
-                            gdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color >>> 16 & 255) - (used >>> 16 & 255)));
-                            bdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color >>> 8 & 255) - (used >>> 8 & 255)));
-                            if (px < w - 1) {
-                                curErrorRed[px + 1] += rdiff * w7;
-                                curErrorGreen[px + 1] += gdiff * w7;
-                                curErrorBlue[px + 1] += bdiff * w7;
+                            rdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>24)-    (used>>>24))    );
+                            gdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>16&255)-(used>>>16&255)));
+                            bdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>8&255)- (used>>>8&255)) );
+                            if(px < w - 1)
+                            {
+                                curErrorRed[px+1]   += rdiff * w7;
+                                curErrorGreen[px+1] += gdiff * w7;
+                                curErrorBlue[px+1]  += bdiff * w7;
                             }
-                            if (ny < height) {
-                                if (px > 0) {
-                                    nextErrorRed[px - 1] += rdiff * w3;
-                                    nextErrorGreen[px - 1] += gdiff * w3;
-                                    nextErrorBlue[px - 1] += bdiff * w3;
+                            if(ny < height)
+                            {
+                                if(px > 0)
+                                {
+                                    nextErrorRed[px-1]   += rdiff * w3;
+                                    nextErrorGreen[px-1] += gdiff * w3;
+                                    nextErrorBlue[px-1]  += bdiff * w3;
                                 }
-                                if (px < w - 1) {
-                                    nextErrorRed[px + 1] += rdiff * w1;
-                                    nextErrorGreen[px + 1] += gdiff * w1;
-                                    nextErrorBlue[px + 1] += bdiff * w1;
+                                if(px < w - 1)
+                                {
+                                    nextErrorRed[px+1]   += rdiff * w1;
+                                    nextErrorGreen[px+1] += gdiff * w1;
+                                    nextErrorBlue[px+1]  += bdiff * w1;
                                 }
-                                nextErrorRed[px] += rdiff * w5;
+                                nextErrorRed[px]   += rdiff * w5;
                                 nextErrorGreen[px] += gdiff * w5;
-                                nextErrorBlue[px] += bdiff * w5;
+                                nextErrorBlue[px]  += bdiff * w5;
                             }
                             i++;
                         }
