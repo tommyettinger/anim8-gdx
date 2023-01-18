@@ -127,14 +127,17 @@ public final class OtherMath {
      * A function that loosely approximates the cube root of {@code x}, but is much smaller and probably faster than
      * {@link OtherMath#cbrt(float)}. This is meant to be used when you want the shape of a cbrt() function, but don't
      * actually care about it being the accurate mathematical cube-root.
-     * <a href="https://metamerist.blogspot.com/2007/09/faster-cube-root-iii.html">Initially given here</a> by
-     * metamerist; I just made it respect sign.
      * @param x any float
      * @return a loose approximation of the cube root of x; mostly useful for its shape
      */
     public static float cbrtShape(float x){
-        final int i = NumberUtils.floatToRawIntBits(x);
-        return NumberUtils.intBitsToFloat(((i & 0x7FFFFFFF) - 0x3F800000) / 3 + 0x3F800000 | (i & 0x80000000));
+        /*
+         * <a href="https://metamerist.blogspot.com/2007/09/faster-cube-root-iii.html">Initially given here</a> by
+         * metamerist; I just made it respect sign.
+         */
+//        final int i = NumberUtils.floatToRawIntBits(x);
+//        return NumberUtils.intBitsToFloat(((i & 0x7FFFFFFF) - 0x3F800000) / 3 + 0x3F800000 | (i & 0x80000000));
+        return x * 1.25f / (0.25f + Math.abs(x));
     }
 
     /**

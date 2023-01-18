@@ -29,6 +29,40 @@ import com.github.tommyettinger.anim8.PaletteReducer;
  * Took 1105 ms to write ChaoticNoise
  * Took 18327 ms total
  * </pre>
+ * With float-bit-based cbrtShape():
+ * <pre>
+ * Took 2 ms to construct an AnimatedGif
+ * Took 299 ms to load the Array of Pixmap
+ * Took 84 ms to configure
+ * Took 1610 ms to write Scatter
+ * Took 1794 ms to write Neue
+ * Took 1070 ms to write Gradient
+ * Took 1110 ms to write Roberts
+ * Took 759 ms to write None
+ * Took 8015 ms to write Pattern
+ * Took 1511 ms to write Diffusion
+ * Took 1123 ms to write BlueNoise
+ * Took 1083 ms to write ChaoticNoise
+ * Took 18460 ms total
+ * </pre>
+ * With sigmoid cbrtShape():
+ * <pre>
+ * Took 1 ms to construct an AnimatedGif
+ * Took 173 ms to load the Array of Pixmap
+ * Took 57 ms to configure
+ * Took 1542 ms to write Scatter
+ * Took 1643 ms to write Neue
+ * Took 1037 ms to write Gradient
+ * Took 1069 ms to write Roberts
+ * Took 733 ms to write None
+ * Took 7884 ms to write Pattern
+ * Took 1469 ms to write Diffusion
+ * Took 1111 ms to write BlueNoise
+ * Took 1035 ms to write ChaoticNoise
+ * Took 17754 ms total
+ * </pre>
+ *
+ *
  * File sizes:
  * <pre>
  *  13MB AnimatedGif-market-BlueNoise.gif
