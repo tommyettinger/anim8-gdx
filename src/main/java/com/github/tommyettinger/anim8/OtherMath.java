@@ -127,7 +127,17 @@ public final class OtherMath {
      * A function that loosely approximates the cube root of {@code x}, but is much smaller and probably faster than
      * {@link OtherMath#cbrt(float)}. This is meant to be used when you want the shape of a cbrt() function, but don't
      * actually care about it being the accurate mathematical cube-root.
-     * @param x any float
+     * <br>
+     * This method is small enough that it make more sense to inline it than to call this exact implementation. The code
+     * is simply, given a finite float x:
+     * <pre>
+     *     return x * 1.25f / (0.25f + Math.abs(x));
+     * </pre>
+     * 1.25f is the value M that this will gradually approach (but never reach) for positive inputs; negative inputs
+     * approach -M instead. 0.25f is the value N that changes the curvature of the line this forms; using N closer to
+     * 0.004f results in a shape closer to the actual cube root function, while using larger N (such as 1f or 2f) makes
+     * the line closer to straight, with a shallow slope.
+     * @param x any finite float
      * @return a loose approximation of the cube root of x; mostly useful for its shape
      */
     public static float cbrtShape(float x){

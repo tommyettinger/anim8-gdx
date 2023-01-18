@@ -2495,9 +2495,15 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = OtherMath.cbrtShape(0x2.4p-8f * ((color>>>24)-    (used>>>24))    );
-                    gdiff = OtherMath.cbrtShape(0x2.4p-8f * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = OtherMath.cbrtShape(0x2.4p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff = (0x2.4p-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = (0x2.4p-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = (0x2.4p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+                    gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+                    bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
+
+
+
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * ditherStrength;
@@ -2591,9 +2597,12 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
-                    gdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = OtherMath.cbrtShape(0x1.8p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff = (0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = (0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = (0x1.8p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+                    gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+                    bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * w7;
@@ -3129,9 +3138,12 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
-                    gdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = OtherMath.cbrtShape(0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff = (0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = (0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = (0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+                    gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+                    bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * w7;
@@ -3240,9 +3252,12 @@ public class PaletteReducer {
                                     | ((bb >>> 3))];
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, py, used);
-                    rdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>24)-    (used>>>24))    );
-                    gdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = OtherMath.cbrtShape(0x1.7p-10f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff = (0x1.7p-10f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = (0x1.7p-10f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = (0x1.7p-10f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+                    gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+                    bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += rdiff * w7;
