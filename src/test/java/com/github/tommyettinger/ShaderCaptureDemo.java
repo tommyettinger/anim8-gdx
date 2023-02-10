@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -238,7 +239,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/gif/animated/").mkdirs();
         Gdx.files.local("images/apng/animated/").mkdirs();
         Gdx.files.local("images/png/animated/").mkdirs();
-//		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
 //		renderPNG8(nms, pals, sds, shs);
         renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
@@ -299,8 +300,11 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             apng.write(Gdx.files.local("images/apng/animated/AnimatedPNG-" + name + "-full.png"), pixmaps, 16);
-            for (Pixmap pm : pixmaps)
+            int index = 1;
+            for (Pixmap pm : pixmaps) {
+                PixmapIO.writePNG(Gdx.files.local("images/apng/frames/"+name+"_"+ (index++) + ".png"), pm, 6, true);
                 pm.dispose();
+            }
         }
     }
 
