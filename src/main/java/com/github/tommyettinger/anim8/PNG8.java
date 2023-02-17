@@ -114,9 +114,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     private final ChunkBuffer buffer;
     private final Deflater deflater;
     private ByteArray curLineBytes;
-    private ByteArray prevLineBytes;
     private boolean flipY = true;
-    private int lastLineLen;
 
     public PaletteReducer palette;
 
@@ -564,21 +562,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int lineLen = pixmap.getWidth();
 //            byte[] lineOut, curLine, prevLine;
-            byte[] curLine, prevLine;
+            byte[] curLine;
             if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
                 curLine = (curLineBytes = new ByteArray(lineLen)).items;
-                prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
             } else {
-//                lineOut = lineOutBytes.ensureCapacity(lineLen);
                 curLine = curLineBytes.ensureCapacity(lineLen);
-                prevLine = prevLineBytes.ensureCapacity(lineLen);
-                for (int i = 0, n = lastLineLen; i < n; i++) {
-                    prevLine[i] = 0;
-                }
             }
-
-            lastLineLen = lineLen;
 
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
@@ -613,10 +602,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, lineLen);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -741,26 +726,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         buffer.writeInt(IDAT);
         deflater.reset();
 
-        int lineLen = width;
 //        byte[] lineOut, curLine, prevLine;
-        byte[] curLine, prevLine;
+        byte[] curLine;
         if (curLineBytes == null) {
-//            lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
-            curLine = (curLineBytes = new ByteArray(lineLen)).items;
-            prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
+            curLine = (curLineBytes = new ByteArray(width)).items;
         } else {
-//            lineOut = lineOutBytes.ensureCapacity(lineLen);
-            curLine = curLineBytes.ensureCapacity(lineLen);
-            prevLine = prevLineBytes.ensureCapacity(lineLen);
-            for (int i = 0, n = lastLineLen; i < n; i++)
-            {
-                prevLine[i] = 0;
-            }
+            curLine = curLineBytes.ensureCapacity(width);
         }
 
-        lastLineLen = lineLen;
-
-        for (int y = startY; y < h; y++) {
+            for (int y = startY; y < h; y++) {
             int py = flipY ? (pixmap.getHeight() - y - 1) : y;
             for (int px = startX; px < w; px++) {
                 color = pixmap.getPixel(px, py);
@@ -792,11 +766,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //            deflaterOutput.write(lineOut, 0, lineLen);
 
             deflaterOutput.write(FILTER_NONE);
-            deflaterOutput.write(curLine, 0, lineLen);
-
-            byte[] temp = curLine;
-            curLine = prevLine;
-            prevLine = temp;
+            deflaterOutput.write(curLine, 0, width);
         }
         deflaterOutput.finish();
         buffer.endChunk(dataOutput);
@@ -851,22 +821,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //        byte[] lineOut, curLine, prevLine;
         byte[] curLine, prevLine;
         if (curLineBytes == null) {
-//            lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
             curLine = (curLineBytes = new ByteArray(lineLen)).items;
-            prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
         } else {
-//            lineOut = lineOutBytes.ensureCapacity(lineLen);
             curLine = curLineBytes.ensureCapacity(lineLen);
-            prevLine = prevLineBytes.ensureCapacity(lineLen);
-            for (int i = 0, n = lastLineLen; i < n; i++)
-            {
-                prevLine[i] = 0;
-            }
         }
 
-        lastLineLen = lineLen;
-
-        int color;
+            int color;
         final int w = pixmap.getWidth(), h = pixmap.getHeight();
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
@@ -910,10 +870,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             deflaterOutput.write(FILTER_NONE);
             deflaterOutput.write(curLine, 0, lineLen);
-
-            byte[] temp = curLine;
-            curLine = prevLine;
-            prevLine = temp;
         }
         deflaterOutput.finish();
         buffer.endChunk(dataOutput);
@@ -968,21 +924,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth(), h = pixmap.getHeight();
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             int color;
             float adj;
@@ -1035,10 +981,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -1093,21 +1035,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth(), h = pixmap.getHeight();
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             int color;
             final float populationBias = palette.populationBias;
@@ -1155,10 +1087,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -1212,21 +1140,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth(), h = pixmap.getHeight();
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             int color;
             float adj, strength = 0.1375f * palette.ditherStrength / palette.populationBias;
@@ -1276,10 +1194,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -1334,21 +1248,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth(), h = pixmap.getHeight();
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             int color, used;
 
@@ -1418,10 +1322,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -1503,21 +1403,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             for (int y = 0; y < h; y++) {
                 System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -1604,10 +1494,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -1663,22 +1549,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //        byte[] lineOut, curLine, prevLine;
         byte[] curLine, prevLine;
         if (curLineBytes == null) {
-//            lineOut = (lineOutBytes = new ByteArray(w)).items;
             curLine = (curLineBytes = new ByteArray(w)).items;
-            prevLine = (prevLineBytes = new ByteArray(w)).items;
         } else {
-//            lineOut = lineOutBytes.ensureCapacity(w);
             curLine = curLineBytes.ensureCapacity(w);
-            prevLine = prevLineBytes.ensureCapacity(w);
-            for (int i = 0, n = lastLineLen; i < n; i++)
-            {
-                prevLine[i] = 0;
-            }
         }
 
-        lastLineLen = w;
-
-        int color, used;
+            int color, used;
         int cr, cg, cb,  usedIndex;
         final float errorMul = palette.ditherStrength * palette.populationBias;
         for (int y = 0; y < h; y++) {
@@ -1735,10 +1611,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             deflaterOutput.write(FILTER_NONE);
             deflaterOutput.write(curLine, 0, w);
-
-            byte[] temp = curLine;
-            curLine = prevLine;
-            prevLine = temp;
         }
         deflaterOutput.finish();
         buffer.endChunk(dataOutput);
@@ -1820,21 +1692,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             for (int y = 0; y < h; y++) {
                 System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -1922,10 +1784,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -2008,21 +1866,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     limit = (float) Math.pow(80, 1.635 - palette.populationBias);
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             for (int y = 0; y < h; y++) {
                 System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -2112,10 +1960,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -2199,21 +2043,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     strength = 48f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
                     limit = 5f + 130f / (float)Math.sqrt(palette.colorCount+1.5f);
             byte[] curLine, prevLine;
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(w)).items;
-                curLine = (curLineBytes = new ByteArray(w)).items;
-                prevLine = (prevLineBytes = new ByteArray(w)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(w);
-                curLine = curLineBytes.ensureCapacity(w);
-                prevLine = prevLineBytes.ensureCapacity(w);
-                for (int i = 0, n = lastLineLen; i < n; i++)
-                {
-                    prevLine[i] = 0;
-                }
-            }
-
-            lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
             for (int y = 0; y < h; y++) {
                 System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -2298,10 +2132,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -2461,18 +2291,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             }
             deflater.reset();
 
-            if (curLineBytes == null) {
-//                lineOut = (lineOutBytes = new ByteArray(width)).items;
-                curLine = (curLineBytes = new ByteArray(width)).items;
-                prevLine = (prevLineBytes = new ByteArray(width)).items;
-            } else {
-//                lineOut = lineOutBytes.ensureCapacity(width);
-                curLine = curLineBytes.ensureCapacity(width);
-                prevLine = prevLineBytes.ensureCapacity(width);
-                for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                    prevLine[ln] = 0;
-            }
-            lastLineLen = width;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
 
             for (int y = 0; y < height; y++) {
                 int py = flipY ? (height - y - 1) : y;
@@ -2516,10 +2339,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, width);
-
-                byte[] temp = curLine;
-                curLine = prevLine;
-                prevLine = temp;
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -2618,8 +2437,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine, prevLine;
             int color;
 
-            lastLineLen = width;
-;
+            ;
             float pos;
             final float strength = 60f * palette.ditherStrength / (palette.populationBias * palette.populationBias);
 
@@ -2647,18 +2465,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-//                    lineOut = (lineOutBytes = new ByteArray(width)).items;
-                    curLine = (curLineBytes = new ByteArray(width)).items;
-                    prevLine = (prevLineBytes = new ByteArray(width)).items;
-                } else {
-//                    lineOut = lineOutBytes.ensureCapacity(width);
-                    curLine = curLineBytes.ensureCapacity(width);
-                    prevLine = prevLineBytes.ensureCapacity(width);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
-                lastLineLen = width;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
 
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
@@ -2706,10 +2517,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, width);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -2772,7 +2579,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine, prevLine;
             int color;
 
-            lastLineLen = width;
             final float populationBias = palette.populationBias;
             final float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
 
@@ -2800,18 +2606,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-//                    lineOut = (lineOutBytes = new ByteArray(width)).items;
-                    curLine = (curLineBytes = new ByteArray(width)).items;
-                    prevLine = (prevLineBytes = new ByteArray(width)).items;
-                } else {
-//                    lineOut = lineOutBytes.ensureCapacity(width);
-                    curLine = curLineBytes.ensureCapacity(width);
-                    prevLine = prevLineBytes.ensureCapacity(width);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
-                lastLineLen = width;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
 
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
@@ -2854,10 +2653,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, width);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -2919,8 +2714,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine, prevLine;
             int color;
 
-            lastLineLen = width;
-
             float adj, strength = 0.1375f * palette.ditherStrength / palette.populationBias;
 
             int seq = 0;
@@ -2947,18 +2740,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-//                    lineOut = (lineOutBytes = new ByteArray(width)).items;
-                    curLine = (curLineBytes = new ByteArray(width)).items;
-                    prevLine = (prevLineBytes = new ByteArray(width)).items;
-                } else {
-//                    lineOut = lineOutBytes.ensureCapacity(width);
-                    curLine = curLineBytes.ensureCapacity(width);
-                    prevLine = prevLineBytes.ensureCapacity(width);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
-                lastLineLen = width;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
@@ -3004,10 +2790,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //                    deflaterOutput.write(lineOut, 0, width);
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, width);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -3070,8 +2852,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine, prevLine;
             int color, used;
 
-            lastLineLen = width;
-
             byte paletteIndex;
             double adj, strength = palette.ditherStrength * palette.populationBias * 1.5;
 
@@ -3099,18 +2879,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-//                    lineOut = (lineOutBytes = new ByteArray(width)).items;
-                    curLine = (curLineBytes = new ByteArray(width)).items;
-                    prevLine = (prevLineBytes = new ByteArray(width)).items;
-                } else {
-//                    lineOut = lineOutBytes.ensureCapacity(width);
-                    curLine = curLineBytes.ensureCapacity(width);
-                    prevLine = prevLineBytes.ensureCapacity(width);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
-                lastLineLen = width;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
                 long s = 0xC13FA9A902A6328FL * seq;
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
@@ -3174,10 +2947,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, width);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -3202,31 +2971,31 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         try {
             dataOutput.write(SIGNATURE);
 
-            final int w = pixmap.getWidth();
-            final int h = pixmap.getHeight();
+            final int width = pixmap.getWidth();
+            final int height = pixmap.getHeight();
             float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
             if (palette.curErrorRedFloats == null) {
-                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
-                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
-                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
-                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
-                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
-                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(width)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(width)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(width)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(width)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(width)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(width)).items;
             } else {
-                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
-                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
-                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
-                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
-                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
-                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(width);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(width);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(width);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(width);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(width);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(width);
                 Arrays.fill(nextErrorRed, (byte) 0);
                 Arrays.fill(nextErrorGreen, (byte) 0);
                 Arrays.fill(nextErrorBlue, (byte) 0);
             }
 
             buffer.writeInt(IHDR);
-            buffer.writeInt(w);
-            buffer.writeInt(h);
+            buffer.writeInt(width);
+            buffer.writeInt(height);
             buffer.writeByte(8); // 8 bits per component.
             buffer.writeByte(COLOR_INDEXED);
             buffer.writeByte(COMPRESSION_DEFLATE);
@@ -3258,8 +3027,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
 
-            lastLineLen = w;
-
             int color, used;
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
@@ -3271,8 +3038,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 buffer.writeInt(fcTL);
                 buffer.writeInt(seq++);
-                buffer.writeInt(w);
-                buffer.writeInt(h);
+                buffer.writeInt(width);
+                buffer.writeInt(height);
                 buffer.writeInt(0);
                 buffer.writeInt(0);
                 buffer.writeShort(1);
@@ -3294,31 +3061,24 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if ( curLineBytes == null) {
-//                    lineOut = (lineOutBytes = new ByteArray(w)).items;
-                    curLine = (curLineBytes = new ByteArray(w)).items;
-                    prevLine = (prevLineBytes = new ByteArray(w)).items;
-                } else {
-//                    lineOut = lineOutBytes.ensureCapacity(w);
-                    curLine = curLineBytes.ensureCapacity(w);
-                    prevLine = prevLineBytes.ensureCapacity(w);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
-                lastLineLen = w;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
 
-                for (int y = 0; y < h; y++) {
-                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
-                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
-                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+                for (int y = 0; y < height; y++) {
+                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, width);
+                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, width);
+                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, width);
 
                     Arrays.fill(nextErrorRed, (byte) 0);
                     Arrays.fill(nextErrorGreen, (byte) 0);
                     Arrays.fill(nextErrorBlue, (byte) 0);
 
-                    int py = flipY ? (h - y - 1) : y,
+                    int py = flipY ? (height - y - 1) : y,
                             ny = y + 1;
-                    for (int px = 0; px < w; px++) {
+                    for (int px = 0; px < width; px++) {
                         color = pixmap.getPixel(px, py);
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
@@ -3340,13 +3100,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
                             gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
                             bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
-                            if(px < w - 1)
+                            if(px < width - 1)
                             {
                                 curErrorRed[px+1]   += rdiff * w7;
                                 curErrorGreen[px+1] += gdiff * w7;
                                 curErrorBlue[px+1]  += bdiff * w7;
                             }
-                            if(ny < h)
+                            if(ny < height)
                             {
                                 if(px > 0)
                                 {
@@ -3354,7 +3114,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                     nextErrorGreen[px-1] += gdiff * w3;
                                     nextErrorBlue[px-1]  += bdiff * w3;
                                 }
-                                if(px < w - 1)
+                                if(px < width - 1)
                                 {
                                     nextErrorRed[px+1]   += rdiff * w1;
                                     nextErrorGreen[px+1] += gdiff * w1;
@@ -3391,11 +3151,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //                    deflaterOutput.write(lineOut, 0, w);
 
                     deflaterOutput.write(FILTER_NONE);
-                    deflaterOutput.write(curLine, 0, w);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
+                    deflaterOutput.write(curLine, 0, width);
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -3457,8 +3213,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
 
-            lastLineLen = width;
-
             int color, used;
             int cr, cg, cb,  usedIndex;
             final float errorMul = palette.ditherStrength * palette.populationBias;
@@ -3487,18 +3241,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-//                    lineOut = (lineOutBytes = new ByteArray(width)).items;
-                    curLine = (curLineBytes = new ByteArray(width)).items;
-                    prevLine = (prevLineBytes = new ByteArray(width)).items;
-                } else {
-//                    lineOut = lineOutBytes.ensureCapacity(width);
-                    curLine = curLineBytes.ensureCapacity(width);
-                    prevLine = prevLineBytes.ensureCapacity(width);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
-                lastLineLen = width;
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
 
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
@@ -3554,10 +3301,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, width);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -3638,8 +3381,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
 
-            lastLineLen = w;
-
             int color, used;
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
@@ -3674,17 +3415,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-//                    lineOut = (lineOutBytes = new ByteArray(w)).items;
-                    curLine = (curLineBytes = new ByteArray(w)).items;
-                    prevLine = (prevLineBytes = new ByteArray(w)).items;
-                } else {
-//                    lineOut = lineOutBytes.ensureCapacity(w);
-                    curLine = curLineBytes.ensureCapacity(w);
-                    prevLine = prevLineBytes.ensureCapacity(w);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
                 for (int y = 0; y < h; y++) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -3772,10 +3507,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, w);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -3856,8 +3587,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine, prevLine;
 
-            lastLineLen = w;
-
             int color, used;
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
@@ -3894,15 +3623,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-                    curLine = (curLineBytes = new ByteArray(w)).items;
-                    prevLine = (prevLineBytes = new ByteArray(w)).items;
-                } else {
-                    curLine = curLineBytes.ensureCapacity(w);
-                    prevLine = prevLineBytes.ensureCapacity(w);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
                 for (int y = 0; y < h; y++) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -3993,10 +3718,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, w);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -4076,8 +3797,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte[] curLine, prevLine;
 
-            lastLineLen = w;
-
             int color, used;
             float rdiff, gdiff, bdiff;
             float er, eg, eb;
@@ -4115,15 +3834,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-                if (curLineBytes == null) {
-                    curLine = (curLineBytes = new ByteArray(w)).items;
-                    prevLine = (prevLineBytes = new ByteArray(w)).items;
-                } else {
-                    curLine = curLineBytes.ensureCapacity(w);
-                    prevLine = prevLineBytes.ensureCapacity(w);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
-                }
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
 
                 for (int y = 0; y < h; y++) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -4208,10 +3923,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, w);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
