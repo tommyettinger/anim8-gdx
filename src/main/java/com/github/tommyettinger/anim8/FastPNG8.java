@@ -51,8 +51,8 @@ import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
  * PNG-8 encoder with compression; can write animated and non-animated PNG images in indexed-mode.
  * An instance can be reused to encode multiple PNGs with minimal allocation. This is a variant on {@link PNG8}
  * that can often be faster, but does not support {@link #setFlipY(boolean)}. The changes from PNG8 are mostly that this
- * uses PNG's NONE filter mode instead of PAETH, and that this directly reads from the Pixmap's ByteBuffer obtained with
- * {@link Pixmap#getPixels()}. Using the NONE filter may improve file sizes or worsen them, relative to PAETH.
+ * defaults to a lower compression level (2), and that this directly reads from the Pixmap's ByteBuffer obtained with
+ * {@link Pixmap#getPixels()}.
  * <br>
  * You can configure the target palette and how this can dither colors via the {@link #palette} field, which is a
  * {@link PaletteReducer} object that defaults to null and can be reused. If you assign a PaletteReducer to palette, the
