@@ -30,6 +30,7 @@
         <exclude name="**/ChunkBuffer.java"/>
         <exclude name="**/PNG8.java"/>
         <exclude name="**/FastAPNG.java"/>
+        <exclude name="**/FastGif.java"/>
         <exclude name="**/FastPNG.java"/>
         <exclude name="**/FastPNG8.java"/>
     </source>
