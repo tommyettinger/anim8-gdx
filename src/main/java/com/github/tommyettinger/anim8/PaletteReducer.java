@@ -317,15 +317,6 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final byte[] TRI_BLUE_NOISE_C = ConstantData.TRI_BLUE_NOISE_C;
-    /**
-     * A 4096-element byte array as a 64x64 grid of bytes. When arranged into a grid, the bytes will follow a blue noise
-     * frequency (in this case, they will have a triangular distribution for its bytes, so values near 0 are much more
-     * common). This is used inside this library by {@link #reduceBlueNoise(Pixmap)}.
-     * <br>
-     * While, for some reason, you could change the contents to some other distribution of bytes, I don't know why this
-     * would be needed.
-     */
-    public static final byte[] TRI_BLUE_NOISE_D = ConstantData.TRI_BLUE_NOISE_D;
 
     /**
      * A 64x64 grid of floats, with a median value of about 1.0, generated using the triangular-distributed blue noise
@@ -337,8 +328,6 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS;
-//    private static final double[] EXACT_LOOKUP = new double[256];
-//    private static final double[] ANALYTIC_LOOKUP = new double[256];
 
     static {
         float rf, gf, bf, lf, mf, sf;
@@ -1030,24 +1019,24 @@ public class PaletteReducer {
         analyze(pixmap, 100);
     }
 
-    private static final Comparator<IntIntMap.Entry> entryComparator = new Comparator<IntIntMap.Entry>() {
+    protected static final Comparator<IntIntMap.Entry> entryComparator = new Comparator<IntIntMap.Entry>() {
         @Override
         public int compare(IntIntMap.Entry o1, IntIntMap.Entry o2) {
             return o2.value - o1.value;
         }
     };
 
-    private static final Comparator<IntFloatMap.Entry> ifEntryComparator = new Comparator<IntFloatMap.Entry>() {
-        @Override
-        public int compare(IntFloatMap.Entry o1, IntFloatMap.Entry o2) {
-            return NumberUtils.floatToIntBits(o2.value - o1.value);
-        }
-    };
+//    private static final Comparator<IntFloatMap.Entry> intFloatEntryComparator = new Comparator<IntFloatMap.Entry>() {
+//        @Override
+//        public int compare(IntFloatMap.Entry o1, IntFloatMap.Entry o2) {
+//            return NumberUtils.floatToIntBits(o2.value - o1.value);
+//        }
+//    };
 
     /**
      * Just like Comparator, but compares primitive ints.
      */
-    private interface IntComparator {
+    public interface IntComparator {
         /**
          * Compares its two primitive-type arguments for order. Returns a negative
          * integer, zero, or a positive integer as the first argument is less than,
@@ -1063,7 +1052,7 @@ public class PaletteReducer {
     /**
      * Compares shrunken indices (RGB555) by lightness as Oklab knows it.
      */
-    private static final IntComparator lightnessComparator = new IntComparator() {
+    protected static final IntComparator lightnessComparator = new IntComparator() {
         @Override
         public int compare(int k1, int k2) {
             return NumberUtils.floatToIntBits(OKLAB[0][k2] - OKLAB[0][k1]);
@@ -1073,7 +1062,7 @@ public class PaletteReducer {
     /**
      * Compares shrunken indices (RGB555) by hue as Oklab knows it.
      */
-    private static final IntComparator hueComparator = new IntComparator() {
+    protected static final IntComparator hueComparator = new IntComparator() {
         @Override
         public int compare(int k1, int k2) {
             return NumberUtils.floatToIntBits(OKLAB[3][k2] - OKLAB[3][k1]);
@@ -2960,50 +2949,7 @@ public class PaletteReducer {
                     int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
                     adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
                     int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_D[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                    int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
-
-                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
-                            | ((gg << 2) & 0x3E0)
-                            | ((bb >>> 3))] & 0xFF]);
-                }
-            }
-        }
-        pixmap.setBlending(blending);
-        return pixmap;
-    }
-
-    /**
-     * A blue-noise-based dither; does not diffuse error, and uses 4 tiling blue noise patterns (which can be accessed
-     * with {@link #TRI_BLUE_NOISE}, {@link #TRI_BLUE_NOISE_B}, {@link #TRI_BLUE_NOISE_C}, and
-     * {@link #TRI_BLUE_NOISE_D}, but shouldn't usually be modified). This has a tendency to look closer to a color
-     * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
-     * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
-     * effects can appear in all the error-diffusion dithers here. This is called "Separated" because each RGB channel
-     * is affected by a separate blue noise pattern.
-     * @param pixmap will be modified in-place and returned
-     * @return pixmap, after modifications
-     */
-    public Pixmap reduceBlueNoiseSeparated (Pixmap pixmap) {
-        boolean hasTransparent = (paletteArray[0] == 0);
-        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
-        Pixmap.Blending blending = pixmap.getBlending();
-        pixmap.setBlending(Pixmap.Blending.None);
-        int color;
-        float adj, strength = 24 * ditherStrength / populationBias;
-        for (int y = 0; y < h; y++) {
-            for (int px = 0; px < lineLen; px++) {
-                color = pixmap.getPixel(px, y);
-                if ((color & 0x80) == 0 && hasTransparent)
-                    pixmap.drawPixel(px, y, 0);
-                else {
-                    int ti = (px & 63) | (y & 63) << 6;
-                    float variation = (strength + 0x1.3p-5f * (PaletteReducer.TRI_BLUE_NOISE[ti] + 0.5f)) * 0.007f;
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_D[ti] + 0.5f) * variation);
-                    int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[ti] + 0.5f) * variation);
-                    int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[ti] + 0.5f) * variation);
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
                     int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)

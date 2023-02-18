@@ -743,7 +743,7 @@ public class FastGif implements AnimationWriter, Dithered {
                             int rr = Math.min(Math.max((int) (adj + r),  0),  255);
                             adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
                             int gg = Math.min(Math.max((int) (adj + g),  0),  255);
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_D[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
                             int bb = Math.min(Math.max((int) (adj + b),  0),  255);
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
