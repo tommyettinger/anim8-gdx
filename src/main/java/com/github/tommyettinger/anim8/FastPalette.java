@@ -150,6 +150,7 @@ public class FastPalette extends PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 500, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
+    @Override
     public void analyze(Pixmap pixmap, double threshold, int limit) {
         ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
@@ -244,7 +245,7 @@ public class FastPalette extends PaletteReducer {
 
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
-     * If there are {@code limit} or less colors, this uses the exact colors (although with at most one transparent
+     * If there are {@code limit} or fewer colors, this uses the exact colors (although with at most one transparent
      * color, and no alpha for other colors); if there are more than {@code limit} colors or any colors have 50% or less
      * alpha, it will reserve a palette entry for transparent (even if the image has no transparency). Because calling
      * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
@@ -266,6 +267,7 @@ public class FastPalette extends PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 500, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
+    @Override
     public void analyzeFast(Pixmap pixmap, double threshold, int limit) {
         ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
@@ -415,7 +417,7 @@ public class FastPalette extends PaletteReducer {
     }
 
     /**
-     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most {@code limit} colors. If there are {@code limit} or less colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * {@code limit} colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
@@ -434,6 +436,7 @@ public class FastPalette extends PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 500, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
+    @Override
     public void analyze(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
@@ -535,6 +538,62 @@ public class FastPalette extends PaletteReducer {
                 }
             }
         }
+    }
+
+    /**
+     * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, without dithering. This
+     * produces blocky solid sections of color in most images where the palette isn't exact, instead of
+     * checkerboard-like dithering patterns. If you want to reduce the colors in a Pixmap based on what it currently
+     * contains, call {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
+     * Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
+     * {@link #exact(int[])} is the tool for that job.
+     * @param pixmap a Pixmap that will be modified in place
+     * @return the given Pixmap, for chaining
+     */
+    @Override
+    public Pixmap reduceSolid (Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                if (hasAlpha){
+                    if((pixels.get() & 0x80) == 0) {
+                        if(hasTransparent)
+                            pixels.position(pixels.position() - 4).putInt(0);
+                        else
+                            pixels.position(pixels.position()-4).putInt(
+                                    paletteArray[paletteMapping[
+                                            ((rr << 7) & 0x7C00)
+                                                    | ((gg << 2) & 0x3E0)
+                                                    | ((bb >>> 3))] & 0xFF]);
+                    } else {
+                        pixels.position(pixels.position()-4).putInt(
+                                paletteArray[paletteMapping[
+                                        ((rr << 7) & 0x7C00)
+                                                | ((gg << 2) & 0x3E0)
+                                                | ((bb >>> 3))] & 0xFF]);
+                    }
+                } else {
+                    int rgba = paletteArray[paletteMapping[
+                            ((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))] & 0xFF];
+                    pixels.position(pixels.position()-3)
+                            .put((byte)(rgba >>> 24)).put((byte)(rgba>>>16)).put((byte)(rgba>>>8));
+                }
+            }
+
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
     }
 
 }

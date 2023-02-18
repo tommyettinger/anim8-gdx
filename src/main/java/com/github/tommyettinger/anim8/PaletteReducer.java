@@ -1901,7 +1901,7 @@ public class PaletteReducer {
     }
 
     /**
-     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
@@ -1922,7 +1922,7 @@ public class PaletteReducer {
     }
 
     /**
-     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
@@ -1944,7 +1944,7 @@ public class PaletteReducer {
     }
 
     /**
-     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most {@code limit} colors. If there are {@code limit} or less colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * {@code limit} colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
@@ -1966,7 +1966,7 @@ public class PaletteReducer {
         analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
     }
     /**
-     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most {@code limit} colors. If there are {@code limit} or less colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * {@code limit} colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
@@ -2082,7 +2082,7 @@ public class PaletteReducer {
     }
 
     /**
-     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
      * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
