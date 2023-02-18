@@ -31,6 +31,7 @@
         <exclude name="**/PNG8.java"/>
         <exclude name="**/FastAPNG.java"/>
         <exclude name="**/FastGif.java"/>
+        <exclude name="**/FastPalette.java"/>
         <exclude name="**/FastPNG.java"/>
         <exclude name="**/FastPNG8.java"/>
     </source>
