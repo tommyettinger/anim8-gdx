@@ -413,4 +413,128 @@ public class FastPalette extends PaletteReducer {
         }
         pixels.rewind();
     }
+
+    /**
+     * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most {@code limit} colors. If there are {@code limit} or less colors, this uses the
+     * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
+     * {@code limit} colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
+     * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
+     * dither colors that aren't exact, and dithering works better when the palette can choose colors that are
+     * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
+     * into the palette, and if the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a
+     * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
+     * to existing colors. The threshold is usually between 50 and 500, and 100 is a good default. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     *
+     * @param pixmaps   a Pixmap array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     * @param pixmapCount the maximum number of Pixmap entries in pixmaps to use
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 500, 100 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyze(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        limit = Math.min(Math.max(limit, 2), 256);
+        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
+        IntIntMap counts = new IntIntMap(limit);
+        int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
+        for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
+            Pixmap pixmap = pixmaps[i];
+            ByteBuffer pixels = pixmap.getPixels();
+            boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+            final int width = pixmap.getWidth(), height = pixmap.getHeight();
+            int r, g, b;
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    r = pixels.get() & 0xF8;
+                    g = pixels.get() & 0xF8;
+                    b = pixels.get() & 0xF8;
+                    if (!hasAlpha || (pixels.get() & 0x80) != 0) {
+                        color = r << 24 | g << 16 | b << 8;
+                        color |= (color >>> 5 & 0x07070700) | 0xFF;
+                        counts.getAndIncrement(color, 0, 1);
+                    }
+                }
+            }
+            pixels.rewind();
+        }
+        final int cs = counts.size;
+        Array<IntIntMap.Entry> es = new Array<>(cs);
+        for(IntIntMap.Entry e : counts)
+        {
+            IntIntMap.Entry e2 = new IntIntMap.Entry();
+            e2.key = e.key;
+            e2.value = e.value;
+            es.add(e2);
+        }
+        es.sort(entryComparator);
+        if (cs < limit) {
+            int i = 1;
+            for(IntIntMap.Entry e : es) {
+                color = e.key;
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                reds[i] = color >>> 24;
+                greens[i] = color >>> 16 & 255;
+                blues[i] = color >>> 8 & 255;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.125/colorCount);
+        } else // reduce color count
+        {
+            int i = 1, c = 0;
+            PER_BEST:
+            for (; i < limit && c < cs;) {
+                color = es.get(c++).key;
+                for (int j = 1; j < i; j++) {
+                    double diff = differenceAnalyzing(color, paletteArray[j]);
+                    if (diff < threshold)
+                        continue PER_BEST;
+                }
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                reds[i] = color >>> 24;
+                greens[i] = color >>> 16 & 255;
+                blues[i] = color >>> 8 & 255;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.125/colorCount);
+        }
+        if(reverseMap == null)
+            reverseMap = new IntIntMap(colorCount);
+        else
+            reverseMap.clear(colorCount);
+
+        for (int i = 0; i < colorCount; i++) {
+            reverseMap.put(paletteArray[i], i);
+        }
+
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.MAX_VALUE;
+                        for (int i = 1; i < colorCount; i++) {
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(reds[i], greens[i], blues[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
