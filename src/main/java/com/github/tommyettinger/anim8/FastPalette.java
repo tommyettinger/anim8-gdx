@@ -563,30 +563,35 @@ public class FastPalette extends PaletteReducer {
                 int rr = pixels.get() & 0xFF;
                 int gg = pixels.get() & 0xFF;
                 int bb = pixels.get() & 0xFF;
-                if (hasAlpha){
+                if (hasAlpha){ // read one more byte for RGBA8888
                     if((pixels.get() & 0x80) == 0) {
-                        if(hasTransparent)
-                            pixels.position(pixels.position() - 4).putInt(0);
-                        else
-                            pixels.position(pixels.position()-4).putInt(
+                        if (hasTransparent) {
+                            pixels.position(pixels.position() - 4);
+                            pixels.putInt(0);
+                        } else {
+                            pixels.position(pixels.position() - 4);
+                            pixels.putInt(
                                     paletteArray[paletteMapping[
                                             ((rr << 7) & 0x7C00)
                                                     | ((gg << 2) & 0x3E0)
                                                     | ((bb >>> 3))] & 0xFF]);
-                    } else {
-                        pixels.position(pixels.position()-4).putInt(
+                        }
+                    }
+                    else {
+                        pixels.position(pixels.position()-4);
+                        pixels.putInt(
                                 paletteArray[paletteMapping[
                                         ((rr << 7) & 0x7C00)
                                                 | ((gg << 2) & 0x3E0)
                                                 | ((bb >>> 3))] & 0xFF]);
                     }
-                } else {
+                } else { // read and put just RGB888
                     int rgba = paletteArray[paletteMapping[
                             ((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))] & 0xFF];
-                    pixels.position(pixels.position()-3)
-                            .put((byte)(rgba >>> 24)).put((byte)(rgba>>>16)).put((byte)(rgba>>>8));
+                    pixels.position(pixels.position()-3);
+                    pixels.put((byte)(rgba >>> 24)).put((byte)(rgba>>>16)).put((byte)(rgba>>>8));
                 }
             }
 
