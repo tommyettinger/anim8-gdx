@@ -842,6 +842,13 @@ public class FastPalette extends PaletteReducer {
         pixels.rewind();
         return pixmap;
     }
+
+    protected float likeRoberts(int x, int y) {
+        final float s = (((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f);
+//        return 1.25f * s / (0.4f + Math.abs(s));
+//        return s * Math.abs(s);
+        return s;
+    }
     /**
      * An ordered dither that uses a sub-random sequence by Martin Roberts to disperse lightness adjustments across the
      * image. This is very similar to {@link #reduceJimenez(Pixmap)}, but is milder by default, and has subtly different
@@ -859,7 +866,7 @@ public class FastPalette extends PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
 //        float str = (32f * ditherStrength / (populationBias * populationBias));
 //        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
-        float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+        float str = (25f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 int rr = pixels.get() & 0xFF;
@@ -885,9 +892,12 @@ public class FastPalette extends PaletteReducer {
 //                    // sign-preserving square, emphasizes low-magnitude values
 ////                    adj *= Math.abs(adj);
 
-                int ar = Math.min(Math.max((int) (rr + ((((px - 1) * 0xC13FA9A902A6328FL + (y + 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-                int ag = Math.min(Math.max((int) (gg + ((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-                int ab = Math.min(Math.max((int) (bb + ((((px + 2) * 0xC13FA9A902A6328FL + (y + 3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                int ar = Math.min(Math.max((int) (rr + likeRoberts(px - 1, y + 1) * str + 0.5f), 0), 255);
+                int ag = Math.min(Math.max((int) (gg + likeRoberts(px + 3, y - 1) * str + 0.5f), 0), 255);
+                int ab = Math.min(Math.max((int) (bb + likeRoberts(px + 2, y + 3) * str + 0.5f), 0), 255);
+//                int ar = Math.min(Math.max((int) (rr + ((((px - 1) * 0xC13FA9A902A6328FL + (y + 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+//                int ag = Math.min(Math.max((int) (gg + ((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+//                int ab = Math.min(Math.max((int) (bb + ((((px + 2) * 0xC13FA9A902A6328FL + (y + 3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
                 writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
             }
         }
