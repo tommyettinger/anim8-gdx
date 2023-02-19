@@ -100,10 +100,10 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                 reducer.reduceSolid(p);
                 break;
             case 0:
-                reducer.reduceIgneous(p);
+                reducer.reduceBlueNoise(p);
                 break;
             case 1:
-                reducer.reduceBlueNoise(p);
+                reducer.reduceIgneous(p);
                 break;
             case 2:
                 reducer.reduceRoberts(p); // was reduceChaotic(), but it's trash

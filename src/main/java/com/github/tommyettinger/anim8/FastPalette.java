@@ -796,4 +796,50 @@ public class FastPalette extends PaletteReducer {
         return pixmap;
     }
 
+    /**
+     * It's interleaved gradient noise, by Jorge Jimenez! It's very fast! It's an ordered dither!
+     * It's pretty good with gradients, though it may introduce artifacts. It has noticeable diagonal
+     * lines in some places, but these tend to have mixed directions that obscure larger patterns.
+     * This is very similar to {@link #reduceRoberts(Pixmap)}, but has different artifacts, and this
+     * dither tends to be stronger by default.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceJimenez(Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        float adj;
+        final float strength = 60f * ditherStrength / (populationBias * populationBias);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+                adj = (px * 0.06711056f + y * 0.00583715f);
+                adj -= (int) adj;
+                adj *= 52.9829189f;
+                adj -= (int) adj;
+                adj -= 0.5f;
+                adj *= strength;
+                int ar = Math.min(Math.max((int)(rr + adj + 0.5f), 0), 255);
+                int ag = Math.min(Math.max((int)(gg + adj + 0.5f), 0), 255);
+                int ab = Math.min(Math.max((int)(bb + adj + 0.5f), 0), 255);
+                writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
+
 }
