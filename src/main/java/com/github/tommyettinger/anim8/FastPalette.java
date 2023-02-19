@@ -22,6 +22,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.IntIntMap;
 
 import java.nio.ByteBuffer;
@@ -540,6 +541,18 @@ public class FastPalette extends PaletteReducer {
         }
     }
 
+    protected int writePixel(ByteBuffer pixels, int shrunkColor, boolean isRGBA) {
+        int rgba = paletteArray[paletteMapping[shrunkColor] & 0xFF];
+        if (isRGBA) {
+            pixels.position(pixels.position() - 4);
+            pixels.putInt(rgba);
+        } else { // read and put just RGB888
+            pixels.position(pixels.position() - 3);
+            pixels.put((byte) (rgba >>> 24)).put((byte) (rgba >>> 16)).put((byte) (rgba >>> 8));
+        }
+        return rgba;
+    }
+
     /**
      * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, without dithering. This
      * produces blocky solid sections of color in most images where the palette isn't exact, instead of
@@ -560,41 +573,129 @@ public class FastPalette extends PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
-                int rr = pixels.get() & 0xFF;
-                int gg = pixels.get() & 0xFF;
-                int bb = pixels.get() & 0xFF;
-                if (hasAlpha){ // read one more byte for RGBA8888
-                    if((pixels.get() & 0x80) == 0) {
+                int rr = pixels.get() & 0xF8;
+                int gg = pixels.get() & 0xF8;
+                int bb = pixels.get() & 0xF8;
+                if (hasAlpha) { // read one more byte for RGBA8888
+                    if ((pixels.get() & 0x80) == 0) {
                         if (hasTransparent) {
                             pixels.position(pixels.position() - 4);
                             pixels.putInt(0);
-                        } else {
-                            pixels.position(pixels.position() - 4);
-                            pixels.putInt(
-                                    paletteArray[paletteMapping[
-                                            ((rr << 7) & 0x7C00)
-                                                    | ((gg << 2) & 0x3E0)
-                                                    | ((bb >>> 3))] & 0xFF]);
+                            continue;
                         }
                     }
-                    else {
-                        pixels.position(pixels.position()-4);
-                        pixels.putInt(
-                                paletteArray[paletteMapping[
-                                        ((rr << 7) & 0x7C00)
-                                                | ((gg << 2) & 0x3E0)
-                                                | ((bb >>> 3))] & 0xFF]);
-                    }
-                } else { // read and put just RGB888
-                    int rgba = paletteArray[paletteMapping[
-                            ((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))] & 0xFF];
-                    pixels.position(pixels.position()-3);
-                    pixels.put((byte)(rgba >>> 24)).put((byte)(rgba>>>16)).put((byte)(rgba>>>8));
                 }
+                writePixel(pixels, (rr << 7) | (gg << 2) | (bb >>> 3), hasAlpha);
+//                writePixel(pixels, ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3)), hasAlpha);
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
+
+    /**
+     * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, dithering when it can with
+     * Sierra Lite dithering instead of the Floyd-Steinberg dithering that {@link #reduce(Pixmap)} uses.
+     * If you want to reduce the colors in a Pixmap based on what it currently contains, call
+     * {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
+     * Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
+     * {@link #exact(int[])} is the tool for that job.
+     * <p>
+     * This method is similar to Floyd-Steinberg, since both are error-diffusion dithers. Sometimes Sierra Lite can
+     * avoid unpleasant artifacts in Floyd-Steinberg, so it's better in the worst-case, but it isn't usually as good in
+     * its best-case.
+     * @param pixmap a Pixmap that will be modified in place
+     * @return the given Pixmap, for chaining
+     */
+    public Pixmap reduceSierraLite (Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedFloats == null) {
+            curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedFloats = new FloatArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenFloats = new FloatArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenFloats = new FloatArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueFloats = new FloatArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueFloats = new FloatArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedFloats.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedFloats.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenFloats.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
             }
 
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int used;
+        float rdiff, gdiff, bdiff;
+        float er, eg, eb;
+        float ditherStrength = this.ditherStrength * 20, halfDitherStrength = ditherStrength * 0.5f;
+        for (int y = 0; y < h; y++) {
+            int ny = y + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                if (hasAlpha) { // read one more byte for RGBA8888
+                    if ((pixels.get() & 0x80) == 0) {
+                        if (hasTransparent) {
+                            pixels.position(pixels.position() - 4);
+                            pixels.putInt(0);
+                            continue;
+                        }
+                    }
+                }
+                er = curErrorRed[px];
+                eg = curErrorGreen[px];
+                eb = curErrorBlue[px];
+                int ar = Math.min(Math.max((int) (rr + er + 0.5f), 0), 0xFF);
+                int ag = Math.min(Math.max((int) (gg + eg + 0.5f), 0), 0xFF);
+                int ab = Math.min(Math.max((int) (bb + eb + 0.5f), 0), 0xFF);
+                used = writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+
+                rdiff = (0x2.4p-8f * (rr - (used >>> 24)));
+                gdiff = (0x2.4p-8f * (gg - (used >>> 16 & 255)));
+                bdiff = (0x2.4p-8f * (bb - (used >>> 8 & 255)));
+                rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+                gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+                bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
+
+
+                if (px < lineLen - 1) {
+                    curErrorRed[px + 1] += rdiff * ditherStrength;
+                    curErrorGreen[px + 1] += gdiff * ditherStrength;
+                    curErrorBlue[px + 1] += bdiff * ditherStrength;
+                }
+                if (ny < h) {
+                    if (px > 0) {
+                        nextErrorRed[px - 1] += rdiff * halfDitherStrength;
+                        nextErrorGreen[px - 1] += gdiff * halfDitherStrength;
+                        nextErrorBlue[px - 1] += bdiff * halfDitherStrength;
+                    }
+                    nextErrorRed[px] += rdiff * halfDitherStrength;
+                    nextErrorGreen[px] += gdiff * halfDitherStrength;
+                    nextErrorBlue[px] += bdiff * halfDitherStrength;
+                }
+            }
         }
         pixmap.setBlending(blending);
         pixels.rewind();

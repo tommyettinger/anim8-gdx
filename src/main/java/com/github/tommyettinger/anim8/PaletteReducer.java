@@ -2412,7 +2412,7 @@ public class PaletteReducer {
     }
 
     /**
-     * Modifies the given Pixmap so it only uses colors present in this PaletteReducer, dithering when it can using
+     * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, dithering when it can with
      * Sierra Lite dithering instead of the Floyd-Steinberg dithering that {@link #reduce(Pixmap)} uses.
      * If you want to reduce the colors in a Pixmap based on what it currently contains, call
      * {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
@@ -2455,7 +2455,6 @@ public class PaletteReducer {
         int color, used;
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
-        byte paletteIndex;
         float ditherStrength = this.ditherStrength * 20, halfDitherStrength = ditherStrength * 0.5f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
@@ -2478,11 +2477,9 @@ public class PaletteReducer {
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
                     int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
-                    paletteIndex =
-                            paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))];
-                    used = paletteArray[paletteIndex & 0xFF];
+                    used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF];
                     pixmap.drawPixel(px, y, used);
                     rdiff = (0x2.4p-8f * ((color>>>24)-    (used>>>24))    );
                     gdiff = (0x2.4p-8f * ((color>>>16&255)-(used>>>16&255)));
@@ -2519,10 +2516,10 @@ public class PaletteReducer {
     }
 
     /**
-     * Modifies the given Pixmap so it only uses colors present in this PaletteReducer, dithering when it can using the
-     * commonly-used Floyd-Steinberg dithering. If you want to reduce the colors in a Pixmap based on what it currently
-     * contains, call {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
-     * Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
+     * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, dithering when it can with
+     * the commonly-used Floyd-Steinberg dithering. If you want to reduce the colors in a Pixmap based on what it
+     * currently contains, call {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with
+     * the same Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
      * {@link #exact(int[])} is the tool for that job.
      * @param pixmap a Pixmap that will be modified in place
      * @return the given Pixmap, for chaining
@@ -2557,7 +2554,6 @@ public class PaletteReducer {
         int color, used;
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
-        byte paletteIndex;
         float w1 = ditherStrength * 4, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
@@ -2580,11 +2576,9 @@ public class PaletteReducer {
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
                     int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
-                    paletteIndex =
-                            paletteMapping[((rr << 7) & 0x7C00)
-                                    | ((gg << 2) & 0x3E0)
-                                    | ((bb >>> 3))];
-                    used = paletteArray[paletteIndex & 0xFF];
+                    used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF];
                     pixmap.drawPixel(px, y, used);
                     rdiff = (0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
                     gdiff = (0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
