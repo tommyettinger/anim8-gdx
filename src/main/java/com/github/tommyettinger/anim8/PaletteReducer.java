@@ -2649,6 +2649,7 @@ public class PaletteReducer {
 //                    adj *= adj * adj;
 //                    adj *= Math.abs(adj);
 //                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
+                    adj += 0.5f; // for rounding
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
                     int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);

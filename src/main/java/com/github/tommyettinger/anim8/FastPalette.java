@@ -831,9 +831,63 @@ public class FastPalette extends PaletteReducer {
                 adj -= (int) adj;
                 adj -= 0.5f;
                 adj *= strength;
-                int ar = Math.min(Math.max((int)(rr + adj + 0.5f), 0), 255);
-                int ag = Math.min(Math.max((int)(gg + adj + 0.5f), 0), 255);
-                int ab = Math.min(Math.max((int)(bb + adj + 0.5f), 0), 255);
+                adj += 0.5f; // for rounding
+                int ar = Math.min(Math.max((int)(rr + adj), 0), 255);
+                int ag = Math.min(Math.max((int)(gg + adj), 0), 255);
+                int ab = Math.min(Math.max((int)(bb + adj), 0), 255);
+                writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
+    /**
+     * An ordered dither that uses a sub-random sequence by Martin Roberts to disperse lightness adjustments across the
+     * image. This is very similar to {@link #reduceJimenez(Pixmap)}, but is milder by default, and has subtly different
+     * artifacts. This should look excellent for animations, especially with small palettes, but the lightness
+     * adjustments may be noticeable even in very large palettes.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceRoberts (Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+//        float str = (32f * ditherStrength / (populationBias * populationBias));
+//        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
+        float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+                // used in 0.3.10
+//                    // Gets R2-based noise and puts it in the -0.75 to 0.75 range
+//                    float adj = (px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.8p-23f - 0.75f;
+//                    adj = adj * str + 0.5f;
+//                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
+//                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
+//                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+
+                // other options
+//                    // sign-preserving square root, emphasizes extremes
+////                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
+//                    // sign-preserving square, emphasizes low-magnitude values
+////                    adj *= Math.abs(adj);
+
+                int ar = Math.min(Math.max((int) (rr + ((((px - 1) * 0xC13FA9A902A6328FL + (y + 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                int ag = Math.min(Math.max((int) (gg + ((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                int ab = Math.min(Math.max((int) (bb + ((((px + 2) * 0xC13FA9A902A6328FL + (y + 3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
                 writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
             }
         }
