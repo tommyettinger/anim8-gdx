@@ -999,5 +999,48 @@ public class FastPalette extends PaletteReducer {
         return pixmap;
     }
 
-
+    /**
+     * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
+     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a 8x8 threshold matrix (the kind
+     * used by {@link #reduceKnoll(Pixmap)}, but larger). This has a tendency to look closer to a color
+     * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
+     * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
+     * effects can appear in all the error-diffusion dithers here. If you can tolerate "spongy" artifacts appearing
+     * (which look worse on small palettes), you may get very good handling of lightness by raising dither strength.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceBlueNoise (Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        float adj, strength = 0.15f * ditherStrength / (populationBias * populationBias * populationBias * populationBias);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+                float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f + 0.5f;
+                adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                int ar = Math.min(Math.max((int) (adj + rr), 0), 255);
+                adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                int ag = Math.min(Math.max((int) (adj + gg), 0), 255);
+                adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                int ab = Math.min(Math.max((int) (adj + bb), 0), 255);
+                writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
 }
