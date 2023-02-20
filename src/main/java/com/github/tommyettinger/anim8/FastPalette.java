@@ -1259,10 +1259,9 @@ public class FastPalette extends PaletteReducer {
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used;
+        int used;
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
-        byte paletteIndex;
         float w1 = ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 adj, strength = (32f * ditherStrength / (populationBias * populationBias * populationBias)),
                 limit = (float) Math.pow(80, 1.635 - populationBias);
@@ -1328,6 +1327,75 @@ public class FastPalette extends PaletteReducer {
                     nextErrorGreen[px] += gdiff * w5;
                     nextErrorBlue[px]  += bdiff * w5;
                 }
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
+
+    /**
+     * Reduces a Pixmap to the palette this knows by using Thomas Knoll's pattern dither, which is out-of-patent since
+     * late 2019. The output this produces is very dependent on the palette and this PaletteReducer's dither strength,
+     * which can be set with {@link #setDitherStrength(float)}. At close-up zooms, a strong grid pattern will be visible
+     * on most dithered output (like needlepoint). The algorithm was described in detail by Joel Yliluoma in
+     * <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Yliluoma used an 8x8
+     * threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
+     * sorting step (this uses a sorting network, which works well for small input sizes like 16 items). This is still
+     * very significantly slower than the other dithers here (although {@link #reduceKnollRoberts(Pixmap)} isn't at all
+     * fast, it still takes less than half the time this method does).
+     * <br>
+     * Using pattern dither tends to produce some of the best results for lightness-based gradients, but when viewed
+     * close-up the "needlepoint" pattern can be jarring for images that should look natural.
+     * @see #reduceKnollRoberts(Pixmap) An alternative that uses a similar pattern but skews it to obscure the grid
+     * @param pixmap a Pixmap that will be modified
+     * @return {@code pixmap}, after modifications
+     */
+    public Pixmap reduceKnoll (Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int used, usedIndex;
+        float cr, cg, cb;
+        final float errorMul = (ditherStrength * populationBias);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                cr = (pixels.get() & 0xFF) + 0.5f;
+                cg = (pixels.get() & 0xFF) + 0.5f;
+                cb = (pixels.get() & 0xFF) + 0.5f;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+
+                int er = 0, eg = 0, eb = 0;
+                for (int i = 0; i < 16; i++) {
+                    int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
+                    int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
+                    int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
+                    usedIndex = paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF;
+                    candidates[i | 16] = shrink(candidates[i] = used = paletteArray[usedIndex]);
+                    er += cr - (used >>> 24);
+                    eg += cg - (used >>> 16 & 0xFF);
+                    eb += cb - (used >>> 8 & 0xFF);
+                }
+                sort16(candidates);
+                used = candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]];
+                if (hasAlpha) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(used);
+                } else { // read and put just RGB888
+                    pixels.position(pixels.position() - 3);
+                    pixels.put((byte) (used >>> 24)).put((byte) (used >>> 16)).put((byte) (used >>> 8));
+                }
+
             }
         }
         pixmap.setBlending(blending);
