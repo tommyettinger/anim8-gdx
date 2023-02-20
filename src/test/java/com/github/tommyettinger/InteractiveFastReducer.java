@@ -30,7 +30,7 @@ public class InteractiveFastReducer extends ApplicationAdapter {
     protected FastPNG8 png8;
     private int[] palette, altPalette, eightPalette;
     private Pixmap p0, p;
-    private int index = 1, algorithmCount = 11;
+    private int index = 1, algorithmCount = 12;
     private float strength = 1f;
 
     public static void main(String[] arg) {
@@ -128,6 +128,9 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                 break;
             case 9:
                 reducer.reduceNeue(p);
+                break;
+            case 10:
+                reducer.reduceChaoticNoise(p);
                 break;
         }
         screenTexture.draw(p, 0, 0);

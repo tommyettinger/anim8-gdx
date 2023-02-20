@@ -1051,4 +1051,60 @@ public class FastPalette extends PaletteReducer {
         pixels.rewind();
         return pixmap;
     }
+
+    /**
+     * A white-noise-based dither; uses the colors encountered so far during dithering as a sort of state for basic
+     * pseudo-random number generation, while also using some blue noise from a tiling texture to offset clumping.
+     * This tends to be very rough-looking, and generally only looks good with larger palettes or with animations. It
+     * could be a good aesthetic choice if you want a scratchy, "distressed-looking" image.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceChaoticNoise (Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used;
+        double adj, strength = ditherStrength * populationBias * 1.5;
+        long s = 0xC13FA9A902A6328FL;
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+                used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                        | ((gg << 2) & 0x3E0)
+                        | ((bb >>> 3))] & 0xFF];
+                adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
+                adj *= adj * adj;
+                //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
+                //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
+                ////   different as long as the colors encountered so far were different. The numbers can
+                ////   each be positive or negative, and are reduced to a manageable size, summed, and
+                ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
+                ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
+                ////   Two of the random numbers use an XLCG, and the last uses an LCG.
+                adj += ((px + y & 1) - 0.5f) * 0x1.8p-49 * strength *
+                        (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
+                                ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
+                                ((s = (s ^ rr + gg + bb) * 0xD1342543DE82EF95L + 0x91E10DA5C79E7B1DL) >> 15));
+                int ar = Math.min(Math.max((int) (rr + (adj * ((rr - (used >>> 24))))), 0), 0xFF);
+                int ag = Math.min(Math.max((int) (gg + (adj * ((gg - (used >>> 16 & 0xFF))))), 0), 0xFF);
+                int ab = Math.min(Math.max((int) (bb + (adj * ((bb - (used >>> 8 & 0xFF))))), 0), 0xFF);
+                writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
 }
