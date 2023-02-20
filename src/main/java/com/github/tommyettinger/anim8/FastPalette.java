@@ -843,11 +843,18 @@ public class FastPalette extends PaletteReducer {
         return pixmap;
     }
 
-    protected float likeRoberts(int x, int y) {
-        final float s = (((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f);
+    /**
+     * Calculates the R2 dither for an x, y point and returns a value between -1.25f and 1.25f . Because this uses the
+     * R2 low-discrepancy sequence, adjacent x, y points almost never have similar values returned.
+     * @param x x position, as an int; may be positive or negative
+     * @param y y position, as an int; may be positive or negative
+     * @return a float between -1.25f and 1.25f
+     */
+    protected float roberts125(int x, int y) {
+        return (((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f);
+//        final float s = (((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f);
 //        return 1.25f * s / (0.4f + Math.abs(s));
 //        return s * Math.abs(s);
-        return s;
     }
     /**
      * An ordered dither that uses a sub-random sequence by Martin Roberts to disperse lightness adjustments across the
@@ -892,9 +899,9 @@ public class FastPalette extends PaletteReducer {
 //                    // sign-preserving square, emphasizes low-magnitude values
 ////                    adj *= Math.abs(adj);
 
-                int ar = Math.min(Math.max((int) (rr + likeRoberts(px - 1, y + 1) * str + 0.5f), 0), 255);
-                int ag = Math.min(Math.max((int) (gg + likeRoberts(px + 3, y - 1) * str + 0.5f), 0), 255);
-                int ab = Math.min(Math.max((int) (bb + likeRoberts(px + 2, y + 3) * str + 0.5f), 0), 255);
+                int ar = Math.min(Math.max((int) (rr + roberts125(px - 1, y + 1) * str + 0.5f), 0), 255);
+                int ag = Math.min(Math.max((int) (gg + roberts125(px + 3, y - 1) * str + 0.5f), 0), 255);
+                int ab = Math.min(Math.max((int) (bb + roberts125(px - 4, y + 2) * str + 0.5f), 0), 255);
 //                int ar = Math.min(Math.max((int) (rr + ((((px - 1) * 0xC13FA9A902A6328FL + (y + 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
 //                int ag = Math.min(Math.max((int) (gg + ((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
 //                int ab = Math.min(Math.max((int) (bb + ((((px + 2) * 0xC13FA9A902A6328FL + (y + 3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
@@ -937,8 +944,8 @@ public class FastPalette extends PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         float w1 = (float) (20f * Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                strength = 48f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
-                limit = 5f + 130f / (float) Math.sqrt(colorCount + 1.5f);
+                strength = 24f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
+                limit = 5f + 110f / (float) Math.sqrt(colorCount + 1.5f);
 
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
@@ -960,9 +967,9 @@ public class FastPalette extends PaletteReducer {
                     pixels.putInt(0);
                     continue;
                 }
-                er = Math.min(Math.max(((((px + 1) * 0xC13FA9A902A6328FL + (y + 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorRed[px]);
-                eg = Math.min(Math.max(((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorGreen[px]);
-                eb = Math.min(Math.max(((((px + 2) * 0xC13FA9A902A6328FL + (y - 4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorBlue[px]);
+                er = Math.min(Math.max(roberts125(px - 1, y + 1) * strength, -limit), limit) + (curErrorRed[px]);
+                eg = Math.min(Math.max(roberts125(px + 3, y - 1) * strength, -limit), limit) + (curErrorGreen[px]);
+                eb = Math.min(Math.max(roberts125(px - 4, y + 2) * strength, -limit), limit) + (curErrorBlue[px]);
 
                 int ar = Math.min(Math.max((int) (rr + er + 0.5f), 0), 0xFF);
                 int ag = Math.min(Math.max((int) (gg + eg + 0.5f), 0), 0xFF);
@@ -1067,7 +1074,7 @@ public class FastPalette extends PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used;
+        int used;
         double adj, strength = ditherStrength * populationBias * 1.5;
         long s = 0xC13FA9A902A6328FL;
         for (int y = 0; y < h; y++) {

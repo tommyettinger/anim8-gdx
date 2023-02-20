@@ -2806,7 +2806,7 @@ public class PaletteReducer {
 
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+2) * 0xC13FA9A902A6328FL + (y+3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px-4) * 0xC13FA9A902A6328FL + (y+2) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
@@ -2850,7 +2850,7 @@ public class PaletteReducer {
         byte paletteIndex;
         float w1 = (float) (20f * Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 strength = 48f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
-                limit = 5f + 130f / (float)Math.sqrt(colorCount+1.5f);
+                limit = 5f + 110f / (float)Math.sqrt(colorCount+1.5f);
 
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
@@ -2869,7 +2869,7 @@ public class PaletteReducer {
                 else {
                     er = Math.min(Math.max(((((px+1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorRed[px]);
                     eg = Math.min(Math.max(((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorGreen[px]);
-                    eb = Math.min(Math.max(((((px+2) * 0xC13FA9A902A6328FL + (y-4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorBlue[px]);
+                    eb = Math.min(Math.max(((((px-4) * 0xC13FA9A902A6328FL + (y+2) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorBlue[px]);
 
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
@@ -3013,6 +3013,7 @@ public class PaletteReducer {
         pixmap.setBlending(blending);
         return pixmap;
     }
+
     /**
      * Modifies the given Pixmap so it only uses colors present in this PaletteReducer, using Floyd-Steinberg to dither
      * but modifying patterns slightly by introducing triangular-distributed blue noise. If you want to reduce the
