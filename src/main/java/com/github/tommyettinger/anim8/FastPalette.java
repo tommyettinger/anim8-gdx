@@ -1185,7 +1185,6 @@ public class FastPalette extends PaletteReducer {
                 int ag = Math.min(Math.max((int) (gg + eg + 0.5f), 0), 0xFF);
                 int ab = Math.min(Math.max((int) (bb + eb + 0.5f), 0), 0xFF);
                 used = writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
-                pixmap.drawPixel(px, y, used);
                 rdiff = (0x2.Ep-8f * (rr - (used >>> 24)));
                 gdiff = (0x2.Ep-8f * (gg - (used >>> 16 & 255)));
                 bdiff = (0x2.Ep-8f * (bb - (used >>> 8 & 255)));
@@ -1211,6 +1210,123 @@ public class FastPalette extends PaletteReducer {
                     nextErrorRed[px] += rdiff * w5;
                     nextErrorGreen[px] += gdiff * w5;
                     nextErrorBlue[px] += bdiff * w5;
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
+
+    /**
+     * An error-diffusion dither based on {@link #reduceFloydSteinberg(Pixmap)}, but adding in triangular-mapped blue
+     * noise before diffusing, like {@link #reduceBlueNoise(Pixmap)}. This looks like {@link #reduceScatter(Pixmap)} in
+     * many cases, but smooth gradients are much smoother with Neue than Scatter. Scatter multiplies error by a blue
+     * noise value, where this adds blue noise regardless of error. This also preserves color better than TrueBlue,
+     * while keeping similar gradient smoothness. The algorithm here uses a 2x2 rough checkerboard pattern to offset
+     * some roughness that can appear in blue noise; the checkerboard can appear in some cases when a dithered image is
+     * zoomed with certain image filters.
+     * <br>
+     * Neue is a German word for "new," and this is a new look at Scatter's technique.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceNeue(Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedFloats == null) {
+            curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedFloats = new FloatArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenFloats = new FloatArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenFloats = new FloatArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueFloats = new FloatArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueFloats = new FloatArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedFloats.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedFloats.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenFloats.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used;
+        float rdiff, gdiff, bdiff;
+        float er, eg, eb;
+        byte paletteIndex;
+        float w1 = ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                adj, strength = (32f * ditherStrength / (populationBias * populationBias * populationBias)),
+                limit = (float) Math.pow(80, 1.635 - populationBias);
+
+        for (int py = 0; py < h; py++) {
+            int ny = py + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+
+                adj = ((TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
+                adj = Math.min(Math.max(adj * strength, -limit), limit) + 0.5f;
+                er = adj + (curErrorRed[px]);
+                eg = adj + (curErrorGreen[px]);
+                eb = adj + (curErrorBlue[px]);
+
+                int ar = Math.min(Math.max((int)(rr + er), 0), 255);
+                int ag = Math.min(Math.max((int)(gg + eg), 0), 255);
+                int ab = Math.min(Math.max((int)(bb + eb), 0), 255);
+                used = writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+                rdiff = (0x1.7p-10f * (rr - (used>>>24))    );
+                gdiff = (0x1.7p-10f * (gg - (used>>>16&255)));
+                bdiff = (0x1.7p-10f * (bb - (used>>>8&255)) );
+                rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+                gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+                bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
+                if(px < lineLen - 1)
+                {
+                    curErrorRed[px+1]   += rdiff * w7;
+                    curErrorGreen[px+1] += gdiff * w7;
+                    curErrorBlue[px+1]  += bdiff * w7;
+                }
+                if(ny < h)
+                {
+                    if(px > 0)
+                    {
+                        nextErrorRed[px-1]   += rdiff * w3;
+                        nextErrorGreen[px-1] += gdiff * w3;
+                        nextErrorBlue[px-1]  += bdiff * w3;
+                    }
+                    if(px < lineLen - 1)
+                    {
+                        nextErrorRed[px+1]   += rdiff * w1;
+                        nextErrorGreen[px+1] += gdiff * w1;
+                        nextErrorBlue[px+1]  += bdiff * w1;
+                    }
+                    nextErrorRed[px]   += rdiff * w5;
+                    nextErrorGreen[px] += gdiff * w5;
+                    nextErrorBlue[px]  += bdiff * w5;
                 }
             }
         }
