@@ -1017,7 +1017,7 @@ public class FastPalette extends PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        float adj, strength = 0.15f * ditherStrength / (populationBias * populationBias * populationBias * populationBias);
+        float adj, strength = 32f * ditherStrength / (populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 int rr = pixels.get() & 0xFF;
@@ -1029,13 +1029,16 @@ public class FastPalette extends PaletteReducer {
                     pixels.putInt(0);
                     continue;
                 }
-                float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f + 0.5f;
-                adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                int ar = Math.min(Math.max((int) (adj + rr), 0), 255);
-                adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                int ag = Math.min(Math.max((int) (adj + gg), 0), 255);
-                adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                int ab = Math.min(Math.max((int) (adj + bb), 0), 255);
+//                float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f + 0.5f;
+                adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
+                adj = adj * strength / (12f + Math.abs(adj));
+                int ar = Math.min(Math.max((int) (adj + rr + 0.5f), 0), 255);
+                adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
+                adj = adj * strength / (12f + Math.abs(adj));
+                int ag = Math.min(Math.max((int) (adj + gg + 0.5f), 0), 255);
+                adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f));
+                adj = adj * strength / (12f + Math.abs(adj));
+                int ab = Math.min(Math.max((int) (adj + bb + 0.5f), 0), 255);
                 writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
             }
         }
