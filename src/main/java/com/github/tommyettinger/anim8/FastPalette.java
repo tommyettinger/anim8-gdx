@@ -1030,6 +1030,11 @@ public class FastPalette extends PaletteReducer {
                     continue;
                 }
 //                float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f + 0.5f;
+
+                // The line below is a sigmoid function; it ranges from -strength to strength, depending on adj.
+                // Using 12f makes the slope more shallow, where a smaller number would make it steep near  adj == 0.
+                //adj = adj * strength / (12f + Math.abs(adj));
+
                 adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
                 adj = adj * strength / (12f + Math.abs(adj));
                 int ar = Math.min(Math.max((int) (adj + rr + 0.5f), 0), 255);

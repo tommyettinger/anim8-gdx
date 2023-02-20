@@ -2783,7 +2783,7 @@ public class PaletteReducer {
         int color;
 //        float str = (32f * ditherStrength / (populationBias * populationBias));
 //        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
-        float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+        float str = (25f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -2932,19 +2932,22 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, strength = 0.1375f * ditherStrength / populationBias;
+        float adj, strength = 32 * ditherStrength / populationBias;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f + 0.5f;
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+//                    float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f + 0.5f;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
+                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
                     int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
+                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
                     int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
+                    adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f));
+                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
                     int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
