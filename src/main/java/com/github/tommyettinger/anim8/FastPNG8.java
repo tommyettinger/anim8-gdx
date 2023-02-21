@@ -327,7 +327,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
         boolean clearPalette = (palette == null);
         if(clearPalette)
         {
-            palette = new PaletteReducer(pixmap, threshold);
+            palette = new FastPalette(pixmap, threshold);
         }
         else if(computePalette)
         {
@@ -2263,7 +2263,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
     public void write(OutputStream output, Array<Pixmap> frames, int fps, boolean dither) {
         boolean clearPalette;
         if(clearPalette = (palette == null))
-            palette = new PaletteReducer(frames);
+            palette = new FastPalette(frames);
         palette.setDitherStrength(ditherStrength);
         if (dither)
             write(output, frames, fps);

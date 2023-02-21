@@ -122,11 +122,11 @@ public class FastGif implements AnimationWriter, Dithered {
         clearPalette = (palette == null);
         if (clearPalette) {
             if (fastAnalysis && frames.size > 1) {
-                palette = new PaletteReducer();
+                palette = new FastPalette();
                 palette.analyzeFast(frames.first(), 100, 256);
             }
             else
-                palette = new PaletteReducer(frames.first());
+                palette = new FastPalette(frames.first());
         }
         if(!start(output)) return;
         setFrameRate(fps);

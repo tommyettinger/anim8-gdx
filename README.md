@@ -30,6 +30,7 @@ public void writeGif() {
 // match. The other file-writing classes don't do this; PNG8 doesn't currently support a palette per-frame,
 // while AnimatedPNG doesn't restrict colors to a palette. See Dithering Algorithms below for visual things
 // to be aware of and choices you can make.
+// You can also use FastGif in place of AnimatedGif if you don't target GWT; it may be a little faster.
     AnimatedGif gif = new AnimatedGif();
 // you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
 // here, pixmaps is usually an Array of Pixmap for any of the animated image types.
@@ -39,7 +40,10 @@ public void writeGif() {
 ```
 
 The above code uses AnimatedGif, but could also use AnimatedPNG or PNG8 to write to an animated PNG (with full-color or
-palette-based color, respectively).
+palette-based color, respectively). The FastGif, FastAPNG, and FastPNG8 options are also out there if you don't target
+GWT, and they tend to be a little faster to run but produce larger files. There's also FastPNG, which is a replacement
+for PixmapIO.PNG, and does tend to be faster than it as well. None of the "Fast" image writers support flipping an image
+vertically, but all the non-"Fast" writers do support this; this may affect your choice.
 
 # Install
 
@@ -58,8 +62,9 @@ commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
 `implementation "com.github.tommyettinger:anim8-gdx:0.3.12:sources"`. The PNG-related code isn't available on GWT
-because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. The
-GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
+because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. None
+of the "Fast" classes will work on GWT. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no
+dependencies already have it, is:
 ```xml
 <inherits name="com.github.tommyettinger.anim8" />
 ```
@@ -97,10 +102,7 @@ different API).
       don't appear at all, but mid- and high-frequency patterns are very common. 2D blue noise is common in graphics
       code, often as a texture but sometimes as a sequence of points; it is used here because most vertebrate eyes
       employ a blue-noise distribution for sensory cells, and this makes blue noise appear natural to the human eye.
-    - This is mostly a typical blue-noise dither; it uses a different blue noise texture for each channel, but it also
-      uses a 8x8 Bayer matrix (the type used by PATTERN dither, just larger here) to adjust lightness.
-      - The combination of a Bayer matrix and blue noise disrupts both the spongy pattern of the blue noise and the
-        repetitive/linear artifacts of the matrix.
+    - This is mostly a typical blue-noise dither; it uses a different blue noise texture for each channel.
     - BLUE_NOISE looks good for many animations because the dithered pixels don't move around between frames. This is
       especially true for pixel art animations, where flat areas of one color should really stay that color.
     - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise,
@@ -108,12 +110,9 @@ different API).
       - This also uses a triangular-mapped blue noise texture, which means most of its pixels are in the middle of the
         range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
       - Blue noise is also used normally by SCATTER and NEUE, as well as used strangely by CHAOTIC_NOISE.
-    - This may have some issues when the palette is very small; it may not dither strongly enough by default for small
-      palettes, which makes it look closer to NONE in those cases. It does fine with large palettes.
     - This changed in 0.2.12, and handles smooth gradients better now. In version 0.3.5, it changed again to improve
-      behavior on small palettes. It changed again in 0.3.8 and 0.3.9 to improve saturation's appearance.
-    - As of 0.3.10, this acts like ROBERTS and GRADIENT_NOISE, but is weaker than either of those (it is closer to using
-      the NONE dither mode than the other two are).
+      behavior on small palettes. It changed again in 0.3.8, 0.3.9, and 0.3.13 to improve saturation's appearance.
+    - As of 0.3.10, this acts like ROBERTS and GRADIENT_NOISE, but looks... noisier, with less of an orderly grid.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
       - This is much "harsher" than BLUE_NOISE currently is. 
@@ -148,8 +147,11 @@ different API).
       distributes extra error well, but always adds some error to an image.
     - The dithering algorithm is really just adding or subtracting a relatively small amount of error from each pixel,
       before finding the closest color to that pixel's value with error.
+    - This adjusts each channel of a pixel by a differently-translated version of the same pattern. This makes it able
+      to produce some color combinations via dithering that dithers like GRADIENT_NOISE, which affect all channels with
+      the same error, can't produce with small palettes.
     - This is much like GRADIENT_NOISE, but milder, or BLUE_NOISE, but stronger.
-    - This changed somewhat in version 0.3.11 . 
+    - This changed somewhat in version 0.3.11 and 0.3.13. 
   - WOVEN
     - This is an error-diffusion dither, like NEUE or SCATTER, but instead of using blue noise patterns to add error to
       the image, this uses the finer-grained "fuzzy" pattern from ROBERTS.
@@ -206,7 +208,8 @@ Starting in version 0.3.7, you can use any of the `PaletteReducer.analyzeHueWise
 to ensure some colors from every hue present in the image will be available in the palette. It stops being noticeably
 better than `analyze()` at around 25-30 colors in a palette (this can vary based on the image), and is almost always
 slower than `analyze()`. Thanks to [caramel](https://caramellow.dev/) for (very quickly) devising this algorithm for
-palette construction.
+palette construction. `analyzeHueWise()` is available in `FastPalette`, but not optimized any differently from in
+`PaletteReducer`.
 
 # Samples
 
@@ -254,43 +257,43 @@ Original (full-color):
 
 Neue (default):
 
-![](https://i.imgur.com/3hZn42m.png)
+![](https://i.imgur.com/ISLZsj3.png)
 
 Pattern:
 
-![](https://i.imgur.com/BOIPfwD.png)
+![](https://i.imgur.com/KAl8FfE.png)
 
 Diffusion:
 
-![](https://i.imgur.com/n0i0xzC.png)
+![](https://i.imgur.com/ebuEU50.png)
 
 Gradient Noise:
 
-![](https://i.imgur.com/y2kxGC4.png)
+![](https://i.imgur.com/Ta7Z9M3.png)
 
 Blue Noise:
 
-![](https://i.imgur.com/ciGoWkZ.png)
+![](https://i.imgur.com/lc6dblY.png)
 
 Chaotic Noise:
 
-![](https://i.imgur.com/OtaEg2l.png)
+![](https://i.imgur.com/jqu4ZRj.png)
 
 Scatter:
 
-![](https://i.imgur.com/SZkRA08.png)
+![](https://i.imgur.com/q9HR91K.png)
 
 Roberts:
 
-![](https://i.imgur.com/BTTUJRO.png)
+![](https://i.imgur.com/Uiud4YW.png)
 
 Woven:
 
-![](https://i.imgur.com/weU88H9.png)
+![](https://i.imgur.com/H0DLIDp.png)
 
 None (no dither):
 
-![](https://i.imgur.com/VggJ3TE.png)
+![](https://i.imgur.com/POBXePc.png)
 
 This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned DB8
 palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it.
