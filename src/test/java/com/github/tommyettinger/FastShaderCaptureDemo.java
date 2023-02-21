@@ -6,7 +6,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -24,9 +23,9 @@ import com.github.tommyettinger.anim8.*;
  * The Discord can be found at <a href="https://discord.gg/crTrDEK">this link</a>.
  * <br>
  * APNG and Gif:
- * Finished writing in 262250 ms.
+ * Finished writing in 256073 ms.
  */
-public class ShaderCaptureDemo extends ApplicationAdapter {
+public class FastShaderCaptureDemo extends ApplicationAdapter {
 
     private SpriteBatch batch;
     private Texture pixel;
@@ -36,11 +35,13 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
     private float seed;
     private int width, height;
     private String name;
+    private FastPNG pngIO;
 
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
+        pngIO = new FastPNG();
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.drawPixel(0, 0, 0xFFFFFFFF);
@@ -222,7 +223,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 //        long state = 0x1234567890L; name = "green"; // green
 
         String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}};
+        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, FastPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}};
         long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
         ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader};
 
@@ -283,7 +284,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
     }
 
     public void renderAPNG(String[] names, long[] seeds, ShaderProgram[] shaders) {
-        AnimatedPNG apng = new AnimatedPNG();
+        FastAPNG apng = new FastAPNG();
         apng.setCompression(2);
         for (int n = 0; n < names.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);
@@ -298,23 +299,23 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
-                batch.draw(pixel, 0, 0, width, height);
+                batch.draw(pixel, 0, height, width, -height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             apng.write(Gdx.files.local("images/apng/animated/AnimatedPNG-" + name + "-full.png"), pixmaps, 16);
             int index = 1;
             for (Pixmap pm : pixmaps) {
-                PixmapIO.writePNG(Gdx.files.local("images/apng/frames/"+name+"_"+ (index++) + ".png"), pm, 6, true);
+                pngIO.write(Gdx.files.local("images/apng/frames/"+name+"_"+ (index++) + ".png"), pm);
                 pm.dispose();
             }
         }
     }
 
     public void renderPNG8(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
-        PNG8 png8 = new PNG8();
+        FastPNG8 png8 = new FastPNG8();
         png8.setCompression(2);
-        png8.palette = new PaletteReducer();
+        png8.palette = new FastPalette();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);
             name = names[n];
@@ -328,7 +329,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
-                batch.draw(pixel, 0, 0, width, height);
+                batch.draw(pixel, 0, height, width, -height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
@@ -371,8 +372,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
     }
 
     public void renderGif(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
-        AnimatedGif gif = new AnimatedGif();
-        PaletteReducer pal = new PaletteReducer();
+        FastGif gif = new FastGif();
+        FastPalette pal = new FastPalette();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);
             name = names[n];
@@ -386,7 +387,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
-                batch.draw(pixel, 0, 0, width, height);
+                batch.draw(pixel, 0, height, width, -height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
@@ -433,7 +434,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new ShaderCaptureDemo(), getDefaultConfiguration());
+        return new Lwjgl3Application(new FastShaderCaptureDemo(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
