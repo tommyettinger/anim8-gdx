@@ -42,8 +42,8 @@ public void writeGif() {
 The above code uses AnimatedGif, but could also use AnimatedPNG or PNG8 to write to an animated PNG (with full-color or
 palette-based color, respectively). The FastGif, FastAPNG, and FastPNG8 options are also out there if you don't target
 GWT, and they tend to be a little faster to run but produce larger files. There's also FastPNG, which is a replacement
-for PixmapIO.PNG, and does tend to be faster than it as well. None of the "Fast" image writers support flipping an image
-vertically, but all the non-"Fast" writers do support this; this may affect your choice.
+for PixmapIO.PNG, and does tend to be faster than it as well. **None of the "Fast" image writers support flipping an
+image vertically**, but all the non-"Fast" writers do support this; this may affect your choice.
 
 # Install
 
@@ -52,7 +52,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.12"
+  api "com.github.tommyettinger:anim8-gdx:0.3.13"
 }
 ```
 
@@ -61,7 +61,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.12:sources"`. The PNG-related code isn't available on GWT
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.13:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. None
 of the "Fast" classes will work on GWT. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no
 dependencies already have it, is:
@@ -71,8 +71,9 @@ dependencies already have it, is:
 
 # Dithering Algorithms
 You have a choice between several dithering algorithms if you write to GIF or PNG8; you can also avoid choosing one
-entirely by using AnimatedPNG (it can use full color) or libGDX's PixmapIO.PNG (which isn't animated and has a slightly
-different API).
+entirely by using AnimatedPNG (it can use full color) or libGDX's PixmapIO.PNG (which isn't animated and has a
+slightly different API). You could also use one of their alternatives, FastAPNG or FastPNG, which tend to write larger
+files but do so more quickly.
 
   - NONE
     - No dither. Solid blocks of color only. Often looks bad unless the original image had few colors.
@@ -81,6 +82,7 @@ different API).
     - This changed slightly in 0.2.12, and should have less noticeable artifacts starting in that version.
       - It changed again in 0.3.10, and now essentially has no artifacts at the boundaries between large similar areas. 
     - A variant on Jorge Jimenez' Gradient Interleaved Noise.
+    - This can look very good with higher dither strength, even when other dithers break down in quality.
     - This is very similar to ROBERTS dither, but is a little stronger, usually. 
   - PATTERN
     - A more traditional ordered dither that emphasizes accurately representing lightness changes.

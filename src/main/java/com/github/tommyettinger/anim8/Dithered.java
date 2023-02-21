@@ -118,14 +118,12 @@ public interface Dithered {
          */
         DIFFUSION,
         /**
-         * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern for all
-         * channels, and 3 additional blue-noise patterns for each channel separately. The all-channel pattern affects
-         * how much a particular pixel will have its channels affected by noise, and the separate channels have their
-         * resulting positive or negative values added to the pixel's channels. This uses triangular-mapped blue noise
-         * patterns, which means most of its values are in the middle of its range and very few are at the extremely
-         * bright or dark. This yields closer results to {@link #PATTERN} than other ordered dithers like
-         * {@link #GRADIENT_NOISE}; it preserves soft gradients reasonably well, and it keeps lightness as well as
-         * {@link #DIFFUSION} and {@link #SCATTER} do, but it can look "under-dithered" for small palettes. For
+         * This is an ordered dither that modifies any error in a pixel's color by using 3 blue-noise patterns for each
+         * channel separately. The separate channels have their resulting positive or negative values added to the
+         * pixel's channels. This uses triangular-mapped blue noise patterns, which means most of its values are in the
+         * middle of its range and very few are at the extremely bright or dark. This yields closer results to
+         * {@link #NONE} than other ordered dithers like {@link #GRADIENT_NOISE}; it preserves soft gradients reasonably
+         * well, and it keeps lightness moderately-well, but it can look "noisier" than the other ordered dithers. For
          * reference, the blue noise texture this uses looks like
          * <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this small image</a>;
          * it looks different from a purely-random white noise texture because blue noise has no low frequencies in any
