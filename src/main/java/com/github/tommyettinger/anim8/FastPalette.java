@@ -856,6 +856,120 @@ public class FastPalette extends PaletteReducer {
 //        return 1.25f * s / (0.4f + Math.abs(s));
 //        return s * Math.abs(s);
     }
+
+    /**
+     * An experimental mix of an error-diffusion dither with interleaved gradient noise; like
+     * {@link #reduceNeue(Pixmap)} mixed with {@link #reduceJimenez(Pixmap)} and without using blue noise.
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceIgneous(Pixmap pixmap) {
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedFloats == null) {
+            curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedFloats = new FloatArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenFloats = new FloatArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenFloats = new FloatArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueFloats = new FloatArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueFloats = new FloatArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedFloats.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedFloats.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenFloats.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int used;
+        float rdiff, gdiff, bdiff;
+        float er, eg, eb;
+        float w1 = (6f * ditherStrength * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                strength = 60f * ditherStrength / (populationBias * populationBias),
+                adj;
+
+        for (int y = 0; y < h; y++) {
+            int ny = y + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+                {
+                    adj = (px * 0.06711056f + y * 0.00583715f);
+                    adj -= (int) adj;
+                    adj *= 52.9829189f;
+                    adj -= (int) adj;
+                    adj -= 0.5f;
+                    adj *= strength;
+
+                    er = adj + (curErrorRed[px]);
+                    eg = adj + (curErrorGreen[px]);
+                    eb = adj + (curErrorBlue[px]);
+
+                    int ar = Math.min(Math.max((int)(rr + er + 0.5f), 0), 0xFF);
+                    int ag = Math.min(Math.max((int)(gg + eg + 0.5f), 0), 0xFF);
+                    int ab = Math.min(Math.max((int)(bb + eb + 0.5f), 0), 0xFF);
+                    used = writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+                    rdiff = (0x3p-10f * (rr - (used>>>24))    );
+                    gdiff = (0x3p-10f * (gg - (used>>>16&255)));
+                    bdiff = (0x3p-10f * (bb - (used>>>8&255)) );
+
+                    if(px < lineLen - 1)
+                    {
+                        curErrorRed[px+1]   += rdiff * w7;
+                        curErrorGreen[px+1] += gdiff * w7;
+                        curErrorBlue[px+1]  += bdiff * w7;
+                    }
+                    if(ny < h)
+                    {
+                        if(px > 0)
+                        {
+                            nextErrorRed[px-1]   += rdiff * w3;
+                            nextErrorGreen[px-1] += gdiff * w3;
+                            nextErrorBlue[px-1]  += bdiff * w3;
+                        }
+                        if(px < lineLen - 1)
+                        {
+                            nextErrorRed[px+1]   += rdiff * w1;
+                            nextErrorGreen[px+1] += gdiff * w1;
+                            nextErrorBlue[px+1]  += bdiff * w1;
+                        }
+                        nextErrorRed[px]   += rdiff * w5;
+                        nextErrorGreen[px] += gdiff * w5;
+                        nextErrorBlue[px]  += bdiff * w5;
+                    }
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
+
     /**
      * An ordered dither that uses a sub-random sequence by Martin Roberts to disperse lightness adjustments across the
      * image. This is very similar to {@link #reduceJimenez(Pixmap)}, but is milder by default, and has subtly different
