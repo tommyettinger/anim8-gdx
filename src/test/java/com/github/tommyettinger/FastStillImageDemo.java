@@ -6,27 +6,25 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.utils.Array;
-import com.github.tommyettinger.anim8.AnimatedGif;
 import com.github.tommyettinger.anim8.Dithered;
-import com.github.tommyettinger.anim8.PNG8;
-import com.github.tommyettinger.anim8.PaletteReducer;
-
-import java.io.IOException;
+import com.github.tommyettinger.anim8.FastGif;
+import com.github.tommyettinger.anim8.FastPNG;
+import com.github.tommyettinger.anim8.FastPNG8;
+import com.github.tommyettinger.anim8.FastPalette;
 
 /**
  * Currently just dithers a few pictures (my cat, then from Wikimedia Commons, a tropical frog, a public domain
- * landscape painting, a remastered Mona Lisa, and a smooth noise texture) as a still GIF, PNG8, and full-color PNG.
+ * landscape painting, a remastered Mona Lisa, and some sprites I made) as a still GIF, PNG8, and full-color PNG.
  * <br>
- * Analyzed all 84 images in 59690 ms
+ * Analyzed all 48 images in 36415 ms
  */
-public class StillImageDemo extends ApplicationAdapter {
-    private long startTime, total = 0;
+public class FastStillImageDemo extends ApplicationAdapter {
+	private long total = 0;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
-        startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 
         Gdx.files.local("images").mkdirs();
 //        for(String name : new String[]{"Mona_Lisa.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
@@ -50,7 +48,7 @@ public class StillImageDemo extends ApplicationAdapter {
     }
 
     public void renderPNG8(String filename) {
-		PNG8 png8 = new PNG8();
+		FastPNG8 png8 = new FastPNG8();
 		png8.setFlipY(false);
 		png8.setCompression(2);
 		FileHandle file = Gdx.files.classpath(filename);
@@ -60,14 +58,16 @@ public class StillImageDemo extends ApplicationAdapter {
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
 		// gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
-		PaletteReducer reducer = new PaletteReducer();
-		final String[] types = {"", "H"};
-		for(String type : types) {
+		FastPalette reducer = new FastPalette();
+//		final String[] types = {"", "H"};
+//		for(String type : types)
+		String type = "";
+		{
 			for (int count : new int[]{16, 31, 255}) {
-				if(type.isEmpty())
-					reducer.analyze(pixmap, 100, count + 1);
-				else
-					reducer.analyzeHueWise(pixmap, 100, count + 1);
+//				if(type.isEmpty())
+				reducer.analyze(pixmap, 100, count + 1);
+//				else
+//					reducer.analyzeHueWise(pixmap, 100, count + 1);
 
 				png8.setPalette(reducer);
 				png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -186,31 +186,29 @@ public class StillImageDemo extends ApplicationAdapter {
 	}
 
     public void renderPNG(String name) {
-        PixmapIO.PNG png = new PixmapIO.PNG();
+        FastPNG png = new FastPNG();
         png.setFlipY(false);
         png.setCompression(2);
 		FileHandle handle = Gdx.files.classpath(name);
-		try {
-			png.write(Gdx.files.local("images/png/"+handle.nameWithoutExtension()+"-PNG.png"), new Pixmap(handle));
-		} catch (IOException e) {
-			Gdx.app.error("anim8", e.getMessage());
-		}
+		png.write(Gdx.files.local("images/png/"+handle.nameWithoutExtension()+"-PNG.png"), new Pixmap(handle));
 	}
 
     public void renderGif(String filename) {
 		FileHandle file = Gdx.files.classpath(filename);
 		String name = file.nameWithoutExtension();
 		Array<Pixmap> pixmaps = Array.with(new Pixmap(file));
-        AnimatedGif gif = new AnimatedGif();
+		FastGif gif = new FastGif();
         gif.setFlipY(false);
-        PaletteReducer reducer = new PaletteReducer();
-		final String[] types = {"", "H"};
-		for(String type : types) {
+        FastPalette reducer = new FastPalette();
+//		final String[] types = {"", "H"};
+//		for(String type : types)
+		String type = "";
+		{
 			for (int count : new int[]{16, 31, 255}) {
-				if(type.isEmpty())
+//				if(type.isEmpty())
 					reducer.analyze(pixmaps, 100, count + 1);
-				else
-					reducer.analyzeHueWise(pixmaps, 100, count + 1);
+//				else
+//					reducer.analyzeHueWise(pixmaps, 100, count + 1);
 
 				gif.setPalette(reducer);
 				gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
@@ -333,7 +331,7 @@ public class StillImageDemo extends ApplicationAdapter {
 	}
 
 	private static Lwjgl3Application createApplication() {
-		return new Lwjgl3Application(new StillImageDemo(), getDefaultConfiguration());
+		return new Lwjgl3Application(new FastStillImageDemo(), getDefaultConfiguration());
 	}
 
 	private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
