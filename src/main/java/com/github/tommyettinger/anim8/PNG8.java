@@ -1155,13 +1155,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if ((color & 0x80) == 0 && hasTransparent)
                         curLine[px] = 0;
                     else {
-                        float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f;
-                        adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                        int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
-                        adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                        int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
-                        adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                        int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
+                        int rr = ((color >>> 24)       );
+                        int gg = ((color >>> 16) & 0xFF);
+                        int bb = ((color >>> 8)  & 0xFF);
+
+                        adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
+                        adj = adj * strength / (12f + Math.abs(adj));
+                        rr = Math.min(Math.max((int) (adj + rr + 0.5f), 0), 255);
+                        adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
+                        adj = adj * strength / (12f + Math.abs(adj));
+                        gg = Math.min(Math.max((int) (adj + gg + 0.5f), 0), 255);
+                        adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f));
+                        adj = adj * strength / (12f + Math.abs(adj));
+                        bb = Math.min(Math.max((int) (adj + bb + 0.5f), 0), 255);
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
@@ -2752,13 +2758,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f;
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                            int rr = MathUtils.clamp((int) (adj + ((color >>> 24)       )), 0, 255);
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                            int gg = MathUtils.clamp((int) (adj + ((color >>> 16) & 0xFF)), 0, 255);
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                            int bb = MathUtils.clamp((int) (adj + ((color >>> 8)  & 0xFF)), 0, 255);
+                            int rr = ((color >>> 24)       );
+                            int gg = ((color >>> 16) & 0xFF);
+                            int bb = ((color >>> 8)  & 0xFF);
+
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
+                            adj = adj * strength / (12f + Math.abs(adj));
+                            rr = Math.min(Math.max((int) (adj + rr + 0.5f), 0), 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
+                            adj = adj * strength / (12f + Math.abs(adj));
+                            gg = Math.min(Math.max((int) (adj + gg + 0.5f), 0), 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f));
+                            adj = adj * strength / (12f + Math.abs(adj));
+                            bb = Math.min(Math.max((int) (adj + bb + 0.5f), 0), 255);
 
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
