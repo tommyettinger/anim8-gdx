@@ -1598,7 +1598,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
 
             int used;
         int usedIndex;
-        final float errorMul = palette.ditherStrength * palette.populationBias;
+        final float errorMul = palette.ditherStrength * 0.5f / palette.populationBias;
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < w; px++) {
                 int cr = pixels.get() & 0xFF;
@@ -3279,7 +3279,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
 
             int used;
             int usedIndex;
-            final float errorMul = palette.ditherStrength * palette.populationBias;
+            final float errorMul = palette.ditherStrength * 0.5f / palette.populationBias;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {

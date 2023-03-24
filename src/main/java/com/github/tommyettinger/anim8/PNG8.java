@@ -1562,7 +1562,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
         int cr, cg, cb,  usedIndex;
-        final float errorMul = palette.ditherStrength * palette.populationBias;
+        final float errorMul = palette.ditherStrength * 0.5f / palette.populationBias;
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
@@ -3227,7 +3227,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             int cr, cg, cb,  usedIndex;
-            final float errorMul = palette.ditherStrength * palette.populationBias;
+            final float errorMul = palette.ditherStrength * 0.5f / palette.populationBias;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {

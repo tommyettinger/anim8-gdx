@@ -1474,7 +1474,7 @@ public class FastPalette extends PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int used, usedIndex;
         float cr, cg, cb;
-        final float errorMul = (ditherStrength * populationBias);
+        final float errorMul = (ditherStrength * 0.5f / populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 cr = (pixels.get() & 0xFF) + 0.5f;
