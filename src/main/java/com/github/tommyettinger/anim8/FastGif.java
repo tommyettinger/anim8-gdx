@@ -738,13 +738,16 @@ public class FastGif implements AnimationWriter, Dithered {
                         if (hasTransparent && (pixels.get() & 0x80) == 0)
                             indexedPixels[i++] = 0;
                         else {
-                            float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f;
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                            int rr = Math.min(Math.max((int) (adj + r),  0),  255);
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                            int gg = Math.min(Math.max((int) (adj + g),  0),  255);
-                            adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) * strength) + pos;
-                            int bb = Math.min(Math.max((int) (adj + b),  0),  255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
+                            adj = adj * strength / (12f + Math.abs(adj));
+                            int rr = Math.min(Math.max((int) (adj + r + 0.5f), 0), 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
+                            adj = adj * strength / (12f + Math.abs(adj));
+                            int gg = Math.min(Math.max((int) (adj + g + 0.5f), 0), 255);
+                            adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f));
+                            adj = adj * strength / (12f + Math.abs(adj));
+                            int bb = Math.min(Math.max((int) (adj + b + 0.5f), 0), 255);
+
                             usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
