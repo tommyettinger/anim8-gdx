@@ -21,6 +21,7 @@ package com.github.tommyettinger.anim8;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.IntIntMap;
@@ -987,7 +988,7 @@ public class FastPalette extends PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
 //        float str = (32f * ditherStrength / (populationBias * populationBias));
 //        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
-        float str = (25f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+        float str = (32f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 int rr = pixels.get() & 0xFF;
@@ -1012,13 +1013,21 @@ public class FastPalette extends PaletteReducer {
 ////                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
 //                    // sign-preserving square, emphasizes low-magnitude values
 ////                    adj *= Math.abs(adj);
+                // Used in 0.3.13, has a heavy color bias
+//                int ar = Math.min(Math.max((int) (rr + roberts125(px - 1, y + 1) * str + 0.5f), 0), 255);
+//                int ag = Math.min(Math.max((int) (gg + roberts125(px + 3, y - 1) * str + 0.5f), 0), 255);
+//                int ab = Math.min(Math.max((int) (bb + roberts125(px - 4, y + 2) * str + 0.5f), 0), 255);
+                int shrunk = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
+                float L = OKLAB[0][shrunk];
+                // We get a subrandom angle from 0-1, subtract L (which is from 0-1), and multiply by PI2.
+                // This gets us an angle theta from -PI2 to PI2, which we feed into three different cos() calls,
+                // each with a different offset to get 3 different angles. We also use the rr, gg, and bb from
+                // earlier to adjust the angles further, by 0-2 towards the next angle.
+                float theta = ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1p-23f - L) * (MathUtils.PI2);
+                int ar = Math.min(Math.max((int)(rr + (MathUtils.cos(theta         + rr * 0x1p-7f)) * str + 0.5f), 0), 255);
+                int ag = Math.min(Math.max((int)(gg + (MathUtils.cos(theta + 2.09f + gg * 0x1p-7f)) * str + 0.5f), 0), 255);
+                int ab = Math.min(Math.max((int)(bb + (MathUtils.cos(theta + 4.18f + bb * 0x1p-7f)) * str + 0.5f), 0), 255);
 
-                int ar = Math.min(Math.max((int) (rr + roberts125(px - 1, y + 1) * str + 0.5f), 0), 255);
-                int ag = Math.min(Math.max((int) (gg + roberts125(px + 3, y - 1) * str + 0.5f), 0), 255);
-                int ab = Math.min(Math.max((int) (bb + roberts125(px - 4, y + 2) * str + 0.5f), 0), 255);
-//                int ar = Math.min(Math.max((int) (rr + ((((px - 1) * 0xC13FA9A902A6328FL + (y + 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-//                int ag = Math.min(Math.max((int) (gg + ((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-//                int ab = Math.min(Math.max((int) (bb + ((((px + 2) * 0xC13FA9A902A6328FL + (y + 3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
                 writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
             }
         }
