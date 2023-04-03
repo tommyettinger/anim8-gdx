@@ -1071,7 +1071,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
 
 
             final float populationBias = palette.populationBias;
-            final float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+            final float str = (32f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
             for (int y = 0; y < h; y++) {
                 for (int px = 0; px < w; px++) {
                     int rr = pixels.get() & 0xFF;
@@ -2641,7 +2641,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine;
 
             final float populationBias = palette.populationBias;
-            final float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+            final float str = (32f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {

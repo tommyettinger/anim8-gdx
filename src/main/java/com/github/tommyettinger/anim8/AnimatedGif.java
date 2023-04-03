@@ -604,7 +604,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             break;
             case ROBERTS: {
                 final float populationBias = palette.populationBias;
-                final float str = (20f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+                final float str = (32f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         color = image.getPixel(px, flipped + flipDir * y);
