@@ -1051,9 +1051,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if ((color & 0x80) == 0 && hasTransparent)
                         curLine[px] = 0;
                     else {
-                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+2) * 0xC13FA9A902A6328FL + (y+3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                        int rr = ((color >>> 24)       );
+                        int gg = ((color >>> 16) & 0xFF);
+                        int bb = ((color >>> 8)  & 0xFF);
+                        int shrunk = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
+                        float L = PaletteReducer.OKLAB[0][shrunk];
+                        // We get a sub-random angle from 0-1, subtract L (which is from 0-1), and multiply by PI2.
+                        // This gets us an angle theta from -PI2 to PI2, which we feed into three different cos() calls,
+                        // each with a different offset to get 3 different angles. We also use the rr, gg, and bb from
+                        // earlier to adjust the angles further, by 0-2 towards the next angle.
+                        float theta = ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1p-23f - L) * (MathUtils.PI2);
+                        rr = Math.min(Math.max((int)(rr + (MathUtils.cos(theta         + rr * 0x1p-7f)) * str + 0.5f), 0), 255);
+                        gg = Math.min(Math.max((int)(gg + (MathUtils.cos(theta + 2.09f + gg * 0x1p-7f)) * str + 0.5f), 0), 255);
+                        bb = Math.min(Math.max((int)(bb + (MathUtils.cos(theta + 4.18f + bb * 0x1p-7f)) * str + 0.5f), 0), 255);
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
@@ -2625,9 +2635,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((((px+2) * 0xC13FA9A902A6328FL + (y+3) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
+                            int rr = ((color >>> 24)       );
+                            int gg = ((color >>> 16) & 0xFF);
+                            int bb = ((color >>> 8)  & 0xFF);
+                            int shrunk = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
+                            float L = PaletteReducer.OKLAB[0][shrunk];
+                            // We get a sub-random angle from 0-1, subtract L (which is from 0-1), and multiply by PI2.
+                            // This gets us an angle theta from -PI2 to PI2, which we feed into three different cos() calls,
+                            // each with a different offset to get 3 different angles. We also use the rr, gg, and bb from
+                            // earlier to adjust the angles further, by 0-2 towards the next angle.
+                            float theta = ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1p-23f - L) * (MathUtils.PI2);
+                            rr = Math.min(Math.max((int)(rr + (MathUtils.cos(theta         + rr * 0x1p-7f)) * str + 0.5f), 0), 255);
+                            gg = Math.min(Math.max((int)(gg + (MathUtils.cos(theta + 2.09f + gg * 0x1p-7f)) * str + 0.5f), 0), 255);
+                            bb = Math.min(Math.max((int)(bb + (MathUtils.cos(theta + 4.18f + bb * 0x1p-7f)) * str + 0.5f), 0), 255);
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];

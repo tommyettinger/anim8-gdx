@@ -1019,7 +1019,7 @@ public class FastPalette extends PaletteReducer {
 //                int ab = Math.min(Math.max((int) (bb + roberts125(px - 4, y + 2) * str + 0.5f), 0), 255);
                 int shrunk = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
                 float L = OKLAB[0][shrunk];
-                // We get a subrandom angle from 0-1, subtract L (which is from 0-1), and multiply by PI2.
+                // We get a sub-random angle from 0-1, subtract L (which is from 0-1), and multiply by PI2.
                 // This gets us an angle theta from -PI2 to PI2, which we feed into three different cos() calls,
                 // each with a different offset to get 3 different angles. We also use the rr, gg, and bb from
                 // earlier to adjust the angles further, by 0-2 towards the next angle.
