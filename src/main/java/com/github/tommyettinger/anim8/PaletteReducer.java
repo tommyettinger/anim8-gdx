@@ -432,8 +432,7 @@ public class PaletteReducer {
 
     public IntIntMap reverseMap;
     /**
-     * Determines how strongly to apply noise or other effects during dithering. This is usually half the value set with
-     * {@link #setDitherStrength(float)}.
+     * Determines how strongly to apply noise or other effects during dithering.
      */
     protected float ditherStrength = 1f;
     /**

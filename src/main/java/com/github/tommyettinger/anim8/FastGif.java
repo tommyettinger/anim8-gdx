@@ -774,7 +774,8 @@ public class FastGif implements AnimationWriter, Dithered {
             }
             break;
             case BLUE_NOISE: {
-                float adj, strength = 32f * palette.ditherStrength / palette.populationBias;
+                float adj, strength = 60f * palette.ditherStrength / (palette.populationBias
+                        * OtherMath.cbrt(palette.colorCount));
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         int r = pixels.get() & 255;
