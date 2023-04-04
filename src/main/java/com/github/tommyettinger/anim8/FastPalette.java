@@ -154,8 +154,12 @@ public class FastPalette extends PaletteReducer {
      */
     @Override
     public void analyze(Pixmap pixmap, double threshold, int limit) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            super.analyzeFast(pixmap, threshold, limit);
+            return;
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
@@ -271,8 +275,12 @@ public class FastPalette extends PaletteReducer {
      */
     @Override
     public void analyzeFast(Pixmap pixmap, double threshold, int limit) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            super.analyzeFast(pixmap, threshold, limit);
+            return;
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         Arrays.fill(workspace, (byte) 0);
@@ -449,23 +457,37 @@ public class FastPalette extends PaletteReducer {
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
             Pixmap pixmap = pixmaps[i];
-            ByteBuffer pixels = pixmap.getPixels();
             boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
             final int width = pixmap.getWidth(), height = pixmap.getHeight();
-            int r, g, b;
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    r = pixels.get() & 0xF8;
-                    g = pixels.get() & 0xF8;
-                    b = pixels.get() & 0xF8;
-                    if (!hasAlpha || (pixels.get() & 0x80) != 0) {
-                        color = r << 24 | g << 16 | b << 8;
-                        color |= (color >>> 5 & 0x07070700) | 0xFF;
-                        counts.getAndIncrement(color, 0, 1);
+            if (hasAlpha || pixmap.getFormat().equals(Pixmap.Format.RGB888)) {
+                ByteBuffer pixels = pixmap.getPixels();
+                int r, g, b;
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        r = pixels.get() & 0xF8;
+                        g = pixels.get() & 0xF8;
+                        b = pixels.get() & 0xF8;
+                        if (!hasAlpha || (pixels.get() & 0x80) != 0) {
+                            color = r << 24 | g << 16 | b << 8;
+                            color |= (color >>> 5 & 0x07070700) | 0xFF;
+                            counts.getAndIncrement(color, 0, 1);
+                        }
                     }
                 }
+                pixels.rewind();
             }
-            pixels.rewind();
+            else {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        color = pixmap.getPixel(x, y) & 0xF8F8F880;
+                        if ((color & 0x80) != 0) {
+                            color |= (color >>> 5 & 0x07070700) | 0xFF;
+                            counts.getAndIncrement(color, 0, 1);
+                        }
+                    }
+                }
+
+            }
         }
         final int cs = counts.size;
         Array<IntIntMap.Entry> es = new Array<>(cs);
@@ -566,8 +588,11 @@ public class FastPalette extends PaletteReducer {
      */
     @Override
     public Pixmap reduceSolid (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceSolid(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
@@ -606,8 +631,11 @@ public class FastPalette extends PaletteReducer {
      * @return the given Pixmap, for chaining
      */
     public Pixmap reduceSierraLite (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceSierraLite(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -705,8 +733,11 @@ public class FastPalette extends PaletteReducer {
      * @return the given Pixmap, for chaining
      */
     public Pixmap reduceFloydSteinberg (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceFloydSteinberg(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -807,8 +838,11 @@ public class FastPalette extends PaletteReducer {
      * @return pixmap, after modifications
      */
     public Pixmap reduceJimenez(Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceJimenez(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
@@ -865,8 +899,11 @@ public class FastPalette extends PaletteReducer {
      * @return pixmap, after modifications
      */
     public Pixmap reduceIgneous(Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceIgneous(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -980,8 +1017,11 @@ public class FastPalette extends PaletteReducer {
      * @return pixmap, after modifications
      */
     public Pixmap reduceRoberts (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceRoberts(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
@@ -1035,8 +1075,11 @@ public class FastPalette extends PaletteReducer {
         return pixmap;
     }
     public Pixmap reduceWoven(Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceWoven(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -1140,8 +1183,11 @@ public class FastPalette extends PaletteReducer {
      * @return pixmap, after modifications
      */
     public Pixmap reduceBlueNoise (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceBlueNoise(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
@@ -1190,8 +1236,11 @@ public class FastPalette extends PaletteReducer {
      * @return pixmap, after modifications
      */
     public Pixmap reduceChaoticNoise (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceChaoticNoise(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
@@ -1247,8 +1296,11 @@ public class FastPalette extends PaletteReducer {
      * @return the given Pixmap, for chaining
      */
     public Pixmap reduceScatter (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceScatter(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -1354,8 +1406,11 @@ public class FastPalette extends PaletteReducer {
      * @return pixmap, after modifications
      */
     public Pixmap reduceNeue(Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceNeue(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -1474,8 +1529,11 @@ public class FastPalette extends PaletteReducer {
      * @return {@code pixmap}, after modifications
      */
     public Pixmap reduceKnoll (Pixmap pixmap) {
-        ByteBuffer pixels = pixmap.getPixels();
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceKnoll(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
