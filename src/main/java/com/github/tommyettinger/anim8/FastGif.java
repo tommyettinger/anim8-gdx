@@ -465,6 +465,48 @@ public class FastGif implements AnimationWriter, Dithered {
      * Analyzes image colors and creates color map.
      */
     protected void analyzePixels() {
+        colorTab = new byte[256 * 3]; // create reduced palette
+        Pixmap.Format fmt = image.getFormat();
+        switch (fmt){
+            case Alpha:
+            case Intensity:
+                colorDepth = 8;
+                palSize = 7;
+                for (int i = 0, bi = 0; i < 256; i++) {
+                    colorTab[bi++] = (byte) i;
+                    colorTab[bi++] = (byte) i;
+                    colorTab[bi++] = (byte) i;
+                    usedEntry[i] = true;
+                }
+                indexedPixels = new byte[width * height];
+                image.getPixels().get(indexedPixels);
+                image.getPixels().rewind();
+                return;
+            case LuminanceAlpha:
+                colorDepth = 8;
+                palSize = 7;
+                transIndex = 0;
+                for (int i = 0, bi = 0; i < 256; i++) {
+                    colorTab[bi++] = (byte) i;
+                    colorTab[bi++] = (byte) i;
+                    colorTab[bi++] = (byte) i;
+                    usedEntry[i] = true;
+                }
+                indexedPixels = new byte[width * height];
+                ByteBuffer pixels = image.getPixels();
+                for (int i = 0, n = indexedPixels.length; i < n; i++) {
+                    byte l = pixels.get();
+                    if ((pixels.get() & 0x80) == 0)
+                        indexedPixels[i++] = 0;
+                    else {
+                        indexedPixels[i++] = l;
+                    }
+                }
+                pixels.rewind();
+                return;
+        }
+        boolean hasTransparent = fmt.equals(Pixmap.Format.RGBA8888);
+
         int nPix = width * height;
         indexedPixels = new byte[nPix];
         palette.setDitherStrength(ditherStrength);
@@ -478,7 +520,6 @@ public class FastGif implements AnimationWriter, Dithered {
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
-        colorTab = new byte[256 * 3]; // create reduced palette
         for (int i = 0, bi = 0; i < 256; i++) {
             int pa = paletteArray[i];
             colorTab[bi++] = (byte) (pa >>> 24);
@@ -489,7 +530,6 @@ public class FastGif implements AnimationWriter, Dithered {
         // map image pixels to new palette
         int used;
         ByteBuffer pixels = image.getPixels();
-        boolean hasTransparent = image.getFormat().equals(Pixmap.Format.RGBA8888);
         switch (ditherAlgorithm) {
             case NONE: {
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
