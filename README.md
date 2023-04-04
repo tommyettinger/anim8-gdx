@@ -113,8 +113,9 @@ files but do so more quickly.
         range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
       - Blue noise is also used normally by SCATTER and NEUE, as well as used strangely by CHAOTIC_NOISE.
     - This changed in 0.2.12, and handles smooth gradients better now. In version 0.3.5, it changed again to improve
-      behavior on small palettes. It changed again in 0.3.8, 0.3.9, and 0.3.13 to improve saturation's appearance.
-    - As of 0.3.10, this acts like ROBERTS and GRADIENT_NOISE, but looks... noisier, with less of an orderly grid.
+      behavior on small palettes. It changed again in 0.3.8, 0.3.9, 0.3.13, and 0.3.14 to improve the appearance.
+    - As of 0.3.14, this acts like GRADIENT_NOISE, has subtle artifacts that are less harsh, where GRADIENT_NOISE has a
+      strong artifact that does improve how it handles lightness changes.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
       - This is much "harsher" than BLUE_NOISE currently is. 
@@ -145,15 +146,16 @@ files but do so more quickly.
     - BLUE_NOISE, GRADIENT_NOISE, or ROBERTS will likely look better in pixel art animations, but NEUE can look better
       for still pixel art.
   - ROBERTS
-    - This is another ordered dither, this time using a softer, "fuzzy" pattern discovered by Dr. Martin Roberts that
+    - This is another ordered dither, this time using the R2 sequence, a pattern discovered by Dr. Martin Roberts that
       distributes extra error well, but always adds some error to an image.
-    - The dithering algorithm is really just adding or subtracting a relatively small amount of error from each pixel,
-      before finding the closest color to that pixel's value with error.
-    - This adjusts each channel of a pixel by a differently-translated version of the same pattern. This makes it able
+    - The dithering algorithm here is more complex than some other ordered dithers, and uses the fast `MathUtils.cos()`
+      in libGDX with three different inputs, offset from each other, to add error to the RGB channels.
+    - This adjusts each channel of a pixel differently, and the nearly-repeating nature of the R2 sequence makes very
+      few patches of an image filled entirely with solid blocks of color. This makes it able
       to produce some color combinations via dithering that dithers like GRADIENT_NOISE, which affect all channels with
       the same error, can't produce with small palettes.
     - This is much like GRADIENT_NOISE, but milder, or BLUE_NOISE, but stronger.
-    - This changed somewhat in version 0.3.11 and 0.3.13. 
+    - This changed somewhat in versions 0.3.11, 0.3.13, and 0.3.14. 
   - WOVEN
     - This is an error-diffusion dither, like NEUE or SCATTER, but instead of using blue noise patterns to add error to
       the image, this uses the finer-grained "fuzzy" pattern from ROBERTS.
@@ -259,43 +261,43 @@ Original (full-color):
 
 Neue (default):
 
-![](https://i.imgur.com/ISLZsj3.png)
+![](https://i.imgur.com/qPxNuvb.png)
 
 Pattern:
 
-![](https://i.imgur.com/KAl8FfE.png)
+![](https://i.imgur.com/tKk8Yds.png)
 
 Diffusion:
 
-![](https://i.imgur.com/ebuEU50.png)
+![](https://i.imgur.com/q7FHci0.png)
 
 Gradient Noise:
 
-![](https://i.imgur.com/Ta7Z9M3.png)
+![](https://i.imgur.com/6a68Nwd.png)
 
 Blue Noise:
 
-![](https://i.imgur.com/lc6dblY.png)
+![](https://i.imgur.com/f6Q0tLT.png)
 
 Chaotic Noise:
 
-![](https://i.imgur.com/jqu4ZRj.png)
+![](https://i.imgur.com/dccx9cL.png)
 
 Scatter:
 
-![](https://i.imgur.com/q9HR91K.png)
+![](https://i.imgur.com/mWPODHB.png)
 
 Roberts:
 
-![](https://i.imgur.com/Uiud4YW.png)
+![](https://i.imgur.com/GEAtDj4.png)
 
 Woven:
 
-![](https://i.imgur.com/H0DLIDp.png)
+![](https://i.imgur.com/mHnVOAZ.png)
 
 None (no dither):
 
-![](https://i.imgur.com/POBXePc.png)
+![](https://i.imgur.com/yoD23YJ.png)
 
 This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned DB8
 palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it.
