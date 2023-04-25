@@ -26,13 +26,22 @@
   -->
 <module>
     <source path="anim8">
-        <exclude name="**/AnimatedPNG.java"/>
-        <exclude name="**/ChunkBuffer.java"/>
-        <exclude name="**/PNG8.java"/>
-        <exclude name="**/FastAPNG.java"/>
-        <exclude name="**/FastGif.java"/>
-        <exclude name="**/FastPalette.java"/>
-        <exclude name="**/FastPNG.java"/>
-        <exclude name="**/FastPNG8.java"/>
+        <!--I'm not sure if we need to explicitly include these.-->
+<!--        <include name="AnimatedGif.java"/>-->
+<!--        <include name="AnimationWriter.java"/>-->
+<!--        <include name="ConstantData.java"/>-->
+<!--        <include name="Dithered.java"/>-->
+<!--        <include name="LZWEncoder.java"/>-->
+<!--        <include name="OtherMath.java"/>-->
+<!--        <include name="PaletteReducer.java"/>-->
+
+        <exclude name="AnimatedPNG.java"/>
+        <exclude name="ChunkBuffer.java"/>
+        <exclude name="PNG8.java"/>
+        <exclude name="FastAPNG.java"/>
+        <exclude name="FastGif.java"/>
+        <exclude name="FastPalette.java"/>
+        <exclude name="FastPNG.java"/>
+        <exclude name="FastPNG8.java"/>
     </source>
 </module>
