@@ -397,6 +397,6 @@ public class QualityPalette extends PaletteReducer {
         double A = (A1 - A2);
         double B = (B1 - B2);
 
-        return (L * L + A * A + B * B) * 0x1p+21;
+        return (L * L + A * A + B * B) * 150000;
     }
 }
