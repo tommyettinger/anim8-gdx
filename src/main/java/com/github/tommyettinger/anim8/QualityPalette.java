@@ -367,33 +367,27 @@ public class QualityPalette extends PaletteReducer {
         double g = g1 * 0.00392156862745098; g *= g;
         double b = b1 * 0.00392156862745098; b *= b;
 
-        double l = Math.cbrt(0.4121656120 * r + 0.5362752080 * g + 0.0514575653 * b);
-        double m = Math.cbrt(0.2118591070 * r + 0.6807189584 * g + 0.1074065790 * b);
-        double s = Math.cbrt(0.0883097947 * r + 0.2818474174 * g + 0.6302613616 * b);
+        double l = OtherMath.cbrt(0.4121656120 * r + 0.5362752080 * g + 0.0514575653 * b);
+        double m = OtherMath.cbrt(0.2118591070 * r + 0.6807189584 * g + 0.1074065790 * b);
+        double s = OtherMath.cbrt(0.0883097947 * r + 0.2818474174 * g + 0.6302613616 * b);
 
         double L1 = forwardLight(0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s);
         double A1 = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
         double B1 = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
-////LR alternate lightness estimate
-//            final double k1 = 0.206, k2 = 0.03, k3 = 1.17087;
-//            double t = (k3 * L1 - k1);
-//            L1 = (t + Math.sqrt(t * t + 0.1405044 * L1)) * 0.5;
 
         r = r2 * 0.00392156862745098; r *= r;
         g = g2 * 0.00392156862745098; g *= g;
         b = b2 * 0.00392156862745098; b *= b;
 
-        l = Math.cbrt(0.4121656120 * r + 0.5362752080 * g + 0.0514575653 * b);
-        m = Math.cbrt(0.2118591070 * r + 0.6807189584 * g + 0.1074065790 * b);
-        s = Math.cbrt(0.0883097947 * r + 0.2818474174 * g + 0.6302613616 * b);
+        l = OtherMath.cbrt(0.4121656120 * r + 0.5362752080 * g + 0.0514575653 * b);
+        m = OtherMath.cbrt(0.2118591070 * r + 0.6807189584 * g + 0.1074065790 * b);
+        s = OtherMath.cbrt(0.0883097947 * r + 0.2818474174 * g + 0.6302613616 * b);
 
         double L2 = forwardLight(0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s);
         double A2 = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
         double B2 = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
-//            t = (k3 * L2 - k1);
-//            L2 = (t + Math.sqrt(t * t + 0.1405044 * L2)) * 0.5;
 
-        double L = (L1 - L2);// * 1.25;
+        double L = (L1 - L2);
         double A = (A1 - A2);
         double B = (B1 - B2);
 
