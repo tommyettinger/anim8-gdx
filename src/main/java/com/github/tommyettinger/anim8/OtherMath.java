@@ -149,65 +149,6 @@ public final class OtherMath {
 //        return NumberUtils.intBitsToFloat(((i & 0x7FFFFFFF) - 0x3F800000) / 3 + 0x3F800000 | (i & 0x80000000));
         return x * 1.25f / (0.25f + Math.abs(x));
     }
-    /**
-     * Double-precision cube root.
-     * <br>
-     * <a href="https://stackoverflow.com/a/73354137">Credit to StackOverflow user wim</a>.
-     * @param x any double
-     * @return an approximation of the cube root for the given double
-     */
-    public static double cbrt(double x) {
-        double a, y, r, r2_h, y_a2y4, ayy, diff;
-        long ai, ai23, aim23;
-        boolean small;
-
-        a = Math.abs(x);
-        small = a <  0.015625;                         // Scale large, small and/or subnormal numbers to avoid underflow, overflow or subnormal numbers
-        a = small ? a * 0x1.0p+210 : a * 0.125;
-        ai = NumberUtils.doubleToLongBits(a);
-        if (ai >= 0x7FF0000000000000L || x == 0.0){    // Inf, 0.0 and NaN
-            r = x + x;
-        }
-        else
-        {
-            ai23 = 2 * (ai/3);                           // Integer division. The compiler, with suitable optimization level, should generate a much more efficient multiplication by 0xAAAAAAAAAAAAAAAB
-            aim23 = 0x6A8EB53800000000L - ai23;          // This uses a similar idea as the "fast inverse square root" approximation, see https://en.wikipedia.org/wiki/Fast_inverse_square_root
-            y = NumberUtils.longBitsToDouble(aim23);   // y is an approximation of a^(-2/3)
-
-            ayy = a * y * y;                          // First Newton iteration for f(y)=a^2-y^-3 to calculate a better approximation y=a^(-2/3)
-            y_a2y4 = y - ayy * ayy;
-            y = y_a2y4 * 0.33333333333333333333 + y;
-
-            ayy = a * y * y;                          // Second Newton iteration
-            y_a2y4 = y - ayy * ayy;
-            y = y_a2y4 * 0.33523333333 + y;           // This is a small modification to the exact Newton parameter 1/3 which gives slightly better results
-
-            ayy = a * y * y;                          // Third Newton iteration
-            y_a2y4 = y - ayy * ayy;
-            y = y_a2y4 * 0.33333333333333333333 + y;
-
-            r = y * a;                                // Now r = y * a is an approximation of a^(1/3), because y approximates a^(-2/3).
-
-            r2_h = r * r;                             // Compute one pseudo Newton step with g(r)=a-r^3, but instead of dividing by f'(r)=3r^2 we multiply with
-            // the approximation 0.3333...*y (division is usually a relatively expensive operation)
-//            double r2_l = r * r + -r2_h;              // For better accuracy we could split r*r=r^2 as r^2=r2_h+r2_l exactly, but don't now.
-            diff = a - r2_h * r;
-//            diff = r2_l * -r + diff;                  // Compute diff=a-r^3 accurately: diff=(a-r*r2_h)-r*r2_l with two fma instructions
-            diff *= 0.33333333333333333333;
-            r = diff * y + r;                        // Now r approximates a^(1/3) well enough
-/*
-            r2_h = r * r;                             // One final Halley iteration (omitted for now)
-            r2_l = r * r + -r2_h;
-            diff = r2_h * -r + a;
-            diff = r2_l * -r + diff;
-            double denom = a * 3.0 - 2.0 * diff;
-            r = (diff/denom) * r + r;
-*/
-            r = small ? r * 0x1.0p-70 : r * 2.0;   // Undo scaling
-            r = Math.copySign(r, x);
-        }
-        return r;
-    }
 
     /**
      * A variant on {@link Math#atan(double)} that does not tolerate infinite inputs and takes/returns floats.
