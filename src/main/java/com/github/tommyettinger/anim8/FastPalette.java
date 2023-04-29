@@ -1582,5 +1582,14 @@ public class FastPalette extends PaletteReducer {
         pixels.rewind();
         return pixmap;
     }
-
+//    public double totalDifference = 0.0;
+    public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
+        double rf = (r1 - r2);
+        double gf = (g1 - g2);
+        double bf = (b1 - b2);
+        return (rf * rf + gf * gf + bf * bf);
+//        double total = (rf * rf + gf * gf + bf * bf);
+//        totalDifference += total;
+//        return total;
+    }
 }

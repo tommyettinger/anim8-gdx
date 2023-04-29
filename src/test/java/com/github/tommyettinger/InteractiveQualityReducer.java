@@ -255,6 +255,7 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_7:
                     case Input.Keys.NUM_8:
                     case Input.Keys.NUM_9:
+//                        reducerQ.totalDifference = 0.0;
                         if(UIUtils.ctrl()) {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
@@ -289,6 +290,7 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                                 reducerF.analyze(p0, 100, kc);
                             }
                         }
+//                        System.out.println("Total for all color differences: " + reducerQ.totalDifference);
                         refresh();
                         break;
                     case Input.Keys.NUM_0:

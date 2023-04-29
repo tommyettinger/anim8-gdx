@@ -250,6 +250,7 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_7:
                     case Input.Keys.NUM_8:
                     case Input.Keys.NUM_9:
+//                        reducer.totalDifference = 0.0;
                         if(UIUtils.ctrl()) {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
@@ -280,6 +281,7 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                                 reducer.analyze(p0, 100, kc);
                             }
                         }
+//                        System.out.println("Total for all color differences: " + reducer.totalDifference);
                         refresh();
                         break;
                     case Input.Keys.NUM_0:

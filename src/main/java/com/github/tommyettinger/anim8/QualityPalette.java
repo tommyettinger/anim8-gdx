@@ -265,6 +265,7 @@ public class QualityPalette extends PaletteReducer {
         return difference(r1, g1, b1, r2, g2, b2);
     }
 
+//    public double totalDifference = 0.0;
     /**
      * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
      * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
@@ -288,6 +289,9 @@ public class QualityPalette extends PaletteReducer {
      */
     public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
         return difference(r1, g1, b1, r2, g2, b2);
+//        double total = difference(r1, g1, b1, r2, g2, b2);
+//        totalDifference += total;
+//        return total;
     }
 
     /**
@@ -375,6 +379,6 @@ public class QualityPalette extends PaletteReducer {
         double A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
         double B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
 
-        return (L * L + A * A + B * B) * 0x1p21;
+        return (L * L + A * A + B * B) * 0x1p17;
     }
 }
