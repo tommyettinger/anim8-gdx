@@ -1547,9 +1547,9 @@ public class FastPalette extends PaletteReducer {
         int used;
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
-        float w1 = (float) (24.0 * Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                strength = (float) (0.35 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
-                limit = 5f + 90f / (float)Math.sqrt(colorCount+1.5), dmul = (float) (0x1p-8 / populationBias);
+        float w1 = 24f * (float) Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                strength = 0.35f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
+                limit = 5f + 90f / (float)Math.sqrt(colorCount+1.5f), dmul = 0x1p-8f / populationBias;
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
