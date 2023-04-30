@@ -2367,6 +2367,8 @@ public class PaletteReducer {
                 return reduceRoberts(pixmap);
             case WOVEN:
                 return reduceWoven(pixmap);
+            case DODGY:
+                return reduceDodgy(pixmap);
             default:
             case NEUE:
                 return reduceNeue(pixmap);

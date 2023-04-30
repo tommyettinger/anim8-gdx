@@ -186,8 +186,18 @@ public interface Dithered {
          * more channels repeatedly, forming somewhat-noticeable light and dark patterns that look like scales or dots.
          * The artifacts here are usually less obvious than the ones in {@link #NEUE} at the same dither strength. This
          * is an excellent choice for still images, especially those with small, varied palettes. It is not expected to
-         * be as good for animations as an ordered dither.
+         * be as good for pixel-art animations as an ordered dither.
          */
-        WOVEN
+        WOVEN,
+        /**
+         * An error-diffusion dither that, like {@link #NEUE}, starts with {@link #DIFFUSION Floyd-Steinberg} dither and
+         * adds in blue noise values to break up patterns. Unlike NEUE, but like {@link #WOVEN}, this adds different
+         * noise values to the red, green, and blue channels. This last step significantly improves color accuracy, even
+         * on small palettes, while avoiding repetitive artifacts like WOVEN has. This is probably not a great pick for
+         * pixel-art animations, but can be good for some other GIFs in specific cases; when GIFs are recompressed, and
+         * they use ordered dithers, the artifacts can worsen, but an error-diffusion dither can move around artifacts
+         * in things like videos converted to GIF such that any artifact lasts only one frame.
+         */
+        DODGY
     }
 }

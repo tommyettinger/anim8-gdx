@@ -353,6 +353,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 case WOVEN:
                     writeWovenDithered(output, pixmap);
                     break;
+                case DODGY:
+                    writeDodgyDithered(output, pixmap);
+                    break;
                 default:
                 case NEUE:
                     writeNeueDithered(output, pixmap);
@@ -2543,6 +2546,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 break;
             case WOVEN:
                 writeWovenDithered(output, frames, fps);
+                break;
+            case DODGY:
+                writeDodgyDithered(output, frames, fps);
                 break;
             default:
             case NEUE:
