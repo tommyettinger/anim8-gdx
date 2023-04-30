@@ -1405,6 +1405,7 @@ public class FastPalette extends PaletteReducer {
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
+    @Override
     public Pixmap reduceNeue(Pixmap pixmap) {
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
         if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
@@ -1511,6 +1512,114 @@ public class FastPalette extends PaletteReducer {
         return pixmap;
     }
 
+    @Override
+    public Pixmap reduceDodgy(Pixmap pixmap) {
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceDodgy(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedFloats == null) {
+            curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedFloats = new FloatArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenFloats = new FloatArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenFloats = new FloatArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueFloats = new FloatArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueFloats = new FloatArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedFloats.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedFloats.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenFloats.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int used;
+        float rdiff, gdiff, bdiff;
+        float er, eg, eb;
+        float w1 = (float) (24.0 * Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                strength = (float) (0.35 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
+                limit = 5f + 90f / (float)Math.sqrt(colorCount+1.5), dmul = (float) (0x1p-8 / populationBias);
+
+        for (int py = 0; py < h; py++) {
+            int ny = py + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+
+                er = Math.min(Math.max(((TRI_BLUE_NOISE  [(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorRed[px]);
+                eg = Math.min(Math.max(((TRI_BLUE_NOISE_B[(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorGreen[px]);
+                eb = Math.min(Math.max(((TRI_BLUE_NOISE_C[(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorBlue[px]);
+
+                int ar = Math.min(Math.max((int)(rr + er + 0.5f), 0), 255);
+                int ag = Math.min(Math.max((int)(gg + eg + 0.5f), 0), 255);
+                int ab = Math.min(Math.max((int)(bb + eb + 0.5f), 0), 255);
+                used = writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+//                rdiff = (0x1.7p-10f * (rr - (used>>>24))    );
+//                gdiff = (0x1.7p-10f * (gg - (used>>>16&255)));
+//                bdiff = (0x1.7p-10f * (bb - (used>>>8&255)) );
+//                rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+//                gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+//                bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
+                rdiff = (dmul * (rr - (used>>>24))    );
+                gdiff = (dmul * (gg - (used>>>16&255)));
+                bdiff = (dmul * (bb - (used>>>8&255)) );
+                if(px < lineLen - 1)
+                {
+                    curErrorRed[px+1]   += rdiff * w7;
+                    curErrorGreen[px+1] += gdiff * w7;
+                    curErrorBlue[px+1]  += bdiff * w7;
+                }
+                if(ny < h)
+                {
+                    if(px > 0)
+                    {
+                        nextErrorRed[px-1]   += rdiff * w3;
+                        nextErrorGreen[px-1] += gdiff * w3;
+                        nextErrorBlue[px-1]  += bdiff * w3;
+                    }
+                    if(px < lineLen - 1)
+                    {
+                        nextErrorRed[px+1]   += rdiff * w1;
+                        nextErrorGreen[px+1] += gdiff * w1;
+                        nextErrorBlue[px+1]  += bdiff * w1;
+                    }
+                    nextErrorRed[px]   += rdiff * w5;
+                    nextErrorGreen[px] += gdiff * w5;
+                    nextErrorBlue[px]  += bdiff * w5;
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
+
     /**
      * Reduces a Pixmap to the palette this knows by using Thomas Knoll's pattern dither, which is out-of-patent since
      * late 2019. The output this produces is very dependent on the palette and this PaletteReducer's dither strength,
@@ -1581,15 +1690,5 @@ public class FastPalette extends PaletteReducer {
         pixmap.setBlending(blending);
         pixels.rewind();
         return pixmap;
-    }
-//    public double totalDifference = 0.0;
-    public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
-        double rf = (r1 - r2);
-        double gf = (g1 - g2);
-        double bf = (b1 - b2);
-        return (rf * rf + gf * gf + bf * bf);
-//        double total = (rf * rf + gf * gf + bf * bf);
-//        totalDifference += total;
-//        return total;
     }
 }
