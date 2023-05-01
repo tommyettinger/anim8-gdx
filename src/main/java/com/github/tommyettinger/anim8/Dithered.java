@@ -77,7 +77,7 @@ public interface Dithered {
          * Doesn't dither at all; this generally looks bad unless the palette matches the colors in the image very
          * closely or exactly.
          */
-        NONE,
+        NONE("None"),
         /**
          * Jorge Jimenez' Gradient Interleaved Noise, modified slightly to use as an ordered dither here; this can have
          * subtle repetitive artifacts, but doesn't have different amounts of noise on different frames or different
@@ -90,7 +90,7 @@ public interface Dithered {
          * input images. This handles gradients quite well. For pixel art, you may want to reduce the dither strength to
          * 0.5 or so.
          */
-        GRADIENT_NOISE,
+        GRADIENT_NOISE("GradientNoise"),
         /**
          * Thomas Knoll's Pattern Dither (with a 4x4 matrix), as originally described by Joel Yliluoma in
          * <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Pattern Dither was
@@ -104,7 +104,7 @@ public interface Dithered {
          * {@link PaletteReducer#setDitherStrength(float)} can really change how strongly artifacts appear here, but
          * artifacts may be very hard to spot with a full 255-color palette.
          */
-        PATTERN,
+        PATTERN("Pattern"),
         /**
          * Floyd-Steinberg error-diffusion dithering; this is a good option for still images, and it's an OK option
          * for some animated images. It doesn't lighten the image like {@link #PATTERN}, while still preserving most
@@ -113,10 +113,10 @@ public interface Dithered {
          * {@link #GRADIENT_NOISE}, depending on the animation, but this isn't often. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} can improve the results with DIFFUSION tremendously, but the
          * dither strength shouldn't go above about 1.5 or maybe 2.0 (this shows artifacts at higher strength).
-         * {@link #SCATTER} and {@link #NEUE} are based on this, and are generally able to break up visible artifacts
-         * that Floyd-Steinberg can have; Scatter and especially Neue are now recommended over Diffusion.
+         * {@link #SCATTER}, {@link #NEUE}, {@link #WOVEN}, and {@link #DODGY} are based on this, and are generally able
+         * to break up visible artifacts that Floyd-Steinberg can have; all of those are now recommended over Diffusion.
          */
-        DIFFUSION,
+        DIFFUSION("Diffusion"),
         /**
          * This is an ordered dither that modifies any error in a pixel's color by using 3 blue-noise patterns for each
          * channel separately. The separate channels have their resulting positive or negative values added to the
@@ -134,7 +134,7 @@ public interface Dithered {
          * {@link PaletteReducer#setDitherStrength(float)} has significant effect (it didn't do much in previous
          * versions), and raising it can improve depth and the appearance of some images when banding occurs.
          */
-        BLUE_NOISE,
+        BLUE_NOISE("BlueNoise"),
         /**
          * Very similar to {@link #BLUE_NOISE} for a still frame, albeit less orderly, but in an animation this will
          * change wildly from frame to frame, taking an ordered dither (one which uses the same blue noise texture that
@@ -145,38 +145,43 @@ public interface Dithered {
          * regular blue-noise pattern when dither strength is very low, and small changes will be introduced as dither
          * strength approaches 1.
          */
-        CHAOTIC_NOISE,
+        CHAOTIC_NOISE("ChaoticNoise"),
         /**
          * This tries to subtly alter the more rigidly-defined error-diffusion dither of {@link #DIFFUSION} with a small
          * amount of triangular-distributed blue noise, and unlike {@link #CHAOTIC_NOISE}, it doesn't introduce white
          * noise. This offers an excellent mix of shape preservation, color preservation, animation-compatibility, and
          * speed, and it was the default for a long time. Setting the dither strength to a low value makes this more
          * bold, with higher contrast, while setting the strength too high (above 1.5, or sometimes higher) can
-         * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE} is much better at that
-         * and otherwise similar, which is why Neue is the current default.
+         * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE} and {@link #DODGY} are
+         * much better at that and otherwise similar.
          */
-        SCATTER,
+        SCATTER("Scatter"),
         /**
          * An error diffusion dither that mixes in ordered noise from a triangular-mapped blue noise texture; this is
-         * the best-behaving dither here when it comes to smooth gradients. The approach to blue noise here is to add it
-         * to the pixel channels before calculating error diffusion for that pixel. This is different from
+         * one of the best-behaving dithers here when it comes to smooth gradients. The approach to blue noise here is
+         * to add it to the pixel channels before calculating error diffusion for that pixel. This is different from
          * {@link #SCATTER} in only a few ways, but a main one is that Scatter multiplies the current error by a blue
          * noise value, where this adds in blue noise regardless of current error. The exact reason isn't clear, but
          * this is drastically better when dithering smooth gradients, and can avoid banding except for the very
          * smallest palettes. While {@link #BLUE_NOISE} is similarly good with smooth gradients, it has a hard time
          * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
-         * Neue preserves both. This is currently the default dither.
+         * Neue preserves both. {@link #DODGY} is a potential successor to NEUE, and acts much like it except that it
+         * changes each RGB component separately, using three different blue noise textures.
+         * <br>
+         * This is currently the default dither.
          */
-        NEUE,
+        NEUE("Neue"),
         /**
          * An ordered dither built around the lightness-dispersing R2 point sequence, by Martin Roberts. This is
-         * similar to {@link #GRADIENT_NOISE}; both add or subtract from lightness at each pixel, but usually add a very
-         * different value to each pixel than to any of its neighbors. Compared to GRADIENT_NOISE, this is milder,
-         * softer, and may need larger changes to dither strength to get a noticeable effect. This is an ordered dither,
+         * similar to {@link #GRADIENT_NOISE}; both add or subtract from the values at each pixel, but usually add a
+         * very different value to each pixel than to any of its neighbors. A major difference between GRADIENT_NOISE
+         * and this would be that instead of changing all RGB components at once, ROBERTS changes each component
+         * separately, using shifted versions of the R2 sequence. Compared to GRADIENT_NOISE, this has better (more
+         * faithful) reproduction of many colors, but may show some colors less easily. This is an ordered dither,
          * so it won't change what artifacts it shows across different frames of an animation (the behavior here is
          * usually desirable, but not always).
          */
-        ROBERTS,
+        ROBERTS("Roberts"),
         /**
          * An error-diffusion dither much like {@link #NEUE}, except that it adds or subtracts a different error value
          * from each RGB channel, and that it uses translated copies of the R2 dither used by {@link #ROBERTS}, instead
@@ -188,7 +193,7 @@ public interface Dithered {
          * is an excellent choice for still images, especially those with small, varied palettes. It is not expected to
          * be as good for pixel-art animations as an ordered dither.
          */
-        WOVEN,
+        WOVEN("Woven"),
         /**
          * An error-diffusion dither that, like {@link #NEUE}, starts with {@link #DIFFUSION Floyd-Steinberg} dither and
          * adds in blue noise values to break up patterns. Unlike NEUE, but like {@link #WOVEN}, this adds different
@@ -197,7 +202,30 @@ public interface Dithered {
          * pixel-art animations, but can be good for some other GIFs in specific cases; when GIFs are recompressed, and
          * they use ordered dithers, the artifacts can worsen, but an error-diffusion dither can move around artifacts
          * in things like videos converted to GIF such that any artifact lasts only one frame.
+         * <br>
+         * This algorithm is similar to NEUE, but generally better. If no serious flaws are found with it, DODGY could
+         * become the default algorithm here.
          */
-        DODGY
+        DODGY("Dodgy");
+
+        /**
+         * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
+         */
+        public final String legibleName;
+
+        /**
+         * A cached array of the result of {@link #values()}, to avoid repeatedly allocating new
+         * {@code DitherAlgorithm[]} arrays on each call to values().
+         */
+        public static final DitherAlgorithm[] ALL = values();
+
+        DitherAlgorithm(String name){
+            this.legibleName = name;
+        }
+
+        @Override
+        public String toString() {
+            return legibleName;
+        }
     }
 }
