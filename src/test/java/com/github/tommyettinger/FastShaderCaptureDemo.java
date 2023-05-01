@@ -340,26 +340,10 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
             else {
                 png8.palette.exact(palettes[n]);
             }
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-pattern.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-none.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-gradient.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-roberts.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-diffusion.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-blueNoise.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-chaoticNoise.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-scatter.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-neue.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-woven.png"), pixmaps, 16);
+            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+                png8.setDitherAlgorithm(d);
+                png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-" + d + "-Q.png"), pixmaps, 16);
+            }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }
@@ -404,26 +388,10 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 gif.palette = pal;
                 prefix = "images/gif/animated/AnimatedGif-";
             }
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-            gif.write(Gdx.files.local(prefix + name + "-pattern.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-            gif.write(Gdx.files.local(prefix + name + "-none.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-            gif.write(Gdx.files.local(prefix + name + "-gradient.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
-            gif.write(Gdx.files.local(prefix + name + "-roberts.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-            gif.write(Gdx.files.local(prefix + name + "-diffusion.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-            gif.write(Gdx.files.local(prefix + name + "-blueNoise.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-            gif.write(Gdx.files.local(prefix + name + "-chaoticNoise.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-            gif.write(Gdx.files.local(prefix + name + "-scatter.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local(prefix + name + "-neue.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.WOVEN);
-            gif.write(Gdx.files.local(prefix + name + "-woven.gif"), pixmaps, 16);
+            for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+                gif.setDitherAlgorithm(d);
+                gif.write(Gdx.files.local(prefix + name + "-" + d + ".gif"), pixmaps, 16);
+            }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }
