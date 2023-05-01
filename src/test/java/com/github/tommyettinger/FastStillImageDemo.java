@@ -117,8 +117,6 @@ public class FastStillImageDemo extends ApplicationAdapter {
 		FastGif gif = new FastGif();
         gif.setFlipY(false);
         FastPalette reducer = new FastPalette();
-//		final String[] types = {"", "H"};
-//		for(String type : types)
 		String type = "";
 		{
 			for (int count : new int[]{16, 31, 255}) {
