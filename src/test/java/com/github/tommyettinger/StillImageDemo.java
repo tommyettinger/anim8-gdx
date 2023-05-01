@@ -8,10 +8,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.utils.Array;
-import com.github.tommyettinger.anim8.AnimatedGif;
-import com.github.tommyettinger.anim8.Dithered;
-import com.github.tommyettinger.anim8.PNG8;
-import com.github.tommyettinger.anim8.PaletteReducer;
+import com.github.tommyettinger.anim8.*;
 
 import java.io.IOException;
 
@@ -60,9 +57,11 @@ public class StillImageDemo extends ApplicationAdapter {
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
 		// gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
-		PaletteReducer reducer = new PaletteReducer();
-		final String[] types = {"", "H"};
+		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer = regular;
+		final String[] types = {"", "H", "Q"};
 		for(String type : types) {
+			reducer = ("Q".equals(type)) ? quality : regular;
+
 			for (int count : new int[]{16, 31, 255}) {
 				if(type.isEmpty())
 					reducer.analyze(pixmap, 100, count + 1);
@@ -77,26 +76,26 @@ public class StillImageDemo extends ApplicationAdapter {
 				total++;
 			}
 		}
-		reducer.exact(new int[]{0, 255, -1});
-		png8.setPalette(reducer);
+		quality.exact(new int[]{0, 255, -1});
+		png8.setPalette(quality);
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-BW.png"), pixmap, false, true);
 		}
 
-		reducer.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
+		quality.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-GB.png"), pixmap, false, true);
 		}
 
-		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
+		quality.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-DB8.png"), pixmap, false, true);
 		}
 
-		reducer.setDefaultPalette();
+		quality.setDefaultPalette();
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Default.png"), pixmap, false, true);
@@ -122,9 +121,10 @@ public class StillImageDemo extends ApplicationAdapter {
 		Array<Pixmap> pixmaps = Array.with(new Pixmap(file));
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
-        PaletteReducer reducer = new PaletteReducer();
-		final String[] types = {"", "H"};
+		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer = regular;
+		final String[] types = {"", "H", "Q"};
 		for(String type : types) {
+			reducer = ("Q".equals(type)) ? quality : regular;
 			for (int count : new int[]{16, 31, 255}) {
 				if(type.isEmpty())
 					reducer.analyze(pixmaps, 100, count + 1);
@@ -139,26 +139,26 @@ public class StillImageDemo extends ApplicationAdapter {
 				total++;
 			}
 		}
-		reducer.exact(new int[]{0, 255, -1});
-		gif.setPalette(reducer);
+		quality.exact(new int[]{0, 255, -1});
+		gif.setPalette(quality);
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-BW.gif"), pixmaps, 1);
 		}
 
-		reducer.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
+		quality.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-GB.gif"), pixmaps, 1);
 		}
 
-		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
+		quality.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-DB8.gif"), pixmaps, 1);
 		}
 
-		reducer.setDefaultPalette();
+		quality.setDefaultPalette();
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-Default.gif"), pixmaps, 1);
