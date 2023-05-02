@@ -69,7 +69,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.14"
+  api "com.github.tommyettinger:anim8-gdx:0.3.15"
 }
 ```
 
@@ -78,7 +78,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.14:sources"`. The PNG-related code isn't available on GWT
+`implementation "com.github.tommyettinger:anim8-gdx:0.3.15:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. None
 of the "Fast" classes will work on GWT. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no
 dependencies already have it, is:
@@ -282,47 +282,51 @@ various 8-color dithers using DawnBringer's carefully-chosen [DB8 palette](https
 
 Original (full-color):
 
-![](https://i.imgur.com/sDJbRh2.png)
+![](src/test/resources/Mona_Lisa.jpg)
 
 Neue (default):
 
-![](https://i.imgur.com/qPxNuvb.png)
+![](samples/Mona_Lisa-Gif-Neue-DB8.gif)
 
-Pattern:
+Dodgy:
 
-![](https://i.imgur.com/tKk8Yds.png)
-
-Diffusion:
-
-![](https://i.imgur.com/q7FHci0.png)
-
-Gradient Noise:
-
-![](https://i.imgur.com/6a68Nwd.png)
-
-Blue Noise:
-
-![](https://i.imgur.com/f6Q0tLT.png)
-
-Chaotic Noise:
-
-![](https://i.imgur.com/dccx9cL.png)
-
-Scatter:
-
-![](https://i.imgur.com/mWPODHB.png)
-
-Roberts:
-
-![](https://i.imgur.com/GEAtDj4.png)
+![](samples/Mona_Lisa-Gif-Dodgy-DB8.gif)
 
 Woven:
 
-![](https://i.imgur.com/mHnVOAZ.png)
+![](samples/Mona_Lisa-Gif-Woven-DB8.gif)
+
+Pattern:
+
+![](samples/Mona_Lisa-Gif-Pattern-DB8.gif)
+
+Diffusion:
+
+![](samples/Mona_Lisa-Gif-Diffusion-DB8.gif)
+
+Gradient Noise:
+
+![](samples/Mona_Lisa-Gif-GradientNoise-DB8.gif)
+
+Blue Noise:
+
+![](samples/Mona_Lisa-Gif-BlueNoise-DB8.gif)
+
+Chaotic Noise:
+
+![](samples/Mona_Lisa-Gif-ChaoticNoise-DB8.gif)
+
+Scatter:
+
+![](samples/Mona_Lisa-Gif-Scatter-DB8.gif)
+
+Roberts:
+
+![](samples/Mona_Lisa-Gif-Roberts-DB8.gif)
 
 None (no dither):
 
-![](https://i.imgur.com/yoD23YJ.png)
+![](samples/Mona_Lisa-Gif-None-DB8.gif)
 
 This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned DB8
 palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it.
