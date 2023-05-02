@@ -14,10 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.UIUtils;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.github.tommyettinger.anim8.FastPNG8;
-import com.github.tommyettinger.anim8.FastPalette;
-import com.github.tommyettinger.anim8.PNG8;
-import com.github.tommyettinger.anim8.PaletteReducer;
+import com.github.tommyettinger.anim8.*;
 
 public class InteractiveFastReducer extends ApplicationAdapter {
     public static final int SCREEN_WIDTH = 1280;
@@ -30,7 +27,7 @@ public class InteractiveFastReducer extends ApplicationAdapter {
     protected FastPNG8 png8;
     private int[] palette, altPalette, eightPalette;
     private Pixmap p0, p;
-    private int index = 1, algorithmCount = 12;
+    private int index = 1, algorithmCount = Dithered.DitherAlgorithm.ALL.length;
     private float strength = 1f;
 
     public static void main(String[] arg) {
@@ -95,44 +92,7 @@ public class InteractiveFastReducer extends ApplicationAdapter {
 
     public void refresh(){
         p.drawPixmap(this.p0, 0, 0);
-        switch (index) {
-            default:
-                reducer.reduceSolid(p);
-                break;
-            case 0:
-                reducer.reduceBlueNoise(p);
-                break;
-            case 1:
-                reducer.reduceIgneous(p);
-                break;
-            case 2:
-                reducer.reduceRoberts(p); // was reduceChaotic(), but it's trash
-                break;
-            case 3:
-                reducer.reduceJimenez(p);
-                break;
-            case 4:
-                reducer.reduceWoven(p); // was reduceKnollRoberts(), but it isn't very good, and is slow
-                break;
-            case 5:
-                reducer.reduceKnoll(p);
-                break;
-            case 6:
-                reducer.reduceSierraLite(p);
-                break;
-            case 7:
-                reducer.reduceFloydSteinberg(p);
-                break;
-            case 8:
-                reducer.reduceScatter(p);
-                break;
-            case 9:
-                reducer.reduceNeue(p);
-                break;
-            case 10:
-                reducer.reduceChaoticNoise(p);
-                break;
-        }
+        reducer.reduce(p, Dithered.DitherAlgorithm.ALL[index]);
         screenTexture.draw(p, 0, 0);
     }
 
@@ -324,10 +284,8 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                         refresh();
                         break;
                     case Input.Keys.S:
-                        System.out.println("Algorithm selected: " + index + ", strength: " + strength
+                        System.out.println("Using " + Dithered.DitherAlgorithm.ALL[index] + ", strength: " + strength
                                 + ", colors: " + reducer.colorCount);
-//                        System.out.println(Gdx.app.getJavaHeap() + " bytes in the Java heap.");
-//                        System.out.println(Gdx.app.getNativeHeap() + " bytes in the native heap.");
                         break;
                     case Input.Keys.Q:
                     case Input.Keys.ESCAPE:
