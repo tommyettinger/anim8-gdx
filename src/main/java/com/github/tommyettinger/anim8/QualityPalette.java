@@ -35,6 +35,16 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
  * This is just like {@link PaletteReducer}, except that it uses a higher-quality, slower color difference calculation
  * when creating a palette. This calculates the difference between colors using Euclidean distance in the Oklab color
  * space, rather than what PaletteReducer uses, which is Euclidean distance in RGB.
+ *<br>
+ * A quirk of how this calculates the color difference between colors A and B is that it avoids converting both A and B
+ * to Oklab. Instead, it gets the absolute value of the difference between the RGB channels, and converts that to Oklab,
+ * then just gets its magnitude. For identical colors, the difference should be 0. For colors that are only slightly
+ * different, the difference may be roughly 800, and for the most different colors, the difference is over 200000.
+ * <br>
+ * This tends to use fewer very-dark colors than PaletteReducer or {@link FastPalette}, but seems to avoid the problem
+ * case for those two where if a maximum of n colors are requested, fewer than n unique colors might be found for the
+ * palette. If you use {@link #analyzeHueWise(Pixmap, double, int) the HueWise methods}, those will probably still do
+ * poorly at separating out enough different colors.
  */
 public class QualityPalette extends PaletteReducer {
     /**

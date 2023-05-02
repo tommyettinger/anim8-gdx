@@ -45,6 +45,23 @@ GWT, and they tend to be a little faster to run but produce larger files. There'
 for PixmapIO.PNG, and does tend to be faster than it as well. **None of the "Fast" image writers support flipping an
 image vertically**, but all the non-"Fast" writers do support this; this may affect your choice.
 
+If you are writing an image with a palette, such as a GIF or an indexed-mode PNG (called PNG8 here), the palette is
+limited to using at most 255 opaque colors, plus one fully-transparent color. To adequately reduce an image to a smaller
+palette, the general technique is to choose or generate a fitting palette, then to *dither* the image to break up solid
+blocks of one color, and try to maintain or suggest any subtle gradients that were present before reduction. To choose
+an existing palette, you use `PaletteReducer`'s `exact()` method, which takes an int array or similar collection of
+RGBA8888 colors. You might want to get a small palette from [LoSpec](https://lospec.com/palette-list), for example.
+To generate a palette that fits an existing image (or group of images), you use `PaletteReducer`'s `analyze()` method,
+which takes a `Pixmap`, plus optionally a color threshold and a color count (most usage only needs a count of 256, but
+the threshold can vary based on the image or images). Calling `analyze()` isn't incredibly fast, and it can take the
+bulk of the time spent making an animated GIF if each frame has its own palette. Analyzing just once is sufficient for
+many uses, though, and as long as the threshold is right, it can produce a nicely-fitting palette. Once you have called
+`exact()` or `analyze()`, you can use the `PaletteReducer` in a `PNG8` or in an `AnimatedGif`, or on its own if you just
+want to color-reduce `Pixmap`s. There are also two variants; `FastPalette`, which is like PaletteReducer but is not
+compatible with GWT because it uses a different way of scanning through the input image, and `QualityPalette`, which is
+also like PaletteReducer but uses a typically-higher-quality color difference calculation that is also slower. There's
+more on this topic later, since this is a major focus of the library.
+
 # Install
 
 A typical Gradle dependency on anim8 looks like this (in the core module's dependencies for a typical libGDX project):
@@ -162,13 +179,21 @@ files but do so more quickly.
     - Unlike NEUE, SCATTER, or DIFFUSION, this uses a slightly different (offset) pattern for each RGB channel.
       - This can allow colors that wouldn't normally be produced easily by one of those three to appear here.
     - The artifacts in this may or may not be noticeable, depending on dither strength.
-      - Increasing dither strength improves color accuracy, but also increases how obvious artifacts are. 
+      - Increasing dither strength improves color accuracy, but also increases how obvious artifacts are.
+  - DODGY
+    - Another error-diffusion dither, this is like NEUE in that it mixed blue noise with error-diffusion, and like WOVEN
+      in that it handles each RGB channel differently.
+    - Unlike WOVEN, this doesn't have repetitive artifacts, but is noisier.
+    - This dither algorithm is almost as good at reproducing colors as WOVEN, and is arguably preferable to it when the
+      artifacts would be problematic.
+    - It's better than NEUE at most things, but it isn't quite as smooth when the palette matches the image closely.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN has an obvious square grid.
     - BLUE_NOISE, SCATTER, ane NEUE have varying forms of a spongy blue noise texture.
     - GRADIENT_NOISE has a network of diagonal lines.
-    - ROBERTS and WOVEN have a tilted grid pattern, approximately, of lighter or darker pixels.
+    - ROBERTS and WOVEN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also sometimes
+      look like scales or bubbles.
     - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
@@ -177,11 +202,11 @@ You can set the strength of most of these dithers using PaletteReducer's, PNG8's
 `setDitherStrength(float)` methods (use the method on the class that is producing output). For NONE,
 there's no effect. For CHAOTIC_NOISE, there's almost no effect. For anything else, setting dither strength to close to 0
 will approach the appearance of NONE, setting it close to 1.0 is the default, and strengths higher than 1 will make the
-dither much stronger and may make the image less legible. NEUE, SCATTER, and DIFFUSION sometimes have trouble with very
-high dither strengths, though how much trouble varies based on the palette, and they also tend to look good just before
-major issues appear. NEUE is calibrated to look best at dither strength 1.0, but may stay looking good at higher
-strengths for longer than SCATTER does. The `setDitherStrength(float)` methods on PNG8 and AnimatedGif were added in
-version 0.3.5 .
+dither much stronger and may make the image less legible. NEUE, SCATTER, DODGY, and DIFFUSION sometimes have trouble
+with very high dither strengths, though how much trouble varies based on the palette, and they also tend to look good
+just before major issues appear. NEUE is calibrated to look best at dither strength 1.0, as is DODGY, but NEUE may stay
+looking good at higher strengths for longer than SCATTER or DODGY do. The `setDitherStrength(float)` methods on PNG8 and
+AnimatedGif were added in version 0.3.5 .
 
 # Palette Generation
 
