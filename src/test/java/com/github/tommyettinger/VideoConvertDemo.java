@@ -214,7 +214,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     }
 
     public void renderOklabGif(String[] names, int[][] palettes) {
-        System.out.println("Rendering oklab GIF");
+        System.out.println("Rendering Oklab GIF");
         String name = "oklab";
         Array<Pixmap> pixmaps = new Array<>(true, 120, Pixmap.class);
         for (int i = 0; i < 120; i++) {
