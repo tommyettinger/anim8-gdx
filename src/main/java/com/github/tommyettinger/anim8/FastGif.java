@@ -997,7 +997,7 @@ public class FastGif implements AnimationWriter, Dithered {
                 float populationBias = palette.populationBias;
                 float w1 = 24f * (float) Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                         strength = 0.35f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
-                        limit = 5f + 90f / (float)Math.sqrt(palette.colorCount+1.5f), dmul = 0x1p-8f / populationBias;
+                        limit = 5f + 90f / (float)Math.sqrt(palette.colorCount+1.5f), dmul = 0x1.4p-10f;
 
                 float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedFloats == null) {
@@ -1052,7 +1052,10 @@ public class FastGif implements AnimationWriter, Dithered {
                             rdiff = (dmul * (r - (used>>>24))    );
                             gdiff = (dmul * (g - (used>>>16&255)));
                             bdiff = (dmul * (b - (used>>>8&255)) );
-
+                            rdiff /= (0.2f + Math.abs(rdiff));
+                            gdiff /= (0.2f + Math.abs(gdiff));
+                            bdiff /= (0.2f + Math.abs(bdiff));
+                            
                             if(px < w - 1)
                             {
                                 curErrorRed[px+1]   += rdiff * w7;

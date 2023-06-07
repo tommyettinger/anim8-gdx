@@ -3296,7 +3296,9 @@ public class PaletteReducer {
         byte paletteIndex;
         float w1 = 24f * (float) Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 strength = 0.35f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
-                limit = 5f + 90f / (float)Math.sqrt(colorCount+1.5f), dmul = 0x1p-8f / populationBias;
+                limit = 5f + 90f / (float)Math.sqrt(colorCount+1.5f),
+                dmul = 0x1.4p-10f;
+//                dmul = 0x1p-8f / populationBias;
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
@@ -3329,6 +3331,9 @@ public class PaletteReducer {
                     rdiff = (dmul * ((color>>>24)-    (used>>>24))    );
                     gdiff = (dmul * ((color>>>16&255)-(used>>>16&255)));
                     bdiff = (dmul * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff /= (0.2f + Math.abs(rdiff));
+                    gdiff /= (0.2f + Math.abs(gdiff));
+                    bdiff /= (0.2f + Math.abs(bdiff));
 
                     if(px < lineLen - 1)
                     {
