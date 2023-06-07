@@ -424,7 +424,43 @@ public class PaletteReducer {
      * {@link #alterColorsOklab(Interpolation, Interpolation, Interpolation)}.
      */
     public final int[] paletteArray = new int[256];
-    FloatArray curErrorRedFloats, nextErrorRedFloats, curErrorGreenFloats, nextErrorGreenFloats, curErrorBlueFloats, nextErrorBlueFloats;
+
+    /**
+     * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
+     * This stores error for the current line's red channel.
+     * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
+     */
+    protected FloatArray curErrorRedFloats;
+    /**
+     * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
+     * This stores error for the next line's red channel.
+     * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
+     */
+    protected FloatArray nextErrorRedFloats;
+    /**
+     * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
+     * This stores error for the current line's green channel.
+     * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
+     */
+    protected FloatArray curErrorGreenFloats;
+    /**
+     * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
+     * This stores error for the next line's green channel.
+     * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
+     */
+    protected FloatArray nextErrorGreenFloats;
+    /**
+     * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
+     * This stores error for the current line's blue channel.
+     * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
+     */
+    protected FloatArray curErrorBlueFloats;
+    /**
+     * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
+     * This stores error for the next line's blue channel.
+     * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
+     */
+    protected FloatArray nextErrorBlueFloats;
     /**
      * How many colors are in the palette here; this is at most 256, and typically includes one fully-transparent color.
      */
@@ -3542,13 +3578,13 @@ public class PaletteReducer {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        candidates[i | 16] = shrink(candidates[i] = used = paletteArray[usedIndex]);
+                        candidates[i | 16] = shrink(used = paletteArray[candidates[i] = usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
                     }
                     sort16(candidates);
-                    pixmap.drawPixel(px, y, candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]]);
+                    pixmap.drawPixel(px, y, paletteArray[candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]]]);
                 }
             }
         }
