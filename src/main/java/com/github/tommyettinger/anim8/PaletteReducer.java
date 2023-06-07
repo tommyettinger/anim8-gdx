@@ -430,45 +430,44 @@ public class PaletteReducer {
      * This stores error for the current line's red channel.
      * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
      */
-    protected FloatArray curErrorRedFloats;
+    protected transient FloatArray curErrorRedFloats;
     /**
      * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
      * This stores error for the next line's red channel.
      * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
      */
-    protected FloatArray nextErrorRedFloats;
+    protected transient FloatArray nextErrorRedFloats;
     /**
      * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
      * This stores error for the current line's green channel.
      * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
      */
-    protected FloatArray curErrorGreenFloats;
+    protected transient FloatArray curErrorGreenFloats;
     /**
      * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
      * This stores error for the next line's green channel.
      * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
      */
-    protected FloatArray nextErrorGreenFloats;
+    protected transient FloatArray nextErrorGreenFloats;
     /**
      * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
      * This stores error for the current line's blue channel.
      * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
      */
-    protected FloatArray curErrorBlueFloats;
+    protected transient FloatArray curErrorBlueFloats;
     /**
      * A FloatArray used as a buffer to store accrued error for error-diffusion dithers.
      * This stores error for the next line's blue channel.
      * It is protected so that user code that extends PaletteReducer doesn't need to create its own buffers.
      */
-    protected FloatArray nextErrorBlueFloats;
+    protected transient FloatArray nextErrorBlueFloats;
     /**
      * How many colors are in the palette here; this is at most 256, and typically includes one fully-transparent color.
      */
     public int colorCount;
 
-    public IntIntMap reverseMap;
     /**
-     * Determines how strongly to apply noise or other effects during dithering.
+     * Determines how strongly to apply noise or other effects during dithering. The neutral value is 1.0f .
      */
     protected float ditherStrength = 1f;
     /**
@@ -477,6 +476,46 @@ public class PaletteReducer {
      */
     protected float populationBias = 0.5f;
 
+    /**
+     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
+     * Must not be modified.
+     */
+    protected static final int[] thresholdMatrix8 = {
+            0, 4, 2, 6,
+            3, 7, 1, 5,
+    };
+
+    /**
+     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
+     * Must not be modified.
+     */
+    protected static final int[] thresholdMatrix16 = {
+            0,  12,   3,  15,
+            8,   4,  11,   7,
+            2,  14,   1,  13,
+            10,  6,   9,   5,
+    };
+
+    /**
+     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
+     * Must not be modified.
+     */
+    protected static final int[] thresholdMatrix64 = {
+            0,  48,  12,  60,   3,  51,  15,  63,
+            32,  16,  44,  28,  35,  19,  47,  31,
+            8,  56,   4,  52,  11,  59,   7,  55,
+            40,  24,  36,  20,  43,  27,  39,  23,
+            2,  50,  14,  62,   1,  49,  13,  61,
+            34,  18,  46,  30,  33,  17,  45,  29,
+            10,  58,   6,  54,   9,  57,   5,  53,
+            42,  26,  38,  22,  41,  25,  37,  21
+    };
+
+    /**
+     * A temporary 32-element array typically used to store colors or palette indices along with their RGB555
+     * {@link #shrink(int) shrunken} analogues, so that {@link #sort16(int[])} can sort them. Mostly for internal use.
+     */
+    protected transient final int[] candidates = new int[32];
 
     /**
      * If this PaletteReducer has already calculated a palette, you can use this to save the slightly-slow-to-compute
@@ -893,18 +932,12 @@ public class PaletteReducer {
         populationBias = (float) Math.exp(-1.125/colorCount);
         int color, c2;
         double dist;
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
         for (int i = 0; i < plen; i++) {
             color = rgbaPalette[i];
             if ((color & 0x80) != 0) {
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-                reverseMap.put(color, i);
             }
-            else reverseMap.put(0, i);
         }
         int rr, gg, bb;
         for (int r = 0; r < 32; r++) {
@@ -945,25 +978,11 @@ public class PaletteReducer {
             System.arraycopy(ENCODED_AURORA, 0,  paletteMapping, 0, 0x8000);
             colorCount = 256;
             populationBias = (float) Math.exp(-1.125 / 256.0);
-            if(reverseMap == null)
-                reverseMap = new IntIntMap(colorCount);
-            else
-                reverseMap.clear(colorCount);
-            for (int i = 0; i < colorCount; i++) {
-                reverseMap.put(paletteArray[i], i);
-            }
             return;
         }
         colorCount = Math.min(256, palette.length);
         System.arraycopy(palette, 0,  paletteArray, 0, colorCount);
         System.arraycopy(preload, 0,  paletteMapping, 0, 0x8000);
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
-        }
         populationBias = (float) Math.exp(-1.125/colorCount);
     }
 
@@ -1004,16 +1023,11 @@ public class PaletteReducer {
         populationBias = (float) Math.exp(-1.125/colorCount);
         int color, c2;
         double dist;
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
 
         for (int i = 0; i < plen; i++) {
             color = Color.rgba8888(colorPalette[i]);
             paletteArray[i] = color;
             paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-            reverseMap.put(color, i);
         }
         int rr, gg, bb;
         for (int r = 0; r < 32; r++) {
@@ -1385,14 +1399,7 @@ public class PaletteReducer {
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);
         }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
 
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
-        }
         int c2;
         int rr, gg, bb;
         double dist;
@@ -1533,14 +1540,7 @@ public class PaletteReducer {
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);
         }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
 
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
-        }
         int c2;
         int rr, gg, bb;
         double dist;
@@ -1641,14 +1641,7 @@ public class PaletteReducer {
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);
         }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
 
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
-        }
         if(colorCount <= 1)
             return;
         int c2;
@@ -1892,13 +1885,7 @@ public class PaletteReducer {
             colorCount = counts.size + hasTransparent;
             populationBias = (float) Math.exp(-1.125/colorCount);
         }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
-        }
+
         int c2;
         int rr, gg, bb;
         double dist;
@@ -2084,14 +2071,6 @@ public class PaletteReducer {
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);
-        }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
-
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
         }
 
         int c2;
@@ -2307,14 +2286,6 @@ public class PaletteReducer {
             colorCount = i;
         }
         populationBias = (float) Math.exp(-1.125/colorCount);
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
-
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
-        }
 
         int c2;
         int rr, gg, bb;
@@ -3391,46 +3362,15 @@ public class PaletteReducer {
     }
 
     /**
-     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
-     */
-    static final int[] thresholdMatrix8 = {
-            0, 4, 2, 6,
-            3, 7, 1, 5,
-    };
-
-    /**
-     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
-     */
-    static final int[] thresholdMatrix16 = {
-            0,  12,   3,  15,
-            8,   4,  11,   7,
-            2,  14,   1,  13,
-            10,  6,   9,   5,
-    };
-
-    /**
-     * Given by Joel Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">a dithering article</a>.
-     */
-    static final int[] thresholdMatrix64 = {
-            0,  48,  12,  60,   3,  51,  15,  63,
-            32,  16,  44,  28,  35,  19,  47,  31,
-            8,  56,   4,  52,  11,  59,   7,  55,
-            40,  24,  36,  20,  43,  27,  39,  23,
-            2,  50,  14,  62,   1,  49,  13,  61,
-            34,  18,  46,  30,  33,  17,  45,  29,
-            10,  58,   6,  54,   9,  57,   5,  53,
-            42,  26,  38,  22,  41,  25,  37,  21
-    };
-
-    final int[] candidates = new int[32];
-
-    /**
      * Compares items in ints by their luma, looking up items by the indices a and b, and swaps the two given indices if
-     * the item at a has higher luma than the item at b. This is protected rather than private because it's more likely
+     * the item at a has higher luma than the item at b. This requires items to be present as two ints per item: the
+     * earlier int, at an index less than 16, is what gets sorted, while the later int, at an index 16 higher than the
+     * earlier one, is an RGB555 int.
+     * <br>
+     * This is protected rather than private because it's more likely
      * that this would be desirable to override than a method that uses it, like {@link #reduceKnoll(Pixmap)}. Uses
-     * {@link #OKLAB} to look up accurate luma for the given colors in {@code ints} (that contains RGBA8888 colors
-     * while OKLAB uses RGB555, so {@link #shrink(int)} is used to convert).
-     * @param ints an int array than must be able to take a and b as indices; may be modified in place
+     * {@link #OKLAB} to look up accurate luma for the given RGB555 colors in the later half of {@code ints}.
+     * @param ints an int array than must be able to take a, b, a+16, and b+16 as indices; may be modified in place
      * @param a an index into ints
      * @param b an index into ints
      */

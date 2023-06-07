@@ -217,14 +217,6 @@ public class FastPalette extends PaletteReducer {
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);
         }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
-
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
-        }
         int c2;
         int rr, gg, bb;
         double dist;
@@ -340,14 +332,6 @@ public class FastPalette extends PaletteReducer {
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);
-        }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
-
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
         }
         if(colorCount <= 1)
             return;
@@ -532,14 +516,6 @@ public class FastPalette extends PaletteReducer {
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.125/colorCount);
-        }
-        if(reverseMap == null)
-            reverseMap = new IntIntMap(colorCount);
-        else
-            reverseMap.clear(colorCount);
-
-        for (int i = 0; i < colorCount; i++) {
-            reverseMap.put(paletteArray[i], i);
         }
 
         int c2;
