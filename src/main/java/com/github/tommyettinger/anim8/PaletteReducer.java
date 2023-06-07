@@ -3578,13 +3578,13 @@ public class PaletteReducer {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        candidates[i | 16] = shrink(used = paletteArray[candidates[i] = usedIndex]);
+                        candidates[i | 16] = shrink(candidates[i] = used = paletteArray[usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
                     }
                     sort16(candidates);
-                    pixmap.drawPixel(px, y, paletteArray[candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]]]);
+                    pixmap.drawPixel(px, y, candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]]);
                 }
             }
         }
