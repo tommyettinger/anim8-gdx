@@ -1622,13 +1622,13 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
-                        palette.candidates[i | 16] = PaletteReducer.shrink(palette.candidates[i] = used = paletteArray[usedIndex]);
+                        palette.candidates[i | 16] = shrink(used = paletteArray[palette.candidates[i] = usedIndex]);
                         er += cr - (used >>> 24);
                         eg += cg - (used >>> 16 & 0xFF);
                         eb += cb - (used >>> 8 & 0xFF);
                     }
                     PaletteReducer.sort16(palette.candidates);
-                    curLine[px] = (byte) palette.reverseMap.get(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1);
+                    curLine[px] = (byte)palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]];
                 }
             }
 
@@ -3522,13 +3522,13 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                                 usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))] & 0xFF;
-                                palette.candidates[c | 16] = shrink(palette.candidates[c] = used = paletteArray[usedIndex]);
+                                palette.candidates[c | 16] = shrink(used = paletteArray[palette.candidates[c] = usedIndex]);
                                 er += cr - (used >>> 24);
                                 eg += cg - (used >>> 16 & 0xFF);
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
                             PaletteReducer.sort16(palette.candidates);
-                            curLine[px] = (byte) palette.reverseMap.get(palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1);
+                            curLine[px] = (byte)palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]];
                         }
                     }
 

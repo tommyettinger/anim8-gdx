@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
+
 /**
  * GIF encoder using standard LZW compression; can write animated and non-animated GIF images.
  * An instance can be reused to encode multiple GIFs with minimal allocation.
@@ -520,14 +522,14 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                 usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))] & 0xFF;
-                                palette.candidates[c | 16] = PaletteReducer.shrink(palette.candidates[c] = used = paletteArray[usedIndex]);
+                                palette.candidates[c | 16] = shrink(used = paletteArray[palette.candidates[c] = usedIndex]);
                                 er += cr - (used >>> 24);
                                 eg += cg - (used >>> 16 & 0xFF);
                                 eb += cb - (used >>> 8 & 0xFF);
                             }
                             PaletteReducer.sort16(palette.candidates);
-                            usedEntry[(indexedPixels[i] =  (byte) palette.reverseMap.get(palette.candidates[
-                                            PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]], 1)
+                            usedEntry[(indexedPixels[i] =  (byte)palette.candidates[
+                                    PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]]
                             ) & 255] = true;
                             i++;
 
