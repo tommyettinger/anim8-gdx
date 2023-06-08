@@ -187,9 +187,14 @@ files but do so more quickly.
     - This dither algorithm is almost as good at reproducing colors as WOVEN, and is arguably preferable to it when the
       artifacts would be problematic.
     - It's better than NEUE at most things, but it isn't quite as smooth when the palette matches the image closely.
+  - LOAF
+    - A very simple, intentionally-low-fidelity ordered dither meant primarily for pixel art.
+    - This has very obvious grid patterns, effectively repeating a 4x4 pixel area many times over similar color regions.
+    - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look
+      like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
-    - PATTERN has an obvious square grid.
+    - PATTERN and LOAF have obvious square grids.
     - BLUE_NOISE, SCATTER, ane NEUE have varying forms of a spongy blue noise texture.
     - GRADIENT_NOISE has a network of diagonal lines.
     - ROBERTS and WOVEN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also sometimes

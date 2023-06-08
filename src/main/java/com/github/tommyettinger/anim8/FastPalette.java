@@ -1050,6 +1050,40 @@ public class FastPalette extends PaletteReducer {
         pixels.rewind();
         return pixmap;
     }
+    public Pixmap reduceLoaf (Pixmap pixmap) {
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceLoaf(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        final int strength = (int) (11f * ditherStrength / (populationBias * populationBias) + 0.5f);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+                int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                rr = Math.min(Math.max(rr + adj, 0), 255);
+                gg = Math.min(Math.max(gg + adj, 0), 255);
+                bb = Math.min(Math.max(bb + adj, 0), 255);
+
+                writePixel(pixels, ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3)), hasAlpha);
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
     public Pixmap reduceWoven(Pixmap pixmap) {
         boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
         if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){

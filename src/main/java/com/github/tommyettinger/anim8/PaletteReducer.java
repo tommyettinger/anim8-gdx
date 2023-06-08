@@ -2376,6 +2376,8 @@ public class PaletteReducer {
                 return reduceWoven(pixmap);
             case DODGY:
                 return reduceDodgy(pixmap);
+            case LOAF:
+                return reduceLoaf(pixmap);
             default:
             case NEUE:
                 return reduceNeue(pixmap);
@@ -2829,6 +2831,36 @@ public class PaletteReducer {
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+    /**
+     * An intentionally low-fidelity dither, meant for pixel art.
+     * @param pixmap
+     * @return
+     */
+    public Pixmap reduceLoaf(Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color;
+        final int strength = (int) (11f * ditherStrength / (populationBias * populationBias) + 0.5f);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                    int rr = Math.min(Math.max(((color >>> 24)       ) + adj, 0), 255);
+                    int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + adj, 0), 255);
+                    int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + adj, 0), 255);
+                    int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
+                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[rgb555] & 0xFF]);
                 }
             }
         }
@@ -3298,7 +3330,6 @@ public class PaletteReducer {
                 w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                 strength = 0.25f * ditherStrength / (populationBias * populationBias),
                 limit = 5f + 90f / (float)Math.sqrt(colorCount+1.5f),
-//                dmul = (float)(0x1p-8 / populationBias);
                 dmul = 0x1.8p-9f;
 
         for (int py = 0; py < h; py++) {
@@ -3603,7 +3634,7 @@ public class PaletteReducer {
      * Retrieves a random non-0 color index for the palette this would reduce to, with a higher likelihood for colors
      * that are used more often in reductions (those with few similar colors). The index is returned as a byte that,
      * when masked with 255 as with {@code (palette.randomColorIndex(random) & 255)}, can be used as an index into a
-     * palette array with 256 or less elements that should have been used with {@link #exact(int[])} before to set the
+     * palette array with 256 or fewer elements that should have been used with {@link #exact(int[])} before to set the
      * palette this uses.
      * @param random a Random instance, which may be seeded
      * @return a randomly selected color index from this palette with a non-uniform distribution, can be any byte but 0
