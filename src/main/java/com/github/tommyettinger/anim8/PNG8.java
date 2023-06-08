@@ -2136,9 +2136,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float er, eg, eb;
             byte paletteIndex;
             float populationBias = palette.populationBias;
-            float w1 = 24f * (float) Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    strength = 0.35f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
-                    limit = 5f + 90f / (float)Math.sqrt(palette.colorCount+1.5f), dmul = 0x1.4p-10f;
+            float w1 = 25f * ditherStrength * populationBias * populationBias,
+                    w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    strength = 0.25f * ditherStrength / (populationBias * populationBias),
+                    limit = 5f + 90f / (float)Math.sqrt(palette.colorCount+1.5f),
+                    dmul = 0x1.8p-9f;
             byte[] curLine;
         if (curLineBytes == null) {
             curLine = (curLineBytes = new ByteArray(w)).items;
@@ -2178,9 +2180,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         rdiff = (dmul * ((color>>>24)-    (used>>>24))    );
                         gdiff = (dmul * ((color>>>16&255)-(used>>>16&255)));
                         bdiff = (dmul * ((color>>>8&255)- (used>>>8&255)) );
-                        rdiff /= (0.2f + Math.abs(rdiff));
-                        gdiff /= (0.2f + Math.abs(gdiff));
-                        bdiff /= (0.2f + Math.abs(bdiff));
+//                        rdiff /= (0.2f + Math.abs(rdiff));
+//                        gdiff /= (0.2f + Math.abs(gdiff));
+//                        bdiff /= (0.2f + Math.abs(bdiff));
 
                         if(px < w - 1)
                         {
@@ -4184,9 +4186,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             float er, eg, eb;
             byte paletteIndex;
             float populationBias = palette.populationBias;
-            float w1 = 24f * (float) Math.sqrt(ditherStrength) * populationBias * populationBias * populationBias * populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    strength = 0.35f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
-                    limit = 5f + 90f / (float)Math.sqrt(palette.colorCount+1.5f), dmul = 0x1.4p-10f;
+            float w1 = 25f * ditherStrength * populationBias * populationBias,
+                    w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    strength = 0.25f * ditherStrength / (populationBias * populationBias),
+                    limit = 5f + 90f / (float)Math.sqrt(palette.colorCount+1.5f),
+                    dmul = 0x1.8p-9f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4254,9 +4258,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             rdiff = (dmul * ((color>>>24)-    (used>>>24))    );
                             gdiff = (dmul * ((color>>>16&255)-(used>>>16&255)));
                             bdiff = (dmul * ((color>>>8&255)- (used>>>8&255)) );
-                            rdiff /= (0.2f + Math.abs(rdiff));
-                            gdiff /= (0.2f + Math.abs(gdiff));
-                            bdiff /= (0.2f + Math.abs(bdiff));
+//                            rdiff /= (0.2f + Math.abs(rdiff));
+//                            gdiff /= (0.2f + Math.abs(gdiff));
+//                            bdiff /= (0.2f + Math.abs(bdiff));
 
                             if(px < w - 1)
                             {
