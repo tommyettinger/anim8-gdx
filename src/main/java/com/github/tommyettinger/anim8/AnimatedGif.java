@@ -632,6 +632,26 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
             break;
+            case LOAF: {
+                final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    for (int px = 0; px < width & i < nPix; px++) {
+                        color = image.getPixel(px, flipped + flipDir * y);
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                            int rr = Math.min(Math.max(((color >>> 24)       ) + adj, 0), 255);
+                            int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + adj, 0), 255);
+                            int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + adj, 0), 255);
+                            int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
+                            usedEntry[(indexedPixels[i] = paletteMapping[rgb555]) & 255] = true;
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
             case DIFFUSION: {
                 final int w = width;
                 float rdiff, gdiff, bdiff;
