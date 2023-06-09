@@ -14,23 +14,25 @@ import java.io.IOException;
 
 /**
  * Currently just dithers a few pictures (my cat, then from Wikimedia Commons, a tropical frog, a public domain
- * landscape painting, a remastered Mona Lisa, and a smooth noise texture) as a still GIF, PNG8, and full-color PNG.
+ * landscape painting, a remastered Mona Lisa, and a public domain baroque painting) as a still GIF, PNG8, and
+ * full-color PNG.
  * <br>
  * Analyzed all 84 images in 59690 ms
  */
 public class StillImageDemo extends ApplicationAdapter {
     private long startTime, total = 0;
-	public Dithered.DitherAlgorithm[] ALGORITHMS = new Dithered.DitherAlgorithm[]{
-			Dithered.DitherAlgorithm.DODGY
-	};
-	//Dithered.DitherAlgorithm.ALL
+	public Dithered.DitherAlgorithm[] ALGORITHMS =
+//			new Dithered.DitherAlgorithm[]{
+//					Dithered.DitherAlgorithm.DODGY
+//			};
+			Dithered.DitherAlgorithm.ALL;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
         startTime = System.currentTimeMillis();
 
         Gdx.files.local("images").mkdirs();
-//        for(String name : new String[]{"Mona_Lisa.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
+//        for(String name : new String[]{"Mona_Lisa.jpg"}) {
         for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
 //        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png", "Anemone.png",}) {
 			System.out.println("Rendering PNG8 for " + name);

@@ -208,13 +208,13 @@ public interface Dithered {
          */
         DODGY("Dodgy"),
         /**
-         * An intentionally-low-fidelity ordered dither with obvious repeating 2x2 and 4x4 patterns on a regular grid.
+         * An intentionally-low-fidelity ordered dither with obvious repeating 2x2 patterns on a regular grid.
          * This is meant for dithering higher-color-count pixel art to produce lower color counts, without using any
          * techniques that are too complex to be used effectively in hand-made pixel art. This may actually look simpler
          * than it would have to be to look hand-made, especially at low dither strength.
          * <br>
          * This is probably closest to {@link #PATTERN} in appearance, just because they both use a square grid, but
-         * this is much faster to run and looks less intricate.
+         * this is much faster to run and looks less intricate. They also use different grids.
          */
         LOAF("Loaf");
 

@@ -189,7 +189,7 @@ files but do so more quickly.
     - It's better than NEUE at most things, but it isn't quite as smooth when the palette matches the image closely.
   - LOAF
     - A very simple, intentionally-low-fidelity ordered dither meant primarily for pixel art.
-    - This has very obvious grid patterns, effectively repeating a 4x4 pixel area many times over similar color regions.
+    - This has very obvious grid patterns, effectively repeating a 2x2 pixel area many times over similar color regions.
     - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look
       like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
@@ -328,6 +328,10 @@ Scatter:
 Roberts:
 
 ![](samples/Mona_Lisa-Gif-Roberts-DB8.gif)
+
+Loaf:
+
+![](samples/Mona_Lisa-Gif-Loaf-DB8.gif)
 
 None (no dither):
 
