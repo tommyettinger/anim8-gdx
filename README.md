@@ -69,7 +69,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.3.15"
+  api "com.github.tommyettinger:anim8-gdx:0.4.0"
 }
 ```
 
@@ -78,10 +78,10 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.3.15:sources"`. The PNG-related code isn't available on GWT
-because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work. None
-of the "Fast" classes will work on GWT. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no
-dependencies already have it, is:
+`implementation "com.github.tommyettinger:anim8-gdx:0.4.0:sources"`. The PNG-related code isn't available on GWT
+because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work,
+as should QualityPalette. None of the "Fast" classes will work on GWT.
+The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
 <inherits name="com.github.tommyettinger.anim8" />
 ```
