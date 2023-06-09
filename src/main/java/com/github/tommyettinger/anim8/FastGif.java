@@ -683,7 +683,7 @@ public class FastGif implements AnimationWriter, Dithered {
             }
             break;
             case LOAF: {
-                final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+                final int strength = (int) (15f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
                 for (int y = 0, i = 0; y < height && i < nPix; y++) {
                     for (int px = 0; px < width & i < nPix; px++) {
                         int r = pixels.get() & 255;
@@ -692,7 +692,7 @@ public class FastGif implements AnimationWriter, Dithered {
                         if (hasTransparent && (pixels.get() & 0x80) == 0)
                             indexedPixels[i++] = 0;
                         else {
-                            int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                            int adj = (((px + y & 1) << 1) - 1) * strength; // either strength or -strength
                             int rr = Math.min(Math.max(r + adj, 0), 255);
                             int gg = Math.min(Math.max(g + adj, 0), 255);
                             int bb = Math.min(Math.max(b + adj, 0), 255);

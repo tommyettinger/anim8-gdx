@@ -1189,7 +1189,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine = curLineBytes.ensureCapacity(w);
             }
 
-            final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+            final int strength = (int) (15f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
             for (int y = 0; y < h; y++) {
                 for (int px = 0; px < w; px++) {
                     int r = pixels.get() & 0xFF;
@@ -1198,7 +1198,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                     if (hasAlpha && (pixels.get() & 0x80) == 0)
                         curLine[px] = 0;
                     else {
-                        int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                        int adj = (((px + y & 1) << 1) - 1) * strength; // either strength or -strength
                         int rr = Math.min(Math.max(r + adj, 0), 255);
                         int gg = Math.min(Math.max(g + adj, 0), 255);
                         int bb = Math.min(Math.max(b + adj, 0), 255);
@@ -3078,7 +3078,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.endChunk(dataOutput);
 
             byte[] curLine;
-            final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+            final int strength = (int) (15f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -3121,7 +3121,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                         if (hasAlpha && (pixels.get() & 0x80) == 0)
                             curLine[px] = 0;
                         else {
-                            int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                            int adj = (((px + y & 1) << 1) - 1) * strength; // either strength or -strength
                             int rr = Math.min(Math.max(r + adj, 0), 255);
                             int gg = Math.min(Math.max(g + adj, 0), 255);
                             int bb = Math.min(Math.max(b + adj, 0), 255);
