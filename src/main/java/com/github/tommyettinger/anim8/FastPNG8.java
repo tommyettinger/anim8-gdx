@@ -367,6 +367,9 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                 case DODGY:
                     writeDodgyDithered(output, pixmap);
                     break;
+                case LOAF:
+                    writeLoafDithered(output, pixmap);
+                    break;
                 default:
                 case NEUE:
                     writeNeueDithered(output, pixmap);
@@ -1137,6 +1140,114 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             pixels.rewind();
         }
     }
+
+    private void writeLoafDithered(OutputStream output, Pixmap pixmap) {
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        // This is GWT-incompatible, which is fine because DeflaterOutputStream is already.
+        ByteBuffer pixels = pixmap.getPixels();
+        try {
+            dataOutput.write(SIGNATURE);
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(pixmap.getWidth());
+            buffer.writeInt(pixmap.getHeight());
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p>>>24);
+                buffer.write(p>>>16);
+                buffer.write(p>>>8);
+            }
+            buffer.endChunk(dataOutput);
+
+            if(paletteArray[0] == 0) {
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(IDAT);
+            deflater.reset();
+
+            final int w = pixmap.getWidth(), h = pixmap.getHeight();
+//            byte[] lineOut, curLine, prevLine;
+            byte[] curLine;
+            if (curLineBytes == null) {
+                curLine = (curLineBytes = new ByteArray(w)).items;
+            } else {
+                curLine = curLineBytes.ensureCapacity(w);
+            }
+
+            final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+            for (int y = 0; y < h; y++) {
+                for (int px = 0; px < w; px++) {
+                    int r = pixels.get() & 0xFF;
+                    int g = pixels.get() & 0xFF;
+                    int b = pixels.get() & 0xFF;
+                    if (hasAlpha && (pixels.get() & 0x80) == 0)
+                        curLine[px] = 0;
+                    else {
+                        int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                        int rr = Math.min(Math.max(r + adj, 0), 255);
+                        int gg = Math.min(Math.max(g + adj, 0), 255);
+                        int bb = Math.min(Math.max(b + adj, 0), 255);
+                        int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
+                        curLine[px] = paletteMapping[rgb555];
+                    }
+                }
+
+//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//
+//                    //Paeth
+//                    for (int x = 1; x < w; x++) {
+//                        int a = curLine[x - 1] & 0xff;
+//                        int b = prevLine[x] & 0xff;
+//                        int c = prevLine[x - 1] & 0xff;
+//                        int p = a + b - c;
+//                        int pa = p - a;
+//                        if (pa < 0) pa = -pa;
+//                        int pb = p - b;
+//                        if (pb < 0) pb = -pb;
+//                        int pc = p - c;
+//                        if (pc < 0) pc = -pc;
+//                        if (pa <= pb && pa <= pc)
+//                            c = a;
+//                        else if (pb <= pc)
+//                            c = b;
+//                        lineOut[x] = (byte) (curLine[x] - c);
+//                    }
+//
+//                    deflaterOutput.write(FILTER_PAETH);
+//                    deflaterOutput.write(lineOut, 0, w);
+
+                deflaterOutput.write(FILTER_NONE);
+                deflaterOutput.write(curLine, 0, w);
+            }
+            deflaterOutput.finish();
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        } finally {
+            pixels.rewind();
+        }
+    }
+
     private void writeBlueNoiseDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
@@ -2629,6 +2740,9 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             case DODGY:
                 writeDodgyDithered(output, frames, fps);
                 break;
+            case LOAF:
+                writeLoafDithered(output, frames, fps);
+                break;
             default:
             case NEUE:
                 writeNeueDithered(output, frames, fps);
@@ -2920,6 +3034,119 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             Gdx.app.error("anim8", e.getMessage());
         }
     }
+
+    private void writeLoafDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+        Pixmap pixmap = frames.first();
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            final int width = pixmap.getWidth();
+            final int height = pixmap.getHeight();
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(width);
+            buffer.writeInt(height);
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p >>> 24);
+                buffer.write(p >>> 16);
+                buffer.write(p >>> 8);
+            }
+            buffer.endChunk(dataOutput);
+
+            if (paletteArray[0] == 0) {
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(acTL);
+            buffer.writeInt(frames.size);
+            buffer.writeInt(0);
+            buffer.endChunk(dataOutput);
+
+            byte[] curLine;
+            final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+
+            int seq = 0;
+            for (int i = 0; i < frames.size; i++) {
+
+                buffer.writeInt(fcTL);
+                buffer.writeInt(seq++);
+                buffer.writeInt(width);
+                buffer.writeInt(height);
+                buffer.writeInt(0);
+                buffer.writeInt(0);
+                buffer.writeShort(1);
+                buffer.writeShort(fps);
+                buffer.writeByte(0);
+                buffer.writeByte(0);
+                buffer.endChunk(dataOutput);
+
+                if (i == 0) {
+                    buffer.writeInt(IDAT);
+                } else {
+                    pixmap = frames.get(i);
+                    buffer.writeInt(fdAT);
+                    buffer.writeInt(seq++);
+                }
+                deflater.reset();
+                boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+                // This is GWT-incompatible, which is fine because DeflaterOutputStream is already.
+                ByteBuffer pixels = pixmap.getPixels();
+
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
+
+                for (int y = 0; y < height; y++) {
+                    for (int px = 0; px < width; px++) {
+                        int r = pixels.get() & 0xFF;
+                        int g = pixels.get() & 0xFF;
+                        int b = pixels.get() & 0xFF;
+                        if (hasAlpha && (pixels.get() & 0x80) == 0)
+                            curLine[px] = 0;
+                        else {
+                            int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                            int rr = Math.min(Math.max(r + adj, 0), 255);
+                            int gg = Math.min(Math.max(g + adj, 0), 255);
+                            int bb = Math.min(Math.max(b + adj, 0), 255);
+                            int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
+                            curLine[px] = paletteMapping[rgb555];
+                        }
+                    }
+
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, width);
+                }
+                deflaterOutput.finish();
+                buffer.endChunk(dataOutput);
+                pixels.rewind();
+            }
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
     private void writeBlueNoiseDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
