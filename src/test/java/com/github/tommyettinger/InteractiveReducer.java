@@ -31,6 +31,7 @@ public class InteractiveReducer extends ApplicationAdapter {
     private Pixmap p0, p;
     private int index = 1, algorithmCount = Dithered.DitherAlgorithm.ALL.length;
     private float strength = 1f;
+    private static boolean paletteLoadMode = false;
 
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -45,7 +46,15 @@ public class InteractiveReducer extends ApplicationAdapter {
             public void filesDropped(String[] files) {
                 if (files != null && files.length > 0) {
                     if (files[0].endsWith(".png") || files[0].endsWith(".jpg") || files[0].endsWith(".jpeg"))
-                        app.load(files[0]);
+                    {
+                        if(paletteLoadMode)
+                        {
+                            app.loadPalette(files[0]);
+                            paletteLoadMode = false;
+                        }
+                        else
+                            app.load(files[0]);
+                    }
                     else if(files[0].endsWith("hex"))
                         app.loadPalette(files[0]);
                 }
@@ -72,9 +81,17 @@ public class InteractiveReducer extends ApplicationAdapter {
             if(name == null || name.isEmpty()) return;
             FileHandle fh = Gdx.files.absolute(name);
             String text;
-            if(fh.exists() && "hex".equals(fh.extension()))
+            if(fh.exists() && "hex".equalsIgnoreCase(fh.extension()))
                 text = fh.readString();
-            else
+            else if(fh.exists() && ("png".equalsIgnoreCase(fh.extension()) || "jpg".equalsIgnoreCase(fh.extension()) || "jpeg".equalsIgnoreCase(fh.extension())))
+            {
+                Pixmap pfh = new Pixmap(fh);
+                palette = PaletteReducer.colorsFrom(pfh);
+                reducer.exact(palette);
+                System.out.println(reducer.colorCount);
+                pfh.dispose();
+                return;
+            } else
                 return;
             int start = 0, end = 6, len = text.length();
             int gap = (text.charAt(7) == '\n') ? 8 : 7;
@@ -287,6 +304,9 @@ public class InteractiveReducer extends ApplicationAdapter {
                     case Input.Keys.S:
                         System.out.println("Using " + Dithered.DitherAlgorithm.ALL[index] + ", strength: " + strength
                                 + ", colors: " + reducer.colorCount);
+                        break;
+                    case Input.Keys.PERIOD:
+                        paletteLoadMode = !paletteLoadMode;
                         break;
                     case Input.Keys.Q:
                     case Input.Keys.ESCAPE:
