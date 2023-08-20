@@ -403,6 +403,59 @@ public class PaletteReducer {
         return r << 24 | g << 16 | b << 8 | (int)(alpha * 255.999f);
     }
 
+    /**
+     * Given a non-null Pixmap, this finds the up-to-255 most-frequently-used colors and returns them as an array of
+     * RGBA8888 ints. This always reserves space in the returned array for fully-transparent, so there can be in full
+     * 256 colors in the returned array. The int array this returns is useful to pass to {@link #exact(int[])} or the
+     * constructors that expect an RGBA8888 palette.
+     * @param pixmap a non-null Pixmap, often representing or already limited to the desired palette
+     * @return an array of between 1 and 256 RGBA8888 ints, representing a palette
+     */
+    public static int[] colorsFrom(Pixmap pixmap) {
+        return colorsFrom(pixmap, 256);
+    }
+
+    /**
+     * Given a non-null Pixmap, this finds the up-to-{@code limit - 1} most-frequently-used colors and returns them as
+     * an array of RGBA8888 ints. This always reserves space in the returned array for fully-transparent, so there can
+     * be in full {@code limit} colors in the returned array. The int array this returns is useful to pass to
+     * {@link #exact(int[])} or the constructors that expect an RGBA8888 palette.
+     * @param pixmap a non-null Pixmap, often representing or already limited to the desired palette
+     * @param limit how many colors this can return as an inclusive limit; the actual returned array can be smaller
+     * @return an array of between 1 and {@code limit} RGBA8888 ints, representing a palette
+     */
+    public static int[] colorsFrom(Pixmap pixmap, int limit) {
+        int color, colorCount;
+        final int width = pixmap.getWidth(), height = pixmap.getHeight();
+        IntIntMap counts = new IntIntMap(256);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                color = pixmap.getPixel(x, y) & 0xF8F8F880;
+                if ((color & 0x80) != 0) {
+                    color |= (color >>> 5 & 0x07070700) | 0xFF;
+                    counts.getAndIncrement(color, 0, 1);
+                }
+            }
+        }
+        int cs = counts.size;
+        Array<IntIntMap.Entry> es = new Array<>(cs);
+        for (IntIntMap.Entry e : counts) {
+            IntIntMap.Entry e2 = new IntIntMap.Entry();
+            e2.key = e.key;
+            e2.value = e.value;
+            es.add(e2);
+        }
+        es.sort(entryComparator);
+        colorCount = Math.min(limit, es.size + 1);
+        int[] colorArray = new int[colorCount];
+        int i = 1;
+        for (IntIntMap.Entry e : es) {
+            color = e.key;
+            colorArray[i] = color;
+            if(++i >= limit) break;
+        }
+        return colorArray;
+    }
 
     /**
      * Stores the byte indices into {@link #paletteArray} (when treated as unsigned; mask with 255) corresponding to
