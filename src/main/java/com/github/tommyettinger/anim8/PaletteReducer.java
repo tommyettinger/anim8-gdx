@@ -3118,7 +3118,6 @@ public class PaletteReducer {
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-
                     er = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+1) * 0xC13FA9A902A6328FL + (y +1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorRed[px]), -limit), limit);
                     eg = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+3) * 0xC13FA9A902A6328FL + (y -1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorGreen[px]), -limit), limit);
                     eb = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+2) * 0xC13FA9A902A6328FL + (y -4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorBlue[px]), -limit), limit);
