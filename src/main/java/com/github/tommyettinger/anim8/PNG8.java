@@ -359,9 +359,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 case LOAF:
                     writeLoafDithered(output, pixmap);
                     break;
-                default:
                 case NEUE:
                     writeNeueDithered(output, pixmap);
+                default:
+                case WREN:
+                    writeWrenDithered(output, pixmap);
             }
         }
         else writeSolid(output, pixmap);
@@ -2494,9 +2496,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         eg = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+3) * 0xC13FA9A902A6328FL + (y -1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorGreen[px]), -limit), limit);
                         eb = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+2) * 0xC13FA9A902A6328FL + (y -4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorBlue[px]), -limit), limit);
 
-                        int rr = MathUtils.clamp((int)(((color >>> 24)       ) + er + 0.5f), 0, 0xFF);
-                        int gg = MathUtils.clamp((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
-                        int bb = MathUtils.clamp((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0, 0xFF);
+                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                         curLine[px] = paletteIndex =
                                 paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
@@ -2791,9 +2793,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case LOAF:
                 writeLoafDithered(output, frames, fps);
                 break;
-            default:
             case NEUE:
                 writeNeueDithered(output, frames, fps);
+            default:
+            case WREN:
+                writeWrenDithered(output, frames, fps);
         }
     }
 

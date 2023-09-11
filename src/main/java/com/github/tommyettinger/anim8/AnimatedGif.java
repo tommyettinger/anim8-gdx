@@ -958,6 +958,98 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
             break;
+            case WREN: {
+                final int w = width;
+                float rdiff, gdiff, bdiff;
+                float er, eg, eb;
+                byte paletteIndex;
+                final float populationBias = palette.populationBias;
+                float w1 = (float) (40.0 * ditherStrength * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                        strength = (float) (0.06 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
+                        limit = 5f + 130f / (float)Math.sqrt(palette.colorCount+1.5),
+                        dmul = (float) (0x1p-8 / populationBias);
+
+                float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+                if (palette.curErrorRedFloats == null) {
+                    curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                    nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                    curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                    nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                    curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                    nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
+                } else {
+                    curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                    nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                    curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                    nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                    curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                    nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+                }
+
+                for (int y = 0, i = 0; y < height && i < nPix; y++) {
+                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+
+                    int py = flipped + flipDir * y,
+                            ny = y + 1;
+                    for (int px = 0; px < width && i < nPix; px++) {
+                        color = image.getPixel(px, py);
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            indexedPixels[i++] = 0;
+                        else {
+                            er = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+1) * 0xC13FA9A902A6328FL + (y +1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorRed[px]), -limit), limit);
+                            eg = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+3) * 0xC13FA9A902A6328FL + (y -1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorGreen[px]), -limit), limit);
+                            eb = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+2) * 0xC13FA9A902A6328FL + (y -4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorBlue[px]), -limit), limit);
+
+                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            usedEntry[(indexedPixels[i] = paletteIndex =
+                                    paletteMapping[((rr << 7) & 0x7C00)
+                                            | ((gg << 2) & 0x3E0)
+                                            | ((bb >>> 3))]) & 255] = true;
+                            used = paletteArray[paletteIndex & 0xFF];
+                            rdiff = (dmul * ((color>>>24)-    (used>>>24))    );
+                            gdiff = (dmul * ((color>>>16&255)-(used>>>16&255)));
+                            bdiff = (dmul * ((color>>>8&255)- (used>>>8&255)) );
+                            if(px < w - 1)
+                            {
+                                curErrorRed[px+1]   += rdiff * w7;
+                                curErrorGreen[px+1] += gdiff * w7;
+                                curErrorBlue[px+1]  += bdiff * w7;
+                            }
+                            if(ny < height)
+                            {
+                                if(px > 0)
+                                {
+                                    nextErrorRed[px-1]   += rdiff * w3;
+                                    nextErrorGreen[px-1] += gdiff * w3;
+                                    nextErrorBlue[px-1]  += bdiff * w3;
+                                }
+                                if(px < w - 1)
+                                {
+                                    nextErrorRed[px+1]   += rdiff * w1;
+                                    nextErrorGreen[px+1] += gdiff * w1;
+                                    nextErrorBlue[px+1]  += bdiff * w1;
+                                }
+                                nextErrorRed[px]   += rdiff * w5;
+                                nextErrorGreen[px] += gdiff * w5;
+                                nextErrorBlue[px]  += bdiff * w5;
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+            break;
             case DODGY: {
                 final int w = width;
                 float rdiff, gdiff, bdiff;
