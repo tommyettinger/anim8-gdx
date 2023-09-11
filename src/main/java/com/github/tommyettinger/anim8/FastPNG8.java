@@ -1296,7 +1296,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine = curLineBytes.ensureCapacity(w);
             }
 
-            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrt(palette.colorCount));
+            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrtPositive(palette.colorCount));
             for (int y = 0; y < h; y++) {
                 for (int px = 0; px < w; px++) {
                     int r = pixels.get() & 0xFF;
@@ -3192,7 +3192,7 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
 
-            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrt(palette.colorCount));
+            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrtPositive(palette.colorCount));
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {

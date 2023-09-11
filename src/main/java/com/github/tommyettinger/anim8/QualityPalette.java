@@ -333,38 +333,58 @@ public class QualityPalette extends PaletteReducer {
      * Changes the curve of a requested L value so that it matches the internally-used curve. This takes a curve with a
      * very-dark area similar to sRGB (a very small one), and makes it significantly larger. This is typically used on
      * "to Oklab" conversions.
+     * <br>
+     * Internally, this is just {@code Math.pow(L, 1.5)}. At one point it used a modified "Barron spline" to get its
+     * curvature mostly right, but this now seems nearly indistinguishable from an ideal curve.
      * @param L lightness, from 0 to 1 inclusive
      * @return an adjusted L value that can be used internally
      */
     public static double forwardLight(final double L) {
-        final double shape = 0.64516133, turning = 0.95;
-        final double d = turning - L;
-        double r;
-        if(d < 0)
-            r = ((1.0 - turning) * (L - 1.0)) / (1.0 - (L + shape * d)) + 1.0;
-        else
-            r = (turning * L) / (1e-50 + (L + shape * d));
-        return r * r;
+        return Math.sqrt(L * L * L);
     }
+//    public static double forwardLight(final double L) {
+//        final double shape = 0.64516133, turning = 0.95;
+//        final double d = turning - L;
+//        double r;
+//        if(d < 0)
+//            r = ((1.0 - turning) * (L - 1.0)) / (1.0 - (L + shape * d)) + 1.0;
+//        else
+//            r = (turning * L) / (1e-50 + (L + shape * d));
+//        return r * r;
+//    }
+
+//	public static float forwardLight(final float L) {
+//		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
+//	}
 
     /**
      * Changes the curve of the internally-used lightness when it is output to another format. This makes the very-dark
-     * area smaller, matching (kind-of) the curve that the standard sRGB lightness uses. This is typically used on "from
+     * area smaller, matching (closely) the curve that the standard sRGB lightness uses. This is typically used on "from
      * Oklab" conversions.
+     * <br>
+     * Internally, this is just {@code Math.pow(L, 2.0/3.0)}. At one point it used a modified "Barron spline" to get its
+     * curvature mostly right, but this now seems nearly indistinguishable from an ideal curve.
      * @param L lightness, from 0 to 1 inclusive
      * @return an adjusted L value that can be fed into a conversion to RGBA or something similar
      */
     public static double reverseLight(double L) {
-        L = Math.sqrt(L);
-        final double shape = 1.55, turning = 0.95;
-        final double d = turning - L;
-        double r;
-        if(d < 0)
-            r = ((1.0 - turning) * (L - 1.0)) / (1.0 - (L + shape * d)) + 1.0;
-        else
-            r = (turning * L) / (1e-50 + (L + shape * d));
-        return r;
+        return Math.pow(L, 2.0 / 3.0);
     }
+//    public static double reverseLight(double L) {
+//        L = Math.sqrt(L);
+//        final double shape = 1.55, turning = 0.95;
+//        final double d = turning - L;
+//        double r;
+//        if(d < 0)
+//            r = ((1.0 - turning) * (L - 1.0)) / (1.0 - (L + shape * d)) + 1.0;
+//        else
+//            r = (turning * L) / (1e-50 + (L + shape * d));
+//        return r;
+//    }
+
+//	public static float reverseLight(final float L) {
+//		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
+//	}
 
     public double difference(int color1, int color2) {
         if(((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
@@ -381,13 +401,13 @@ public class QualityPalette extends PaletteReducer {
         float g = (g1 - g2) * 0.00392156862745098f; g *= g;
         float b = (b1 - b2) * 0.00392156862745098f; b *= b;
 
-        float l = OtherMath.cbrt(0.4121656120f * r + 0.5362752080f * g + 0.0514575653f * b);
-        float m = OtherMath.cbrt(0.2118591070f * r + 0.6807189584f * g + 0.1074065790f * b);
-        float s = OtherMath.cbrt(0.0883097947f * r + 0.2818474174f * g + 0.6302613616f * b);
+        double l = OtherMath.cbrtPositive(0.4121656120f * r + 0.5362752080f * g + 0.0514575653f * b);
+        double m = OtherMath.cbrtPositive(0.2118591070f * r + 0.6807189584f * g + 0.1074065790f * b);
+        double s = OtherMath.cbrtPositive(0.0883097947f * r + 0.2818474174f * g + 0.6302613616f * b);
 
-        float L = forwardLight(0.2104542553f * l + 0.7936177850f * m - 0.0040720468f * s);
-        float A = 1.9779984951f * l - 2.4285922050f * m + 0.4505937099f * s;
-        float B = 0.0259040371f * l + 0.7827717662f * m - 0.8086757660f * s;
+        double L = forwardLight(0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s);
+        double A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
+        double B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
 
         return (L * L + A * A + B * B) * 0x1.9E3779B9p17; // phun with phi, the golden ratio
     }

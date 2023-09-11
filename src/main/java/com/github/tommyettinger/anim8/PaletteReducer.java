@@ -233,52 +233,91 @@ public class PaletteReducer {
      * Changes the curve of a requested L value so that it matches the internally-used curve. This takes a curve with a
      * very-dark area similar to sRGB (a very small one), and makes it significantly larger. This is typically used on
      * "to Oklab" conversions.
+     * <br>
+     * Internally, this is similar to {@code (float)Math.pow(L, 1.5f)}. At one point it used a modified "Barron spline"
+     * to get its curvature mostly right, but this now seems nearly indistinguishable from an ideal curve.
      * @param L lightness, from 0 to 1 inclusive
      * @return an adjusted L value that can be used internally
      */
     public static float forwardLight(final float L) {
-        final float shape = 0.64516133f, turning = 0.95f;
-        final float d = turning - L;
-        float r;
-        if(d < 0)
-            r = ((1f - turning) * (L - 1f)) / (1f - (L + shape * d)) + 1f;
-        else
-            r = (turning * L) / (1e-20f + (L + shape * d));
-        return r * r;
+        return (float) Math.sqrt(L * L * L);
     }
-
-//	public static float forwardLight(final float L) {
-//		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
-//	}
 
     /**
      * Changes the curve of the internally-used lightness when it is output to another format. This makes the very-dark
-     * area smaller, matching (kind-of) the curve that the standard sRGB lightness uses. This is typically used on "from
+     * area smaller, matching (closely) the curve that the standard sRGB lightness uses. This is typically used on "from
      * Oklab" conversions.
+     * <br>
+     * Internally, this is similar to {@code (float)Math.pow(L, 2f/3f)}. At one point it used a modified "Barron spline"
+     * to get its curvature mostly right, but this now seems nearly indistinguishable from an ideal curve.
+     * <br>
+     * This specific code uses a modified cube root approximation (based on {@link OtherMath#cbrtPositive(float)})
+     * originally by Marc B. Reynolds.
      * @param L lightness, from 0 to 1 inclusive
      * @return an adjusted L value that can be fed into a conversion to RGBA or something similar
      */
     public static float reverseLight(float L) {
-        L = (float) Math.sqrt(L);
-        final float shape = 1.55f, turning = 0.95f;
-        final float d = turning - L;
-        float r;
-        if(d < 0)
-            r = ((1f - turning) * (L - 1f)) / (1f - (L + shape * d)) + 1f;
-        else
-            r = (turning * L) / (1e-20f + (L + shape * d));
-        return r;
+        int ix = NumberUtils.floatToRawIntBits(L);
+        final float x0 = L;
+        ix = (ix>>>2) + (ix>>>4);
+        ix += (ix>>>4);
+        ix += (ix>>>8) + 0x2A5137A0;
+        L  = NumberUtils.intBitsToFloat(ix);
+        L  = 0.33333334f * (2f * L + x0/(L*L));
+        L  = 0.33333334f * (1.9999999f * L + x0/(L*L));
+        return L * L;
     }
 
-//	public static float reverseLight(final float L) {
-//		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
-//	}
+//    /**
+//     * Changes the curve of a requested L value so that it matches the internally-used curve. This takes a curve with a
+//     * very-dark area similar to sRGB (a very small one), and makes it significantly larger. This is typically used on
+//     * "to Oklab" conversions.
+//     * @param L lightness, from 0 to 1 inclusive
+//     * @return an adjusted L value that can be used internally
+//     */
+//    public static float forwardLight(final float L) {
+//        final float shape = 0.64516133f, turning = 0.95f;
+//        final float d = turning - L;
+//        float r;
+//        if(d < 0)
+//            r = ((1f - turning) * (L - 1f)) / (1f - (L + shape * d)) + 1f;
+//        else
+//            r = (turning * L) / (1e-20f + (L + shape * d));
+//        return r * r;
+//    }
+//
+////	public static float forwardLight(final float L) {
+////		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
+////	}
+//
+//    /**
+//     * Changes the curve of the internally-used lightness when it is output to another format. This makes the very-dark
+//     * area smaller, matching (kind-of) the curve that the standard sRGB lightness uses. This is typically used on "from
+//     * Oklab" conversions.
+//     * @param L lightness, from 0 to 1 inclusive
+//     * @return an adjusted L value that can be fed into a conversion to RGBA or something similar
+//     */
+//    public static float reverseLight(float L) {
+//        L = (float) Math.sqrt(L);
+//        final float shape = 1.55f, turning = 0.95f;
+//        final float d = turning - L;
+//        float r;
+//        if(d < 0)
+//            r = ((1f - turning) * (L - 1f)) / (1f - (L + shape * d)) + 1f;
+//        else
+//            r = (turning * L) / (1e-20f + (L + shape * d));
+//        return r;
+//    }
+//
+////	public static float reverseLight(final float L) {
+////		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
+////	}
 
     /**
      * Stores Oklab components corresponding to RGB555 indices.
      * OKLAB[0] stores L (lightness) from 0.0 to 1.0 .
-     * OKLAB[1] stores A, which is something like a green-magenta axis, from -0.5 (green) to 0.5 (red).
-     * OKLAB[2] stores B, which is something like a blue-orange axis, from -0.5 (blue) to 0.5 (yellow).
+     * OKLAB[1] stores A, which is something like a green-red axis, from -0.5 (green) to 0.5 (red).
+     * OKLAB[2] stores B, which is something like a blue-yellow axis, from -0.5 (blue) to 0.5 (yellow).
      * OKLAB[3] stores the hue in radians from -PI to PI, with red at 0, yellow at PI/2, and blue at -PI/2.
      * <br>
      * The indices into each of these float[] values store red in bits 10-14, green in bits 5-9, and blue in bits 0-4.
@@ -339,9 +378,9 @@ public class PaletteReducer {
                 for (int bi = 0; bi < 32; bi++) {
                     bf = (float) (bi * bi * 0.0010405827263267429); // 1.0 / 31.0 / 31.0
 
-                    lf = OtherMath.cbrt(0.4121656120f * rf + 0.5362752080f * gf + 0.0514575653f * bf);
-                    mf = OtherMath.cbrt(0.2118591070f * rf + 0.6807189584f * gf + 0.1074065790f * bf);
-                    sf = OtherMath.cbrt(0.0883097947f * rf + 0.2818474174f * gf + 0.6302613616f * bf);
+                    lf = OtherMath.cbrtPositive(0.4121656120f * rf + 0.5362752080f * gf + 0.0514575653f * bf);
+                    mf = OtherMath.cbrtPositive(0.2118591070f * rf + 0.6807189584f * gf + 0.1074065790f * bf);
+                    sf = OtherMath.cbrtPositive(0.0883097947f * rf + 0.2818474174f * gf + 0.6302613616f * bf);
 
                     OKLAB[0][idx] = forwardLight(
                                     0.2104542553f * lf + 0.7936177850f * mf - 0.0040720468f * sf);
@@ -3035,7 +3074,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, strength = 60f * ditherStrength / (populationBias * OtherMath.cbrt(colorCount));
+        float adj, strength = 60f * ditherStrength / (populationBias * OtherMath.cbrtPositive(colorCount));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);

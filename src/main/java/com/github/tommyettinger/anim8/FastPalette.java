@@ -1202,7 +1202,7 @@ public class FastPalette extends PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        float adj, strength = 60f * ditherStrength / (populationBias * OtherMath.cbrt(colorCount));
+        float adj, strength = 60f * ditherStrength / (populationBias * OtherMath.cbrtPositive(colorCount));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 int rr = pixels.get() & 0xFF;

@@ -110,7 +110,7 @@ public final class OtherMath {
      * @return the cube root of x, approximated
      */
     public static float cbrt(float x) {
-        int ix = NumberUtils.floatToRawIntBits(x);
+        int ix = NumberUtils.floatToIntBits(x);
         final int sign = ix & 0x80000000;
         ix &= 0x7FFFFFFF;
         final float x0 = x;
@@ -120,6 +120,41 @@ public final class OtherMath {
         x  = NumberUtils.intBitsToFloat(ix);
         x  = 0.33333334f*(2f * x + x0/(x*x));
         x  = 0.33333334f*(2f * x + x0/(x*x));
+        return x;
+    }
+    /**
+     * An approximation of the cube-root function for float inputs and outputs.
+     * This can be about twice as fast as {@link Math#cbrt(double)}. This
+     * version does not tolerate negative inputs, because in the narrow use
+     * case it has in this class, it is never given negative inputs.
+     * <br>
+     * Has very low relative error (less than 1E-9) when inputs are uniformly
+     * distributed between 0 and 512, and absolute mean error of less than
+     * 1E-6 in the same scenario. Uses a bit-twiddling method similar to one
+     * presented in Hacker's Delight and also used in early 3D graphics (see
+     * https://en.wikipedia.org/wiki/Fast_inverse_square_root for more, but
+     * this code approximates cbrt(x) and not 1/sqrt(x)). This specific code
+     * was originally by Marc B. Reynolds, posted in his "Stand-alone-junk"
+     * repo: https://github.com/Marc-B-Reynolds/Stand-alone-junk/blob/master/src/Posts/ballcube.c#L182-L197 .
+     * It's worth noting that while hardware instructions for finding the
+     * square root of a float have gotten extremely fast, the same is not
+     * true for the cube root (which has to allow negative inputs), so while
+     * the bit-twiddling inverse square root is no longer a beneficial
+     * optimization on current hardware, this does seem to help.
+     * <br>
+     * This is used when converting from RGB to Oklab, as an intermediate step.
+     * @param x any non-negative finite float to find the cube root of
+     * @return the cube root of x, approximated
+     */
+    public static float cbrtPositive(float x) {
+        int ix = NumberUtils.floatToIntBits(x);
+        final float x0 = x;
+        ix = (ix>>>2) + (ix>>>4);
+        ix += (ix>>>4);
+        ix += (ix>>>8) + 0x2A5137A0;
+        x  = NumberUtils.intBitsToFloat(ix);
+        x  = 0.33333334f*(2f * x + x0/(x*x));
+        x  = 0.33333334f*(1.9999999f * x + x0/(x*x));
         return x;
     }
 
@@ -145,7 +180,7 @@ public final class OtherMath {
          * <a href="https://metamerist.blogspot.com/2007/09/faster-cube-root-iii.html">Initially given here</a> by
          * metamerist; I just made it respect sign.
          */
-//        final int i = NumberUtils.floatToRawIntBits(x);
+//        final int i = NumberUtils.floatToIntBits(x);
 //        return NumberUtils.intBitsToFloat(((i & 0x7FFFFFFF) - 0x3F800000) / 3 + 0x3F800000 | (i & 0x80000000));
         return x * 1.25f / (0.25f + Math.abs(x));
     }

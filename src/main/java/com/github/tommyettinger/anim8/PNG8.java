@@ -1240,7 +1240,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
 
             int color;
-            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrt(palette.colorCount));
+            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrtPositive(palette.colorCount));
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -3092,7 +3092,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine;
             int color;
 
-            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrt(palette.colorCount));
+            float adj, strength = 60f * palette.ditherStrength / (palette.populationBias * OtherMath.cbrtPositive(palette.colorCount));
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {

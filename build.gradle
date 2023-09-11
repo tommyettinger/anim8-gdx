@@ -13,10 +13,18 @@ apply plugin: 'java-library'
 apply plugin: 'com.vanniktech.maven.publish'
 
 compileJava {
-    sourceCompatibility = 7
-    targetCompatibility = 7
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.release.set(7)
+    // Java 20 and up are unable to release for version 7.
+    if(JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_20)){
+        sourceCompatibility = 8
+        targetCompatibility = 8
+        options.release.set(8)
+    }
+    else {
+        sourceCompatibility = 7
+        targetCompatibility = 7
+        if (JavaVersion.current().isJava9Compatible()) {
+            options.release.set(7)
+        }
     }
 }
 
