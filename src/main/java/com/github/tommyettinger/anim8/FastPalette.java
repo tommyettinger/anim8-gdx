@@ -1180,6 +1180,115 @@ public class FastPalette extends PaletteReducer {
         pixels.rewind();
         return pixmap;
     }
+    /**
+     * Just as the wren flits restlessly from eave to branch to awning, so too does Wren dither dart to and fro between
+     * dithering techniques. This is an error diffusion dither modeled closely after {@link #reduceWoven(Pixmap)}, which
+     * means it uses three offset versions of the R2 sequence to introduce a structured artifact that breaks up
+     * Floyd-Steinberg artifacts. It also incorporates per-channel blue-noise effects as {@link #reduceDodgy(Pixmap)}
+     * uses them. The strengths of various components here have changed from the values used in Woven; the
+     * error-diffusion strength is higher by default and the adjustment from blue noise and/or R2 values is
+     * comparatively mild.
+     * @param pixmap
+     * @return
+     */
+    @Override
+    public Pixmap reduceWren(Pixmap pixmap) {
+        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
+        if(!hasAlpha && !pixmap.getFormat().equals(Pixmap.Format.RGB888)){
+            return super.reduceWren(pixmap);
+        }
+        ByteBuffer pixels = pixmap.getPixels();
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedFloats == null) {
+            curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedFloats = new FloatArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenFloats = new FloatArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenFloats = new FloatArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueFloats = new FloatArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueFloats = new FloatArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedFloats.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedFloats.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenFloats.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int used;
+        float rdiff, gdiff, bdiff;
+        float er, eg, eb;
+        float w1 = (float) (40.0 * ditherStrength * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                strength = (float) (0.06 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
+                limit = 5f + 130f / (float)Math.sqrt(colorCount+1.5),
+                dmul = (float) (0x1p-8 / populationBias);
+
+        for (int y = 0; y < h; y++) {
+            int ny = y + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                int rr = pixels.get() & 0xFF;
+                int gg = pixels.get() & 0xFF;
+                int bb = pixels.get() & 0xFF;
+                // read one more byte if this is RGBA8888
+                if (hasAlpha && hasTransparent && (pixels.get() & 0x80) == 0) {
+                    pixels.position(pixels.position() - 4);
+                    pixels.putInt(0);
+                    continue;
+                }
+                er = Math.min(Math.max((((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) + ((((px + 1) * 0xC13FA9A902A6328FL + (y + 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorRed[px]), -limit), limit);
+                eg = Math.min(Math.max((((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorGreen[px]), -limit), limit);
+                eb = Math.min(Math.max((((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px + 2) * 0xC13FA9A902A6328FL + (y - 4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorBlue[px]), -limit), limit);
+
+                int ar = Math.min(Math.max((int) (rr + er + 0.5f), 0), 0xFF);
+                int ag = Math.min(Math.max((int) (gg + eg + 0.5f), 0), 0xFF);
+                int ab = Math.min(Math.max((int) (bb + eb + 0.5f), 0), 0xFF);
+                used = writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
+                rdiff = (dmul * (rr - (used >>> 24)));
+                gdiff = (dmul * (gg - (used >>> 16 & 255)));
+                bdiff = (dmul * (bb - (used >>> 8 & 255)));
+
+                if (px < lineLen - 1) {
+                    curErrorRed[px + 1] += rdiff * w7;
+                    curErrorGreen[px + 1] += gdiff * w7;
+                    curErrorBlue[px + 1] += bdiff * w7;
+                }
+                if (ny < h) {
+                    if (px > 0) {
+                        nextErrorRed[px - 1] += rdiff * w3;
+                        nextErrorGreen[px - 1] += gdiff * w3;
+                        nextErrorBlue[px - 1] += bdiff * w3;
+                    }
+                    if (px < lineLen - 1) {
+                        nextErrorRed[px + 1] += rdiff * w1;
+                        nextErrorGreen[px + 1] += gdiff * w1;
+                        nextErrorBlue[px + 1] += bdiff * w1;
+                    }
+                    nextErrorRed[px] += rdiff * w5;
+                    nextErrorGreen[px] += gdiff * w5;
+                    nextErrorBlue[px] += bdiff * w5;
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        pixels.rewind();
+        return pixmap;
+    }
 
     /**
      * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed

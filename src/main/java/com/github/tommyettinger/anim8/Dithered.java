@@ -216,7 +216,18 @@ public interface Dithered {
          * This is probably closest to {@link #PATTERN} in appearance, just because they both use a square grid, but
          * this is much faster to run and looks less intricate. They also use different grids.
          */
-        LOAF("Loaf");
+        LOAF("Loaf"),
+        /**
+         * An error-diffusion dither (like {@link #DIFFUSION}) that uses offset versions of the R2 sequence (like
+         * {@link #WOVEN}) and different blue noise textures (like {@link #DODGY}). This is a very good dither in many
+         * cases, and performs especially well on any-sized mid-to-low-saturation palettes. It tends to be able to
+         * preserve both hue and lightness well without showing repetitive structural artifacts (like WOVEN does). The
+         * main down-side to this is that in some cases, you may need to reduce or slightly increase dither strength
+         * to either avoid horizontal-zig-zag-line artifacts, or to improve hue or lightness fidelity. These cases
+         * aren't especially common and working around this is as easy as calling
+         * {@link PaletteReducer#setDitherStrength(float)} (or its counterpart for a Gif or PNG class).
+         */
+        WREN("Wren");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
