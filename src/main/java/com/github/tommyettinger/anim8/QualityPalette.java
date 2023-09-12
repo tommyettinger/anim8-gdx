@@ -342,6 +342,7 @@ public class QualityPalette extends PaletteReducer {
     public static double forwardLight(final double L) {
         return Math.sqrt(L * L * L);
     }
+
 //    public static double forwardLight(final double L) {
 //        final double shape = 0.64516133, turning = 0.95;
 //        final double d = turning - L;

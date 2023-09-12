@@ -1213,10 +1213,10 @@ public class FastGif implements AnimationWriter, Dithered {
                 float er, eg, eb;
                 byte paletteIndex;
                 final float populationBias = palette.populationBias;
-                final float w1 = (float) (40.0 * ditherStrength * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                        strength = (float) (0.06 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
-                        limit = 5f + 130f / (float)Math.sqrt(palette.colorCount+1.5),
-                        dmul = (float) (0x1p-8 / populationBias);
+                final float w1 = (float) (32.0 * ditherStrength * (populationBias * populationBias)), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                        strength = 0.2f * ditherStrength / (populationBias * populationBias * populationBias * populationBias),
+                        limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5),
+                        dmul = 0x1p-8f;
 
                 float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
                 if (palette.curErrorRedFloats == null) {

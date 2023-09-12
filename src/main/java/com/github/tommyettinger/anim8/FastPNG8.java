@@ -2567,10 +2567,10 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             float er, eg, eb;
             byte paletteIndex;
             final float populationBias = palette.populationBias;
-            final float w1 = (float) (40.0 * ditherStrength * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    strength = (float) (0.06 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
-                    limit = 5f + 130f / (float)Math.sqrt(palette.colorCount+1.5),
-                    dmul = (float) (0x1p-8 / populationBias);
+            final float w1 = (float) (32.0 * ditherStrength * (populationBias * populationBias)), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    strength = (0.2f * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
+                    limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5),
+                    dmul = 0x1p-8f;
             byte[] curLine;
             if (curLineBytes == null) {
                 curLine = (curLineBytes = new ByteArray(w)).items;
@@ -4854,10 +4854,10 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             float er, eg, eb;
             byte paletteIndex;
             final float populationBias = palette.populationBias;
-            final float w1 = (float) (40.0 * ditherStrength * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    strength = (float) (0.06 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
-                    limit = 5f + 130f / (float)Math.sqrt(palette.colorCount+1.5),
-                    dmul = (float) (0x1p-8 / populationBias);
+            final float w1 = (float) (32.0 * ditherStrength * (populationBias * populationBias)), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    strength = (0.2f * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
+                    limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5),
+                    dmul = 0x1p-8f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
