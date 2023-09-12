@@ -409,10 +409,6 @@ public class QualityPalette extends PaletteReducer {
         float L1 = forwardLight(0.2104542553f * l + 0.7936177850f * m - 0.0040720468f * s);
         float A1 = 1.9779984951f * l - 2.4285922050f * m + 0.4505937099f * s;
         float B1 = 0.0259040371f * l + 0.7827717662f * m - 0.8086757660f * s;
-////LR alternate lightness estimate
-//            final double k1 = 0.206, k2 = 0.03, k3 = 1.17087;
-//            double t = (k3 * L1 - k1);
-//            L1 = (t + Math.sqrt(t * t + 0.1405044 * L1)) * 0.5;
 
         r = r2 * 0.00392156862745098f; r *= r;
         g = g2 * 0.00392156862745098f; g *= g;
@@ -425,13 +421,11 @@ public class QualityPalette extends PaletteReducer {
         float L2 = forwardLight(0.2104542553f * l + 0.7936177850f * m - 0.0040720468f * s);
         float A2 = 1.9779984951f * l - 2.4285922050f * m + 0.4505937099f * s;
         float B2 = 0.0259040371f * l + 0.7827717662f * m - 0.8086757660f * s;
-//            t = (k3 * L2 - k1);
-//            L2 = (t + Math.sqrt(t * t + 0.1405044 * L2)) * 0.5;
 
-        float L = (L1 - L2);
-        float A = (A1 - A2);
-        float B = (B1 - B2);
+        float L = (L1 - L2) * 512f;
+        float A = (A1 - A2) * 512f;
+        float B = (B1 - B2) * 512f;
 
-        return (L * L + A * A + B * B) * 0x1p+21f;
+        return (L * L + A * A + B * B);
     }
 }
