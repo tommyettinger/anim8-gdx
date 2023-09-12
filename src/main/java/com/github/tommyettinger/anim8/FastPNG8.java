@@ -2899,9 +2899,11 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
             case LOAF:
                 writeLoafDithered(output, frames, fps);
                 break;
-            default:
             case NEUE:
                 writeNeueDithered(output, frames, fps);
+            default:
+            case WREN:
+                writeWrenDithered(output, frames, fps);
         }
     }
 
@@ -4905,9 +4907,9 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
 
                     int ny = y + 1;
                     for (int px = 0; px < w; px++) {
-                        int rr = pixels.get() & 0xFF;
-                        int gg = pixels.get() & 0xFF;
-                        int bb = pixels.get() & 0xFF;
+                        int r = pixels.get() & 0xFF;
+                        int g = pixels.get() & 0xFF;
+                        int b = pixels.get() & 0xFF;
                         if (hasAlpha && (pixels.get() & 0x80) == 0)
                             curLine[px] = 0;
                         else {
@@ -4915,17 +4917,17 @@ public class FastPNG8 implements AnimationWriter, Dithered, Disposable {
                             eg = Math.min(Math.max((((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px + 3) * 0xC13FA9A902A6328FL + (y - 1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorGreen[px]), -limit), limit);
                             eb = Math.min(Math.max((((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) + ((((px + 2) * 0xC13FA9A902A6328FL + (y - 4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorBlue[px]), -limit), limit);
 
-                            int ar = Math.min(Math.max((int) (rr + er + 0.5f), 0), 0xFF);
-                            int ag = Math.min(Math.max((int) (gg + eg + 0.5f), 0), 0xFF);
-                            int ab = Math.min(Math.max((int) (bb + eb + 0.5f), 0), 0xFF);
+                            int rr = Math.min(Math.max((int) (r + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int) (g + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int) (b + eb + 0.5f), 0), 0xFF);
                             curLine[px] = paletteIndex =
-                                    paletteMapping[((ar << 7) & 0x7C00)
-                                            | ((ag << 2) & 0x3E0)
-                                            | ((ab >>> 3))];
+                                    paletteMapping[((rr << 7) & 0x7C00)
+                                            | ((gg << 2) & 0x3E0)
+                                            | ((bb >>> 3))];
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = (dmul * (rr - (used>>>24))    );
-                            gdiff = (dmul * (gg - (used>>>16&255)));
-                            bdiff = (dmul * (bb - (used>>>8&255)) );
+                            rdiff = (dmul * (r - (used>>>24))    );
+                            gdiff = (dmul * (g - (used>>>16&255)));
+                            bdiff = (dmul * (b - (used>>>8&255)) );
                             if(px < w - 1)
                             {
                                 curErrorRed[px+1]   += rdiff * w7;

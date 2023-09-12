@@ -2425,8 +2425,8 @@ public class PaletteReducer {
     }
 
     /**
-     * Modifies the given Pixmap so it only uses colors present in this PaletteReducer, dithering when it can
-     * using Neue dithering (this merely delegates to {@link #reduceNeue(Pixmap)}).
+     * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, dithering when it can by
+     * using Wren dithering (this merely delegates to {@link #reduceWren(Pixmap)}).
      * If you want to reduce the colors in a Pixmap based on what it currently contains, call
      * {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
      * Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
@@ -2435,18 +2435,18 @@ public class PaletteReducer {
      * @return the given Pixmap, for chaining
      */
     public Pixmap reduce (Pixmap pixmap) {
-        return reduceNeue(pixmap);
+        return reduceWren(pixmap);
     }
 
     /**
      * Uses the given {@link Dithered.DitherAlgorithm} to decide how to dither {@code pixmap}.
      * @param pixmap a pixmap that will be modified in-place
-     * @param ditherAlgorithm a dithering algorithm enum value; if not recognized, defaults to {@link Dithered.DitherAlgorithm#NEUE}
+     * @param ditherAlgorithm a dithering algorithm enum value; if not recognized, defaults to {@link Dithered.DitherAlgorithm#WREN}
      * @return {@code pixmap} after modifications
      */
     public Pixmap reduce(Pixmap pixmap, Dithered.DitherAlgorithm ditherAlgorithm){
         if(pixmap == null) return null;
-        if(ditherAlgorithm == null) return reduceNeue(pixmap);
+        if(ditherAlgorithm == null) return reduceWren(pixmap);
         switch (ditherAlgorithm) {
             case NONE:
                 return reduceSolid(pixmap);
