@@ -964,7 +964,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 float er, eg, eb;
                 byte paletteIndex;
                 final float populationBias = palette.populationBias;
-                float w1 = (float) (40.0 * ditherStrength * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                final float w1 = (float) (40.0 * ditherStrength * populationBias * populationBias * populationBias * populationBias), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
                         strength = (float) (0.06 * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
                         limit = 5f + 130f / (float)Math.sqrt(palette.colorCount+1.5),
                         dmul = (float) (0x1p-8 / populationBias);
