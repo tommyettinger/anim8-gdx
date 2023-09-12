@@ -1259,9 +1259,9 @@ public class FastPalette extends PaletteReducer {
                 int ag = Math.min(Math.max((int) (gg + eg + 0.5f), 0), 0xFF);
                 int ab = Math.min(Math.max((int) (bb + eb + 0.5f), 0), 0xFF);
                 used = writePixel(pixels, ((ar << 7) & 0x7C00) | ((ag << 2) & 0x3E0) | ((ab >>> 3)), hasAlpha);
-                rdiff = (dmul * (rr - (used >>> 24)));
-                gdiff = (dmul * (gg - (used >>> 16 & 255)));
-                bdiff = (dmul * (bb - (used >>> 8 & 255)));
+                rdiff = (dmul * (rr - (used>>>24))    );
+                gdiff = (dmul * (gg - (used>>>16&255)));
+                bdiff = (dmul * (bb - (used>>>8&255)) );
 
                 if (px < lineLen - 1) {
                     curErrorRed[px + 1] += rdiff * w7;
