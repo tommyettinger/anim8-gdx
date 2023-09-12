@@ -397,18 +397,40 @@ public class QualityPalette extends PaletteReducer {
     }
 
     public double difference(int r1, int g1, int b1, int r2, int g2, int b2) {
-        float r = (r1 - r2) * 0.00392156862745098f; r *= r;
-        float g = (g1 - g2) * 0.00392156862745098f; g *= g;
-        float b = (b1 - b2) * 0.00392156862745098f; b *= b;
+        float r = r1 * 0.00392156862745098f; r *= r;
+        float g = g1 * 0.00392156862745098f; g *= g;
+        float b = b1 * 0.00392156862745098f; b *= b;
 
-        double l = OtherMath.cbrtPositive(0.4121656120f * r + 0.5362752080f * g + 0.0514575653f * b);
-        double m = OtherMath.cbrtPositive(0.2118591070f * r + 0.6807189584f * g + 0.1074065790f * b);
-        double s = OtherMath.cbrtPositive(0.0883097947f * r + 0.2818474174f * g + 0.6302613616f * b);
+        float l = OtherMath.cbrtPositive(0.4121656120f * r + 0.5362752080f * g + 0.0514575653f * b);
+        float m = OtherMath.cbrtPositive(0.2118591070f * r + 0.6807189584f * g + 0.1074065790f * b);
+        float s = OtherMath.cbrtPositive(0.0883097947f * r + 0.2818474174f * g + 0.6302613616f * b);
 
-        double L = forwardLight(0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s);
-        double A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s;
-        double B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s;
+        float L1 = forwardLight(0.2104542553f * l + 0.7936177850f * m - 0.0040720468f * s);
+        float A1 = 1.9779984951f * l - 2.4285922050f * m + 0.4505937099f * s;
+        float B1 = 0.0259040371f * l + 0.7827717662f * m - 0.8086757660f * s;
+////LR alternate lightness estimate
+//            final double k1 = 0.206, k2 = 0.03, k3 = 1.17087;
+//            double t = (k3 * L1 - k1);
+//            L1 = (t + Math.sqrt(t * t + 0.1405044 * L1)) * 0.5;
 
-        return (L * L + A * A + B * B) * 0x1.9E3779B9p17; // phun with phi, the golden ratio
+        r = r2 * 0.00392156862745098f; r *= r;
+        g = g2 * 0.00392156862745098f; g *= g;
+        b = b2 * 0.00392156862745098f; b *= b;
+
+        l = OtherMath.cbrtPositive(0.4121656120f * r + 0.5362752080f * g + 0.0514575653f * b);
+        m = OtherMath.cbrtPositive(0.2118591070f * r + 0.6807189584f * g + 0.1074065790f * b);
+        s = OtherMath.cbrtPositive(0.0883097947f * r + 0.2818474174f * g + 0.6302613616f * b);
+
+        float L2 = forwardLight(0.2104542553f * l + 0.7936177850f * m - 0.0040720468f * s);
+        float A2 = 1.9779984951f * l - 2.4285922050f * m + 0.4505937099f * s;
+        float B2 = 0.0259040371f * l + 0.7827717662f * m - 0.8086757660f * s;
+//            t = (k3 * L2 - k1);
+//            L2 = (t + Math.sqrt(t * t + 0.1405044 * L2)) * 0.5;
+
+        float L = (L1 - L2);
+        float A = (A1 - A2);
+        float B = (B1 - B2);
+
+        return (L * L + A * A + B * B) * 0x1p+21f;
     }
 }

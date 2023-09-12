@@ -1021,7 +1021,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, limit), rgbaPalette.length);
         colorCount = plen;
-        populationBias = (float) Math.exp(-1.125/colorCount);
+        populationBias = (float) Math.exp(-1.375/colorCount);
         int color, c2;
         double dist;
         for (int i = 0; i < plen; i++) {
@@ -1075,7 +1075,7 @@ public class PaletteReducer {
         colorCount = Math.min(256, palette.length);
         System.arraycopy(palette, 0,  paletteArray, 0, colorCount);
         System.arraycopy(preload, 0,  paletteMapping, 0, 0x8000);
-        populationBias = (float) Math.exp(-1.125/colorCount);
+        populationBias = (float) Math.exp(-1.375/colorCount);
     }
 
     /**
@@ -1112,7 +1112,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, colorPalette.length), limit);
         colorCount = plen;
-        populationBias = (float) Math.exp(-1.125/colorCount);
+        populationBias = (float) Math.exp(-1.375/colorCount);
         int color, c2;
         double dist;
 
@@ -1473,7 +1473,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -1489,7 +1489,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
 
         int c2;
@@ -1581,7 +1581,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         } else // generate colors
         {
             final int[] ei = enc.items;
@@ -1630,7 +1630,7 @@ public class PaletteReducer {
                 }
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
 
         int c2;
@@ -1715,7 +1715,7 @@ public class PaletteReducer {
                 ++i;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -1731,7 +1731,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
 
         if(colorCount <= 1)
@@ -1964,7 +1964,7 @@ public class PaletteReducer {
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = limit;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
         else
         { 
@@ -1975,7 +1975,7 @@ public class PaletteReducer {
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
             }
             colorCount = counts.size + hasTransparent;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
 
         int c2;
@@ -2142,7 +2142,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         } else // reduce color count
         {
             int i = 1, c = 0;
@@ -2162,7 +2162,7 @@ public class PaletteReducer {
                 i++;
             }
             colorCount = i;
-            populationBias = (float) Math.exp(-1.125/colorCount);
+            populationBias = (float) Math.exp(-1.375/colorCount);
         }
 
         int c2;
@@ -2377,7 +2377,7 @@ public class PaletteReducer {
             }
             colorCount = i;
         }
-        populationBias = (float) Math.exp(-1.125/colorCount);
+        populationBias = (float) Math.exp(-1.375/colorCount);
 
         int c2;
         int rr, gg, bb;
