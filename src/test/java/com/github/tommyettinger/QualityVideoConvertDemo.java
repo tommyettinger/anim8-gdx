@@ -18,8 +18,13 @@ import com.github.tommyettinger.anim8.*;
  * color solids (both self-made, public domain).
  */
 
-// on September 14, 2023, running this took 5738491 ms.
-public class VideoConvertDemo extends ApplicationAdapter {
+// may need optimization.
+//
+// on September 13, 2023, running this (the quality writer demo) took 5943629 ms.
+// on September 14, 2023, running the standard writer demo took 5738491 ms.
+// on September 14, 2023, running the fast writer demo took 2417051 ms. This included APNG and PNG8 renders, unlike the other demos.
+
+public class QualityVideoConvertDemo extends ApplicationAdapter {
     private long startTime;
     private static final String name = "market";
     private boolean fastAnalysis = true;
@@ -33,7 +38,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
         int[][] palettes = new int[][]{
                 null,
-                PaletteReducer.AURORA,
+                QualityPalette.AURORA,
                 new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF},
                 new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
@@ -88,15 +93,15 @@ public class VideoConvertDemo extends ApplicationAdapter {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
         PNG8 png8 = new PNG8();
-        png8.setPalette(new PaletteReducer());
+        png8.setPalette(new QualityPalette());
         png8.palette.analyze(pixmaps, 144, 256);
         String namePalette = name + "-analyzed";
         // Haltonic palette
-//        png8.palette = new PaletteReducer(); namePalette = name + "-Haltonic";
+//        png8.palette = new QualityPalette(); namePalette = name + "-Haltonic";
         //// BW
-//        png8.palette = new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
+//        png8.palette = new QualityPalette(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
         //// GB-16 Green
-//        png8.palette = new PaletteReducer(new int[]{0x00000000,
+//        png8.palette = new QualityPalette(new int[]{0x00000000,
 //                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
 //                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
 //        namePalette = name + "-Green";
@@ -104,7 +109,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
         png8.setCompression(7);
         for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
             png8.setDitherAlgorithm(d);
-            png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-" + d + "-S.png"), pixmaps, 20);
+            png8.write(Gdx.files.local("images/png/" + name + "/PNG8-" + namePalette + "-" + d + "-Q.png"), pixmaps, 20);
         }
     }
 
@@ -123,13 +128,13 @@ public class VideoConvertDemo extends ApplicationAdapter {
             if (palettes[i] == null)
                 gif.setPalette(null);
             else
-                gif.setPalette(new PaletteReducer(palettes[i]));
+                gif.setPalette(new QualityPalette(palettes[i]));
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
 
@@ -152,13 +157,13 @@ public class VideoConvertDemo extends ApplicationAdapter {
             if (palettes[i] == null)
                 gif.setPalette(null);
             else
-                gif.setPalette(new PaletteReducer(palettes[i]));
+                gif.setPalette(new QualityPalette(palettes[i]));
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
             }
         }
     }
@@ -178,13 +183,13 @@ public class VideoConvertDemo extends ApplicationAdapter {
             if(palettes[i] == null)
                 gif.setPalette(null);
             else
-                gif.setPalette(new PaletteReducer(palettes[i]));
+                gif.setPalette(new QualityPalette(palettes[i]));
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
             }
         }
     }
@@ -204,13 +209,13 @@ public class VideoConvertDemo extends ApplicationAdapter {
             if(palettes[i] == null)
                 gif.setPalette(null);
             else
-                gif.setPalette(new PaletteReducer(palettes[i]));
+                gif.setPalette(new QualityPalette(palettes[i]));
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
     }
@@ -230,13 +235,13 @@ public class VideoConvertDemo extends ApplicationAdapter {
             if(palettes[i] == null)
                 gif.setPalette(null);
             else
-                gif.setPalette(new PaletteReducer(palettes[i]));
+                gif.setPalette(new QualityPalette(palettes[i]));
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
     }
@@ -258,13 +263,13 @@ public class VideoConvertDemo extends ApplicationAdapter {
             if(palettes[i] == null)
                 gif.setPalette(null);
             else
-                gif.setPalette(new PaletteReducer(palettes[i]));
+                gif.setPalette(new QualityPalette(palettes[i]));
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
     }
@@ -274,7 +279,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
 	}
 
 	private static Lwjgl3Application createApplication() {
-		return new Lwjgl3Application(new VideoConvertDemo(), getDefaultConfiguration());
+		return new Lwjgl3Application(new QualityVideoConvertDemo(), getDefaultConfiguration());
 	}
 
 	private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

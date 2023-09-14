@@ -21,6 +21,7 @@ import com.github.tommyettinger.anim8.FastPalette;
  * public domain), another pixel-art animation of a tank (self-made, public domain), and two animations of slices of
  * color solids (both self-made, public domain).
  */
+// on September 14, 2023, running this took 5783939 ms.
 public class FastVideoConvertDemo extends ApplicationAdapter {
     private long startTime;
     private static final String name = "market";
@@ -30,8 +31,8 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();
-		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
-		renderPNG8();
+//		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
+//		renderPNG8();
         String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
         int[][] palettes = new int[][]{
                 null,
@@ -48,7 +49,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         renderGlobeGif(names, palettes);
         renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
-//        renderSolidsGif(names, palettes);
+        renderSolidsGif(names, palettes);
 
         fastAnalysis = false;
         names = new String[]{"-Analyzed"};
@@ -59,7 +60,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         renderGlobeGif(names, palettes);
         renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
-//        renderSolidsGif(names, palettes);
+        renderSolidsGif(names, palettes);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
@@ -107,7 +108,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         png8.setCompression(7);
         for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
             png8.setDitherAlgorithm(d);
-            png8.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
+            png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.png"), pixmaps, 20);
         }
     }
 
@@ -132,7 +133,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
 
@@ -162,7 +163,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 12);
             }
         }
     }
@@ -188,7 +189,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 12);
             }
         }
     }
@@ -214,7 +215,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
     }
@@ -240,7 +241,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
     }
@@ -268,7 +269,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
     }
