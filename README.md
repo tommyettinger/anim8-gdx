@@ -20,10 +20,10 @@ public void writeGif() {
 // this assumes you're calling this from a class that uses render() to draw to the screen.
         render();
 // this gets a screenshot of the current window and adds it to the Array of Pixmap.
-// there are two ways to do this; this is the older way, but it is deprecated in current libGDX: 
-        pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-// the newer way is only available in more-recent libGDX (I know 1.10.0 and 1.11.0 have it); it is not deprecated:
-        // pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+// there are two ways to do this; this way works in older libGDX versions, but it is deprecated in current libGDX: 
+//        pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+// the newer way is only available in more-recent libGDX (I know 1.10.0 through 1.12.0 have it); it is not deprecated:
+        pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
     }
 // AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from
 // each given frame and use the most appropriate palette for each frame, dithering any colors that don't
@@ -69,7 +69,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.4.0"
+  api "com.github.tommyettinger:anim8-gdx:0.4.1"
 }
 ```
 
@@ -78,7 +78,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.4.0:sources"`. The PNG-related code isn't available on GWT
+`implementation "com.github.tommyettinger:anim8-gdx:0.4.1:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work,
 as should QualityPalette. None of the "Fast" classes will work on GWT.
 The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
