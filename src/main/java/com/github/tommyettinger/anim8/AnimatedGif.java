@@ -45,8 +45,8 @@ import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
  * match for the colors used in an animation (indexed mode has at most 256 colors), this will dither pixels so that from
  * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
  * reduce (or increase) dither strength, typically between 0 and 2; the dithering algorithm used here by default is
- * based on Floyd-Steinberg error-diffusion dithering but with patterns broken up using blue noise
- * ({@link DitherAlgorithm#SCATTER}), but you can select alternatives with {@link #setDitherAlgorithm(DitherAlgorithm)},
+ * based on Floyd-Steinberg error-diffusion dithering but with patterns broken up using the R2 sequence and blue noise
+ * ({@link DitherAlgorithm#WREN}), but you can select alternatives with {@link #setDitherAlgorithm(DitherAlgorithm)},
  * such as the slow but high-quality Knoll Ordered Dither using {@link DitherAlgorithm#PATTERN}, or no dither at all
  * with {@link DitherAlgorithm#NONE}.
  * <br>
@@ -54,18 +54,20 @@ import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
  * for images with 256 or fewer colors and no animation (libGDX can read in non-animated PNG files, as well as the first
  * frame of animated PNG files). If you have an animation that doesn't look good with dithering or has multiple levels
  * of transparency (GIF only supports one fully transparent color), you can use {@link AnimatedPNG} to output a
- * full-color animation. If you have a non-animated image that you want to save in lossless full-color, just use
- * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}; the API is slightly different, but the PNG code here is based on it.
+ * full-color animation. If you have a non-animated image that you want to save in lossless full-color, you can
+ * sometimes use {@link FastPNG} (it is GWT-incompatible, but works elsewhere). You could use
+ * {@link com.badlogic.gdx.graphics.PixmapIO.PNG} instead; the PNG code here is based on it, and although it isn't as
+ * fast to write files, they are better-compressed.
  * <br>
- * Based on Nick Badal's Android port ( https://github.com/nbadal/android-gif-encoder/blob/master/GifEncoder.java ) of
- * Alessandro La Rossa's J2ME port ( http://www.jappit.com/blog/2008/12/04/j2me-animated-gif-encoder/ ) of this pure
- * Java animated GIF encoder by Kevin Weiner ( http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm ).
+ * Based on <a href="https://github.com/nbadal/android-gif-encoder/blob/master/GifEncoder.java">Nick Badal's Android port</a> of
+ * <a href="http://www.jappit.com/blog/2008/12/04/j2me-animated-gif-encoder/">Alessandro La Rossa's J2ME port</a> of this pure
+ * Java <a href="http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm">animated GIF encoder by Kevin Weiner</a>.
  * The original has no copyright asserted, so this file continues that tradition and does not assert copyright either.
  */
 public class AnimatedGif implements AnimationWriter, Dithered {
     /**
      * Writes the given Pixmap values in {@code frames}, in order, to an animated GIF at {@code file}. Always writes at
-     * 30 frames per second, so if frames has less than 30 items, this animation will be under a second long.
+     * 30 frames per second, so if frames has less than 30 items, this animation will be under a second-long.
      * @param file the FileHandle to write to; should generally not be internal because it must be writable
      * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
      */
@@ -103,7 +105,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      * which is the default when frames has 2 or more Pixmaps. This does a very quick analysis of the colors in each
      * frame, which is usually good enough, and takes about the same time as analyzing all frames as one PaletteReducer.
      * Using a null palette also means the final image can use more than 256 total colors over the course of the
-     * animation, regardless of fastAnalysis' setting, if there is more than one Pixmap in frames.
+     * animation, regardless of fastAnalysis's setting, if there is more than one Pixmap in frames.
      * @param output the OutputStream to write to; will not be closed by this method
      * @param frames an Array of Pixmap frames that should all be the same size, to be written in order
      * @param fps how many frames (from {@code frames}) to play back per second
@@ -338,7 +340,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             getImagePixels(); // convert to correct format if necessary
             analyzePixels(); // build color table & map pixels
             if (firstFrame) {
-                writeLSD(); // logical screen descriptior
+                writeLSD(); // logical screen descriptor
                 writePalette(); // global color table
                 if (repeat >= 0) {
                     // use NS app extension to indicate reps
