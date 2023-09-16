@@ -17,10 +17,12 @@ import java.io.IOException;
  * landscape painting, a remastered Mona Lisa, and a public domain baroque painting) as a still GIF, PNG8, and
  * full-color PNG.
  * <br>
- * Analyzed all 84 images in 59690 ms
+ * Analyzed all 84 images in   59690 ms
+ * (later, with more and different images/dithers)
+ * Analyzed all 120 images in 103791 ms
  */
 public class StillImageDemo extends ApplicationAdapter {
-    private long startTime, total = 0;
+	private long total = 0;
 	public Dithered.DitherAlgorithm[] ALGORITHMS =
 //			new Dithered.DitherAlgorithm[]{
 //					Dithered.DitherAlgorithm.DODGY
@@ -29,7 +31,7 @@ public class StillImageDemo extends ApplicationAdapter {
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
-        startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 
         Gdx.files.local("images").mkdirs();
 //        for(String name : new String[]{"Mona_Lisa.jpg"}) {

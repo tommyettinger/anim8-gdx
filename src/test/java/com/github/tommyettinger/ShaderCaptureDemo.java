@@ -23,14 +23,16 @@ import com.github.tommyettinger.anim8.*;
  * Credit for the shader adaptation goes to angelickite , a very helpful user on the libGDX Discord.
  * The Discord can be found at <a href="https://discord.gg/crTrDEK">this link</a>.
  * <br>
- * APNG and Gif:
+ * APNG and Gif, with ??? dither algorithms (older):
  * Finished writing in 262250 ms.
+ * Everything, with 12 dither algorithms:
+ * Finished writing in 450833 ms.
  */
 public class ShaderCaptureDemo extends ApplicationAdapter {
 
     private SpriteBatch batch;
     private Texture pixel;
-    private ShaderProgram shader, shader2;
+    private ShaderProgram shader;
 
     private long startTime;
     private float seed;
@@ -206,7 +208,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             Gdx.app.exit();
             return;
         }
-        shader2 = new ShaderProgram(vertex2, fragment2);
+        ShaderProgram shader2 = new ShaderProgram(vertex2, fragment2);
         if (!shader2.isCompiled()) {
             Gdx.app.error("Shader", "error compiling shader2:\n" + shader2.getLog());
             Gdx.app.exit();
@@ -242,8 +244,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         Gdx.files.local("images/gif/animated/").mkdirs();
         Gdx.files.local("images/apng/animated/").mkdirs();
         Gdx.files.local("images/png/animated/").mkdirs();
-//		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-//		renderPNG8(nms, pals, sds, shs);
+		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+		renderPNG8(nms, pals, sds, shs);
         renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
 //Analyzing all frames as a batch takes    31025 ms.
@@ -374,11 +376,9 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             String prefix;
             if (palettes[n] == null) {
-//                pal.analyze(pixmaps, 75, 256);
                 gif.palette = null;
                 if(!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
-//                prefix = "images/gif/animatedHue/AnimatedGif-";
-                prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+                prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             }
             else {
                 pal.exact(palettes[n]);
