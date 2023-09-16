@@ -24,6 +24,7 @@ import com.github.tommyettinger.anim8.*;
 // by September 15, 2023, AnimatedGif had been optimized, so it should perform as it did in earlier versions.
 // the code for this demo was also optimized, to avoid recreating QualityPalette objects.
 // on September 15, 2023, running this (the quality writer demo) took: 1028531 ms.
+// on September 15, 2023, running the standard writer demo took:        979426 ms.
 // on September 15, 2023, running the "fast" writer demo took:          976948 ms.
 public class QualityVideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
@@ -107,7 +108,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/png/animated/PNG8-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
-                png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
+                png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.png"), pixmaps, 20);
             }
         }
 

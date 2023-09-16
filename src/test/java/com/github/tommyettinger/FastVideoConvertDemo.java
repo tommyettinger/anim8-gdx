@@ -102,7 +102,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/png/animated/PNG8-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
-                png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
+                png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.png"), pixmaps, 20);
             }
         }
 
@@ -129,7 +129,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
 
@@ -155,7 +155,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 12);
             }
         }
     }
@@ -178,7 +178,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 12);
             }
         }
     }
@@ -201,7 +201,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
     }
@@ -224,7 +224,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
     }
@@ -249,7 +249,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
             }
         }
     }
@@ -264,7 +264,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("Anim8-GDX Video Convert Writer");
+        configuration.setTitle("Anim8-GDX FastPalette Video Convert Writer");
         configuration.setWindowedMode(256, 256);
         configuration.useVsync(true);
         configuration.setIdleFPS(20);
