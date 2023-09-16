@@ -7,11 +7,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.github.tommyettinger.anim8.AnimatedPNG;
-import com.github.tommyettinger.anim8.Dithered;
-import com.github.tommyettinger.anim8.FastGif;
-import com.github.tommyettinger.anim8.PNG8;
-import com.github.tommyettinger.anim8.FastPalette;
+import com.github.tommyettinger.anim8.*;
 
 /**
  * This takes two multiple-frame images/videos and dithers both of them in all the ways this can before writing to GIF
@@ -22,27 +18,27 @@ import com.github.tommyettinger.anim8.FastPalette;
  * color solids (both self-made, public domain).
  */
 // on September 14, 2023, running this took 5783939 ms.
+// optimizing took place here.
+// on September 15, 2023, running this took  976948 ms.
 public class FastVideoConvertDemo extends ApplicationAdapter {
-    private long startTime;
-    private static final String name = "market";
     private boolean fastAnalysis = true;
     @Override
     public void create() {
-        startTime = TimeUtils.millis();
+        long startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();
 //		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
 //		renderPNG8();
         String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
-        int[][] palettes = new int[][]{
+        FastPalette[] palettes = new FastPalette[]{
                 null,
-                FastPalette.AURORA,
-                new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF},
-                new int[]{0x00000000,
+                new FastPalette(FastPalette.AURORA),
+                new FastPalette(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
+                new FastPalette(new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
-                        0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF},
-                new int[]{0x00000000,
-                        0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}
+                        0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}),
+                new FastPalette(new int[]{0x00000000,
+                        0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF})
         };
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
@@ -53,7 +49,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
 
         fastAnalysis = false;
         names = new String[]{"-Analyzed"};
-        palettes = new int[][]{null};
+        palettes = new FastPalette[]{null};
 
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
@@ -70,11 +66,13 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
     }
 
     @Override
-    public void render() { 
-        
+    public void render() {
+
     }
 
     public void renderAPNG() {
+        System.out.println("Rendering video APNG");
+        String name = "market";
         Array<Pixmap> pixmaps = new Array<>(90);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
@@ -84,56 +82,27 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         apng.setFlipY(false);
         apng.write(Gdx.files.local("images/apng/animated/AnimatedPNG-" + name + ".png"), pixmaps, 20);
     }
-    
-    public void renderPNG8() {
+
+    public void renderPNG8(String[] names, FastPalette[] palettes) {
+        System.out.println("Rendering video PNG8");
+        String name = "market";
         Array<Pixmap> pixmaps = new Array<>(90);
-        String prefix = "images/png/animated/PNG8-";
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
         PNG8 png8 = new PNG8();
-        png8.setPalette(new FastPalette());
-        png8.palette.analyze(pixmaps, 144, 256);
-        String namePalette = name + "-analyzed";
-        // Haltonic palette
-//        png8.palette = new FastPalette(); namePalette = name + "-Haltonic";
-        //// BW
-//        png8.palette = new FastPalette(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}); namePalette = name + "-BW";
-        //// GB-16 Green
-//        png8.palette = new FastPalette(new int[]{0x00000000, 
-//                0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF, 
-//                0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF});
-//        namePalette = name + "-Green";
         png8.setFlipY(false);
         png8.setCompression(7);
-        for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
-            png8.setDitherAlgorithm(d);
-            png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.png"), pixmaps, 20);
-        }
-    }
-
-    public void renderVideoGif(String[] names, int[][] palettes) {
-        System.out.println("Rendering video GIF");
-        String name = "market";
-        Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
-        for (int i = 1; i <= 90; i++) {
-            pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
-        }
-        FastGif gif = new FastGif();
-        gif.fastAnalysis = fastAnalysis;
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(null);
-            else
-                gif.setPalette(new FastPalette(palettes[i]));
+            png8.setPalette(palettes[i]);
 
-            gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            png8.setFlipY(false);
+            String prefix = "images/png/animated/PNG8-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
-                gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
+                png8.setDitherAlgorithm(d);
+                png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
 
@@ -142,112 +111,126 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
 
     }
 
-    public void renderPixelGif(String[] names, int[][] palettes) {
+    public void renderVideoGif(String[] names, FastPalette[] palettes) {
+        System.out.println("Rendering video GIF");
+        String name = "market";
+        Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
+        for (int i = 1; i <= 90; i++) {
+            pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
+        }
+        AnimatedGif gif = new AnimatedGif();
+        gif.fastAnalysis = fastAnalysis;
+        String namePalette;
+        for (int i = 0; i < names.length; i++) {
+            namePalette = name + names[i];
+            gif.setPalette(palettes[i]);
+
+            gif.setFlipY(false);
+            String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
+            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+                gif.setDitherAlgorithm(d);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
+            }
+        }
+
+        for (Pixmap pm : pixmaps)
+            pm.dispose();
+    }
+
+    public void renderPixelGif(String[] names, FastPalette[] palettes) {
         System.out.println("Rendering tyrant GIF");
         String name = "tyrant";
         Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap.class);
         for (int i = 0; i < 64; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
-        FastGif gif = new FastGif();
+        AnimatedGif gif = new AnimatedGif();
         gif.fastAnalysis = fastAnalysis;
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(null);
-            else
-                gif.setPalette(new FastPalette(palettes[i]));
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
-            String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+            String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
             }
         }
     }
 
-    public void renderTankGif(String[] names, int[][] palettes) {
+    public void renderTankGif(String[] names, FastPalette[] palettes) {
         System.out.println("Rendering pixel tank GIF");
         String name = "tank";
         Array<Pixmap> pixmaps = new Array<>(true, 16, Pixmap.class);
         for (int i = 0; i < 16; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
-        FastGif gif = new FastGif();
+        AnimatedGif gif = new AnimatedGif();
         gif.fastAnalysis = fastAnalysis;
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(null);
-            else
-                gif.setPalette(new FastPalette(palettes[i]));
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 12);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
             }
         }
     }
 
-    public void renderGlobeGif(String[] names, int[][] palettes) {
+    public void renderGlobeGif(String[] names, FastPalette[] palettes) {
         System.out.println("Rendering globe GIF");
         String name = "globe";
         Array<Pixmap> pixmaps = new Array<>(true, 180, Pixmap.class);
         for (int i = 0; i < 180; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
-        FastGif gif = new FastGif();
+        AnimatedGif gif = new AnimatedGif();
         gif.fastAnalysis = fastAnalysis;
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(null);
-            else
-                gif.setPalette(new FastPalette(palettes[i]));
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
     }
 
-    public void renderOklabGif(String[] names, int[][] palettes) {
+    public void renderOklabGif(String[] names, FastPalette[] palettes) {
         System.out.println("Rendering Oklab GIF");
         String name = "oklab";
         Array<Pixmap> pixmaps = new Array<>(true, 120, Pixmap.class);
         for (int i = 0; i < 120; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
-        FastGif gif = new FastGif();
+        AnimatedGif gif = new AnimatedGif();
         gif.fastAnalysis = fastAnalysis;
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(null);
-            else
-                gif.setPalette(new FastPalette(palettes[i]));
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
     }
 
 
-    public void renderSolidsGif(String[] names, int[][] palettes) {
+    public void renderSolidsGif(String[] names, FastPalette[] palettes) {
         System.out.println("Rendering solids GIF");
         String name = "solids";
         Array<Pixmap> pixmaps = new Array<>(true, 256, Pixmap.class);
@@ -255,40 +238,36 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
 //        for(int i : new int[]{0, 63, 64, 65, 127, 128, 129, 190, 191, 192, 255}) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
-        FastGif gif = new FastGif();
+        AnimatedGif gif = new AnimatedGif();
         gif.fastAnalysis = fastAnalysis;
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(null);
-            else
-                gif.setPalette(new FastPalette(palettes[i]));
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-F.gif"), pixmaps, 20);
+                gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
         }
     }
 
-	public static void main(String[] args) {
-		createApplication();
-	}
+    public static void main(String[] args) {
+        createApplication();
+    }
 
-	private static Lwjgl3Application createApplication() {
-		return new Lwjgl3Application(new FastVideoConvertDemo(), getDefaultConfiguration());
-	}
+    private static Lwjgl3Application createApplication() {
+        return new Lwjgl3Application(new FastVideoConvertDemo(), getDefaultConfiguration());
+    }
 
-	private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
-		Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-		configuration.setTitle("Anim8-GDX Video Convert Writer");
-		configuration.setWindowedMode(256, 256);
-		configuration.useVsync(true);
-		configuration.setIdleFPS(20);
-		return configuration;
-	}
-
+    private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
+        Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
+        configuration.setTitle("Anim8-GDX Video Convert Writer");
+        configuration.setWindowedMode(256, 256);
+        configuration.useVsync(true);
+        configuration.setIdleFPS(20);
+        return configuration;
+    }
 }
