@@ -109,18 +109,28 @@ files but do so more quickly.
       - Changing the dither strength may have a small effect on lightness, but the effect
         to expect for PATTERN should be about the same as any other dither. This was different
         before version 0.2.8.
+    - While this should be good for animations, it isn't in a common case: GIFs that get lossy-recompressed look absolutely horrible with this dither, but fine with any error-diffusion dithers.
+      - This uses case shows up most often right now when GIFs are embedded in a Discord message, because Discord does (very reasonably) try to limit bandwidth from heavy GIF files by recompressing them in a lossy way. 
     - Uses Thomas Knoll's Pattern Dither, which is out-of-patent.
     - One of the best options when using large color palettes, and not very good for very small palettes.
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
     - It tends to look very good in still images, and very bad in animations.
     - SCATTER and NEUE are mostly the same as this algorithm, but use blue noise to break up unpleasant patterns.
-      - SCATTER or especially NEUE are usually preferred over this, as error-diffusion dithers go.
+    - WOVEN dither uses a repeating pattern reminiscent of braids or hexagons to break up patterns, but introduces its own; this pattern is about the same as what ROBERTS uses.
+    - WREN dither uses both blue noise and the ROBERTS/WOVEN pattern, so most patterns it would add get broken up.
+    - Any of the dither algorithms based on this will probably look better than this will.
   - BLUE_NOISE
-    - Blue noise, if you haven't heard the term, refers to a kind of sequence of values where low-frequency patterns
-      don't appear at all, but mid- and high-frequency patterns are very common. 2D blue noise is common in graphics
-      code, often as a texture but sometimes as a sequence of points; it is used here because most vertebrate eyes
-      employ a blue-noise distribution for sensory cells, and this makes blue noise appear natural to the human eye.
+    - Blue noise as a concept is a little tricky to explain.
+      - It refers to "noise" in the sense of "signal versus noise," not anything audio-related here.
+      - When noise is considered "white", all frequencies show up equally often, so there are no recognizably similar large-scale patterns (which are caused by low frequencies changing an area very slowly) nor any repeating small-scale patterns (caused by high frequencies).
+          - An example looks like this: ![White Noise Texture](samples/white256.png)
+      - When noise is considered "blue", there are no large-scale patterns that can be picked up by a human or computer, because low frequencies don't make much or any contribution to the noise.
+      - In the case of a texture, a "blue noise texture" has no large splotches of the same color, and is always changing between nearby pixels.
+        - An example looks like this: ![Blue Noise Texture](samples/blue256.png) 
+      - The eyes of many animals (including humans) have light-sensing rod cells distributed in a blue-noise pattern inside the eye.
+        - This means that when our eyes see textures with only a blue noise distribution to artifacts, those artifacts appear more natural than they would otherwise.
+        - Contrast this with seeing textures that have an artifact like, say, a bright ring of pixels appearing every 10 pixels horizontally and every 10 pixels vertically; this would be very noticeable!
     - This is mostly a typical blue-noise dither; it uses a different blue noise texture for each channel.
     - BLUE_NOISE looks good for many animations because the dithered pixels don't move around between frames. This is
       especially true for pixel art animations, where flat areas of one color should really stay that color.
@@ -128,7 +138,7 @@ files but do so more quickly.
       such as [this introduction](https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/).
       - This also uses a triangular-mapped blue noise texture, which means most of its pixels are in the middle of the
         range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
-      - Blue noise is also used normally by SCATTER and NEUE, as well as used strangely by CHAOTIC_NOISE.
+      - Blue noise is also used normally by SCATTER, NEUE, and WREN, as well as used strangely by CHAOTIC_NOISE.
     - This changed in 0.2.12, and handles smooth gradients better now. In version 0.3.5, it changed again to improve
       behavior on small palettes. It changed again in 0.3.8, 0.3.9, 0.3.13, and 0.3.14 to improve the appearance.
     - As of 0.3.14, this acts like GRADIENT_NOISE, has subtle artifacts that are less harsh, where GRADIENT_NOISE has a
@@ -136,13 +146,13 @@ files but do so more quickly.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
       - This is much "harsher" than BLUE_NOISE currently is. 
-    - This is an okay algorithm here for animations, but BLUE_NOISE is much better, followed by NEUE or PATTERN.
+    - This is an okay algorithm here for animations, but BLUE_NOISE is much better, followed by NEUE or WOVEN.
     - This may be somewhat more useful when using many colors than when using just a few.
     - It's rather ugly with small palettes, and really not much better on large palettes.
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
-      error with blue-noise values. 
-    - This used to be the default and can still sometimes be the best here.
+      error with blue-noise values.
+    - This used to be the default, but NEUE, DODGY, WOVEN, and WREN are all similar and generally better.
     - Unlike DIFFUSION, this is somewhat suitable for animations, but fluid shapes look better with BLUE_NOISE or
       GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN and well by NEUE and BLUE_NOISE.
     - You may want to use a lower dither strength with SCATTER if you encounter horizontal line artifacts; 0.75 or 0.5
@@ -150,16 +160,15 @@ files but do so more quickly.
   - NEUE
     - Another hybrid of DIFFUSION and BLUE_NOISE, this has much better behavior on smooth gradients than SCATTER, at the
       price of not producing many flat areas of solid colors (it prefers to dither when possible).
-    - This is the default and often the best of the bunch.
     - The code for NEUE is almost the same as for SCATTER, but where SCATTER *multiplies* the current error by a blue
       noise value (which can mean the blue noise could have no effect if error is 0), NEUE always *adds* in
       triangular-mapped blue noise to each pixel at the same amount.
-    - SCATTER, as well as all other dither algorithms here except BLUE_NOISE and PATTERN, tend to have banding on smooth
+    - SCATTER, as well as many other dither algorithms here, tend to have banding on smooth
       gradients, while NEUE doesn't usually have any banding.
       - Subtle banding sometimes happened even with NEUE on gradients before 0.3.5, but this improved in that release.
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
-    - NEUE is the most likely algorithm to change in new versions, unless another new algorithm is added.
+    - This used to be the default, but the new default WREN handles perceived color quite a bit better.
     - BLUE_NOISE, GRADIENT_NOISE, or ROBERTS will likely look better in pixel art animations, but NEUE can look better
       for still pixel art.
   - ROBERTS
@@ -172,6 +181,7 @@ files but do so more quickly.
       to produce some color combinations via dithering that dithers like GRADIENT_NOISE, which affect all channels with
       the same error, can't produce with small palettes.
     - This is much like GRADIENT_NOISE, but milder, or BLUE_NOISE, but stronger.
+    - You may want to also consider WOVEN or WREN if you like the effect this produces.
     - This changed somewhat in versions 0.3.11, 0.3.13, and 0.3.14. 
   - WOVEN
     - This is an error-diffusion dither, like NEUE or SCATTER, but instead of using blue noise patterns to add error to
@@ -187,18 +197,27 @@ files but do so more quickly.
     - This dither algorithm is almost as good at reproducing colors as WOVEN, and is arguably preferable to it when the
       artifacts would be problematic.
     - It's better than NEUE at most things, but it isn't quite as smooth when the palette matches the image closely.
+    - This is similar to WREN, except that WREN also incorporates the braid-like R2 sequence.
   - LOAF
     - A very simple, intentionally-low-fidelity ordered dither meant primarily for pixel art.
     - This has very obvious grid patterns, effectively repeating a 2x2 pixel area many times over similar color regions.
     - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look
       like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
+  - WREN
+    - A complex mix of error diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those; I saved the best dither algorithm for last.
+    - This preserves hue almost as well as WOVEN, but is better than WOVEN at preserving lightness, and has fewer noticeable artifacts.
+    - This adjusts each channel separately, like how DODGY and WOVEN work but not like the older NEUE or SCATTER.
+    - There are still use cases for the similar DODGY and WOVEN dithers.
+      - DODGY can be noisier, but if even slight repetitive artifacts are an issue, that noise becomes an advantage relative to WREN.
+      - WOVEN typically preserves hue more accurately because the predictable nature of its repetitive artifact happens to align with its error-diffusion, improving perceived color when viewed from a distance.
+    - This is the default and often the best of the bunch.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN and LOAF have obvious square grids.
     - BLUE_NOISE, SCATTER, ane NEUE have varying forms of a spongy blue noise texture.
     - GRADIENT_NOISE has a network of diagonal lines.
-    - ROBERTS and WOVEN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also sometimes
-      look like scales or bubbles.
+    - ROBERTS, WOVEN, and WREN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also
+      sometimes look like scales, bubbles, or braids. WREN shows this artifact less noticeably than the others.
     - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
@@ -289,53 +308,57 @@ Original (full-color):
 
 ![](src/test/resources/Mona_Lisa.jpg)
 
-Neue (default):
+Wren:
 
-![](samples/Mona_Lisa-Gif-Neue-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Wren-DB8.png)
+
+Neue:
+
+![](samples/Mona_Lisa-PNG8-Neue-DB8.png)
 
 Dodgy:
 
-![](samples/Mona_Lisa-Gif-Dodgy-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Dodgy-DB8.png)
 
 Woven:
 
-![](samples/Mona_Lisa-Gif-Woven-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Woven-DB8.png)
 
 Pattern:
 
-![](samples/Mona_Lisa-Gif-Pattern-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Pattern-DB8.png)
 
 Diffusion:
 
-![](samples/Mona_Lisa-Gif-Diffusion-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Diffusion-DB8.png)
 
 Gradient Noise:
 
-![](samples/Mona_Lisa-Gif-GradientNoise-DB8.gif)
+![](samples/Mona_Lisa-PNG8-GradientNoise-DB8.png)
 
 Blue Noise:
 
-![](samples/Mona_Lisa-Gif-BlueNoise-DB8.gif)
+![](samples/Mona_Lisa-PNG8-BlueNoise-DB8.png)
 
 Chaotic Noise:
 
-![](samples/Mona_Lisa-Gif-ChaoticNoise-DB8.gif)
+![](samples/Mona_Lisa-PNG8-ChaoticNoise-DB8.png)
 
 Scatter:
 
-![](samples/Mona_Lisa-Gif-Scatter-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Scatter-DB8.png)
 
 Roberts:
 
-![](samples/Mona_Lisa-Gif-Roberts-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Roberts-DB8.png)
 
 Loaf:
 
-![](samples/Mona_Lisa-Gif-Loaf-DB8.gif)
+![](samples/Mona_Lisa-PNG8-Loaf-DB8.png)
 
 None (no dither):
 
-![](samples/Mona_Lisa-Gif-None-DB8.gif)
+![](samples/Mona_Lisa-PNG8-None-DB8.png)
 
 This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned DB8
 palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it.
