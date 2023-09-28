@@ -227,7 +227,12 @@ public interface Dithered {
          * aren't especially common, and working around this is as easy as calling
          * {@link PaletteReducer#setDitherStrength(float)} (or its counterpart for a Gif or PNG class).
          */
-        WREN("Wren");
+        WREN("Wren"),
+        /**
+         * Blue noise used to alter Burkes error diffusion while also using the R2 sequence. Very good, but has a slight
+         * "dusty" look if the palette isn't well-matched.
+         */
+        BLUBBER("Blubber");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.

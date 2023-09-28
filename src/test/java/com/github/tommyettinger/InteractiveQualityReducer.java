@@ -31,7 +31,8 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
     private PaletteReducer reducer;
     private int[] palette, altPalette, eightPalette;
     private Pixmap p0, p;
-    private int index = 1, algorithmCount = Dithered.DitherAlgorithm.ALL.length;
+    private int index = 1;
+    private final int algorithmCount = Dithered.DitherAlgorithm.ALL.length;
     private float strength = 1f;
 
     public static void main(String[] arg) {
