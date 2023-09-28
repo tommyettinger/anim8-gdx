@@ -23,7 +23,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * Meant to store large constant arrays as Strings that get converted to byte arrays, for internal use.
  * Right now it stores a large palette preload code, {@link #ENCODED_AURORA}, as well as the blue noise data used by
- * BLUE_NOISE, CHAOTIC_NOISE, NEUE, and SCATTER dithers.
+ * BLUE_NOISE, CHAOTIC_NOISE, NEUE, SCATTER, WREN, and BLUBBER dithers.
  */
 class ConstantData {
 

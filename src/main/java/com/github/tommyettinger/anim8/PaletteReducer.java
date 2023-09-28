@@ -900,10 +900,12 @@ public class PaletteReducer {
      * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceMatch(int r1, int g1, int b1, int r2, int g2, int b2) {
-        int rf = (r1 - r2);
-        int gf = (g1 - g2);
-        int bf = (b1 - b2);
-        return (rf * rf + gf * gf + bf * bf);
+        final int idx1 = ((r1 << 7) & 0x7C00) | ((g1 << 2) & 0x3E0) | ((b1 >>> 3));
+        final int idx2 = ((r2 << 7) & 0x7C00) | ((g2 << 2) & 0x3E0) | ((b2 >>> 3));
+        final double dL = (OKLAB[0][idx1] - OKLAB[0][idx2]) * 512.0;
+        final double dA = (OKLAB[1][idx1] - OKLAB[1][idx2]) * 512.0;
+        final double dB = (OKLAB[2][idx1] - OKLAB[2][idx2]) * 512.0;
+        return (dL * dL + dA * dA + dB * dB);
 
 //        double rf = (EXACT_LOOKUP[r1] - EXACT_LOOKUP[r2]) * 1.55;// rf *= rf;// * 0.875;
 //        double gf = (EXACT_LOOKUP[g1] - EXACT_LOOKUP[g2]) * 2.05;// gf *= gf;// * 0.75;
@@ -934,10 +936,17 @@ public class PaletteReducer {
      * @return the squared Euclidean distance between colors 1 and 2
      */
     public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
-        int rf = (r1 - r2);
-        int gf = (g1 - g2);
-        int bf = (b1 - b2);
-        return (rf * rf + gf * gf + bf * bf);
+        final int idx1 = ((r1 << 7) & 0x7C00) | ((g1 << 2) & 0x3E0) | ((b1 >>> 3));
+        final int idx2 = ((r2 << 7) & 0x7C00) | ((g2 << 2) & 0x3E0) | ((b2 >>> 3));
+        final double dL = (OKLAB[0][idx1] - OKLAB[0][idx2]) * 512.0;
+        final double dA = (OKLAB[1][idx1] - OKLAB[1][idx2]) * 512.0;
+        final double dB = (OKLAB[2][idx1] - OKLAB[2][idx2]) * 512.0;
+        return (dL * dL + dA * dA + dB * dB);
+
+//        int rf = (r1 - r2);
+//        int gf = (g1 - g2);
+//        int bf = (b1 - b2);
+//        return (rf * rf + gf * gf + bf * bf);
 
 //        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);
 //        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);
@@ -968,10 +977,17 @@ public class PaletteReducer {
      * @return the squared Euclidean distance, between colors 1 and 2
      */
     public double differenceHW(int r1, int g1, int b1, int r2, int g2, int b2) {
-        int rf = (r1 - r2);
-        int gf = (g1 - g2);
-        int bf = (b1 - b2);
-        return (rf * rf + gf * gf + bf * bf);
+        final int idx1 = ((r1 << 7) & 0x7C00) | ((g1 << 2) & 0x3E0) | ((b1 >>> 3));
+        final int idx2 = ((r2 << 7) & 0x7C00) | ((g2 << 2) & 0x3E0) | ((b2 >>> 3));
+        final double dL = (OKLAB[0][idx1] - OKLAB[0][idx2]) * 512.0;
+        final double dA = (OKLAB[1][idx1] - OKLAB[1][idx2]) * 512.0;
+        final double dB = (OKLAB[2][idx1] - OKLAB[2][idx2]) * 512.0;
+        return (dL * dL + dA * dA + dB * dB);
+
+//        int rf = (r1 - r2);
+//        int gf = (g1 - g2);
+//        int bf = (b1 - b2);
+//        return (rf * rf + gf * gf + bf * bf);
 
 //        double rf = (ANALYTIC_LOOKUP[r1] - ANALYTIC_LOOKUP[r2]);
 //        double gf = (ANALYTIC_LOOKUP[g1] - ANALYTIC_LOOKUP[g2]);

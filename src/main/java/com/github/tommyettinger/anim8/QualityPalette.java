@@ -21,13 +21,7 @@ package com.github.tommyettinger.anim8;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.*;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Random;
+import com.badlogic.gdx.utils.Array;
 
 import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
 
@@ -422,9 +416,9 @@ public class QualityPalette extends PaletteReducer {
         float A2 = 1.9779984951f * l - 2.4285922050f * m + 0.4505937099f * s;
         float B2 = 0.0259040371f * l + 0.7827717662f * m - 0.8086757660f * s;
 
-        float L = (L1 - L2) * 512f;
-        float A = (A1 - A2) * 512f;
-        float B = (B1 - B2) * 512f;
+        double L = (L1 - L2) * 512.0;
+        double A = (A1 - A2) * 512.0;
+        double B = (B1 - B2) * 512.0;
 
         return (L * L + A * A + B * B);
     }
