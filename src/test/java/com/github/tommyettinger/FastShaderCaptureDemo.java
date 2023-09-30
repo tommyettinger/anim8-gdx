@@ -379,9 +379,9 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
             if (palettes[n] == null) {
 //                pal.analyze(pixmaps, 75, 256);
                 gif.palette = null;
-                if(!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
+                if(!(gif.setFastAnalysis(!gif.isFastAnalysis()))) --n;
 //                prefix = "images/gif/animatedHue/AnimatedGif-";
-                prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+                prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.isFastAnalysis() ? "Fast" : "Slow")+"/AnimatedGif-";
             }
             else {
                 pal.exact(palettes[n]);

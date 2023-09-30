@@ -176,7 +176,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     protected int seq = 0;
 
-    private boolean clearPalette;
+    protected boolean clearPalette;
 
     /**
      * If true (the default) and {@link #palette} is null, this uses a lower-quality but much-faster algorithm to
@@ -1509,6 +1509,21 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         for (int i = 0; i < s.length(); i++) {
             out.write((byte) s.charAt(i));
         }
+    }
+
+    /**
+     * If true (the default) and {@link #palette} is null, this uses a lower-quality but much-faster algorithm to
+     * analyze the color palette in each frame; if false and palette is null, then this uses the normal algorithm for
+     * still images on each frame separately. The case when this is false can be 4x to 5x slower than the case when it
+     * is true, but it can produce higher-quality animations. This is ignored for single-frame GIFs, and the still-image
+     * algorithm is always used there when palette is null.
+     */
+    public boolean isFastAnalysis() {
+        return fastAnalysis;
+    }
+
+    public void setFastAnalysis(boolean fastAnalysis) {
+        this.fastAnalysis = fastAnalysis;
     }
 }
 
