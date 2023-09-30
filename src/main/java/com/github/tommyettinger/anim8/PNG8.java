@@ -101,15 +101,15 @@ import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
  * @author Nathan Sweet
  * @author Tommy Ettinger (PNG-8 parts only) */
 public class PNG8 implements AnimationWriter, Dithered, Disposable {
-    static private final byte[] SIGNATURE = {(byte)137, 80, 78, 71, 13, 10, 26, 10};
-    static private final int IHDR = 0x49484452, IDAT = 0x49444154, IEND = 0x49454E44,
+    private static final byte[] SIGNATURE = {(byte)137, 80, 78, 71, 13, 10, 26, 10};
+    private static final int IHDR = 0x49484452, IDAT = 0x49444154, IEND = 0x49454E44,
             PLTE = 0x504C5445, TRNS = 0x74524E53,
             acTL = 0x6163544C, fcTL = 0x6663544C, fdAT = 0x66644154;
-    static private final byte COLOR_INDEXED = 3;
-    static private final byte COMPRESSION_DEFLATE = 0;
-    static private final byte INTERLACE_NONE = 0;
-    static private final byte FILTER_NONE = 0;
-//    static private final byte FILTER_PAETH = 4;
+    private static final byte COLOR_INDEXED = 3;
+    private static final byte COMPRESSION_DEFLATE = 0;
+    private static final byte INTERLACE_NONE = 0;
+    private static final byte FILTER_NONE = 0;
+//    private static final byte FILTER_PAETH = 4;
 
     private final ChunkBuffer buffer;
     private final Deflater deflater;
@@ -325,49 +325,63 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         palette.setDitherStrength(ditherStrength);
 
         if(dither) {
-            switch (ditherAlgorithm) {
-                case NONE:
-                    writeSolid(output, pixmap);
-                    break;
-                case GRADIENT_NOISE:
-                    writeGradientDithered(output, pixmap);
-                    break;
-                case ROBERTS:
-                    writeRobertsDithered(output, pixmap);
-                    break;
-                case PATTERN:
-                    writePatternDithered(output, pixmap);
-                    break;
-                case CHAOTIC_NOISE:
-                    writeChaoticNoiseDithered(output, pixmap);
-                    break;
-                case DIFFUSION:
-                    writeDiffusionDithered(output, pixmap);
-                    break;
-                case BLUE_NOISE:
-                    writeBlueNoiseDithered(output, pixmap);
-                    break;
-                case SCATTER:
-                    writeScatterDithered(output, pixmap);
-                    break;
-                case WOVEN:
-                    writeWovenDithered(output, pixmap);
-                    break;
-                case DODGY:
-                    writeDodgyDithered(output, pixmap);
-                    break;
-                case LOAF:
-                    writeLoafDithered(output, pixmap);
-                    break;
-                case NEUE:
-                    writeNeueDithered(output, pixmap);
-                default:
-                case WREN:
-                    writeWrenDithered(output, pixmap);
-            }
+            writeDithered(output, pixmap);
         }
         else writeSolid(output, pixmap);
         if(clearPalette) palette = null;
+    }
+
+    /**
+     * Uses the current {@link #ditherAlgorithm} to select which writing method to use, such as
+     * {@link #writeWrenDithered(OutputStream, Pixmap)} or {@link #writePatternDithered(OutputStream, Pixmap)}.
+     * @param output an OutputStream that will not be closed
+     * @param pixmap a Pixmap to write to the given output stream
+     */
+    public void writeDithered(OutputStream output, Pixmap pixmap) {
+        if(ditherAlgorithm == null) {
+            writeSolid(output, pixmap);
+            return;
+        }
+        switch (ditherAlgorithm) {
+            case NONE:
+                writeSolid(output, pixmap);
+                break;
+            case GRADIENT_NOISE:
+                writeGradientDithered(output, pixmap);
+                break;
+            case ROBERTS:
+                writeRobertsDithered(output, pixmap);
+                break;
+            case PATTERN:
+                writePatternDithered(output, pixmap);
+                break;
+            case CHAOTIC_NOISE:
+                writeChaoticNoiseDithered(output, pixmap);
+                break;
+            case DIFFUSION:
+                writeDiffusionDithered(output, pixmap);
+                break;
+            case BLUE_NOISE:
+                writeBlueNoiseDithered(output, pixmap);
+                break;
+            case SCATTER:
+                writeScatterDithered(output, pixmap);
+                break;
+            case WOVEN:
+                writeWovenDithered(output, pixmap);
+                break;
+            case DODGY:
+                writeDodgyDithered(output, pixmap);
+                break;
+            case LOAF:
+                writeLoafDithered(output, pixmap);
+                break;
+            case NEUE:
+                writeNeueDithered(output, pixmap);
+            default:
+            case WREN:
+                writeWrenDithered(output, pixmap);
+        }
     }
 
     /**
@@ -787,7 +801,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             Gdx.app.error("anim8", e.getMessage());
         }
     }
-    private void writeSolid (OutputStream output, Pixmap pixmap){
+    public void writeSolid (OutputStream output, Pixmap pixmap){
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
 
@@ -891,7 +905,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeGradientDithered(OutputStream output, Pixmap pixmap) {
+    public void writeGradientDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1002,7 +1016,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeRobertsDithered(OutputStream output, Pixmap pixmap) {
+    public void writeRobertsDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1114,7 +1128,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             Gdx.app.error("anim8", e.getMessage());
         }
     }
-    private void writeLoafDithered(OutputStream output, Pixmap pixmap) {
+    public void writeLoafDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1194,7 +1208,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeBlueNoiseDithered(OutputStream output, Pixmap pixmap) {
+    public void writeBlueNoiseDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1308,7 +1322,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeChaoticNoiseDithered(OutputStream output, Pixmap pixmap) {
+    public void writeChaoticNoiseDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1436,7 +1450,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeDiffusionDithered(OutputStream output, Pixmap pixmap) {
+    public void writeDiffusionDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1608,7 +1622,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writePatternDithered(OutputStream output, Pixmap pixmap) {
+    public void writePatternDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1725,7 +1739,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeScatterDithered(OutputStream output, Pixmap pixmap) {
+    public void writeScatterDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -1898,7 +1912,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeNeueDithered(OutputStream output, Pixmap pixmap) {
+    public void writeNeueDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2073,7 +2087,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeDodgyDithered(OutputStream output, Pixmap pixmap) {
+    public void writeDodgyDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2228,7 +2242,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
 
-    private void writeWovenDithered(OutputStream output, Pixmap pixmap) {
+    public void writeWovenDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2400,7 +2414,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
 
-    private void writeWrenDithered(OutputStream output, Pixmap pixmap) {
+    public void writeWrenDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2624,7 +2638,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         if(clearPalette) palette = null;
     }
 
-    private void writeSolid(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeSolid(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2759,6 +2773,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
     @Override
     public void write(OutputStream output, Array<Pixmap> frames, int fps) {
+        if(ditherAlgorithm == null) {
+            writeSolid(output, frames, fps);
+            return;
+        }
         switch (ditherAlgorithm){
             case NONE:
                 writeSolid(output, frames, fps);
@@ -2801,7 +2819,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeGradientDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeGradientDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2943,7 +2961,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeRobertsDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeRobertsDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -3086,7 +3104,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeLoafDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeLoafDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -3198,7 +3216,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeBlueNoiseDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeBlueNoiseDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -3342,7 +3360,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeChaoticNoiseDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeChaoticNoiseDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -3499,7 +3517,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeDiffusionDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeDiffusionDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -3704,7 +3722,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writePatternDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writePatternDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -3853,7 +3871,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeScatterDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeScatterDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -4059,7 +4077,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeNeueDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeNeueDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -4270,7 +4288,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeDodgyDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeDodgyDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -4458,7 +4476,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    private void writeWovenDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeWovenDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -4664,7 +4682,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
 
-    private void writeWrenDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeWrenDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;

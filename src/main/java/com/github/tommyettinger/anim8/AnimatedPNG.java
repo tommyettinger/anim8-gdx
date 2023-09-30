@@ -77,16 +77,16 @@ import java.util.zip.DeflaterOutputStream;
  * @author Tommy Ettinger
  */
 public class AnimatedPNG implements AnimationWriter, Disposable {
-    static private final byte[] SIGNATURE = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};
-    static private final int IHDR = 0x49484452, acTL = 0x6163544C,
+    private static final byte[] SIGNATURE = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};
+    private static final int IHDR = 0x49484452, acTL = 0x6163544C,
             fcTL = 0x6663544C, IDAT = 0x49444154,
             fdAT = 0x66644154, IEND = 0x49454E44;
-    static private final byte COLOR_ARGB = 6;
-    static private final byte COMPRESSION_DEFLATE = 0;
-    static private final byte FILTER_NONE = 0;
-    static private final byte INTERLACE_NONE = 0;
-//    static private final byte FILTER_SUB = 1;
-//    static private final byte FILTER_PAETH = 4;
+    private static final byte COLOR_ARGB = 6;
+    private static final byte COMPRESSION_DEFLATE = 0;
+    private static final byte FILTER_NONE = 0;
+    private static final byte INTERLACE_NONE = 0;
+//    private static final byte FILTER_SUB = 1;
+//    private static final byte FILTER_PAETH = 4;
 
     private final ChunkBuffer buffer;
     private final Deflater deflater;
