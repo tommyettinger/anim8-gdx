@@ -46,7 +46,7 @@ import java.io.OutputStream;
  * or {@link FastPNG} for images with 256 or fewer colors and no animation (libGDX can read in non-animated PNG files,
  * as well as the first frame of animated PNG files). If you have an animation that doesn't look good with dithering or
  * has multiple levels of transparency (GIF only supports one fully transparent color), you can use {@link AnimatedPNG}
- * or {@link FastAPNG} to output a full-color animation. If you have a non-animated image that you want to save in
+ * to output a full-color animation. If you have a non-animated image that you want to save in
  * lossless full-color, you can use {@link FastPNG}. You could use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}
  * instead; the PNG code here is based on it, and although it isn't as fast to write files, they are better-compressed.
  * <br>

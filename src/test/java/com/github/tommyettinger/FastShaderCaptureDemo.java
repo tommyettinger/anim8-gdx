@@ -284,7 +284,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
     }
 
     public void renderAPNG(String[] names, long[] seeds, ShaderProgram[] shaders) {
-        FastAPNG apng = new FastAPNG();
+        AnimatedPNG apng = new AnimatedPNG();
         apng.setCompression(2);
         for (int n = 0; n < names.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);

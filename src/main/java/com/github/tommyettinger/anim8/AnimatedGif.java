@@ -1522,8 +1522,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         return fastAnalysis;
     }
 
-    public void setFastAnalysis(boolean fastAnalysis) {
-        this.fastAnalysis = fastAnalysis;
+    public boolean setFastAnalysis(boolean fastAnalysis) {
+        return this.fastAnalysis = fastAnalysis;
     }
 }
 
