@@ -29,8 +29,6 @@ public class VideoConvertDemo extends ApplicationAdapter {
         long startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();
-//		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
-//		renderPNG8();
         String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
         PaletteReducer[] palettes = new PaletteReducer[]{
                 null,
@@ -42,23 +40,28 @@ public class VideoConvertDemo extends ApplicationAdapter {
                 new PaletteReducer(new int[]{0x00000000,
                         0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF})
         };
-        renderVideoGif(names, palettes);
-        renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
-        renderOklabGif(names, palettes);
-        renderTankGif(names, palettes);
-        renderSolidsGif(names, palettes);
 
-        fastAnalysis = false;
-        names = new String[]{"-Analyzed"};
-        palettes = new PaletteReducer[]{null};
+        renderAPNG();
+        renderPNG8(names, palettes);
 
-        renderVideoGif(names, palettes);
-        renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
-        renderOklabGif(names, palettes);
-        renderTankGif(names, palettes);
-        renderSolidsGif(names, palettes);
+//        renderVideoGif(names, palettes);
+//        renderPixelGif(names, palettes);
+//        renderGlobeGif(names, palettes);
+//        renderOklabGif(names, palettes);
+//        renderTankGif(names, palettes);
+//        renderSolidsGif(names, palettes);
+//
+//        fastAnalysis = false;
+//        names = new String[]{"-Analyzed"};
+//        palettes = new PaletteReducer[]{null};
+//
+//        renderVideoGif(names, palettes);
+//        renderPixelGif(names, palettes);
+//        renderGlobeGif(names, palettes);
+//        renderOklabGif(names, palettes);
+//        renderTankGif(names, palettes);
+//        renderSolidsGif(names, palettes);
+
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
@@ -96,12 +99,11 @@ public class VideoConvertDemo extends ApplicationAdapter {
         png8.setFlipY(false);
         png8.setCompression(7);
         String namePalette;
+        String prefix = "images/png/animated/PNG8-";
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
             png8.setPalette(palettes[i]);
 
-            png8.setFlipY(false);
-            String prefix = "images/png/animated/PNG8-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
                 png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.png"), pixmaps, 20);

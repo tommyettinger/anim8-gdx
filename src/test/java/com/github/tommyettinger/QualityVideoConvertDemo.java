@@ -31,6 +31,8 @@ import com.github.tommyettinger.anim8.*;
 // on September 30, 2023, running the standard writer demo took:       1066379 ms.
 // on September 30, 2023, running the "fast" writer demo took:         1067096 ms.
 // There is currently less than a 1% difference in speed between any of these; that's well within the margin of error.
+// on September 30, 2023, running just the PNG8 and AnimatedPNG code took 303641 ms. PNG8 took almost all of that.
+// on September 30, 2023, running just the PNG8                 code took 182646 ms. This omitted benchmarking analysis.
 public class QualityVideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override
@@ -38,11 +40,11 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         long startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();
-//		renderAPNG(); // comment this out if you aren't using the full-color animated PNGs, because this is slow.
-//		renderPNG8();
-        String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
+        String[] names = new String[]{
+//                "-Analyzed",
+                "-Aurora", "-BW", "-Green", "-DB8"};
         QualityPalette[] palettes = new QualityPalette[]{
-                null,
+//                null,
                 new QualityPalette(QualityPalette.AURORA),
                 new QualityPalette(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
                 new QualityPalette(new int[]{0x00000000,
@@ -51,23 +53,27 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
                 new QualityPalette(new int[]{0x00000000,
                         0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF})
         };
-        renderVideoGif(names, palettes);
-        renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
-        renderOklabGif(names, palettes);
-        renderTankGif(names, palettes);
-        renderSolidsGif(names, palettes);
+//        renderAPNG();
+        renderPNG8(names, palettes);
 
-        fastAnalysis = false;
-        names = new String[]{"-Analyzed"};
-        palettes = new QualityPalette[]{null};
+//        renderVideoGif(names, palettes);
+//        renderPixelGif(names, palettes);
+//        renderGlobeGif(names, palettes);
+//        renderOklabGif(names, palettes);
+//        renderTankGif(names, palettes);
+//        renderSolidsGif(names, palettes);
+//
+//        fastAnalysis = false;
+//        names = new String[]{"-Analyzed"};
+//        palettes = new QualityPalette[]{null};
+//
+//        renderVideoGif(names, palettes);
+//        renderPixelGif(names, palettes);
+//        renderGlobeGif(names, palettes);
+//        renderOklabGif(names, palettes);
+//        renderTankGif(names, palettes);
+//        renderSolidsGif(names, palettes);
 
-        renderVideoGif(names, palettes);
-        renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
-        renderOklabGif(names, palettes);
-        renderTankGif(names, palettes);
-        renderSolidsGif(names, palettes);
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
     }
@@ -105,12 +111,11 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         png8.setFlipY(false);
         png8.setCompression(7);
         String namePalette;
+        String prefix = "images/png/animated/PNG8-";
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
             png8.setPalette(palettes[i]);
 
-            png8.setFlipY(false);
-            String prefix = "images/png/animated/PNG8-";
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
                 png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.png"), pixmaps, 20);
