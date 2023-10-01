@@ -20,6 +20,7 @@ import com.github.tommyettinger.anim8.*;
 // on September 14, 2023, running this took 5783939 ms.
 // optimizing took place here.
 // on September 15, 2023, running this took  976948 ms.
+// on September 30, 2023, running this took 1067096 ms (with WREN added, I think).
 public class FastVideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override

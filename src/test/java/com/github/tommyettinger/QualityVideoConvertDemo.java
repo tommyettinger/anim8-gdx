@@ -26,6 +26,11 @@ import com.github.tommyettinger.anim8.*;
 // on September 15, 2023, running this (the quality writer demo) took: 1028531 ms.
 // on September 15, 2023, running the standard writer demo took:        979426 ms.
 // on September 15, 2023, running the "fast" writer demo took:          976948 ms.
+// WREN dither was added around now, adding another image to generate per palette per sample image.
+// on September 30, 2023, running this (the quality writer demo) took: 1061057 ms.
+// on September 30, 2023, running the standard writer demo took:       1066379 ms.
+// on September 30, 2023, running the "fast" writer demo took:         1067096 ms.
+// There is currently less than a 1% difference in speed between any of these; that's well within the margin of error.
 public class QualityVideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override
