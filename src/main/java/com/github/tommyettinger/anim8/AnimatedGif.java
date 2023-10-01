@@ -1299,6 +1299,134 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 
+    protected void analyzeBlubber() {
+        final int nPix = indexedPixels.length;
+        int color, used, flipped = flipY ? height - 1 : 0, flipDir = flipY ? -1 : 1;
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+        boolean hasTransparent = paletteArray[0] == 0;
+
+        final int w = width;
+        float rdiff, gdiff, bdiff;
+        float er, eg, eb;
+        byte paletteIndex;
+        final float populationBias = palette.populationBias;
+        float partialDitherStrength = (0.4f * ditherStrength * (populationBias * populationBias)),
+                strength = (40f * ditherStrength / (populationBias * populationBias)),
+                blueStrength = (0.15f * ditherStrength / (populationBias * populationBias)),
+                limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5f),
+                r1, g1, b1, r2, g2, b2, r4, g4, b4;
+
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (palette.curErrorRedFloats == null) {
+            curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+            nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+            curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+            nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+            curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+            nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
+        } else {
+            curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+            nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+            curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+            nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+            curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+            nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+            Arrays.fill(nextErrorRed, (byte) 0);
+            Arrays.fill(nextErrorGreen, (byte) 0);
+            Arrays.fill(nextErrorBlue, (byte) 0);
+        }
+
+        for (int by = 0, i = 0; by < height && i < nPix; by++) {
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+            Arrays.fill(nextErrorRed, (byte) 0);
+            Arrays.fill(nextErrorGreen, (byte) 0);
+            Arrays.fill(nextErrorBlue, (byte) 0);
+
+            int y = flipped + flipDir * by;
+            for (int x = 0; x < width && i < nPix; x++) {
+                color = image.getPixel(x, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    indexedPixels[i++] = 0;
+                else {
+                    er = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE  [(x & 63) | (y & 63) << 6] + 0.5f) * blueStrength + ((((x+1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-24f - 0x1.4p-2f) * strength)), -limit), limit) + (curErrorRed[x]);
+                    eg = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_B[(x & 63) | (y & 63) << 6] + 0.5f) * blueStrength + ((((x+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-24f - 0x1.4p-2f) * strength)), -limit), limit) + (curErrorGreen[x]);
+                    eb = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_C[(x & 63) | (y & 63) << 6] + 0.5f) * blueStrength + ((((x+2) * 0xC13FA9A902A6328FL + (y-4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-24f - 0x1.4p-2f) * strength)), -limit), limit) + (curErrorBlue[x]);
+
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    usedEntry[(indexedPixels[i] = paletteIndex =
+                            paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))]) & 255] = true;
+                    used = paletteArray[paletteIndex & 0xFF];
+                    rdiff = ((color>>>24)-    (used>>>24))     * partialDitherStrength;
+                    gdiff = ((color>>>16&255)-(used>>>16&255)) * partialDitherStrength;
+                    bdiff = ((color>>>8&255)- (used>>>8&255))  * partialDitherStrength;
+
+                    r1 = rdiff * 16f / (float)Math.sqrt(2048f + rdiff * rdiff);
+                    g1 = gdiff * 16f / (float)Math.sqrt(2048f + gdiff * gdiff);
+                    b1 = bdiff * 16f / (float)Math.sqrt(2048f + bdiff * bdiff);
+                    r2 = r1 + r1;
+                    g2 = g1 + g1;
+                    b2 = b1 + b1;
+                    r4 = r2 + r2;
+                    g4 = g2 + g2;
+                    b4 = b2 + b2;
+                    if(x < w - 1)
+                    {
+                        curErrorRed[x+1]   += r4;
+                        curErrorGreen[x+1] += g4;
+                        curErrorBlue[x+1]  += b4;
+                        if(x < w - 2)
+                        {
+
+                            curErrorRed[x+2]   += r2;
+                            curErrorGreen[x+2] += g2;
+                            curErrorBlue[x+2]  += b2;
+                        }
+                    }
+                    if(by+1 < height)
+                    {
+                        if(x > 0)
+                        {
+                            nextErrorRed[x-1]   += r2;
+                            nextErrorGreen[x-1] += g2;
+                            nextErrorBlue[x-1]  += b2;
+                            if(x > 1)
+                            {
+                                nextErrorRed[x-2]   += r1;
+                                nextErrorGreen[x-2] += g1;
+                                nextErrorBlue[x-2]  += b1;
+                            }
+                        }
+                        nextErrorRed[x]   += r4;
+                        nextErrorGreen[x] += g4;
+                        nextErrorBlue[x]  += b4;
+                        if(x < w - 1)
+                        {
+                            nextErrorRed[x+1]   += r2;
+                            nextErrorGreen[x+1] += g2;
+                            nextErrorBlue[x+1]  += b2;
+                            if(x < w - 2)
+                            {
+
+                                nextErrorRed[x+2]   += r1;
+                                nextErrorGreen[x+2] += g1;
+                                nextErrorBlue[x+2]  += b1;
+                            }
+                        }
+                    }
+                    i++;
+                }
+            }
+        }
+    }
+
 
     /**
      * Analyzes image colors and creates color map.
@@ -1362,6 +1490,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case NEUE:
                 analyzeNeue();
+                break;
+            case BLUBBER:
+                analyzeBlubber();
                 break;
             default:
             case WREN:
