@@ -24,7 +24,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 
 import java.io.OutputStream;
-import java.util.zip.Deflater;
 
 /**
  * PNG-8 encoder with compression; can write animated and non-animated PNG images in indexed-mode.

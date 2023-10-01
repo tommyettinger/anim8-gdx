@@ -3216,10 +3216,6 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-//        final float w1 = (float) (32.0 * ditherStrength * (populationBias * populationBias)), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-//                strength = (0.2f * ditherStrength / (populationBias * populationBias * populationBias * populationBias)),
-//                limit = 5f + 125f / (float)Math.sqrt(colorCount+1.5),
-//                dmul = 0x1p-8f;
         float partialDitherStrength = (0.4f * ditherStrength * (populationBias * populationBias)),
                 strength = (40f * ditherStrength / (populationBias * populationBias)),
                 blueStrength = (0.15f * ditherStrength / (populationBias * populationBias)),
