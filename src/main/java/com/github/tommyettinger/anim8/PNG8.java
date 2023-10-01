@@ -379,9 +379,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case NEUE:
                 writeNeueDithered(output, pixmap);
                 break;
-            case BLUBBER:
-                writeBlubberDithered(output, pixmap);
-                break;
             default:
             case WREN:
                 writeWrenDithered(output, pixmap);
@@ -2417,7 +2414,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
 
-    public void writeWrenDithered(OutputStream output, Pixmap pixmap) {
+    public void writeWrenOriginalDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2566,7 +2563,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    public void writeBlubberDithered(OutputStream output, Pixmap pixmap) {
+    public void writeWrenDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -2995,9 +2992,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 break;
             case NEUE:
                 writeNeueDithered(output, frames, fps);
-                break;
-            case BLUBBER:
-                writeBlubberDithered(output, frames, fps);
                 break;
             default:
             case WREN:
@@ -4868,7 +4862,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
 
-    public void writeWrenDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeWrenOriginalDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
@@ -5051,7 +5045,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
-    public void writeBlubberDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+    public void writeWrenDithered(OutputStream output, Array<Pixmap> frames, int fps) {
         Pixmap pixmap = frames.first();
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;

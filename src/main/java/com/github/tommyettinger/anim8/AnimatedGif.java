@@ -1201,7 +1201,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 
-    protected void analyzeWren() {
+    protected void analyzeWrenOriginal() {
         final int nPix = indexedPixels.length;
         int color, used, flipped = flipY ? height - 1 : 0, flipDir = flipY ? -1 : 1;
         final int[] paletteArray = palette.paletteArray;
@@ -1299,7 +1299,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 
-    protected void analyzeBlubber() {
+    protected void analyzeWren() {
         final int nPix = indexedPixels.length;
         int color, used, flipped = flipY ? height - 1 : 0, flipDir = flipY ? -1 : 1;
         final int[] paletteArray = palette.paletteArray;
@@ -1490,9 +1490,6 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case NEUE:
                 analyzeNeue();
-                break;
-            case BLUBBER:
-                analyzeBlubber();
                 break;
             default:
             case WREN:

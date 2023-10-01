@@ -167,8 +167,6 @@ public interface Dithered {
          * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
          * Neue preserves both. {@link #DODGY} is a potential successor to NEUE, and acts much like it except that it
          * changes each RGB component separately, using three different blue noise textures.
-         * <br>
-         * This is currently the default dither.
          */
         NEUE("Neue"),
         /**
@@ -202,9 +200,6 @@ public interface Dithered {
          * pixel-art animations, but can be good for some other GIFs in specific cases; when GIFs are recompressed, and
          * they use ordered dithers, the artifacts can worsen, but an error-diffusion dither can move around artifacts
          * in things like videos converted to GIF such that any artifact lasts only one frame.
-         * <br>
-         * This algorithm is similar to NEUE, but generally better. If no serious flaws are found with it, DODGY could
-         * become the default algorithm here.
          */
         DODGY("Dodgy"),
         /**
@@ -218,29 +213,19 @@ public interface Dithered {
          */
         LOAF("Loaf"),
         /**
-         * An error-diffusion dither (like {@link #DIFFUSION}) that uses offset versions of the R2 sequence (like
-         * {@link #WOVEN}) and different blue noise textures (like {@link #DODGY}). This is a very good dither in many
-         * cases, and performs especially well on any-sized mid-to-low-saturation palettes. It tends to be able to
-         * preserve both hue and lightness well without showing repetitive structural artifacts (like WOVEN does). The
-         * main down-side to this is that in some cases, you may need to reduce or slightly increase dither strength
-         * to either avoid horizontal-zig-zag-line artifacts, or to improve hue or lightness fidelity. These cases
-         * aren't especially common, and working around this is as easy as calling
-         * {@link PaletteReducer#setDitherStrength(float)} (or its counterpart for a Gif or PNG class).
-         */
-        WREN("Wren"),
-        /**
-         * Blue noise used to alter Burkes error diffusion while also using the R2 sequence. Very good, but has a slight
-         * "dusty" look if the palette isn't well-matched. Despite looking "dusty," this still tends to match the
-         * main shapes and colors of an input image well, even when dithering with an incredibly unnatural palette. This
-         * is very similar to {@link #WREN}, but uses Burkes instead of Floyd-Steinberg error diffusion (which doesn't
-         * have much effect) and handles the limit applied to changes between pixels differently (which gives a large
-         * improvement to smooth gradients, especially when using small palettes).
+         * An error-diffusion dither (like {@link #DIFFUSION}, but using Burkes instead of Floyd-Steinberg) that uses
+         * offset versions of the R2 sequence (like {@link #WOVEN}) and different blue noise textures (like
+         * {@link #DODGY}). This is a very good dither in many cases, and performs especially well on any-sized
+         * mid-to-low-saturation palettes. It tends to be able to preserve both hue and lightness well without showing
+         * repetitive structural artifacts (like WOVEN does). The main down-side to this is that in some cases, you may
+         * need to reduce or slightly increase dither strength to either avoid horizontal-zig-zag-line artifacts, or to
+         * improve hue or lightness fidelity. These cases aren't especially common, and working around this is as easy
+         * as calling {@link PaletteReducer#setDitherStrength(float)} (or its counterpart for a Gif or PNG class). These
+         * artifacts have gotten less frequent with some changes to the algorithm just after it was introduced.
          * <br>
-         * Wren is currently the default, but because Blubber is so similar (and seems to generally be an incremental
-         * improvement), Blubber may become the default at some point. It could also be another dither, or Wren could be
-         * replaced by Blubber's implementation (they are very similar).
+         * This is currently the default dither.
          */
-        BLUBBER("Blubber");
+        WREN("Wren");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.

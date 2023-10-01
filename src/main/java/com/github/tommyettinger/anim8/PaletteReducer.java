@@ -2488,8 +2488,6 @@ public class PaletteReducer {
                 return reduceLoaf(pixmap);
             case NEUE:
                 return reduceNeue(pixmap);
-            case BLUBBER:
-                return reduceBlubber(pixmap);
             default:
             case WREN:
                 return reduceWren(pixmap);
@@ -3088,7 +3086,7 @@ public class PaletteReducer {
      * @param pixmap
      * @return
      */
-    public Pixmap reduceWren(Pixmap pixmap) {
+    public Pixmap reduceWrenOriginal(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -3186,7 +3184,7 @@ public class PaletteReducer {
         return pixmap;
     }
 
-    public Pixmap reduceBlubber(Pixmap pixmap) {
+    public Pixmap reduceWren(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -3223,7 +3221,6 @@ public class PaletteReducer {
                 r1, g1, b1, r2, g2, b2, r4, g4, b4;
 
         for (int y = 0; y < h; y++) {
-            int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
                 curErrorRed[i] = nextErrorRed[i];
                 curErrorGreen[i] = nextErrorGreen[i];
@@ -3276,7 +3273,7 @@ public class PaletteReducer {
                             curErrorBlue[x+2]  += b2;
                         }
                     }
-                    if(ny < h)
+                    if(y+1 < h)
                     {
                         if(x > 0)
                         {
