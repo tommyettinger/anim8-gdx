@@ -230,7 +230,15 @@ public interface Dithered {
         WREN("Wren"),
         /**
          * Blue noise used to alter Burkes error diffusion while also using the R2 sequence. Very good, but has a slight
-         * "dusty" look if the palette isn't well-matched.
+         * "dusty" look if the palette isn't well-matched. Despite looking "dusty," this still tends to match the
+         * main shapes and colors of an input image well, even when dithering with an incredibly unnatural palette. This
+         * is very similar to {@link #WREN}, but uses Burkes instead of Floyd-Steinberg error diffusion (which doesn't
+         * have much effect) and handles the limit applied to changes between pixels differently (which gives a large
+         * improvement to smooth gradients, especially when using small palettes).
+         * <br>
+         * Wren is currently the default, but because Blubber is so similar (and seems to generally be an incremental
+         * improvement), Blubber may become the default at some point. It could also be another dither, or Wren could be
+         * replaced by Blubber's implementation (they are very similar).
          */
         BLUBBER("Blubber");
 
