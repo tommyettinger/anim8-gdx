@@ -96,6 +96,7 @@ public class FastPNG implements Disposable {
     private final ChunkBuffer buffer;
     private final Deflater deflater;
     private ByteArray curLineBytes;
+    private boolean flipY = true;
 
     /**
      * Creates an FastPNG writer with an initial buffer size of 1024. The buffer can resize later if needed.
@@ -116,11 +117,10 @@ public class FastPNG implements Disposable {
     }
 
     /**
-     * A no-op; this class never flips the image, regardless of the setting. This method
-     * is here for API compatibility with PixmapIO.PNG, and also for possible future changes
-     * if flipping becomes viable.
+     * If true, the resulting PNG is flipped vertically. Default is true.
      */
     public void setFlipY(boolean flipY) {
+        this.flipY = flipY;
     }
 
     /**
@@ -169,9 +169,6 @@ public class FastPNG implements Disposable {
     public void write(OutputStream output, Pixmap pixmap){
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         DataOutputStream dataOutput = new DataOutputStream(output);
-        boolean hasAlpha = pixmap.getFormat().equals(Pixmap.Format.RGBA8888);
-        // This is GWT-incompatible, which is fine because DeflaterOutputStream is already.
-        ByteBuffer pixels = pixmap.getPixels();
         try {
             dataOutput.write(SIGNATURE);
 
@@ -188,7 +185,8 @@ public class FastPNG implements Disposable {
             buffer.writeInt(IDAT);
             deflater.reset();
 
-            int lineLen = pixmap.getWidth() * 4;
+            final int width = pixmap.getWidth(), height = pixmap.getHeight();
+            int lineLen = width * 4;
             byte[] curLine;
             if (curLineBytes == null) {
                 curLine = (curLineBytes = new ByteArray(lineLen)).items;
@@ -196,29 +194,20 @@ public class FastPNG implements Disposable {
                 curLine = curLineBytes.ensureCapacity(lineLen);
             }
 
-            final int width = pixmap.getWidth(), height = pixmap.getHeight();
-            if(hasAlpha) {
-                for (int y = 0; y < height; y++) {
-                    pixels.get(curLine, 0, lineLen);
-////NONE
-                    deflaterOutput.write(FILTER_NONE);
-                    deflaterOutput.write(curLine, 0, lineLen);
-//// end of filtering
+            for (int y = 0; y < height; y++) {
+                int py = flipY ? (height - y - 1) : y;
+                for (int px = 0, x = 0; px < width; px++) {
+                    int pixel = pixmap.getPixel(px, py);
+                    curLine[x++] = (byte) ((pixel >>> 24) & 0xff);
+                    curLine[x++] = (byte) ((pixel >>> 16) & 0xff);
+                    curLine[x++] = (byte) ((pixel >>> 8) & 0xff);
+                    curLine[x++] = (byte) (pixel & 0xff);
                 }
-            }
-            else {
-                for (int y = 0; y < height; y++) {
-                    for (int px = 0, x = 0; px < width; px++) {
-                        curLine[x++] = pixels.get();
-                        curLine[x++] = pixels.get();
-                        curLine[x++] = pixels.get();
-                        curLine[x++] = -1;
-
-                    }
-////NONE
-                    deflaterOutput.write(FILTER_NONE);
-                    deflaterOutput.write(curLine, 0, lineLen);
-                }
+////NONE filtering
+                deflaterOutput.write(FILTER_NONE);
+                deflaterOutput.write(curLine, 0, lineLen);
+//// End of filtering code
+//
             }
             deflaterOutput.finish();
             buffer.endChunk(dataOutput);
@@ -229,8 +218,6 @@ public class FastPNG implements Disposable {
             output.flush();
         } catch (IOException e) {
             Gdx.app.error("anim8", e.getMessage());
-        } finally {
-            pixels.rewind();
         }
     }
 
