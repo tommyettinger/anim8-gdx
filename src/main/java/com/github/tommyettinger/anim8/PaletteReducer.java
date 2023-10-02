@@ -18,6 +18,7 @@
 
 package com.github.tommyettinger.anim8;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -1033,6 +1034,7 @@ public class PaletteReducer {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
+        long startTime = System.currentTimeMillis();
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, limit), rgbaPalette.length);
@@ -1065,6 +1067,7 @@ public class PaletteReducer {
                 }
             }
         }
+        Gdx.app.debug("exact", "Exact on " + colorCount + " colors took " + (System.currentTimeMillis() - startTime) + " ms.");
    }
 
     /**
@@ -1088,10 +1091,12 @@ public class PaletteReducer {
             populationBias = (float) Math.exp(-1.125 / 256.0);
             return;
         }
+        long startTime = System.currentTimeMillis();
         colorCount = Math.min(256, palette.length);
         System.arraycopy(palette, 0,  paletteArray, 0, colorCount);
         System.arraycopy(preload, 0,  paletteMapping, 0, 0x8000);
         populationBias = (float) Math.exp(-1.375/colorCount);
+        Gdx.app.debug("known", "Known palette took " + (System.currentTimeMillis() - startTime) + " ms.");
     }
 
     /**
@@ -2116,6 +2121,7 @@ public class PaletteReducer {
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
+        long startTime = System.currentTimeMillis();
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
@@ -2201,6 +2207,7 @@ public class PaletteReducer {
                 }
             }
         }
+        Gdx.app.debug("analyze", "Analysis took " + (System.currentTimeMillis() - startTime) + " ms.");
     }
 
     /**

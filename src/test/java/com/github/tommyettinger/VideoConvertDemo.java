@@ -1,5 +1,6 @@
 package com.github.tommyettinger;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -22,26 +23,35 @@ import com.github.tommyettinger.anim8.*;
 // optimizing took place here.
 // on September 15, 2023, running this took  979426 ms.
 // on September 15, 2023, running this took 1066379 ms (with WREN added).
+// on September 30, 2023, running just the PNG8 and AnimatedPNG code took 222271 ms. PNG8 took almost all of that.
+// on September 30, 2023, running just the PNG8                 code took 197968 ms. This omitted benchmarking analysis.
+
+// Just checking Analyzed, Aurora, and DB8 on PNG8 only: 122927 ms.
 public class VideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override
     public void create() {
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         long startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();
-        String[] names = new String[]{"-Analyzed", "-Aurora", "-BW", "-Green", "-DB8"};
+        String[] names = new String[]{
+                "-Analyzed",
+                "-Aurora",
+//                "-BW", "-Green",
+                "-DB8"};
         PaletteReducer[] palettes = new PaletteReducer[]{
                 null,
-                new PaletteReducer(PaletteReducer.AURORA),
-                new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
-                new PaletteReducer(new int[]{0x00000000,
-                        0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
-                        0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}),
+                new PaletteReducer(),
+//                new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
+//                new PaletteReducer(new int[]{0x00000000,
+//                        0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
+//                        0x73AA69FF, 0x88C070FF, 0x9ECE88FF, 0xB4DCA0FF, 0xCAEAB8FF, 0xE0F8D0FF, 0xEFFBE7FF, 0xFFFFFFFF}),
                 new PaletteReducer(new int[]{0x00000000,
                         0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF})
         };
 
-        renderAPNG();
+//        renderAPNG();
         renderPNG8(names, palettes);
 
 //        renderVideoGif(names, palettes);
@@ -102,11 +112,16 @@ public class VideoConvertDemo extends ApplicationAdapter {
         String prefix = "images/png/animated/PNG8-";
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            png8.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                png8.setPalette(new PaletteReducer(pixmaps));
+            else
+                png8.setPalette(palettes[i]);
 
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+                long ditherTime = System.currentTimeMillis();
                 png8.setDitherAlgorithm(d);
                 png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-S.png"), pixmaps, 20);
+                Gdx.app.debug("dither", d + " took " + (System.currentTimeMillis() - ditherTime) + " ms.");
             }
         }
 

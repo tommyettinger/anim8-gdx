@@ -45,7 +45,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
                 "-Aurora", "-BW", "-Green", "-DB8"};
         QualityPalette[] palettes = new QualityPalette[]{
 //                null,
-                new QualityPalette(QualityPalette.AURORA),
+                new QualityPalette(),
                 new QualityPalette(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
                 new QualityPalette(new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,
