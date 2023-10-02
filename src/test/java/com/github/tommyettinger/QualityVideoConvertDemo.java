@@ -41,10 +41,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
         Gdx.files.local("images").mkdirs();
         String[] names = new String[]{
-//                "-Analyzed",
+                "-Analyzed",
                 "-Aurora", "-BW", "-Green", "-DB8"};
         QualityPalette[] palettes = new QualityPalette[]{
-//                null,
+                null,
                 new QualityPalette(),
                 new QualityPalette(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
                 new QualityPalette(new int[]{0x00000000,
@@ -54,25 +54,25 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
                         0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF})
         };
 //        renderAPNG();
-        renderPNG8(names, palettes);
+//        renderPNG8(names, palettes);
 
-//        renderVideoGif(names, palettes);
-//        renderPixelGif(names, palettes);
-//        renderGlobeGif(names, palettes);
-//        renderOklabGif(names, palettes);
-//        renderTankGif(names, palettes);
-//        renderSolidsGif(names, palettes);
-//
-//        fastAnalysis = false;
-//        names = new String[]{"-Analyzed"};
-//        palettes = new QualityPalette[]{null};
-//
-//        renderVideoGif(names, palettes);
-//        renderPixelGif(names, palettes);
-//        renderGlobeGif(names, palettes);
-//        renderOklabGif(names, palettes);
-//        renderTankGif(names, palettes);
-//        renderSolidsGif(names, palettes);
+        renderVideoGif(names, palettes);
+        renderPixelGif(names, palettes);
+        renderGlobeGif(names, palettes);
+        renderOklabGif(names, palettes);
+        renderTankGif(names, palettes);
+        renderSolidsGif(names, palettes);
+
+        fastAnalysis = false;
+        names = new String[]{"-Analyzed"};
+        palettes = new QualityPalette[]{null};
+
+        renderVideoGif(names, palettes);
+        renderPixelGif(names, palettes);
+        renderGlobeGif(names, palettes);
+        renderOklabGif(names, palettes);
+        renderTankGif(names, palettes);
+        renderSolidsGif(names, palettes);
 
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
@@ -114,7 +114,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         String prefix = "images/png/animated/PNG8-";
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            png8.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                png8.setPalette(new QualityPalette(pixmaps));
+            else
+                png8.setPalette(palettes[i]);
 
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
@@ -139,7 +142,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            gif.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                gif.setPalette(new QualityPalette(pixmaps));
+            else
+                gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
@@ -165,7 +171,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            gif.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                gif.setPalette(new QualityPalette(pixmaps));
+            else
+                gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
@@ -188,7 +197,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            gif.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                gif.setPalette(new QualityPalette(pixmaps));
+            else
+                gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
@@ -211,7 +223,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            gif.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                gif.setPalette(new QualityPalette(pixmaps));
+            else
+                gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
@@ -234,7 +249,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            gif.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                gif.setPalette(new QualityPalette(pixmaps));
+            else
+                gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
@@ -259,7 +277,10 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            gif.setPalette(palettes[i]);
+            if(palettes[i] == null)
+                gif.setPalette(new QualityPalette(pixmaps));
+            else
+                gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
