@@ -1,5 +1,6 @@
 package com.github.tommyettinger;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -33,10 +34,12 @@ import com.github.tommyettinger.anim8.*;
 // There is currently less than a 1% difference in speed between any of these; that's well within the margin of error.
 // on September 30, 2023, running just the PNG8 and AnimatedPNG code took 303641 ms. PNG8 took almost all of that.
 // on September 30, 2023, running just the PNG8                 code took 182646 ms. This omitted benchmarking analysis.
+// on October 1, 2023, running this took     726596 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class QualityVideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override
     public void create() {
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         long startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();

@@ -1,5 +1,6 @@
 package com.github.tommyettinger;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -21,10 +22,13 @@ import com.github.tommyettinger.anim8.*;
 // optimizing took place here.
 // on September 15, 2023, running this took  976948 ms.
 // on September 30, 2023, running this took 1067096 ms (with WREN added, I think).
+
+// on October 1, 2023, running this took     724021 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class FastVideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override
     public void create() {
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         long startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();

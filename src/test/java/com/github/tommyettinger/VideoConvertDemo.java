@@ -27,6 +27,7 @@ import com.github.tommyettinger.anim8.*;
 // on September 30, 2023, running just the PNG8                 code took 197968 ms. This omitted benchmarking analysis.
 
 // Just checking Analyzed, Aurora, and DB8 on PNG8 only: 122927 ms.
+// on October 1, 2023, running this took     748577 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class VideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override
