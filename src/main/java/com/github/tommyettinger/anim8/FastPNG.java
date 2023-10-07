@@ -28,7 +28,6 @@ import com.badlogic.gdx.utils.StreamUtils;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
@@ -49,12 +48,11 @@ import java.util.zip.DeflaterOutputStream;
  * <a href="https://github.com/shssoichiro/oxipng">oxipng</a> or
  * <a href="http://www.advsys.net/ken/utils.htm">PNGOUT</a> are good choices.
  * <br>
- * This class has been optimized at the expense of some features. It reads bytes from a
- * Pixmap's {@link Pixmap#getPixels()} buffer directly, and if the Pixmap uses RGBA8888
- * format, it can copy whole rows at a time into the output PNG. If the Pixmap doesn't
- * use RGBA8888 format, this isn't as fast and still produces RGBA8888 PNGs. This class
- * <em>does not support {@link #setFlipY(boolean)}</em>. The method can be called, but
- * it doesn't do anything. This is a consequence of how bytes are read in.
+ * This class is only really different from PixmapIO's version in how it uses a lower
+ * compression level by default, and how it uses "NONE filtering" instead of
+ * "PAETH filtering", which speeds up some PNG writing. These may result in worse
+ * compression ratios, but you can optimize a PNG more thoroughly with a dedicated tool
+ * than this library could easily.
  * <br>
  * <pre>
  * Copyright (c) 2007 Matthias Mann - www.matthiasmann.de

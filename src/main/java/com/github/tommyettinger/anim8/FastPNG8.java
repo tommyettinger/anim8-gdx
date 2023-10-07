@@ -32,8 +32,9 @@ import java.io.OutputStream;
  * reused to encode multiple PNGs with minimal allocation.
  * <br>
  * You can configure the target palette and how this can dither colors via the {@link #palette} field, which is a
- * {@link PaletteReducer} object that defaults to null and can be reused. If you assign a PaletteReducer to palette, the
- * methods {@link PaletteReducer#exact(Color[])} or {@link PaletteReducer#analyze(Pixmap)} can be used to make the
+ * {@link PaletteReducer} object (almost always a {@link FastPalette}) that defaults to null and can be reused. If you
+ * assign a PaletteReducer to palette, the methods {@link PaletteReducer#exact(Color[])} or
+ * {@link PaletteReducer#analyze(Pixmap)} can be used to make the
  * target palette match a specific set of colors or the colors in an existing image. If palette is null, this will
  * compute a palette for each PNG that closely fits its set of given animation frames. If the palette isn't an exact
  * match for the colors used in an animation (indexed mode has at most 256 colors), this will dither pixels so that from

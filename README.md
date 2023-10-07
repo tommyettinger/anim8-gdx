@@ -30,7 +30,7 @@ public void writeGif() {
 // match. The other file-writing classes don't do this; PNG8 doesn't currently support a palette per-frame,
 // while AnimatedPNG doesn't restrict colors to a palette. See Dithering Algorithms below for visual things
 // to be aware of and choices you can make.
-// You can also use FastGif in place of AnimatedGif if you don't target GWT; it may be a little faster.
+// You can also use FastGif in place of AnimatedGif; it may be a little faster, but might not have great color quality.
     AnimatedGif gif = new AnimatedGif();
 // you can write to a FileHandle or an OutputStream; here, the file will be written in the current directory.
 // here, pixmaps is usually an Array of Pixmap for any of the animated image types.
@@ -40,10 +40,9 @@ public void writeGif() {
 ```
 
 The above code uses AnimatedGif, but could also use AnimatedPNG or PNG8 to write to an animated PNG (with full-color or
-palette-based color, respectively). The FastGif, FastAPNG, and FastPNG8 options are also out there if you don't target
-GWT, and they tend to be a little faster to run but produce larger files. There's also FastPNG, which is a replacement
-for PixmapIO.PNG, and does tend to be faster than it as well. **None of the "Fast" image writers support flipping an
-image vertically**, but all the non-"Fast" writers do support this; this may affect your choice.
+palette-based color, respectively). The FastGif, and FastPNG8 options are also out there, and they tend to be a little
+faster to run but produce larger files. There's also FastPNG, which is a replacement for PixmapIO.PNG, and does tend to
+be faster than it as well.
 
 If you are writing an image with a palette, such as a GIF or an indexed-mode PNG (called PNG8 here), the palette is
 limited to using at most 255 opaque colors, plus one fully-transparent color. To adequately reduce an image to a smaller
@@ -69,7 +68,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.4.1"
+  api "com.github.tommyettinger:anim8-gdx:0.4.2"
 }
 ```
 
@@ -78,9 +77,9 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.4.1:sources"`. The PNG-related code isn't available on GWT
+`implementation "com.github.tommyettinger:anim8-gdx:0.4.2:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work,
-as should QualityPalette. None of the "Fast" classes will work on GWT.
+as should QualityPalette. The classes `FastGif` and `FastPalette` should work on GWT, but no other "Fast" classes will.
 The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
 <inherits name="com.github.tommyettinger.anim8" />
@@ -89,8 +88,7 @@ The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependen
 # Dithering Algorithms
 You have a choice between several dithering algorithms if you write to GIF or PNG8; you can also avoid choosing one
 entirely by using AnimatedPNG (it can use full color) or libGDX's PixmapIO.PNG (which isn't animated and has a
-slightly different API). You could also use one of their alternatives, FastAPNG or FastPNG, which tend to write larger
-files but do so more quickly.
+slightly different API). You could also use FastPNG, which tend to write larger files but do so more quickly.
 
   - NONE
     - No dither. Solid blocks of color only. Often looks bad unless the original image had few colors.
@@ -308,7 +306,7 @@ Original (full-color):
 
 ![](src/test/resources/Mona_Lisa.jpg)
 
-Wren:
+Wren (the current default):
 
 ![](samples/Mona_Lisa-PNG8-Wren-DB8.png)
 

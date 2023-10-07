@@ -18,21 +18,6 @@
 
 package com.github.tommyettinger.anim8;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ByteArray;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.StreamUtils;
-
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-
 /**
  * Full-color animated PNG encoder with compression.
  * This is purely here for compatibility; FastAPNG is identical to {@link AnimatedPNG}.

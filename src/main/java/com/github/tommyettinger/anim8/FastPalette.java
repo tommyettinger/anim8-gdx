@@ -24,7 +24,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 
 import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
-import static com.github.tommyettinger.anim8.OtherMath.cbrtPositive;
 
 /**
  * This is just like {@link PaletteReducer}, except that it uses a higher-quality, slower color difference calculation

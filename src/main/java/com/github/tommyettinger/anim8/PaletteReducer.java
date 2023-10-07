@@ -1112,7 +1112,7 @@ public class PaletteReducer {
     public void exact(Color[] colorPalette) {
         exact(colorPalette, 256);
     }
-    
+
     /**
      * Builds the palette information this PaletteReducer stores from the Color objects in {@code colorPalette}, up to
      * 256 colors or {@code limit}, whichever is less.
@@ -1534,7 +1534,7 @@ public class PaletteReducer {
             }
         }
     }
-    
+
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
      * If there are {@code limit} or fewer colors, this uses the exact colors (although with at most one transparent
@@ -1988,7 +1988,7 @@ public class PaletteReducer {
             populationBias = (float) Math.exp(-1.375/colorCount);
         }
         else
-        { 
+        {
             IntIntMap.Keys it = counts.keys();
             Arrays.fill(paletteArray, 0);
             for (int i = hasTransparent; i < limit && it.hasNext; i++) {
@@ -2680,7 +2680,6 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used;
         float rdiff, gdiff, bdiff;
-        float er, eg, eb;
         float w1 = ditherStrength * 4, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
@@ -2697,12 +2696,9 @@ public class PaletteReducer {
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    er = curErrorRed[px];
-                    eg = curErrorGreen[px];
-                    eb = curErrorBlue[px];
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + curErrorRed[px]   + 0.5f), 0), 0xFF);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + curErrorGreen[px] + 0.5f), 0), 0xFF);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + curErrorBlue[px]  + 0.5f), 0), 0xFF);
                     used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF];

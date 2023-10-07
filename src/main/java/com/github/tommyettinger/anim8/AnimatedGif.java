@@ -322,7 +322,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
      * <code>setSize</code> was not invoked, the size of the first image is used
      * for all subsequent frames.
      *
-     * @param im BufferedImage containing frame to write.
+     * @param im Pixmap containing frame to write.
      * @return true if successful.
      */
     public boolean addFrame(Pixmap im) {
