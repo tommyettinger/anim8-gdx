@@ -159,6 +159,138 @@ public class PaletteReducer {
             0xFF50BFFF, 0xFF6AC5FF, 0xFAA0B9FF, 0xFC3A8CFF, 0xE61E78FF, 0xBD1039FF, 0x98344DFF, 0x911437FF,
     };
 
+    public static final int[] BIG_AURORA = new int[]{
+            0x00000000, 0x000000FF, 0x010101FF, 0x030303FF, 0x030404FF, 0x060607FF, 0x131313FF, 0x131514FF,
+            0x151514FF, 0x151717FF, 0x161717FF, 0x171818FF, 0x181819FF, 0x181817FF, 0x211F1FFF, 0x232121FF,
+            0x252525FF, 0x272928FF, 0x272929FF, 0x282A29FF, 0x373737FF, 0x3A3839FF, 0x3E3F41FF, 0x494747FF,
+            0x494949FF, 0x4E4C4DFF, 0x4D4E4FFF, 0x4E4E50FF, 0x4F504EFF, 0x515253FF, 0x535354FF, 0x525554FF,
+            0x565554FF, 0x555656FF, 0x5B5B5BFF, 0x5B5C5EFF, 0x5F5E5CFF, 0x605F60FF, 0x606261FF, 0x636462FF,
+            0x676A69FF, 0x696A6DFF, 0x6E6E6EFF, 0x70706EFF, 0x707073FF, 0x73716FFF, 0x787B7CFF, 0x7B7E7DFF,
+            0x7E7D7CFF, 0x7D7E7CFF, 0x7C7E7FFF, 0x807E7FFF, 0x808080FF, 0x808384FF, 0x828281FF, 0x838283FF,
+            0x858283FF, 0x848586FF, 0x868584FF, 0x858684FF, 0x858787FF, 0x848888FF, 0x878888FF, 0x8D8A88FF,
+            0x8C8B8CFF, 0x8A8C8CFF, 0x8C8C89FF, 0x8B8D8CFF, 0x8C8C8EFF, 0x8A8D8FFF, 0x8D8E8DFF, 0x8E8D8EFF,
+            0x8F8E8CFF, 0x8D8F8EFF, 0x8D8F8FFF, 0x929292FF, 0x979693FF, 0x959798FF, 0x999696FF, 0x979796FF,
+            0xA1A09EFF, 0xA1A09EFF, 0xA4A4A4FF, 0xA4A6A4FF, 0xABA9A8FF, 0xAAACABFF, 0xACACABFF, 0xAFB2B0FF,
+            0xB4B2B1FF, 0xB3B5B2FF, 0xB5B4B6FF, 0xB3B4B6FF, 0xB6B6B6FF, 0xB9BBBDFF, 0xBABCBCFF, 0xBCBCBEFF,
+            0xC1C0C0FF, 0xC4C2C5FF, 0xC9C9C9FF, 0xC9C9CCFF, 0xCDCECFFF, 0xCFCED0FF, 0xD8D5D7FF, 0xD7D7D8FF,
+            0xD9D7D5FF, 0xDBDBDBFF, 0xDADEDEFF, 0xE2E0E2FF, 0xE3E2E4FF, 0xE3E4E7FF, 0xE7E5E3FF, 0xE5E6E5FF,
+            0xE6E6E9FF, 0xE8E7E9FF, 0xE8E9E8FF, 0xE8E8EBFF, 0xEAE9EBFF, 0xE9ECEDFF, 0xEDEDEDFF, 0xF0EEEFFF,
+            0xF1F4F4FF, 0xF6F9F8FF, 0xFFFFFFFF, 0xFAA0B9FF, 0x8A0D43FF, 0x4B1B2BFF, 0x4E3139FF, 0x8F4E60FF,
+            0xC9758BFF, 0x8A304CFF, 0x440D21FF, 0xE5A5B3FF, 0xF8D2DAFF, 0xF5B7C4FF, 0x5E1E31FF, 0xC57D8DFF,
+            0xFFC0CBFF, 0x98344DFF, 0xD6A6ADFF, 0x9B5260FF, 0x85263BFF, 0xA44052FF, 0x911437FF, 0x954A54FF,
+            0xD89199FF, 0x523135FF, 0xA86B71FF, 0x7C3D45FF, 0xBE3F54FF, 0xBD364EFF, 0xA47377FF, 0xEE7886FF,
+            0x644043FF, 0x42282AFF, 0xBC414FFF, 0xBD1039FF, 0x8D2F39FF, 0x551F24FF, 0xA12A39FF, 0xEC8489FF,
+            0x6B2C31FF, 0x724A4BFF, 0xAA2838FF, 0xE3ABABFF, 0xAD6E6FFF, 0xC78F8FFF, 0x573B3BFF, 0xAB7373FF,
+            0xCA444DFF, 0xD28383FF, 0x8E5555FF, 0x754848FF, 0xD78887FF, 0xB13D43FF, 0xAE4F50FF, 0xFF8181FF,
+            0xBA2934FF, 0xE91334FF, 0xF6A29EFF, 0x6A3837FF, 0x5B191CFF, 0xFF6262FF, 0xA54745FF, 0xC78783FF,
+            0xBF3F3FFF, 0xA71B23FF, 0x9E2728FF, 0xC07872FF, 0x6D1718FF, 0xFF4241FF, 0x551414FF, 0xD5524AFF,
+            0x73413CFF, 0xE3302EFF, 0xE8443DFF, 0xD13A33FF, 0xDE8B81FF, 0x70413BFF, 0xC03F35FF, 0xBA4E43FF,
+            0xC55C50FF, 0xE04337FF, 0x7F0000FF, 0xFF0000FF, 0xA5140AFF, 0xDA2010FF, 0xFFA999FF, 0x651007FF,
+            0xA0695FFF, 0xB0210EFF, 0xAD3F2FFF, 0xBC3826FF, 0x916F68FF, 0xC8A29AFF, 0x5A322BFF, 0xFB6249FF,
+            0xF44429FF, 0xFE654BFF, 0x401811FF, 0xE9654BFF, 0xFD4825FF, 0xEB3A14FF, 0xFF3C0AFF, 0x621800FF,
+            0xA25F4EFF, 0xDDBBB2FF, 0xBC4C2FFF, 0xF55A32FF, 0x775D55FF, 0x60443CFF, 0xE05F3AFF, 0xBF9C90FF,
+            0xD08A74FF, 0xDB9680FF, 0xFE7F56FF, 0xFC642DFF, 0x96776CFF, 0x794937FF, 0xF59977FF, 0xE6642EFF,
+            0x934220FF, 0xD99C83FF, 0x443129FF, 0xE2A58BFF, 0xE19B7DFF, 0xFFA780FF, 0xDA835CFF, 0xEBAA8CFF,
+            0xE3875CFF, 0xBE907BFF, 0xCA977EFF, 0x331B10FF, 0xBA5318FF, 0xD47F55FF, 0xF5B99BFF, 0x623218FF,
+            0xEC8B59FF, 0xC5967EFF, 0xF6C8AFFF, 0xDE936AFF, 0xEA8C58FF, 0xF88440FF, 0x834724FF, 0xA04B05FF,
+            0xCF9877FF, 0x5F3214FF, 0xE58642FF, 0x7F3F00FF, 0xFF7F00FF, 0xB45A00FF, 0x957057FF, 0xDA6E0AFF,
+            0xD37B39FF, 0xD0A587FF, 0xA56F48FF, 0xB79D8AFF, 0x9E836FFF, 0xD19260FF, 0xD99B6AFF, 0xBDA28CFF,
+            0xD6925AFF, 0x95561DFF, 0x744821FF, 0xE3C3A8FF, 0xCC9E76FF, 0xC0A48AFF, 0xBF7F3FFF, 0xFFBF81FF,
+            0x73573BFF, 0x3B2D1FFF, 0x8F7357FF, 0xCBAA89FF, 0xE3C7ABFF, 0xD89A5BFF, 0xBCA690FF, 0x744F26FF,
+            0xD29C62FF, 0xFFA53CFF, 0x876E54FF, 0xCDA373FF, 0xC49E73FF, 0xBC966BFF, 0x9F8E7AFF, 0x8A7760FF,
+            0xB79D7DFF, 0x9E7F57FF, 0xBB7C1DFF, 0xDD9F3FFF, 0xB59A72FF, 0xCBA772FF, 0x96794CFF, 0xD69E42FF,
+            0xD0993CFF, 0xE9D0A8FF, 0xCB9D45FF, 0xD79B0FFF, 0x70592DFF, 0xEFCD89FF, 0xBF973CFF, 0x735E31FF,
+            0xF6BD31FF, 0xF9D279FF, 0x2D2305FF, 0x4E3C0DFF, 0xD2A635FF, 0xC1AB76FF, 0xF6ECCFFF, 0xC99F20FF,
+            0x5D4D1FFF, 0x8C805AFF, 0x63593AFF, 0x5B533AFF, 0xAFA47EFF, 0xDFC04BFF, 0xABA077FF, 0x564B22FF,
+            0xFFD510FF, 0xAC9400FF, 0xA59D73FF, 0xD6BC2DFF, 0xD8CFA0FF, 0xEDD640FF, 0xF9E23EFF, 0xE6D55AFF,
+            0xE4DC99FF, 0xFFEA4AFF, 0x79744DFF, 0xE1D682FF, 0x80793BFF, 0xF2EA6BFF, 0xD4D07BFF, 0x2C2B17FF,
+            0x53500AFF, 0xEDEDC7FF, 0xDADAABFF, 0xFFFFBFFF, 0xC7C78FFF, 0xB5B572FF, 0x8E8E72FF, 0x8F8F57FF,
+            0xF5F6CAFF, 0x908F27FF, 0x414123FF, 0xA2A255FF, 0x73733BFF, 0x6E6E34FF, 0xC4C58BFF, 0x8A8927FF,
+            0x70713FFF, 0xBFBF3FFF, 0xB1B10AFF, 0x626200FF, 0x7F7F00FF, 0xFFFF00FF, 0xDEE181FF, 0x838525FF,
+            0x5B5D3BFF, 0xA2A588FF, 0xD2DA70FF, 0xB4BC21FF, 0xD1DA73FF, 0x717832FF, 0xBCC675FF, 0xCEDB67FF,
+            0x464C1DFF, 0x64712EFF, 0xA3BB37FF, 0x758908FF, 0xCCE57CFF, 0x748348FF, 0x636F3FFF, 0x728835FF,
+            0x909F70FF, 0x9DBF40FF, 0x7B953DFF, 0x6D862DFF, 0x6A861FFF, 0x465032FF, 0x749034FF, 0x283405FF,
+            0xC8FF41FF, 0x191E0FFF, 0xABDB3CFF, 0x62724BFF, 0xB6EC57FF, 0x9BBD69FF, 0xA5C478FF, 0xA0D740FF,
+            0xA5E049FF, 0x687B50FF, 0x8CC336FF, 0x96DC19FF, 0x3E5222FF, 0x93DB17FF, 0xB5D88DFF, 0x8EBE55FF,
+            0x647454FF, 0xA5E753FF, 0xC7E3ABFF, 0xABC78FFF, 0x9AE13EFF, 0x738F57FF, 0x6AA805FF, 0x6FB215FF,
+            0x67A025FF, 0x9CBD82FF, 0x9BF046FF, 0x2A3B1CFF, 0x73C805FF, 0x8EDD4DFF, 0x659341FF, 0x364928FF,
+            0x4A5A40FF, 0x587D3EFF, 0x8CEA3FFF, 0x96EB57FF, 0x3C6E14FF, 0x95F854FF, 0x2A4619FF, 0x9EEC74FF,
+            0x233E13FF, 0x9CED73FF, 0x67765FFF, 0x65964EFF, 0xE4F7DCFF, 0x90FA59FF, 0x4C5B46FF, 0x204608FF,
+            0x8CE864FF, 0x476E37FF, 0x477F30FF, 0x8EBA7FFF, 0x51B227FF, 0x263322FF, 0x8EF36CFF, 0x5B7D51FF,
+            0xA2BA9BFF, 0x5BA944FF, 0x395B2FFF, 0x86E071FF, 0x94B88CFF, 0x52644EFF, 0x73C763FF, 0x79E465FF,
+            0xAFDCA7FF, 0x64E455FF, 0x149605FF, 0x7DFF73FF, 0x14E60AFF, 0x007F00FF, 0x00FF00FF, 0x0AD70AFF,
+            0x0C5C0CFF, 0x9FEB99FF, 0x00C514FF, 0x4CB74AFF, 0x3FBF3FFF, 0x2FB633FF, 0x33F641FF, 0x578F57FF,
+            0x73AB73FF, 0x3B573BFF, 0xAFFFAFFF, 0x2F6E32FF, 0x8FC78FFF, 0x4BF05AFF, 0xA2D8A2FF, 0x7FA97FFF,
+            0x506450FF, 0x54E762FF, 0x1E9331FF, 0x95F69BFF, 0x56AE5FFF, 0x6AB571FF, 0x7BFF8AFF, 0x80AD84FF,
+            0x4C9555FF, 0x576E58FF, 0x739075FF, 0x5B9765FF, 0xCBE7CFFF, 0xA4CFAAFF, 0x19F767FF, 0x87B48EFF,
+            0x4B6950FF, 0x39EB6FFF, 0x5BBB70FF, 0x05B450FF, 0x718675FF, 0x3B7349FF, 0x7EBE8DFF, 0x00DE6AFF,
+            0x72F99AFF, 0x97B29DFF, 0x64C082FF, 0x71BE89FF, 0x419560FF, 0x1C8C4EFF, 0x507D5FFF, 0x49E58FFF,
+            0x235037FF, 0xB4EECAFF, 0x7CFAB4FF, 0x4D8766FF, 0x337754FF, 0x3CFEA5FF, 0x215F41FF, 0x9BE6BDFF,
+            0x85A794FF, 0x4BCB8DFF, 0x93C5A9FF, 0x366C51FF, 0xABE3C5FF, 0x0F6946FF, 0xD0FBE4FF, 0x3A6852FF,
+            0x37F6ACFF, 0x78C9A3FF, 0x23FFB4FF, 0x2DEBA8FF, 0x3E705AFF, 0x53FABFFF, 0x083124FF, 0x33E2AAFF,
+            0x06C491FF, 0x459276FF, 0x6AFFCDFF, 0x1BF3BDFF, 0xC0EFDEFF, 0x587B6FFF, 0x266854FF, 0x338E74FF,
+            0xA7E0CDFF, 0x3ED1ACFF, 0x3B8E79FF, 0x129880FF, 0x92ECD6FF, 0x097B6BFF, 0xD1FDF4FF, 0x123832FF,
+            0x12D8C2FF, 0x2F6E65FF, 0x22887CFF, 0xB6FFF7FF, 0xABF9F1FF, 0x1B3A38FF, 0x08DED5FF, 0x316765FF,
+            0xB8EEEBFF, 0x007F7FFF, 0x00FFFFFF, 0x3FBFBFFF, 0xA5FCFBFF, 0x116667FF, 0x3B7373FF, 0x407C7CFF,
+            0x64ABABFF, 0x8FC7C7FF, 0xBFFFFFFF, 0xABE3E3FF, 0xC7F1F1FF, 0x7BDDDFFF, 0x4EE5E9FF, 0x055A5CFF,
+            0xAAF8FBFF, 0x55E2E9FF, 0x588A8DFF, 0x94F3FBFF, 0xACEDF4FF, 0x266066FF, 0x438D95FF, 0xC3F8FEFF,
+            0x9EF3FFFF, 0xCAF0F5FF, 0x234146FF, 0x55E6FFFF, 0x27808FFF, 0x125762FF, 0x509CABFF, 0x2F5F69FF,
+            0x39B8D2FF, 0x91EBFFFF, 0x7DD7F0FF, 0x5D818DFF, 0x5D8C9BFF, 0x9DC5D1FF, 0x0F5C70FF, 0x20B4DEFF,
+            0x4198B5FF, 0x35BBE8FF, 0x54B0D3FF, 0x3CC2F8FF, 0x00BFFFFF, 0x325769FF, 0x6592A9FF, 0x325363FF,
+            0x97BBCEFF, 0x4195BDFF, 0x41C4FFFF, 0x84A7B9FF, 0x5AC5FFFF, 0x109CDEFF, 0x488CB8FF, 0x92D0F9FF,
+            0x6B95B3FF, 0x0FA8FBFF, 0x538FB8FF, 0x699DC3FF, 0x5997C5FF, 0x4C8CBDFF, 0x406787FF, 0x358ED5FF,
+            0xA8C0D3FF, 0x6588A6FF, 0x2D8AD4FF, 0x0A7BC9FF, 0x6794BCFF, 0x1382D6FF, 0x3B5F80FF, 0x1E7CC9FF,
+            0x3583C8FF, 0x4486C5FF, 0x57738FFF, 0x8FABC7FF, 0xABC7E3FF, 0x3B5773FF, 0x578FC7FF, 0x5183B6FF,
+            0x326496FF, 0x4E82B7FF, 0xC1DCF8FF, 0x4AA4FFFF, 0x83B2E6FF, 0x186ABDFF, 0x4A79AFFF, 0x5088CCFF,
+            0x2378DCFF, 0x5B84B8FF, 0x4085DBFF, 0x5990D6FF, 0x4B92ECFF, 0x1A3558FF, 0x007FFFFF, 0x6592CFFF,
+            0x004A9CFF, 0x194788FF, 0x1C3558FF, 0xB2C3DAFF, 0x5387D2FF, 0x6F90BFFF, 0x2C3B50FF, 0x4B7DC8FF,
+            0xBED2F0FF, 0x162C52FF, 0x1E3E77FF, 0x0F377DFF, 0x0C2148FF, 0x3662B2FF, 0x748BB3FF, 0x0F192DFF,
+            0x0052F6FF, 0x3F79F7FF, 0x577CC6FF, 0x172E61FF, 0x7192D3FF, 0x3360C7FF, 0x6081C5FF, 0x7996D1FF,
+            0x38528BFF, 0xA6C3FEFF, 0x00007FFF, 0x0000FFFF, 0x0010BDFF, 0xA8B9DCFF, 0x5E7FCEFF, 0x263457FF,
+            0x101CDAFF, 0x233569FF, 0x161F39FF, 0x90B0FFFF, 0x6F89C8FF, 0x96B0F3FF, 0x1D0FECFF, 0x1A2C7AFF,
+            0x0D1646FF, 0x1F318BFF, 0x7C8EC0FF, 0x323F68FF, 0x617CD9FF, 0x404967FF, 0x0F0F50FF, 0x1C1C93FF,
+            0x2D18F6FF, 0xD0DAF8FF, 0x6579C7FF, 0xB3C0E6FF, 0x293365FF, 0x252E62FF, 0x4A5AFFFF, 0xB1BEEEFF,
+            0x465599FF, 0x3C3CF5FF, 0xAAB9F3FF, 0x8192DCFF, 0x4A537BFF, 0x231094FF, 0x4040E0FF, 0x6573FDFF,
+            0x2A1BA2FF, 0x3F3FBFFF, 0x2B2F5DFF, 0x757FD0FF, 0x4F45F7FF, 0x21205AFF, 0x2E1D96FF, 0x4F34FEFF,
+            0x4230C2FF, 0xA4A9FAFF, 0x8181FFFF, 0x1F1F3BFF, 0x4328BFFF, 0x7676CAFF, 0x57578FFF, 0xB0B1F6FF,
+            0x494973FF, 0x3B3B57FF, 0x786EF0FF, 0xCBCCEBFF, 0x6241F6FF, 0x8F8FC7FF, 0xABABE3FF, 0x421BB1FF,
+            0x25204AFF, 0x9996E5FF, 0x645E9EFF, 0x3C395EFF, 0xB1ABF9FF, 0x736EAAFF, 0x8C7DF3FF, 0xBEB9FAFF,
+            0x4F1BBFFF, 0x423970FF, 0x6930EEFF, 0xA49AEBFF, 0x69609EFF, 0x464067FF, 0x645D8CFF, 0x6D39E8FF,
+            0x733EF3FF, 0x703AECFF, 0x1F1933FF, 0x4E19AAFF, 0x6832D8FF, 0x5010B0FF, 0x6010D0FF, 0xC8BFEBFF,
+            0x7341D6FF, 0xD7D1EDFF, 0x4C406CFF, 0x8039F4FF, 0x5C17B8FF, 0x7F00FFFF, 0x8E4DFBFF, 0x5D517BFF,
+            0x631CBCFF, 0x9F7BE9FF, 0x8C40FAFF, 0x9C77E4FF, 0x685195FF, 0x5E02B1FF, 0xA372F6FF, 0xB991FFFF,
+            0x3C275DFF, 0x544371FF, 0x8535E0FF, 0xD7C3FAFF, 0x7550A9FF, 0xC7B7E2FF, 0x9C41FFFF, 0xAD90D9FF,
+            0x2F1849FF, 0x47266BFF, 0xAA8ED2FF, 0xAE6CFCFF, 0x340858FF, 0x8C55CBFF, 0xB192D8FF, 0x704F95FF,
+            0x755996FF, 0x8732D2FF, 0x8F57C7FF, 0xBA90E8FF, 0x882FD1FF, 0x6F4A95FF, 0x573B73FF, 0xDECCF3FF,
+            0x73578FFF, 0xAB8FC7FF, 0x8A1BD3FF, 0xAF7DDCFF, 0xD6B5F5FF, 0x502373FF, 0x8028BFFF, 0xA831FBFF,
+            0x9438D7FF, 0x8C5BB4FF, 0xB783E3FF, 0x410062FF, 0x9C51D4FF, 0xBD62FFFF, 0xE7D0FAFF, 0xD7A5FFFF,
+            0x765F88FF, 0xC5B1D4FF, 0xB286D2FF, 0x6A4881FF, 0xB185CFFF, 0x4C116AFF, 0x320A46FF, 0xE8D4F6FF,
+            0xD9B1F3FF, 0x5A187BFF, 0x8F2DC0FF, 0xBB77E0FF, 0xBD29FFFF, 0x8C14BEFF, 0x715C7DFF, 0x7E4E96FF,
+            0x9426C4FF, 0xB395C3FF, 0x5A2573FF, 0x714F82FF, 0xC55AECFF, 0x63466FFF, 0xAC3BD3FF, 0xAA53C8FF,
+            0x492355FF, 0xB484C3FF, 0x9900BCFF, 0x9325B1FF, 0xAC1ED2FF, 0x661F7AFF, 0xA10FBFFF, 0x7A1091FF,
+            0xE673FFFF, 0xD5AEDDFF, 0x613E67FF, 0xDBA9E4FF, 0x291A2BFF, 0xB44DC5FF, 0x804987FF, 0x7B4981FF,
+            0xBC6EC6FF, 0xEBA2F4FF, 0x97529FFF, 0x402C42FF, 0x4B2D4EFF, 0xF8C6FCFF, 0xE25DF0FF, 0xE425F7FF,
+            0xB634C2FF, 0x9D11A9FF, 0xC72AD5FF, 0xBB14C8FF, 0x482949FF, 0xF15FF8FF, 0xE3C7E3FF, 0xB37BB3FF,
+            0xF34BFBFF, 0x462E46FF, 0x861A8BFF, 0xBD10C5FF, 0xCA87CBFF, 0x463246FF, 0xAB73ABFF, 0xC33BC7FF,
+            0xBD2DC2FF, 0xFD81FFFF, 0x815381FF, 0x8F578FFF, 0xDA20E0FF, 0x3C233CFF, 0x724072FF, 0xAB57ABFF,
+            0xD091CFFF, 0xF15BF2FF, 0x9E309FFF, 0xE291E0FF, 0xAC16AEFF, 0xBF3FBFFF, 0xFF52FFFF, 0x641464FF,
+            0xB721B7FF, 0x7F007FFF, 0xF500F5FF, 0xC488C0FF, 0x461C45FF, 0xBE78B9FF, 0x884F84FF, 0xCC72C5FF,
+            0x4C2949FF, 0xC16DBAFF, 0x4D3D4BFF, 0xA64E9EFF, 0xF252E6FF, 0xC560B9FF, 0xC890BFFF, 0xEBACE1FF,
+            0xCA84BFFF, 0xC373B7FF, 0xFF87ECFF, 0xC67EB9FF, 0xFECFF4FF, 0x9A338CFF, 0xA42493FF, 0xDB91CCFF,
+            0xF7BFEAFF, 0xAD309AFF, 0xBA19A2FF, 0x54194AFF, 0xA55294FF, 0xC78FB9FF, 0x462A40FF, 0x935685FF,
+            0xFFDCF5FF, 0xFA64D7FF, 0xF3A0DBFF, 0xEC67CAFF, 0xE8B6D8FF, 0x6F075AFF, 0xEBAAD6FF, 0xA01982FF,
+            0xF1B3DDFF, 0xC162A5FF, 0x1F0F1AFF, 0xBD6EA3FF, 0xC372A9FF, 0xCC80B2FF, 0xE1B9D2FF, 0xD8A9C6FF,
+            0xBF5B9CFF, 0xD577B2FF, 0xDA89BBFF, 0x813C68FF, 0xD885B7FF, 0x280A1EFF, 0xE7ADCEFF, 0xC177A2FF,
+            0xFF50BFFF, 0xFF6AC5FF, 0xD7A0BEFF, 0xEFBED7FF, 0x4F1F3BFF, 0x481E36FF, 0xCE8AAEFF, 0x441231FF,
+            0x5C2043FF, 0xDA66A6FF, 0xBD508EFF, 0xE7A2C5FF, 0x332029FF, 0x70184DFF, 0xE776B2FF, 0xBE5D91FF,
+            0xC35A91FF, 0xD20D88FF, 0xCC78A0FF, 0xC688A5FF, 0x712A4FFF, 0xC87DA0FF, 0xFF61B2FF, 0x8B325FFF,
+            0x561D3AFF, 0x8E225CFF, 0xF3AECBFF, 0x7C3457FF, 0x4C1D34FF, 0x48142FFF, 0xFDB7D4FF, 0xD4719DFF,
+            0x321623FF, 0x551937FF, 0xC80078FF, 0x673F50FF, 0x4B2837FF, 0xDE3C8BFF, 0xD73083FF, 0xEB4693FF,
+            0xD0A7B6FF, 0x614952FF, 0xF895BCFF, 0xDF8CABFF, 0x711F44FF, 0x7A3350FF, 0xEB428DFF, 0xD78AA5FF,
+            0xE07BA0FF, 0x7C0B43FF, 0xFC3A8CFF, 0xE61E78FF, 0xD0819AFF, 0xDB3D7BFF, 0xC992A1FF, 0xA4697AFF,
+    };
+
+
     /**
      * This 255-color (plus transparent) palette uses the (3,5,7) Halton sequence to get 3D points, treats those as IPT
      * channel values, and rejects out-of-gamut colors. This also rejects any color that is too similar to an existing
@@ -1034,7 +1166,6 @@ public class PaletteReducer {
             exact(AURORA, ENCODED_AURORA);
             return;
         }
-        long startTime = System.currentTimeMillis();
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         final int plen = Math.min(Math.min(256, limit), rgbaPalette.length);
@@ -1067,7 +1198,6 @@ public class PaletteReducer {
                 }
             }
         }
-        Gdx.app.debug("exact", "Exact on " + colorCount + " colors took " + (System.currentTimeMillis() - startTime) + " ms.");
    }
 
     /**
@@ -2019,7 +2149,140 @@ public class PaletteReducer {
                 }
             }
         }
+    }
 
+    protected static boolean bigPaletteBuilt = false;
+    protected static final short[] bigPaletteMapping = new short[0x8000];
+
+    protected void buildBigPalette() {
+        if(bigPaletteBuilt) return;
+        final int plen = 1024;
+        int color, c2;
+        double dist;
+        for (int i = 0; i < plen; i++) {
+            color = BIG_AURORA[i];
+            if ((color & 0x80) != 0) {
+                bigPaletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (short) i;
+            }
+        }
+        int rr, gg, bb;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (bigPaletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = 1E100;
+                        for (int i = 1; i < plen; i++) {
+                            if (dist > (dist = Math.min(dist, differenceMatch(BIG_AURORA[i], rr, gg, bb))))
+                                bigPaletteMapping[c2] = (short) i;
+                        }
+                    }
+                }
+            }
+        }
+
+        bigPaletteBuilt = true;
+    }
+
+    /**
+     * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
+     * If there are {@code limit} or fewer colors, this uses the exact colors (although with at most one transparent
+     * color, and no alpha for other colors); this will always reserve a palette entry for transparent (even if the
+     * image has no transparency) because it uses palette index 0 in its analysis step. Because calling
+     * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
+     * works better when the palette can choose colors that are sufficiently different, this takes a threshold value to
+     * determine whether it should permit a less-common color into the palette, and if the second color is different
+     * enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least {@code threshold}, it is allowed in
+     * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
+     * 50 and 500, and 100 is a good default. If the threshold is too high, then some colors that would be useful to
+     * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
+     * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
+     * Pixmap.
+     *
+     * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 500, 100 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyzeReductive(Pixmap pixmap, double threshold, int limit) {
+        buildBigPalette();
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        limit = Math.min(Math.max(limit, 2), 256);
+        threshold /= Math.min(0.9, 2.0 * Math.pow(limit + 16, 1.45) * 0.0002);
+        final int width = pixmap.getWidth(), height = pixmap.getHeight();
+        IntIntMap counts = new IntIntMap(limit);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                color = pixmap.getPixel(x, y) & 0xF8F8F880;
+                if ((color & 0x80) != 0) {
+                    color = BIG_AURORA[bigPaletteMapping[shrink(color)]];
+                    counts.getAndIncrement(color, 0, 1);
+                }
+            }
+        }
+        int cs = counts.size;
+        Array<IntIntMap.Entry> es = new Array<>(cs);
+        for(IntIntMap.Entry e : counts)
+        {
+            IntIntMap.Entry e2 = new IntIntMap.Entry();
+            e2.key = e.key;
+            e2.value = e.value;
+            es.add(e2);
+        }
+        es.sort(entryComparator);
+        if (cs < limit) {
+            int i = 1;
+            for(IntIntMap.Entry e : es) {
+                color = e.key;
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.375/colorCount);
+        } else // reduce color count
+        {
+            int i = 1, c = 0;
+            PER_BEST:
+            while (i < limit && c < cs) {
+                color = es.get(c++).key;
+                for (int j = 1; j < i; j++) {
+                    if (differenceAnalyzing(color, paletteArray[j]) < threshold)
+                        continue PER_BEST;
+                }
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.375/colorCount);
+        }
+
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.MAX_VALUE;
+                        for (int i = 1; i < colorCount; i++) {
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(paletteArray[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -2763,6 +3026,7 @@ public class PaletteReducer {
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
+                    // fract(fract(v_texCoords.xy * vec2(6.711056, 0.583715)) * 52.9829189)
                     adj = (px * 0.06711056f + y * 0.00583715f);
                     adj -= (int) adj;
                     adj *= 52.9829189f;

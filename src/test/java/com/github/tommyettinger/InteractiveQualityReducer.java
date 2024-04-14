@@ -225,13 +225,13 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                         if(UIUtils.ctrl()) {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducerQ.analyzeHueWise(p0, 100, kc);
-                                reducerF.analyzeHueWise(p0, 100, kc);
+                                reducerQ.analyzeReductive(p0, 100, kc);
+                                reducerF.analyzeReductive(p0, 100, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducerQ.analyzeHueWise(p0, 100, kc);
-                                reducerF.analyzeHueWise(p0, 100, kc);
+                                reducerQ.analyzeReductive(p0, 100, kc);
+                                reducerF.analyzeReductive(p0, 100, kc);
                             }
 
 //                            if (UIUtils.shift())
@@ -262,8 +262,8 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_0:
                         if(UIUtils.ctrl())
                         {
-                            reducerQ.analyzeHueWise(p0, 100, 256);
-                            reducerF.analyzeHueWise(p0, 100, 256);
+                            reducerQ.analyzeReductive(p0, 150, 256);
+                            reducerF.analyzeReductive(p0, 150, 256);
                         }
                         else
                         {

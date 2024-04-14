@@ -67,7 +67,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 ```groovy
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
-  // libGDX 1.11.0 is recommended currently, but versions as old as 1.9.11 work.
+  // libGDX 1.12.1 is recommended currently, but versions as old as 1.9.11 work.
   api "com.github.tommyettinger:anim8-gdx:0.4.2"
 }
 ```
