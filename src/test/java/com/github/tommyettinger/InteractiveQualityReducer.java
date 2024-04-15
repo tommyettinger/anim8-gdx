@@ -22,6 +22,8 @@ import com.github.tommyettinger.anim8.QualityPalette;
 public class InteractiveQualityReducer extends ApplicationAdapter {
     public static final int SCREEN_WIDTH = 1280;
     public static final int SCREEN_HEIGHT = 720;
+    public static final int THRESHOLD = 100;
+    public static final int REDUCTIVE_THRESHOLD = 300;
     protected SpriteBatch batch;
     protected Viewport screenView;
     protected Texture screenTexture;
@@ -225,13 +227,13 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                         if(UIUtils.ctrl()) {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducerQ.analyzeReductive(p0, 100, kc);
-                                reducerF.analyzeReductive(p0, 100, kc);
+                                reducerQ.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
+                                reducerF.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducerQ.analyzeReductive(p0, 100, kc);
-                                reducerF.analyzeReductive(p0, 100, kc);
+                                reducerQ.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
+                                reducerF.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
                             }
 
 //                            if (UIUtils.shift())
@@ -247,13 +249,13 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                         else {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducerQ.analyze(p0, 100, kc);
-                                reducerF.analyze(p0, 100, kc);
+                                reducerQ.analyze(p0, THRESHOLD, kc);
+                                reducerF.analyze(p0, THRESHOLD, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducerQ.analyze(p0, 100, kc);
-                                reducerF.analyze(p0, 100, kc);
+                                reducerQ.analyze(p0, THRESHOLD, kc);
+                                reducerF.analyze(p0, THRESHOLD, kc);
                             }
                         }
 //                        System.out.println("Total for all color differences: " + reducerQ.totalDifference);
@@ -262,13 +264,13 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_0:
                         if(UIUtils.ctrl())
                         {
-                            reducerQ.analyzeReductive(p0, 150, 256);
-                            reducerF.analyzeReductive(p0, 150, 256);
+                            reducerQ.analyzeReductive(p0, REDUCTIVE_THRESHOLD, 256);
+                            reducerF.analyzeReductive(p0, REDUCTIVE_THRESHOLD, 256);
                         }
                         else
                         {
-                            reducerQ.analyze(p0, 100);
-                            reducerF.analyze(p0, 100);
+                            reducerQ.analyze(p0, THRESHOLD);
+                            reducerF.analyze(p0, THRESHOLD);
                         }
                         refresh();
                         break;
