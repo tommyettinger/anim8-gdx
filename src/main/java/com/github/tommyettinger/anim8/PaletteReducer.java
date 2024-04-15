@@ -33,7 +33,7 @@ import java.util.Random;
 import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
 
 /**
- * Data that can be used to limit the colors present in a Pixmap or other image, here with the goal of using 256 or less
+ * Data that can be used to limit the colors present in a Pixmap or other image, here with the goal of using 256 or fewer
  * colors in the image (for saving indexed-mode images). Can be used independently of classes like {@link AnimatedGif}
  * and {@link PNG8}, but it is meant to help with intelligently reducing the color count to fit under the maximum
  * palette size for those formats. You can use the {@link #exact(Color[])} method or its overloads to match a specific
@@ -1293,7 +1293,7 @@ public class PaletteReducer {
     }
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
-     * too many colors to store in a PNG-8 palette. If there are 256 or less colors, this uses the exact colors
+     * too many colors to store in a PNG-8 palette. If there are 256 or fewer colors, this uses the exact colors
      * (although with at most one transparent color, and no alpha for other colors); this will always reserve a palette
      * entry for transparent (even if the image has no transparency) because it uses palette index 0 in its analysis
      * step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
@@ -1547,7 +1547,7 @@ public class PaletteReducer {
 
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
-     * too many colors to store in a PNG-8 palette. If there are 256 or less colors, this uses the exact colors
+     * too many colors to store in a PNG-8 palette. If there are 256 or fewer colors, this uses the exact colors
      * (although with at most one transparent color, and no alpha for other colors); this will always reserve a palette
      * entry for transparent (even if the image has no transparency) because it uses palette index 0 in its analysis
      * step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that
@@ -2189,7 +2189,7 @@ public class PaletteReducer {
 
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most {@code limit} colors.
-     * If there are {@code limit} or fewer colors, this uses the exact colors (although with at most one transparent
+     * This always uses colors from the 1024-color {@link #BIG_AURORA} palette (with at most one transparent
      * color, and no alpha for other colors); this will always reserve a palette entry for transparent (even if the
      * image has no transparency) because it uses palette index 0 in its analysis step. Because calling
      * {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors that aren't exact, and dithering
@@ -2197,14 +2197,18 @@ public class PaletteReducer {
      * determine whether it should permit a less-common color into the palette, and if the second color is different
      * enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
-     * 50 and 500, and 100 is a good default. If the threshold is too high, then some colors that would be useful to
+     * 20 and 200, and 50 is a good default. If the threshold is too high, then some colors that would be useful to
      * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
      * Pixmap.
+     * <br>
+     * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_AURORA}
+     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
+     * use a precalculated mapping.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 500, 100 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 20 and 200, 50 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeReductive(Pixmap pixmap, double threshold, int limit) {
@@ -2300,7 +2304,7 @@ public class PaletteReducer {
 
     /**
      * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
-     * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
+     * building a palette with at most 256 colors. If there are 256 or fewer colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
@@ -2321,7 +2325,7 @@ public class PaletteReducer {
 
     /**
      * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
-     * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
+     * building a palette with at most 256 colors. If there are 256 or fewer colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
@@ -2384,7 +2388,6 @@ public class PaletteReducer {
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
-        long startTime = System.currentTimeMillis();
         Arrays.fill(paletteArray, 0);
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
@@ -2470,12 +2473,11 @@ public class PaletteReducer {
                 }
             }
         }
-        Gdx.app.debug("analyze", "Analysis took " + (System.currentTimeMillis() - startTime) + " ms.");
     }
 
     /**
      * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
-     * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
+     * building a palette with at most 256 colors. If there are 256 or fewer colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
@@ -2496,7 +2498,7 @@ public class PaletteReducer {
 
     /**
      * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
-     * building a palette with at most 256 colors. If there are 256 or less colors, this uses the
+     * building a palette with at most 256 colors. If there are 256 or fewer colors, this uses the
      * exact colors (although with at most one transparent color, and no alpha for other colors); if there are more than
      * 256 colors or any colors have 50% or less alpha, it will reserve a palette entry for transparent (even
      * if the image has no transparency). Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will
@@ -2679,6 +2681,196 @@ public class PaletteReducer {
                         dist = Double.MAX_VALUE;
                         for (int i = 1; i < colorCount; i++) {
                             if (dist > (dist = Math.min(dist, differenceHW(reds[i], greens[i], blues[i], rr, gg, bb))))
+                                paletteMapping[c2] = (byte) i;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most 256 colors. This always uses colors from the 1024-color
+     * {@link #BIG_AURORA} palette (with at most one transparent color, and no alpha for other colors); this will always
+     * reserve a palette entry for transparent (even if the image has no transparency) because it uses palette index 0
+     * in its analysis step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors
+     * that aren't exact, and dithering works better when the palette can choose colors that are sufficiently different,
+     * this takes a threshold value to determine whether it should permit a less-common color into the palette, and if
+     * the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a value of at
+     * least 50, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * colors. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     * <br>
+     * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_AURORA}
+     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
+     * use a precalculated mapping.
+     *
+     * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     */
+    public void analyzeReductive(Array<Pixmap> pixmaps){
+        analyzeReductive(pixmaps.toArray(Pixmap.class), pixmaps.size, 50, 256);
+    }
+
+    /**
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most 256 colors. This always uses colors from the 1024-color
+     * {@link #BIG_AURORA} palette (with at most one transparent color, and no alpha for other colors); this will always
+     * reserve a palette entry for transparent (even if the image has no transparency) because it uses palette index 0
+     * in its analysis step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors
+     * that aren't exact, and dithering works better when the palette can choose colors that are sufficiently different,
+     * this takes a threshold value to determine whether it should permit a less-common color into the palette, and if
+     * the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a value of at
+     * least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * colors. The threshold is usually between 20 and 200, and 50 is a good default. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     * <br>
+     * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_AURORA}
+     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
+     * use a precalculated mapping.
+     *
+     * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 20 and 200, 50 is a good default
+     */
+    public void analyzeReductive(Array<Pixmap> pixmaps, double threshold){
+        analyzeReductive(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
+    }
+
+    /**
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most {@code limit} colors. This always uses colors from the 1024-color
+     * {@link #BIG_AURORA} palette (with at most one transparent color, and no alpha for other colors); this will always
+     * reserve a palette entry for transparent (even if the image has no transparency) because it uses palette index 0
+     * in its analysis step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors
+     * that aren't exact, and dithering works better when the palette can choose colors that are sufficiently different,
+     * this takes a threshold value to determine whether it should permit a less-common color into the palette, and if
+     * the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a value of at
+     * least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * colors. The threshold is usually between 20 and 200, and 50 is a good default. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     * <br>
+     * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_AURORA}
+     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
+     * use a precalculated mapping.
+     *
+     * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 20 and 200, 50 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyzeReductive(Array<Pixmap> pixmaps, double threshold, int limit){
+        analyzeReductive(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
+    }
+    /**
+     * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
+     * building a palette with at most {@code limit} colors. This always uses colors from the 1024-color
+     * {@link #BIG_AURORA} palette (with at most one transparent color, and no alpha for other colors); this will always
+     * reserve a palette entry for transparent (even if the image has no transparency) because it uses palette index 0
+     * in its analysis step. Because calling {@link #reduce(Pixmap)} (or any of PNG8's write methods) will dither colors
+     * that aren't exact, and dithering works better when the palette can choose colors that are sufficiently different,
+     * this takes a threshold value to determine whether it should permit a less-common color into the palette, and if
+     * the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a value of at
+     * least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar to existing
+     * colors. The threshold is usually between 20 and 200, and 50 is a good default. This doesn't return
+     * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
+     * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
+     * {@link #reduce(Pixmap)} a Pixmap.
+     * <br>
+     * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_AURORA}
+     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
+     * use a precalculated mapping.
+     *
+     * @param pixmaps   a Pixmap array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
+     * @param pixmapCount the maximum number of Pixmap entries in pixmaps to use
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 20 and 200, 50 is a good default
+     * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
+     */
+    public void analyzeReductive(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
+        buildBigPalette();
+        Arrays.fill(paletteArray, 0);
+        Arrays.fill(paletteMapping, (byte) 0);
+        int color;
+        limit = Math.min(Math.max(limit, 2), 256);
+        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
+        IntIntMap counts = new IntIntMap(limit);
+        int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
+        for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
+            Pixmap pixmap = pixmaps[i];
+            final int width = pixmap.getWidth(), height = pixmap.getHeight();
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    color = pixmap.getPixel(x, y) & 0xF8F8F880;
+                    if ((color & 0x80) != 0) {
+                        color = BIG_AURORA[bigPaletteMapping[shrink(color)]];
+                        counts.getAndIncrement(color, 0, 1);
+                    }
+                }
+            }
+        }
+        final int cs = counts.size;
+        Array<IntIntMap.Entry> es = new Array<>(cs);
+        for(IntIntMap.Entry e : counts)
+        {
+            IntIntMap.Entry e2 = new IntIntMap.Entry();
+            e2.key = e.key;
+            e2.value = e.value;
+            es.add(e2);
+        }
+        es.sort(entryComparator);
+        if (cs < limit) {
+            int i = 1;
+            for(IntIntMap.Entry e : es) {
+                color = e.key;
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                reds[i] = color >>> 24;
+                greens[i] = color >>> 16 & 255;
+                blues[i] = color >>> 8 & 255;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.375/colorCount);
+        } else // reduce color count
+        {
+            int i = 1, c = 0;
+            PER_BEST:
+            for (; i < limit && c < cs;) {
+                color = es.get(c++).key;
+                for (int j = 1; j < i; j++) {
+                    double diff = differenceAnalyzing(color, paletteArray[j]);
+                    if (diff < threshold)
+                        continue PER_BEST;
+                }
+                paletteArray[i] = color;
+                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                reds[i] = color >>> 24;
+                greens[i] = color >>> 16 & 255;
+                blues[i] = color >>> 8 & 255;
+                i++;
+            }
+            colorCount = i;
+            populationBias = (float) Math.exp(-1.375/colorCount);
+        }
+
+        int c2;
+        int rr, gg, bb;
+        double dist;
+        for (int r = 0; r < 32; r++) {
+            rr = (r << 3 | r >>> 2);
+            for (int g = 0; g < 32; g++) {
+                gg = (g << 3 | g >>> 2);
+                for (int b = 0; b < 32; b++) {
+                    c2 = r << 10 | g << 5 | b;
+                    if (paletteMapping[c2] == 0) {
+                        bb = (b << 3 | b >>> 2);
+                        dist = Double.MAX_VALUE;
+                        for (int i = 1; i < colorCount; i++) {
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(reds[i], greens[i], blues[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
