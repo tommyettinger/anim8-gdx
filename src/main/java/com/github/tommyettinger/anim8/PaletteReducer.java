@@ -2189,9 +2189,9 @@ public class PaletteReducer {
 //                }
 //            }
 //        }
-//        Gdx.files.local("BigPaletteMapping.txt").writeString(new String(bigPaletteMapping), false, "UTF8");
+//        Gdx.files.local("BigPaletteMapping.dat").writeString(new String(bigPaletteMapping), false, "UTF8");
 
-        Gdx.files.classpath("BigPaletteMapping.txt").readString("UTF8").getChars(0, 0x8000, bigPaletteMapping, 0);
+        Gdx.files.classpath("BigPaletteMapping.dat").readString("UTF8").getChars(0, 0x8000, bigPaletteMapping, 0);
         bigPaletteLoaded = true;
     }
 
