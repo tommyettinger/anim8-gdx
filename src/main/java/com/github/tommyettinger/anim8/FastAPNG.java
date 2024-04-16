@@ -44,12 +44,13 @@ package com.github.tommyettinger.anim8;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * </pre>
- * @see AnimatedPNG the slightly-slower variant on this class with better compression
+ * @see AnimatedPNG the recommended variant on this class; identical in code
  * @author Matthias Mann
  * @author Nathan Sweet
  * @author Tommy Ettinger
  * @deprecated Use {@link AnimatedPNG} instead.
  */
+@Deprecated
 public class FastAPNG extends AnimatedPNG {
     /**
      * Creates an AnimatedPNG writer with an initial buffer size of 1024. The buffer can resize later if needed.

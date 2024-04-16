@@ -42,4 +42,5 @@
         <exclude name="FastPNG.java"/>
         <exclude name="FastPNG8.java"/>
     </source>
+    <extend-configuration-property name="gdx.files.classpath" value="BigPaletteMapping.txt" />
 </module>

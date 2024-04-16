@@ -2157,40 +2157,42 @@ public class PaletteReducer {
         }
     }
 
-    protected static boolean bigPaletteBuilt = false;
-    protected static final short[] bigPaletteMapping = new short[0x8000];
+    protected static boolean bigPaletteLoaded = false;
+    protected static final char[] bigPaletteMapping = new char[0x8000];
 
     protected void buildBigPalette() {
-        if(bigPaletteBuilt) return;
-        final int plen = 1024;
-        int color, c2;
-        double dist;
-        for (int i = 0; i < plen; i++) {
-            color = BIG_AURORA[i];
-            if ((color & 0x80) != 0) {
-                bigPaletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (short) i;
-            }
-        }
-        int rr, gg, bb;
-        for (int r = 0; r < 32; r++) {
-            rr = (r << 3 | r >>> 2);
-            for (int g = 0; g < 32; g++) {
-                gg = (g << 3 | g >>> 2);
-                for (int b = 0; b < 32; b++) {
-                    c2 = r << 10 | g << 5 | b;
-                    if (bigPaletteMapping[c2] == 0) {
-                        bb = (b << 3 | b >>> 2);
-                        dist = 1E100;
-                        for (int i = 1; i < plen; i++) {
-                            if (dist > (dist = Math.min(dist, differenceMatch(BIG_AURORA[i], rr, gg, bb))))
-                                bigPaletteMapping[c2] = (short) i;
-                        }
-                    }
-                }
-            }
-        }
+        if(bigPaletteLoaded) return;
+//        final int plen = 1024;
+//        int color, c2;
+//        double dist;
+//        for (int i = 0; i < plen; i++) {
+//            color = BIG_AURORA[i];
+//            if ((color & 0x80) != 0) {
+//                bigPaletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (char) i;
+//            }
+//        }
+//        int rr, gg, bb;
+//        for (int r = 0; r < 32; r++) {
+//            rr = (r << 3 | r >>> 2);
+//            for (int g = 0; g < 32; g++) {
+//                gg = (g << 3 | g >>> 2);
+//                for (int b = 0; b < 32; b++) {
+//                    c2 = r << 10 | g << 5 | b;
+//                    if (bigPaletteMapping[c2] == 0) {
+//                        bb = (b << 3 | b >>> 2);
+//                        dist = 1E100;
+//                        for (int i = 1; i < plen; i++) {
+//                            if (dist > (dist = Math.min(dist, differenceMatch(BIG_AURORA[i], rr, gg, bb))))
+//                                bigPaletteMapping[c2] = (char) i;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        Gdx.files.local("BigPaletteMapping.txt").writeString(new String(bigPaletteMapping), false, "UTF8");
 
-        bigPaletteBuilt = true;
+        Gdx.files.classpath("BigPaletteMapping.txt").readString("UTF8").getChars(0, 0x8000, bigPaletteMapping, 0);
+        bigPaletteLoaded = true;
     }
 
     /**
