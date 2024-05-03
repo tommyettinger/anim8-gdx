@@ -37,10 +37,11 @@ import java.io.OutputStream;
  * of given animation frames. If the palette isn't an exact match for the colors used in an animation (indexed mode has
  * at most 256 colors), this will dither pixels so that from a distance, they look closer to the original colors. You
  * can use {@link PaletteReducer#setDitherStrength(float)} to reduce (or increase) dither strength, typically between 0
- * and 2; the dithering algorithm used here by default is based on Floyd-Steinberg error-diffusion dithering but with
- * patterns broken up using the R2 sequence and blue noise ({@link DitherAlgorithm#WREN}), but you can select
- * alternatives with {@link #setDitherAlgorithm(DitherAlgorithm)}, such as the slow but high-quality Knoll Ordered
- * Dither using {@link DitherAlgorithm#PATTERN}, or no dither at all with {@link DitherAlgorithm#NONE}.
+ * and 2;
+ * the dithering algorithm used here by default is based on Burkes error-diffusion dithering but with patterns
+ * broken up using blue noise and the R2 sequence ({@link DitherAlgorithm#WREN}), but you can select alternatives with
+ * {@link #setDitherAlgorithm(DitherAlgorithm)}, such as the slow but high-quality Knoll Ordered Dither using
+ * {@link DitherAlgorithm#PATTERN}, or no dither at all with {@link DitherAlgorithm#NONE}.
  * <br>
  * You can write non-animated GIFs with this, but libGDX can't read them back in, so you may want to prefer {@link PNG8}
  * or {@link FastPNG} for images with 256 or fewer colors and no animation (libGDX can read in non-animated PNG files,

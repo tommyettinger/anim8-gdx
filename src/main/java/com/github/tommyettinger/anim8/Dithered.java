@@ -99,7 +99,7 @@ public interface Dithered {
          * {@link #GRADIENT_NOISE}, but isn't nearly as noisy (though it isn't noisy, it instead has regular
          * square-shaped artifacts, which are mostly noticeable with small palettes). Earlier versions of Pattern Dither
          * here had issues with lightness changing strangely based on dither strength, but these are mostly fixed now.
-         * {@link #NEUE} is the current default; it does a better job at obscuring artifacts from dither, it maintains
+         * {@link #WREN} is the current default; it does a better job at obscuring artifacts from dither, it maintains
          * lightness well, and it handles gradients without banding. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} can really change how strongly artifacts appear here, but
          * artifacts may be very hard to spot with a full 255-color palette.
@@ -152,8 +152,8 @@ public interface Dithered {
          * noise. This offers an excellent mix of shape preservation, color preservation, animation-compatibility, and
          * speed, and it was the default for a long time. Setting the dither strength to a low value makes this more
          * bold, with higher contrast, while setting the strength too high (above 1.5, or sometimes higher) can
-         * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE} and {@link #DODGY} are
-         * much better at that and otherwise similar.
+         * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE}, {@link #DODGY}, and
+         * {@link #WREN} are much better at that and otherwise similar.
          */
         SCATTER("Scatter"),
         /**
@@ -166,7 +166,9 @@ public interface Dithered {
          * smallest palettes. While {@link #BLUE_NOISE} is similarly good with smooth gradients, it has a hard time
          * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
          * Neue preserves both. {@link #DODGY} is a potential successor to NEUE, and acts much like it except that it
-         * changes each RGB component separately, using three different blue noise textures.
+         * changes each RGB component separately, using three different blue noise textures. DODGY is, however, more
+         * chaotic-looking sometimes. There's always the current default dither, {@link #WREN}, which was inspired by
+         * NEUE, DODGY, and {@link #WOVEN} to get a generally-good compromise.
          */
         NEUE("Neue"),
         /**
