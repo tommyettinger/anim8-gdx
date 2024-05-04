@@ -31,8 +31,8 @@ public class StillImageDemo extends ApplicationAdapter {
 		long startTime = System.currentTimeMillis();
 
         Gdx.files.local("images").mkdirs();
-//        for(String name : new String[]{"Mona_Lisa.jpg"}) {
-        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
+        for(String name : new String[]{"Mona_Lisa.jpg"}) {
+//        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
 //        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png", "Anemone.png",}) {
 			System.out.println("Rendering PNG8 for " + name);
 			renderPNG8(name);
@@ -131,8 +131,16 @@ public class StillImageDemo extends ApplicationAdapter {
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
 		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer;
-		final String[] types = {"", "H", "Q", "R"};
+		final String[] types = {"", "H", "Q", "R", "N"};
 		for(String type : types) {
+			if("N".equals(type))
+			{
+				gif.useNeuQuant = true;
+				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-NQ-256" + ".gif"), pixmaps, 1);
+				gif.useNeuQuant = false;
+				total++;
+				continue;
+			}
 			reducer = (type.isEmpty()) ? regular : quality;
 			for (int count : new int[]{16, 31, 255}) {
 				if ("H".equals(type)) {

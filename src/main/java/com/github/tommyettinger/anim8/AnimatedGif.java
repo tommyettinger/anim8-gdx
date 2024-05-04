@@ -188,6 +188,12 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     public boolean fastAnalysis = true;
 
     /**
+     * Can be changed to true to use a completely different color quantization and dithering algorithm, NeuQuant.
+     * When enabled, the {@link #palette} is ignored, and so is {@link #ditherStrength}.
+     */
+    public boolean useNeuQuant = false;
+
+    /**
      * Often assigned as a field, the palette can be null (which means this may analyze each frame for its palette,
      * based on the setting for {@link #fastAnalysis}), or can be an existing PaletteReducer. You may want to create a
      * PaletteReducer with an exact palette, such as by {@link PaletteReducer#PaletteReducer(int[])}, and then assign it
@@ -338,7 +344,11 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             ++seq;
             image = im;
             getImagePixels(); // convert to correct format if necessary
-            analyzePixels(); // build color table & map pixels
+            // build color table & map pixels
+            if(useNeuQuant)
+                analyzePixelsNQ();
+            else
+                analyzePixels();
             if (firstFrame) {
                 writeLSD(); // logical screen descriptor
                 writePalette(); // global color table
@@ -1502,6 +1512,33 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         if (hasTransparent) {
             transIndex = 0;
         }
+    }
+
+    /**
+     * Analyzes image colors and creates color map.
+     */
+    protected void analyzePixelsNQ() {
+        int nPix = width * height;
+        indexedPixels = new byte[nPix];
+        NeuQuant nq = new NeuQuant(image, 10);
+        // initialize quantizer
+        colorTab = nq.process(); // create reduced palette
+
+        for (int i = 0, c = 0; i < colorTab.length; i += 3, c++) {
+            usedEntry[c] = false;
+        }
+        // map image pixels to new palette
+        int k = 0;
+        for (int y = 0, i = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgba = image.getPixel(x, y);
+                int index = nq.map(rgba >>> 24, rgba >>> 16 & 255, rgba >>> 8 & 255);
+                usedEntry[index] = true;
+                indexedPixels[i++] = (byte) index;
+            }
+        }
+        colorDepth = 8;
+        palSize = 7;
     }
 
     /**
