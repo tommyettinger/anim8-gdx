@@ -1177,7 +1177,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             }
 
             int color;
-            final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+            final float strength = ditherStrength * palette.populationBias;
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1185,7 +1185,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if ((color & 0x80) == 0 && hasTransparent)
                         curLine[px] = 0;
                     else {
-                        int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                        int adj = (int)((((px + y & 1) << 5) - 16) * strength);
                         int rr = Math.min(Math.max(((color >>> 24)       ) + adj, 0), 255);
                         int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + adj, 0), 255);
                         int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + adj, 0), 255);
@@ -3331,8 +3331,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine;
             int color;
 
-            final float populationBias = palette.populationBias;
-            final int strength = (int) (11f * ditherStrength / (populationBias * populationBias) + 0.5f);
+            final float strength = ditherStrength * palette.populationBias;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -3371,7 +3370,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
                         else {
-                            int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                            int adj = (int)((((px + y & 1) << 5) - 16) * strength);
                             int rr = Math.min(Math.max(((color >>> 24)       ) + adj, 0), 255);
                             int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + adj, 0), 255);
                             int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + adj, 0), 255);

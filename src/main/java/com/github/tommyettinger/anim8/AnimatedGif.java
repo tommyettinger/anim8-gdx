@@ -647,14 +647,14 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final int strength = (int) (11f * ditherStrength / (palette.populationBias * palette.populationBias) + 0.5f);
+        final float strength = ditherStrength * palette.populationBias;
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 color = image.getPixel(px, flipped + flipDir * y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     indexedPixels[i++] = 0;
                 else {
-                    int adj = ((px & 1) + (y & 1) - 1) * strength * (2 + (((px ^ y) & 2) - 1));
+                    int adj = (int)((((px + y & 1) << 5) - 16) * strength);
                     int rr = Math.min(Math.max(((color >>> 24)       ) + adj, 0), 255);
                     int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + adj, 0), 255);
                     int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + adj, 0), 255);

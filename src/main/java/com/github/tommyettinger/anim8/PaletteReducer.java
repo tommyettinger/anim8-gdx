@@ -3091,6 +3091,24 @@ public class PaletteReducer {
         this.ditherStrength = Math.max(0f, ditherStrength);
     }
 
+    public float getPopulationBias() {
+        return populationBias;
+    }
+
+    /**
+     * Sets the population bias; rarely needed externally.
+     * Typically, the population bias is between 0.5 and 1, closer to 1 with larger palette sizes, and closer to 0.5
+     * with smaller palettes.
+     * <br>
+     * Within anim8-gdx, this is generally calculated with {@code (float)Math.exp(-1.375 / colorCount)}, where
+     * {@link #colorCount} is already known and between 2 and 256, inclusive.
+     *
+     * @param populationBias a population bias value, which is almost always between 0.5 and 1.0
+     */
+    public void setPopulationBias(float populationBias) {
+        this.populationBias = populationBias;
+    }
+
     /**
      * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, dithering when it can by
      * using Wren dithering (this merely delegates to {@link #reduceWren(Pixmap)}).
