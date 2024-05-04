@@ -6,11 +6,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.anim8.*;
-
-import java.io.IOException;
 
 /**
  * Currently just dithers a few pictures (my cat, then from Wikimedia Commons, a tropical frog, a public domain
@@ -65,14 +62,15 @@ public class StillImageDemo extends ApplicationAdapter {
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
 		// gb palette
 //        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
-		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer = regular;
-		final String[] types = {"", "H", "Q"};
+		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer;
+		final String[] types = {"", "H", "Q", "R"};
 		for(String type : types) {
-			reducer = ("Q".equals(type)) ? quality : regular;
-
+			reducer = (type.isEmpty()) ? regular : quality;
 			for (int count : new int[]{16, 31, 255}) {
 				if ("H".equals(type)) {
 					reducer.analyzeHueWise(pixmap, 100, count + 1);
+				} else if ("R".equals(type)) {
+					reducer.analyzeReductive(pixmap, 300, count + 1);
 				} else {
 					reducer.analyze(pixmap, 100, count + 1);
 				}
@@ -104,6 +102,12 @@ public class StillImageDemo extends ApplicationAdapter {
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-DB8.png"), pixmap, false, true);
 		}
 
+		quality.exact(new int[]{0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF});
+		for(Dithered.DitherAlgorithm d : ALGORITHMS){
+			png8.setDitherAlgorithm(d);
+			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Prospecal.png"), pixmap, false, true);
+		}
+
 		quality.setDefaultPalette();
 		for(Dithered.DitherAlgorithm d : ALGORITHMS){
 			png8.setDitherAlgorithm(d);
@@ -113,16 +117,12 @@ public class StillImageDemo extends ApplicationAdapter {
 	}
 
     public void renderPNG(String name) {
-        PixmapIO.PNG png = new PixmapIO.PNG();
+        FastPNG png = new FastPNG();
         png.setFlipY(false);
         png.setCompression(2);
 		FileHandle handle = Gdx.files.classpath(name);
-		try {
-			png.write(Gdx.files.local("images/png/"+handle.nameWithoutExtension()+"-PNG.png"), new Pixmap(handle));
-		} catch (IOException e) {
-			Gdx.app.error("anim8", e.getMessage());
-		}
-	}
+        png.write(Gdx.files.local("images/png/"+handle.nameWithoutExtension()+"-PNG.png"), new Pixmap(handle));
+    }
 
     public void renderGif(String filename) {
 		FileHandle file = Gdx.files.classpath(filename);
@@ -130,13 +130,15 @@ public class StillImageDemo extends ApplicationAdapter {
 		Array<Pixmap> pixmaps = Array.with(new Pixmap(file));
         AnimatedGif gif = new AnimatedGif();
         gif.setFlipY(false);
-		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer = regular;
-		final String[] types = {"", "H", "Q"};
+		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer;
+		final String[] types = {"", "H", "Q", "R"};
 		for(String type : types) {
-			reducer = ("Q".equals(type)) ? quality : regular;
+			reducer = (type.isEmpty()) ? regular : quality;
 			for (int count : new int[]{16, 31, 255}) {
 				if ("H".equals(type)) {
 					reducer.analyzeHueWise(pixmaps, 100, count + 1);
+				} else if ("R".equals(type)) {
+					reducer.analyzeReductive(pixmaps, 300, count + 1);
 				} else {
 					reducer.analyze(pixmaps, 100, count + 1);
 				}
@@ -165,6 +167,12 @@ public class StillImageDemo extends ApplicationAdapter {
 		for(Dithered.DitherAlgorithm d : ALGORITHMS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-DB8.gif"), pixmaps, 1);
+		}
+
+		quality.exact(new int[]{0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF});
+		for(Dithered.DitherAlgorithm d : ALGORITHMS) {
+			gif.setDitherAlgorithm(d);
+			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-Prospecal.gif"), pixmaps, 1);
 		}
 
 		quality.setDefaultPalette();
