@@ -129,15 +129,14 @@ public class StillImageDemo extends ApplicationAdapter {
 		String name = file.nameWithoutExtension();
 		Array<Pixmap> pixmaps = Array.with(new Pixmap(file));
         AnimatedGif gif = new AnimatedGif();
+		NQGif nqg = new NQGif();
         gif.setFlipY(false);
 		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer;
 		final String[] types = {"", "H", "Q", "R", "N"};
 		for(String type : types) {
 			if("N".equals(type))
 			{
-				gif.useNeuQuant = true;
-				gif.write(Gdx.files.local("images/gif/" + name + "-Gif-NQ-256" + ".gif"), pixmaps, 1);
-				gif.useNeuQuant = false;
+				nqg.write(Gdx.files.local("images/gif/" + name + "-Gif-NQ-256" + ".gif"), pixmaps, 1);
 				total++;
 				continue;
 			}
