@@ -2289,24 +2289,19 @@ public class PaletteReducer {
     }
 
     protected static boolean bigPaletteLoaded = false;
-    protected static final char[] bigPaletteMapping = new char[0x8000];
+    protected static char[] bigPaletteMapping;
 
     /**
      * Builds a mapping from RGB555 colors to their closest match in {@code palette} by calculating the closest match
      * for every color. The {@code palette} should have 1024 colors, if possible, but can be smaller.The mapping this
      * makes is only used by the "Reductive" analysis methods, such as {@link #analyzeReductive(Pixmap, double, int)}.
-     * If {@link Gdx#files} is not null (which is always the case after {@link ApplicationListener#create()}) has been
-     * called by the framework), this writes a file locally, to {@code "BigPaletteMapping_" + NUMBER + ".dat"}. The
-     * {@code NUMBER} is a hash code of the given {@code palette}. While it is very unlikely that successive calls to
-     * this method with different palettes would overwrite the same file, it is possible, so if you want to save a
-     * palette file this produces, you should do so right away. The palette file can be used by anim8-gdx itself if
-     * renamed to {@code "BigPaletteMapping.dat"} and stored in the classpath root, or it can be loaded with
-     * {@link #loadBigPalette(FileHandle, int[])}. Note that while this method is not static, the palette mapping it
+     * Note that while this method is not static, the palette mapping it
      * stores its result in is static, so you should avoid calling this on multiple threads.
      *
      * @param palette a typically-1024-color RGBA8888 palette; may be smaller, but not larger
      */
     public void alterBigPalette(int[] palette) {
+        if(bigPaletteMapping == null) bigPaletteMapping = new char[0x8000];
         final int plen = palette.length;
         System.arraycopy(palette, 0, BIG_PALETTE, 0, Math.min(plen, BIG_PALETTE.length));
         if(plen < BIG_PALETTE.length)
@@ -2337,9 +2332,21 @@ public class PaletteReducer {
                 }
             }
         }
-        if(Gdx.files != null)
-            Gdx.files.local("BigPaletteMapping_"+Arrays.hashCode(palette)+".dat").writeString(new String(bigPaletteMapping), false, "UTF8");
         bigPaletteLoaded = true;
+    }
+
+    /**
+     * Writes the current {@link #bigPaletteMapping} to the given FileHandle. If {@code filename} is null, this writes
+     * to the local FileHandle {@code "BigPaletteMapping.dat"} .
+     * The palette file can be used by anim8-gdx itself if
+     * its name is {@code "BigPaletteMapping.dat"} and stored in the classpath root, or it can be loaded with
+     * {@link #loadBigPalette(FileHandle, int[])}.
+     * @param filename
+     */
+    public void writeBigPalette(FileHandle filename){
+        if(Gdx.files != null && bigPaletteMapping != null)
+            (filename == null ? Gdx.files.local("BigPaletteMapping.dat") : filename).writeString(new String(bigPaletteMapping), false, "UTF8");
+
     }
 
     /**
@@ -2359,6 +2366,7 @@ public class PaletteReducer {
         System.arraycopy(palette, 0, BIG_PALETTE, 0, Math.min(plen, BIG_PALETTE.length));
         if(plen < BIG_PALETTE.length)
             Arrays.fill(BIG_PALETTE, plen, 1024, 0);
+        if(bigPaletteMapping == null) bigPaletteMapping = new char[0x8000];
         file.readString("UTF8").getChars(0, 0x8000, bigPaletteMapping, 0);
         bigPaletteLoaded = true;
     }
@@ -2367,14 +2375,18 @@ public class PaletteReducer {
      * Builds the mapping from RGB555 colors to their closest match in {@link #BIG_PALETTE} by loading the known mapping
      * from an internal file. This will not work as intended if {@link #BIG_PALETTE} has been altered, such as by using
      * {@link #alterBigPalette(int[])}. The mapping this makes is only used by the "Reductive" analysis methods, such as
-     * {@link #analyzeReductive(Pixmap, double, int)}.
+     * {@link #analyzeReductive(Pixmap, double, int)}. If the big palette has already been loaded successfully, this
+     * does nothing and returns immediately (it checks the static field {@link #bigPaletteLoaded}).
      * Note that while this method is not static, the palette mapping it stores its result in is static, so you should
      * avoid calling methods that modify {@link #bigPaletteMapping} on other threads (such as
      * {@link #alterBigPalette(int[])} and {@link #loadBigPalette(FileHandle, int[])}).
      */
     public void buildBigPalette() {
         if(bigPaletteLoaded) return;
-        Gdx.files.classpath("BigPaletteMapping.dat").readString("UTF8").getChars(0, 0x8000, bigPaletteMapping, 0);
+        if(bigPaletteMapping == null) bigPaletteMapping = new char[0x8000];
+        FileHandle dat = Gdx.files.classpath("BigPaletteMapping.dat");
+        if(!dat.exists()) return;
+        dat.readString("UTF8").getChars(0, 0x8000, bigPaletteMapping, 0);
         bigPaletteLoaded = true;
     }
 
