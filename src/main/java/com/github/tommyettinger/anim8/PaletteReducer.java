@@ -2303,7 +2303,9 @@ public class PaletteReducer {
     public void alterBigPalette(int[] palette) {
         if(bigPaletteMapping == null) bigPaletteMapping = new char[0x8000];
         final int plen = palette.length;
-        System.arraycopy(palette, 0, BIG_PALETTE, 0, Math.min(plen, BIG_PALETTE.length));
+        // Check reference equality to avoid medium-large copy when building from existing BIG_PALETTE
+        if(palette != BIG_PALETTE)
+            System.arraycopy(palette, 0, BIG_PALETTE, 0, Math.min(plen, BIG_PALETTE.length));
         if(plen < BIG_PALETTE.length)
             Arrays.fill(BIG_PALETTE, plen, 1024, 0);
         int color, c2;
@@ -2341,7 +2343,7 @@ public class PaletteReducer {
      * The palette file can be used by anim8-gdx itself if
      * its name is {@code "BigPaletteMapping.dat"} and stored in the classpath root, or it can be loaded with
      * {@link #loadBigPalette(FileHandle, int[])}.
-     * @param filename
+     * @param filename may be null to write to {@code "BigPaletteMapping.dat"}, or otherwise a FileHandle to write to
      */
     public void writeBigPalette(FileHandle filename){
         if(Gdx.files != null && bigPaletteMapping != null)
@@ -2373,7 +2375,15 @@ public class PaletteReducer {
 
     /**
      * Builds the mapping from RGB555 colors to their closest match in {@link #BIG_PALETTE} by loading the known mapping
-     * from an internal file. This will not work as intended if {@link #BIG_PALETTE} has been altered, such as by using
+     * from an optional file, or assembling a new mapping if that file is not present. The file this needs to run using
+     * its "fast path" is {@code BigPaletteMapping.dat}, which must be in the resources root to be loaded successfully
+     * (in a libGDX project, this is {@code /assets/}). You can download this file from
+     * <a href="https://github.com/tommyettinger/anim8-gdx/blob/master/optional/BigPaletteMapping.dat">the optional folder of the anim8-gdx repo</a>
+     * or create it yourself by calling this method at least once to
+     * assemble a new mapping, then calling {@link #writeBigPalette(FileHandle)} to create a file that you can then put
+     * in your resources root with the filename as stated before.
+     * <br>
+     * This will not work as intended if {@link #BIG_PALETTE} has been altered, such as by using
      * {@link #alterBigPalette(int[])}. The mapping this makes is only used by the "Reductive" analysis methods, such as
      * {@link #analyzeReductive(Pixmap, double, int)}. If the big palette has already been loaded successfully, this
      * does nothing and returns immediately (it checks the static field {@link #bigPaletteLoaded}).
@@ -2385,7 +2395,10 @@ public class PaletteReducer {
         if(bigPaletteLoaded) return;
         if(bigPaletteMapping == null) bigPaletteMapping = new char[0x8000];
         FileHandle dat = Gdx.files.classpath("BigPaletteMapping.dat");
-        if(!dat.exists()) return;
+        if(!dat.exists()) {
+            alterBigPalette(BIG_PALETTE);
+            return;
+        }
         dat.readString("UTF8").getChars(0, 0x8000, bigPaletteMapping, 0);
         bigPaletteLoaded = true;
     }
@@ -2406,8 +2419,8 @@ public class PaletteReducer {
      * Pixmap.
      * <br>
      * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_PALETTE}
-     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
-     * use a precalculated mapping.
+     * palette. This only needs to be done once per program (the result is saved). You can also (in your project) copy
+     * a precalculated mapping into your resources root, as described in {@link #buildBigPalette()}.
      *
      * @param pixmap a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      */
@@ -2433,8 +2446,8 @@ public class PaletteReducer {
      * Pixmap.
      * <br>
      * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_PALETTE}
-     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
-     * use a precalculated mapping.
+     * palette. This only needs to be done once per program (the result is saved). You can also (in your project) copy
+     * a precalculated mapping into your resources root, as described in {@link #buildBigPalette()}.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)} ; usually between 100 and 500, 300 is a good default
@@ -2460,8 +2473,8 @@ public class PaletteReducer {
      * Pixmap.
      * <br>
      * This has a small delay when first called, because it needs to build a mapping for the large {@link #BIG_PALETTE}
-     * palette. This only needs to be done once per program (the result is saved). Future versions of this library may
-     * use a precalculated mapping.
+     * palette. This only needs to be done once per program (the result is saved). You can also (in your project) copy
+     * a precalculated mapping into your resources root, as described in {@link #buildBigPalette()}.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 500, 300 is a good default

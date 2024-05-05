@@ -26,15 +26,6 @@
   -->
 <module>
     <source path="anim8">
-        <!--I'm not sure if we need to explicitly include these.-->
-<!--        <include name="AnimatedGif.java"/>-->
-<!--        <include name="AnimationWriter.java"/>-->
-<!--        <include name="ConstantData.java"/>-->
-<!--        <include name="Dithered.java"/>-->
-<!--        <include name="LZWEncoder.java"/>-->
-<!--        <include name="OtherMath.java"/>-->
-<!--        <include name="PaletteReducer.java"/>-->
-
         <exclude name="AnimatedPNG.java"/>
         <exclude name="ChunkBuffer.java"/>
         <exclude name="PNG8.java"/>
@@ -42,5 +33,7 @@
         <exclude name="FastPNG.java"/>
         <exclude name="FastPNG8.java"/>
     </source>
-    <extend-configuration-property name="gdx.files.classpath" value="BigPaletteMapping.dat" />
+
+<!-- You can copy this line into your .gwt.xml file if you copied BigPaletteMapping.dat into your resources root. -->
+<!--    <extend-configuration-property name="gdx.files.classpath" value="BigPaletteMapping.dat" />-->
 </module>
