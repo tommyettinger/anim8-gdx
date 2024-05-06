@@ -4491,6 +4491,190 @@ public class PaletteReducer {
     }
 
     /**
+     * Burkes error diffusion dither with some extra error added in, selecting different types of error pattern in an
+     * ordered way. This incorporates two types of extra error to each channel of each pixel, selecting based on a grid
+     * of 2x2 pixel squares. Error applies differently to each RGB channel. The types of extra error are:
+     * <ul>
+     * <li>An R2 dither value (as used by {@link #reduceRoberts(Pixmap)}) is used for each pixel, but the four corners
+     * of the 2x2 square each use a different angle for the artifacts.</li>
+     * <li>Blue noise from {@link #TRI_BLUE_NOISE} is incorporated into two corners, with different strength.</li>
+     * <li>XOR-Mod patterns are incorporated when blue noise isn't. They consist of diagonal lines. These are:
+     * <ul>
+     *     <li>{@code ((px ^ y) % 9 - 4)}</li>
+     *     <li>{@code ((px ^ y) % 11 - 5)}</li>
+     * </ul>
+     * </li>
+     * </ul>
+     * <br>
+     * This is called Overboard because it is probably going overboard with the different types of extra error. Just
+     * Burkes dither on its own is probably good enough. The results can look quite good, though, and tend to be
+     * slightly smoother than {@link Dithered.DitherAlgorithm#WREN}. This also looks better than WREN when the dither
+     * strength is higher than 1.0 and the color count is high.
+     *
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceOverboard(Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        float r4, r2, r1, g4, g2, g1, b4, b2, b1;
+        float strength = ditherStrength * 0.5f * (populationBias * populationBias),
+                noiseStrength = 2f / (populationBias),
+                limit = 5f + 125f / (float)Math.sqrt(colorCount+1.5f);
+
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (curErrorRedFloats == null) {
+            curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
+            nextErrorRed = (nextErrorRedFloats = new FloatArray(lineLen)).items;
+            curErrorGreen = (curErrorGreenFloats = new FloatArray(lineLen)).items;
+            nextErrorGreen = (nextErrorGreenFloats = new FloatArray(lineLen)).items;
+            curErrorBlue = (curErrorBlueFloats = new FloatArray(lineLen)).items;
+            nextErrorBlue = (nextErrorBlueFloats = new FloatArray(lineLen)).items;
+        } else {
+            curErrorRed = curErrorRedFloats.ensureCapacity(lineLen);
+            nextErrorRed = nextErrorRedFloats.ensureCapacity(lineLen);
+            curErrorGreen = curErrorGreenFloats.ensureCapacity(lineLen);
+            nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
+            curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
+            nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
+            for (int i = 0; i < lineLen; i++) {
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+        }
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color, used;
+        float rdiff, gdiff, bdiff;
+        byte paletteIndex;
+        for (int y = 0; y < h; y++) {
+            int ny = y + 1;
+            for (int i = 0; i < lineLen; i++) {
+                curErrorRed[i] = nextErrorRed[i];
+                curErrorGreen[i] = nextErrorGreen[i];
+                curErrorBlue[i] = nextErrorBlue[i];
+                nextErrorRed[i] = 0;
+                nextErrorGreen[i] = 0;
+                nextErrorBlue[i] = 0;
+            }
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    float er = 0f, eg = 0f, eb = 0f;
+                    switch ((px << 1 & 2) | (y & 1)){
+                        case 0:
+                            er += ((px ^ y) % 9 - 4);
+                            er += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eg += (TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
+                            eg += ((px * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eb += (TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
+                            eb += ((y * 0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
+                            break;
+                        case 1:
+                            er += (TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
+                            er += ((px * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eg += (TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
+                            eg += ((y * 0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
+                            eb += ((px ^ y) % 11 - 5);
+                            eb += ((y * -0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
+                            break;
+                        case 2:
+                            er += (TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
+                            er += ((y * 0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
+                            eg += ((px ^ y) % 11 - 5);
+                            eg += ((y * -0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
+                            eb += ((px ^ y) % 9 - 4);
+                            eb += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            break;
+                        default: // case 3:
+                            er += ((px ^ y) % 11 - 5);
+                            er += ((y * -0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
+                            eg += ((px ^ y) % 9 - 4);
+                            eg += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eb += (TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
+                            eb += ((px * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            break;
+                    }
+                    er = er * noiseStrength + curErrorRed[px];
+                    eg = eg * noiseStrength + curErrorGreen[px];
+                    eb = eb * noiseStrength + curErrorBlue[px];
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + Math.min(Math.max(er, -limit), limit) + 0.5f), 0), 0xFF);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + Math.min(Math.max(eg, -limit), limit) + 0.5f), 0), 0xFF);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + Math.min(Math.max(eb, -limit), limit) + 0.5f), 0), 0xFF);
+                    paletteIndex =
+                            paletteMapping[((rr << 7) & 0x7C00)
+                                           | ((gg << 2) & 0x3E0)
+                                           | ((bb >>> 3))];
+                    used = paletteArray[paletteIndex & 0xFF];
+                    pixmap.drawPixel(px, y, used);
+                    rdiff = ((color>>>24)-    (used>>>24)    ) * strength;
+                    gdiff = ((color>>>16&255)-(used>>>16&255)) * strength;
+                    bdiff = ((color>>>8&255)- (used>>>8&255) ) * strength;
+                    r1 = rdiff * 16f / (float)Math.sqrt(2048f + rdiff * rdiff);
+                    g1 = gdiff * 16f / (float)Math.sqrt(2048f + gdiff * gdiff);
+                    b1 = bdiff * 16f / (float)Math.sqrt(2048f + bdiff * bdiff);
+                    r2 = r1 + r1;
+                    g2 = g1 + g1;
+                    b2 = b1 + b1;
+                    r4 = r2 + r2;
+                    g4 = g2 + g2;
+                    b4 = b2 + b2;
+                    if(px < lineLen - 1)
+                    {
+                        curErrorRed[px+1]   += r4;
+                        curErrorGreen[px+1] += g4;
+                        curErrorBlue[px+1]  += b4;
+                        if(px < lineLen - 2)
+                        {
+
+                            curErrorRed[px+2]   += r2;
+                            curErrorGreen[px+2] += g2;
+                            curErrorBlue[px+2]  += b2;
+                        }
+                    }
+                    if(ny < h)
+                    {
+                        if(px > 0)
+                        {
+                            nextErrorRed[px-1]   += r2;
+                            nextErrorGreen[px-1] += g2;
+                            nextErrorBlue[px-1]  += b2;
+                            if(px > 1)
+                            {
+                                nextErrorRed[px-2]   += r1;
+                                nextErrorGreen[px-2] += g1;
+                                nextErrorBlue[px-2]  += b1;
+                            }
+                        }
+                        nextErrorRed[px]   += r4;
+                        nextErrorGreen[px] += g4;
+                        nextErrorBlue[px]  += b4;
+                        if(px < lineLen - 1)
+                        {
+                            nextErrorRed[px+1]   += r2;
+                            nextErrorGreen[px+1] += g2;
+                            nextErrorBlue[px+1]  += b2;
+                            if(px < lineLen - 2)
+                            {
+
+                                nextErrorRed[px+2]   += r1;
+                                nextErrorGreen[px+2] += g1;
+                                nextErrorBlue[px+2]  += b1;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
      * Compares items in ints by their luma, looking up items by the indices a and b, and swaps the two given indices if
      * the item at a has higher luma than the item at b. This requires items to be present as two ints per item: the
      * earlier int, at an index less than 16, is what gets sorted, while the later int, at an index 16 higher than the
