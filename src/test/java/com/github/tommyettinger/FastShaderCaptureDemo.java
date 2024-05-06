@@ -222,10 +222,10 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
 
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, FastPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
-        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader};
+        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8", "prospecal"};
+        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, QualityPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}};
+        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
+        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader, shader};
 
 //        String[] nms = {"pastel", "green", "bw", "gb", "aurora"};
 //        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA};
@@ -342,7 +342,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
             }
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
-                png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-" + d + "-Q.png"), pixmaps, 16);
+                png8.write(Gdx.files.local("images/png/animated/PNG8-F-" + name + "-" + d + ".png"), pixmaps, 16);
             }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
@@ -381,12 +381,12 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 gif.palette = null;
                 if(!(gif.setFastAnalysis(!gif.isFastAnalysis()))) --n;
 //                prefix = "images/gif/animatedHue/AnimatedGif-";
-                prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.isFastAnalysis() ? "Fast" : "Slow")+"/AnimatedGif-";
+                prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.isFastAnalysis() ? "Fast" : "Slow")+"/AnimatedGif-F-";
             }
             else {
                 pal.exact(palettes[n]);
                 gif.palette = pal;
-                prefix = "images/gif/animated/AnimatedGif-";
+                prefix = "images/gif/animated/AnimatedGif-F-";
             }
             for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
                 gif.setDitherAlgorithm(d);

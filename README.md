@@ -209,6 +209,12 @@ slightly different API). You could also use FastPNG, which tend to write larger 
       - DODGY can be noisier, but if even slight repetitive artifacts are an issue, that noise becomes an advantage relative to WREN.
       - WOVEN typically preserves hue more accurately because the predictable nature of its repetitive artifact happens to align with its error-diffusion, improving perceived color when viewed from a distance.
     - This is the default and often the best of the bunch.
+  - OVERBOARD
+    - You thought WREN was complicated? Think again. OVERBOARD takes a Burkes error diffusion dither and mixes in added error from variants on the R2 sequence, blue noise, and XOR-mod patterns into each channel of each pixel.
+    - It doesn't use its whole repertoire for every channel, and selects which variants will add error using a simple ordered grid pattern.
+    - This adjusts each channel separately, and is close in how its code works to WREN (which also does this).
+    - This tends to have fewer artifacts, if any, at high dither strength. This is true relative to most dithers here.
+    - It also tends to be smoother than WREN, without any "rough surface" appearance.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN and LOAF have obvious square grids.
@@ -219,6 +225,7 @@ slightly different API). You could also use FastPNG, which tend to write larger 
     - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
+    - For very small palettes, OVERBOARD can have noticeable diagonal lines from the Burkes dither it is based on.
 
 You can set the strength of most of these dithers using PaletteReducer's, PNG8's, or AnimatedGif's
 `setDitherStrength(float)` methods (use the method on the class that is producing output). For NONE,
@@ -261,6 +268,12 @@ better than `analyze()` at around 25-30 colors in a palette (this can vary based
 slower than `analyze()`. Thanks to [caramel](https://caramellow.dev/) for (very quickly) devising this algorithm for
 palette construction. `analyzeHueWise()` is available in `FastPalette`, but not optimized any differently from in
 `PaletteReducer`.
+
+Starting in version 0.4.3, you can use `PaletteReducer.analyzeReductive()` as an alternative to
+`PaletteReducer.analyze()` or other ways. It's not generally recommended, but it may have better quality in some
+situations. This analysis involves trimming down a huge 1024-color palette until it (in theory) contains only colors
+that match the current image well. In practice, it isn't usually as good as just using `QualityPalette.analyze()`, or
+even `PaletteReducer.analyze()`.
 
 # Samples
 
@@ -354,12 +367,19 @@ Loaf:
 
 ![](samples/Mona_Lisa-PNG8-Loaf-DB8.png)
 
+Overboard:
+
+![](samples/Mona_Lisa-PNG8-Overboard-DB8.png)
+
 None (no dither):
 
 ![](samples/Mona_Lisa-PNG8-None-DB8.png)
 
 This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned DB8
-palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it.
+palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it. Restricting this
+oil painting to 8 colors is very challenging to dither well, and some algorithms definitely do a better job than others
+with such a small palette. However, with a 255-color palette, most of the algorithms are similar, and you mostly want to
+pick one with few or no artifacts that affect your image(s).
 
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
