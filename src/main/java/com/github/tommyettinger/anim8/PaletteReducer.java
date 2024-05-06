@@ -3237,6 +3237,8 @@ public class PaletteReducer {
                 return reduceLoaf(pixmap);
             case NEUE:
                 return reduceNeue(pixmap);
+            case OVERBOARD:
+                return reduceOverboard(pixmap);
             default:
             case WREN:
                 return reduceWren(pixmap);
@@ -4546,57 +4548,58 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
-            for (int px = 0; px < lineLen; px++) {
-                int color = pixmap.getPixel(px, y);
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, (byte) 0);
+            Arrays.fill(nextErrorGreen, (byte) 0);
+            Arrays.fill(nextErrorBlue, (byte) 0);
+
+            for (int x = 0; x < lineLen; x++) {
+                int color = pixmap.getPixel(x, y);
                 if ((color & 0x80) == 0 && hasTransparent)
-                    pixmap.drawPixel(px, y, 0);
+                    pixmap.drawPixel(x, y, 0);
                 else {
                     float er = 0f, eg = 0f, eb = 0f;
-                    switch ((px << 1 & 2) | (y & 1)){
+                    switch ((x << 1 & 2) | (y & 1)){
                         case 0:
-                            er += ((px ^ y) % 9 - 4);
-                            er += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
-                            eg += (TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
-                            eg += ((px * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
-                            eb += (TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
-                            eb += ((y * 0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
+                            er += ((x ^ y) % 9 - 4);
+                            er += ((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eg += (TRI_BLUE_NOISE_B[(x & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
+                            eg += ((x * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eb += (TRI_BLUE_NOISE_C[(x & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
+                            eb += ((y * 0xC13FA9A902A6328FL + x * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
                             break;
                         case 1:
-                            er += (TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
-                            er += ((px * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
-                            eg += (TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
-                            eg += ((y * 0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
-                            eb += ((px ^ y) % 11 - 5);
-                            eb += ((y * -0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
+                            er += (TRI_BLUE_NOISE[(x & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
+                            er += ((x * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eg += (TRI_BLUE_NOISE_B[(x & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
+                            eg += ((y * 0xC13FA9A902A6328FL + x * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
+                            eb += ((x ^ y) % 11 - 5);
+                            eb += ((y * -0xC13FA9A902A6328FL + x * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
                             break;
                         case 2:
-                            er += (TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
-                            er += ((y * 0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
-                            eg += ((px ^ y) % 11 - 5);
-                            eg += ((y * -0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
-                            eb += ((px ^ y) % 9 - 4);
-                            eb += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            er += (TRI_BLUE_NOISE[(x & 63) | (y & 63) << 6] + 0.5f) * 0x1p-6f;
+                            er += ((y * 0xC13FA9A902A6328FL + x * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-20f;
+                            eg += ((x ^ y) % 11 - 5);
+                            eg += ((y * -0xC13FA9A902A6328FL + x * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
+                            eb += ((x ^ y) % 9 - 4);
+                            eb += ((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
                             break;
                         default: // case 3:
-                            er += ((px ^ y) % 11 - 5);
-                            er += ((y * -0xC13FA9A902A6328FL + px * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
-                            eg += ((px ^ y) % 9 - 4);
-                            eg += ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
-                            eb += (TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
-                            eb += ((px * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            er += ((x ^ y) % 11 - 5);
+                            er += ((y * -0xC13FA9A902A6328FL + x * -0x91E10DA5C79E7B1DL) >> 41) * 0x1.8p-21f;
+                            eg += ((x ^ y) % 9 - 4);
+                            eg += ((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
+                            eb += (TRI_BLUE_NOISE_C[(x & 63) | (y & 63) << 6] + 0.5f) * 0x1p-5f;
+                            eb += ((x * -0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
                             break;
                     }
-                    er = er * noiseStrength + curErrorRed[px];
-                    eg = eg * noiseStrength + curErrorGreen[px];
-                    eb = eb * noiseStrength + curErrorBlue[px];
+                    er = er * noiseStrength + curErrorRed[x];
+                    eg = eg * noiseStrength + curErrorGreen[x];
+                    eb = eb * noiseStrength + curErrorBlue[x];
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + Math.min(Math.max(er, -limit), limit) + 0.5f), 0), 0xFF);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + Math.min(Math.max(eg, -limit), limit) + 0.5f), 0), 0xFF);
                     int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + Math.min(Math.max(eb, -limit), limit) + 0.5f), 0), 0xFF);
@@ -4604,7 +4607,7 @@ public class PaletteReducer {
                                                        | ((gg << 2) & 0x3E0)
                                                        | ((bb >>> 3))];
                     int used = paletteArray[paletteIndex & 0xFF];
-                    pixmap.drawPixel(px, y, used);
+                    pixmap.drawPixel(x, y, used);
                     float rdiff = ((color >>> 24) - (used >>> 24)) * strength;
                     float gdiff = ((color >>> 16 & 255) - (used >>> 16 & 255)) * strength;
                     float bdiff = ((color >>> 8 & 255) - (used >>> 8 & 255)) * strength;
@@ -4620,47 +4623,47 @@ public class PaletteReducer {
                     float r4 = r2 + r2;
                     float g4 = g2 + g2;
                     float b4 = b2 + b2;
-                    if(px < lineLen - 1)
+                    if(x < lineLen - 1)
                     {
-                        curErrorRed[px+1]   += r4;
-                        curErrorGreen[px+1] += g4;
-                        curErrorBlue[px+1]  += b4;
-                        if(px < lineLen - 2)
+                        curErrorRed[x+1]   += r4;
+                        curErrorGreen[x+1] += g4;
+                        curErrorBlue[x+1]  += b4;
+                        if(x < lineLen - 2)
                         {
 
-                            curErrorRed[px+2]   += r2;
-                            curErrorGreen[px+2] += g2;
-                            curErrorBlue[px+2]  += b2;
+                            curErrorRed[x+2]   += r2;
+                            curErrorGreen[x+2] += g2;
+                            curErrorBlue[x+2]  += b2;
                         }
                     }
                     if(ny < h)
                     {
-                        if(px > 0)
+                        if(x > 0)
                         {
-                            nextErrorRed[px-1]   += r2;
-                            nextErrorGreen[px-1] += g2;
-                            nextErrorBlue[px-1]  += b2;
-                            if(px > 1)
+                            nextErrorRed[x-1]   += r2;
+                            nextErrorGreen[x-1] += g2;
+                            nextErrorBlue[x-1]  += b2;
+                            if(x > 1)
                             {
-                                nextErrorRed[px-2]   += r1;
-                                nextErrorGreen[px-2] += g1;
-                                nextErrorBlue[px-2]  += b1;
+                                nextErrorRed[x-2]   += r1;
+                                nextErrorGreen[x-2] += g1;
+                                nextErrorBlue[x-2]  += b1;
                             }
                         }
-                        nextErrorRed[px]   += r4;
-                        nextErrorGreen[px] += g4;
-                        nextErrorBlue[px]  += b4;
-                        if(px < lineLen - 1)
+                        nextErrorRed[x]   += r4;
+                        nextErrorGreen[x] += g4;
+                        nextErrorBlue[x]  += b4;
+                        if(x < lineLen - 1)
                         {
-                            nextErrorRed[px+1]   += r2;
-                            nextErrorGreen[px+1] += g2;
-                            nextErrorBlue[px+1]  += b2;
-                            if(px < lineLen - 2)
+                            nextErrorRed[x+1]   += r2;
+                            nextErrorGreen[x+1] += g2;
+                            nextErrorBlue[x+1]  += b2;
+                            if(x < lineLen - 2)
                             {
 
-                                nextErrorRed[px+2]   += r1;
-                                nextErrorGreen[px+2] += g1;
-                                nextErrorBlue[px+2]  += b1;
+                                nextErrorRed[x+2]   += r1;
+                                nextErrorGreen[x+2] += g1;
+                                nextErrorBlue[x+2]  += b1;
                             }
                         }
                     }
