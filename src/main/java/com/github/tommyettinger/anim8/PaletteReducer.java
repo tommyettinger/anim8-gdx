@@ -4517,8 +4517,7 @@ public class PaletteReducer {
     public Pixmap reduceOverboard(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
-        float r4, r2, r1, g4, g2, g1, b4, b2, b1;
-        float strength = ditherStrength * 0.5f * (populationBias * populationBias),
+        final float strength = ditherStrength * 0.5f * (populationBias * populationBias),
                 noiseStrength = 2f / (populationBias),
                 limit = 5f + 125f / (float)Math.sqrt(colorCount+1.5f);
 
@@ -4545,9 +4544,6 @@ public class PaletteReducer {
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used;
-        float rdiff, gdiff, bdiff;
-        byte paletteIndex;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
             for (int i = 0; i < lineLen; i++) {
@@ -4559,7 +4555,7 @@ public class PaletteReducer {
                 nextErrorBlue[i] = 0;
             }
             for (int px = 0; px < lineLen; px++) {
-                color = pixmap.getPixel(px, y);
+                int color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
                     pixmap.drawPixel(px, y, 0);
                 else {
@@ -4604,24 +4600,26 @@ public class PaletteReducer {
                     int rr = Math.min(Math.max((int)(((color >>> 24)       ) + Math.min(Math.max(er, -limit), limit) + 0.5f), 0), 0xFF);
                     int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + Math.min(Math.max(eg, -limit), limit) + 0.5f), 0), 0xFF);
                     int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + Math.min(Math.max(eb, -limit), limit) + 0.5f), 0), 0xFF);
-                    paletteIndex =
-                            paletteMapping[((rr << 7) & 0x7C00)
-                                           | ((gg << 2) & 0x3E0)
-                                           | ((bb >>> 3))];
-                    used = paletteArray[paletteIndex & 0xFF];
+                    byte paletteIndex = paletteMapping[((rr << 7) & 0x7C00)
+                                                       | ((gg << 2) & 0x3E0)
+                                                       | ((bb >>> 3))];
+                    int used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = ((color>>>24)-    (used>>>24)    ) * strength;
-                    gdiff = ((color>>>16&255)-(used>>>16&255)) * strength;
-                    bdiff = ((color>>>8&255)- (used>>>8&255) ) * strength;
-                    r1 = rdiff * 16f / (float)Math.sqrt(2048f + rdiff * rdiff);
-                    g1 = gdiff * 16f / (float)Math.sqrt(2048f + gdiff * gdiff);
-                    b1 = bdiff * 16f / (float)Math.sqrt(2048f + bdiff * bdiff);
-                    r2 = r1 + r1;
-                    g2 = g1 + g1;
-                    b2 = b1 + b1;
-                    r4 = r2 + r2;
-                    g4 = g2 + g2;
-                    b4 = b2 + b2;
+                    float rdiff = ((color >>> 24) - (used >>> 24)) * strength;
+                    float gdiff = ((color >>> 16 & 255) - (used >>> 16 & 255)) * strength;
+                    float bdiff = ((color >>> 8 & 255) - (used >>> 8 & 255)) * strength;
+                    float r1 = rdiff * 16f / (45f + Math.abs(rdiff));
+                    float g1 = gdiff * 16f / (45f + Math.abs(gdiff));
+                    float b1 = bdiff * 16f / (45f + Math.abs(bdiff));
+//                    float r1 = rdiff * 16f / (float)Math.sqrt(2048f + rdiff * rdiff);
+//                    float g1 = gdiff * 16f / (float)Math.sqrt(2048f + gdiff * gdiff);
+//                    float b1 = bdiff * 16f / (float)Math.sqrt(2048f + bdiff * bdiff);
+                    float r2 = r1 + r1;
+                    float g2 = g1 + g1;
+                    float b2 = b1 + b1;
+                    float r4 = r2 + r2;
+                    float g4 = g2 + g2;
+                    float b4 = b2 + b2;
                     if(px < lineLen - 1)
                     {
                         curErrorRed[px+1]   += r4;

@@ -227,7 +227,23 @@ public interface Dithered {
          * <br>
          * This is currently the default dither.
          */
-        WREN("Wren");
+        WREN("Wren"),
+        /**
+         * An error-diffusion dither (like {@link #DIFFUSION}, but using Burkes instead of Floyd-Steinberg) that uses
+         * an assortment of patterns to add error to diffuse, selecting which patterns to use in a way that mimics a
+         * simple ordered dither. This looks a lot like {@link #WREN} in practice, but tends to be smoother, and avoids
+         * some serious artifacts if the dither strength is higher than 1. Unlike {@link #WREN} and {@link #WOVEN}, this
+         * won't usually add a "rough" or "canvas-like" appearance to parts of an image that are mostly flat in color,
+         * making it usually more faithful at keeping fine details. The main disadvantage of this dithering algorithm is
+         * that it is more complex than most of the others here, so copying or editing it would be more challenging. It
+         * doesn't appear to be much slower than {@link #WREN}, if it is slower at all.
+         * <br>
+         * Like {@link #WREN}, but unlike {@link #NEUE}, this adds extra error differently to different RGB channels.
+         * It doesn't go quite as far as {@link #WREN} at allowing really tremendous changes in color, which does mean
+         * it isn't always as capable of producing high-quality dithers with very small palettes. However, this tradeoff
+         * also means it doesn't pick up low-quality artifacts when dither strength is high.
+         */
+        OVERBOARD("Overboard");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
