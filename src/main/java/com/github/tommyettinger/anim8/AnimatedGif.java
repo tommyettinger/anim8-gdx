@@ -1436,8 +1436,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         boolean hasTransparent = paletteArray[0] == 0;
 
         final int w = width;
-        final float populationBias = palette.populationBias;
-        final float strength = ditherStrength * 0.5f * (populationBias * populationBias),
+        final float populationBias = palette.populationBias,
+                strength = ditherStrength * 0.5f * (populationBias * populationBias),
                 noiseStrength = 2f / (populationBias),
                 limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5f);
 
