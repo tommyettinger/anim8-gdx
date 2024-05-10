@@ -49,17 +49,21 @@ limited to using at most 255 opaque colors, plus one fully-transparent color. To
 palette, the general technique is to choose or generate a fitting palette, then to *dither* the image to break up solid
 blocks of one color, and try to maintain or suggest any subtle gradients that were present before reduction. To choose
 an existing palette, you use `PaletteReducer`'s `exact()` method, which takes an int array or similar collection of
-RGBA8888 colors. You might want to get a small palette from [LoSpec](https://lospec.com/palette-list), for example.
-To generate a palette that fits an existing image (or group of images), you use `PaletteReducer`'s `analyze()` method,
-which takes a `Pixmap`, plus optionally a color threshold and a color count (most usage only needs a count of 256, but
-the threshold can vary based on the image or images). Calling `analyze()` isn't incredibly fast, and it can take the
-bulk of the time spent making an animated GIF if each frame has its own palette. Analyzing just once is sufficient for
-many uses, though, and as long as the threshold is right, it can produce a nicely-fitting palette. Once you have called
-`exact()` or `analyze()`, you can use the `PaletteReducer` in a `PNG8` or in an `AnimatedGif`, or on its own if you just
-want to color-reduce `Pixmap`s. There are also two variants; `FastPalette`, which is like PaletteReducer but is not
-compatible with GWT because it uses a different way of scanning through the input image, and `QualityPalette`, which is
-also like PaletteReducer but uses a typically-higher-quality color difference calculation that is also slower. There's
-more on this topic later, since this is a major focus of the library.
+RGBA8888 colors. You might want to get a small palette from [LoSpec](https://lospec.com/palette-list), for example. You could go through the steps
+of downloading a .hex file (or another text palette) and converting it to a Java `int[]` syntax... or you could simply
+get a palette image (or any image that only uses the palette you want, with 255 colors or fewer) and call
+`PaletteReducer.colorsFrom(Pixmap)` to get an int array to pass to `exact()`.
+
+To generate a palette that fits an existing many-color image (or group of images), you use `PaletteReducer`'s
+`analyze()` method, which takes a `Pixmap`, plus optionally a color threshold and a color count (most usage only needs a
+count of 256, but the threshold can vary based on the image or images). Calling `analyze()` isn't incredibly fast, and
+it can take the bulk of the time spent making an animated GIF if each frame has its own palette. Analyzing just once is
+sufficient for many uses, though, and as long as the threshold is right, it can produce a nicely-fitting palette. Once
+you have called `exact()` or `analyze()`, you can use the `PaletteReducer` in a `PNG8` or in an `AnimatedGif`, or on its
+own if you just want to color-reduce `Pixmap`s. There are also two variants; `FastPalette`, which is like PaletteReducer
+but uses a possibly-faster and lower-quality way of comparing colors, and `QualityPalette`, which is also like
+PaletteReducer but uses a typically-higher-quality color difference calculation that is also slower. There's more on
+this topic later, since this is a major focus of the library.
 
 # Install
 
@@ -79,8 +83,8 @@ commit, unless you are experiencing problems with one in particular.)
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
 `implementation "com.github.tommyettinger:anim8-gdx:0.4.2:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work,
-as should QualityPalette. The classes `FastGif` and `FastPalette` should work on GWT, but no other "Fast" classes will.
-The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
+as should `QualityPalette`. The classes `FastGif` and `FastPalette` should work on GWT, but no other "Fast" classes
+will. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml` if no dependencies already have it, is:
 ```xml
 <inherits name="com.github.tommyettinger.anim8" />
 ```
@@ -199,6 +203,7 @@ slightly different API). You could also use FastPNG, which tend to write larger 
   - LOAF
     - A very simple, intentionally-low-fidelity ordered dither meant primarily for pixel art.
     - This has very obvious grid patterns, effectively repeating a 2x2 pixel area many times over similar color regions.
+    - You will see fine-resolution checkerboard patterns very often here.
     - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look
       like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
   - WREN
@@ -211,10 +216,12 @@ slightly different API). You could also use FastPNG, which tend to write larger 
     - This is the default and often the best of the bunch.
   - OVERBOARD
     - You thought WREN was complicated? Think again. OVERBOARD takes a Burkes error diffusion dither and mixes in added error from variants on the R2 sequence, blue noise, and XOR-mod patterns into each channel of each pixel.
+      - XOR-mod patterns are often seen in very small blocks of code, like Tweets or demoscene code, and have primarily diagonal lines in unpredictable patterns.
     - It doesn't use its whole repertoire for every channel, and selects which variants will add error using a simple ordered grid pattern.
     - This adjusts each channel separately, and is close in how its code works to WREN (which also does this).
     - This tends to have fewer artifacts, if any, at high dither strength. This is true relative to most dithers here.
     - It also tends to be smoother than WREN, without any "rough surface" appearance.
+    - It is not as good at reproducing unusual colors (ones very different from what the palette contains), when compared to WREN or especially to WOVEN.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN and LOAF have obvious square grids.
@@ -283,6 +290,10 @@ animated PNG files, produced with the AnimatedGif class and converted to animate
 approach seems to avoid lossy compression on Imgur. Those use AnimatedGif's new fastAnalysis option; you can compare
 them with fastAnalysis set to false [here on Imgur](https://imgur.com/a/YDsAOVy). Running with fastAnalysis set to true
 (and also generating APNG images on the side) took about 40 seconds; with fastAnalysis false, about 129 seconds.
+
+If the animated PNG files aren't... animating... you can blame Imgur for that. If I can get GIF files to upload
+losslessly there or somewhere else, I will try some alternative. The previews also aren't up-to-date with the most
+recent dithering algorithms here, such as a changed version of LOAF and the new OVERBOARD dither.
 
 Some more .gif animations were made with the new fastAnalysis option; you can compare with fastAnalysis set to true
 [here on Imgur](https://imgur.com/a/nDwYNcP), and with fastAnalysis false [here on Imgur](https://imgur.com/a/TiyBZex).

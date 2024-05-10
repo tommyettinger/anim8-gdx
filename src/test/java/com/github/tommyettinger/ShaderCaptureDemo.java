@@ -29,7 +29,8 @@ import com.github.tommyettinger.anim8.*;
  * Finished writing in 450833 ms.
  */
 public class ShaderCaptureDemo extends ApplicationAdapter {
-
+// You (well, I) can convert GIF files this generates to APNG without losing a color, by using this Win32 cmd:
+// for %i in (*.gif) do (ffmpeg -i "%i" -plays 0 -framerate 16.67 "%~ni.apng" && mv "%~ni.apng" "%~ni.png")
     private SpriteBatch batch;
     private Texture pixel;
     private ShaderProgram shader;
@@ -241,9 +242,6 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
 
-        Gdx.files.local("images/gif/animated/").mkdirs();
-        Gdx.files.local("images/apng/animated/").mkdirs();
-        Gdx.files.local("images/png/animated/").mkdirs();
 		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
 		renderPNG8(nms, pals, sds, shs);
         renderGif(nms, pals, sds, shs);

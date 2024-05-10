@@ -254,6 +254,10 @@ public interface Dithered {
          * A cached array of the result of {@link #values()}, to avoid repeatedly allocating new
          * {@code DitherAlgorithm[]} arrays on each call to values().
          */
+        // currently (in version 0.4.3), this is:
+// NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD
+// if alphabetized:
+// BLUE_NOISE, CHAOTIC_NOISE, DIFFUSION, DODGY, GRADIENT_NOISE, LOAF, NEUE, NONE, OVERBOARD, PATTERN, ROBERTS, SCATTER, WOVEN, WREN
         public static final DitherAlgorithm[] ALL = values();
 
         DitherAlgorithm(String name){
