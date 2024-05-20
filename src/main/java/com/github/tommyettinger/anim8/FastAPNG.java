@@ -18,6 +18,8 @@
 
 package com.github.tommyettinger.anim8;
 
+import com.badlogic.gdx.Version;
+
 /**
  * Full-color animated PNG encoder with compression.
  * This is purely here for compatibility; FastAPNG is identical to {@link AnimatedPNG}.
@@ -52,6 +54,7 @@ package com.github.tommyettinger.anim8;
  */
 @Deprecated
 public class FastAPNG extends AnimatedPNG {
+    public static final String GDX_VERSION = Version.VERSION;
     /**
      * Creates an AnimatedPNG writer with an initial buffer size of 1024. The buffer can resize later if needed.
      */
