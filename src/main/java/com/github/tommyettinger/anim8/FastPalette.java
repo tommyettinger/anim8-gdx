@@ -23,7 +23,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 
-import static com.github.tommyettinger.anim8.ConstantData.ENCODED_AURORA;
+import static com.github.tommyettinger.anim8.ConstantData.ENCODED_SNUGGLY;
 
 /**
  * This is just like {@link PaletteReducer}, except that it uses a higher-quality, slower color difference calculation
@@ -38,7 +38,7 @@ public class FastPalette extends PaletteReducer {
      * runtime, but as pre-calculated data it works very well.
      */
     public FastPalette() {
-        exact(AURORA, ENCODED_AURORA);
+        exact(SNUGGLY, ENCODED_SNUGGLY);
     }
 
     /**
@@ -50,7 +50,7 @@ public class FastPalette extends PaletteReducer {
     public FastPalette(int[] rgbaPalette) {
         if(rgbaPalette == null)
         {
-            exact(AURORA, ENCODED_AURORA);
+            exact(SNUGGLY, ENCODED_SNUGGLY);
             return;
         }
         exact(rgbaPalette);
@@ -65,7 +65,7 @@ public class FastPalette extends PaletteReducer {
     public FastPalette(int[] rgbaPalette, int limit) {
         if(rgbaPalette == null)
         {
-            exact(AURORA, ENCODED_AURORA);
+            exact(SNUGGLY, ENCODED_SNUGGLY);
             return;
         }
         exact(rgbaPalette, limit);
@@ -80,7 +80,7 @@ public class FastPalette extends PaletteReducer {
     public FastPalette(Color[] colorPalette) {
         if(colorPalette == null)
         {
-            exact(AURORA, ENCODED_AURORA);
+            exact(SNUGGLY, ENCODED_SNUGGLY);
             return;
         }
         exact(colorPalette);
@@ -95,7 +95,7 @@ public class FastPalette extends PaletteReducer {
     public FastPalette(Color[] colorPalette, int limit) {
         if(colorPalette == null)
         {
-            exact(AURORA, ENCODED_AURORA);
+            exact(SNUGGLY, ENCODED_SNUGGLY);
             return;
         }
         exact(colorPalette, limit);
@@ -110,7 +110,7 @@ public class FastPalette extends PaletteReducer {
     public FastPalette(Pixmap pixmap) {
         if(pixmap == null)
         {
-            exact(AURORA, ENCODED_AURORA);
+            exact(SNUGGLY, ENCODED_SNUGGLY);
             return;
         }
         analyze(pixmap);
@@ -125,7 +125,7 @@ public class FastPalette extends PaletteReducer {
     public FastPalette(Array<Pixmap> pixmaps) {
         if(pixmaps == null)
         {
-            exact(AURORA, ENCODED_AURORA);
+            exact(SNUGGLY, ENCODED_SNUGGLY);
             return;
         }
         analyze(pixmaps);

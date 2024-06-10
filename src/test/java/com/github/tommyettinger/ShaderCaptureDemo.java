@@ -22,11 +22,6 @@ import com.github.tommyettinger.anim8.*;
  * <p>
  * Credit for the shader adaptation goes to angelickite , a very helpful user on the libGDX Discord.
  * The Discord can be found at <a href="https://discord.gg/crTrDEK">this link</a>.
- * <br>
- * APNG and Gif, with ??? dither algorithms (older):
- * Finished writing in 262250 ms.
- * Everything, with 12 dither algorithms:
- * Finished writing in 450833 ms.
  */
 public class ShaderCaptureDemo extends ApplicationAdapter {
 // You (well, I) can convert GIF files this generates to APNG without losing a color, by using this Win32 cmd:
@@ -224,10 +219,10 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
 
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8", "prospecal"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, QualityPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
-        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader, shader};
+        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8", "prospecal", "snuggly"};
+        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}, PaletteReducer.SNUGGLY};
+        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
+        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader, shader, shader};
 
 //        String[] nms = {"pastel", "green", "bw", "gb", "aurora"};
 //        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA};
@@ -314,7 +309,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
     public void renderPNG8(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
         PNG8 png8 = new PNG8();
         png8.setCompression(2);
-        png8.palette = new QualityPalette();
+        png8.palette = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);
             name = names[n];
@@ -354,7 +349,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
     public void renderGif(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
         AnimatedGif gif = new AnimatedGif();
-        QualityPalette pal = new QualityPalette();
+        PaletteReducer pal = new PaletteReducer();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);
             name = names[n];

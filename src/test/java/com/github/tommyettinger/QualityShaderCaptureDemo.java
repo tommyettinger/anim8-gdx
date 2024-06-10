@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -22,26 +23,27 @@ import com.github.tommyettinger.anim8.*;
  * Credit for the shader adaptation goes to angelickite , a very helpful user on the libGDX Discord.
  * The Discord can be found at <a href="https://discord.gg/crTrDEK">this link</a>.
  * <br>
- * APNG and Gif:
- * Finished writing in 256073 ms.
+ * APNG and Gif, with ??? dither algorithms (older):
+ * Finished writing in 262250 ms.
+ * Everything, with 12 dither algorithms:
+ * Finished writing in 450833 ms.
  */
-public class FastShaderCaptureDemo extends ApplicationAdapter {
-
+public class QualityShaderCaptureDemo extends ApplicationAdapter {
+// You (well, I) can convert GIF files this generates to APNG without losing a color, by using this Win32 cmd:
+// for %i in (*.gif) do (ffmpeg -i "%i" -plays 0 -framerate 16.67 "%~ni.apng" && mv "%~ni.apng" "%~ni.png")
     private SpriteBatch batch;
     private Texture pixel;
-    private ShaderProgram shader, shader2;
+    private ShaderProgram shader;
 
     private long startTime;
     private float seed;
     private int width, height;
     private String name;
-    private FastPNG pngIO;
 
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
         batch = new SpriteBatch();
-        pngIO = new FastPNG();
 
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.drawPixel(0, 0, 0xFFFFFFFF);
@@ -207,7 +209,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
             Gdx.app.exit();
             return;
         }
-        shader2 = new ShaderProgram(vertex2, fragment2);
+        ShaderProgram shader2 = new ShaderProgram(vertex2, fragment2);
         if (!shader2.isCompiled()) {
             Gdx.app.error("Shader", "error compiling shader2:\n" + shader2.getLog());
             Gdx.app.exit();
@@ -240,11 +242,8 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
 
-        Gdx.files.local("images/gif/animated/").mkdirs();
-        Gdx.files.local("images/apng/animated/").mkdirs();
-        Gdx.files.local("images/png/animated/").mkdirs();
-//		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-//		renderPNG8(nms, pals, sds, shs);
+		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+		renderPNG8(nms, pals, sds, shs);
         renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
 //Analyzing all frames as a batch takes    31025 ms.
@@ -299,23 +298,23 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
-                batch.draw(pixel, 0, height, width, -height);
+                batch.draw(pixel, 0, 0, width, height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             apng.write(Gdx.files.local("images/apng/animated/AnimatedPNG-" + name + "-full.png"), pixmaps, 16);
             int index = 1;
             for (Pixmap pm : pixmaps) {
-                pngIO.write(Gdx.files.local("images/apng/frames/"+name+"_"+ (index++) + ".png"), pm);
+                PixmapIO.writePNG(Gdx.files.local("images/apng/frames/"+name+"_"+ (index++) + ".png"), pm, 6, true);
                 pm.dispose();
             }
         }
     }
 
     public void renderPNG8(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
-        FastPNG8 png8 = new FastPNG8();
+        PNG8 png8 = new PNG8();
         png8.setCompression(2);
-        png8.palette = new FastPalette();
+        png8.palette = new QualityPalette();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);
             name = names[n];
@@ -329,20 +328,18 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
-                batch.draw(pixel, 0, height, width, -height);
+                batch.draw(pixel, 0, 0, width, height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
-            if (palettes[n] == null)
-            {
+            if (palettes[n] == null) {
                 png8.palette.analyze(pixmaps);
-            }
-            else {
+            } else {
                 png8.palette.exact(palettes[n]);
             }
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
-                png8.write(Gdx.files.local("images/png/animated/PNG8-F-" + name + "-" + d + ".png"), pixmaps, 16);
+                png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-" + d + "-Q.png"), pixmaps, 16);
             }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
@@ -356,8 +353,8 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
     }
 
     public void renderGif(String[] names, int[][] palettes, long[] seeds, ShaderProgram[] shaders) {
-        FastGif gif = new FastGif();
-        FastPalette pal = new FastPalette();
+        AnimatedGif gif = new AnimatedGif();
+        QualityPalette pal = new QualityPalette();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
             batch.setShader(shader = shaders[n]);
             name = names[n];
@@ -371,26 +368,24 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
-                batch.draw(pixel, 0, height, width, -height);
+                batch.draw(pixel, 0, 0, width, height);
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             String prefix;
             if (palettes[n] == null) {
-//                pal.analyze(pixmaps, 75, 256);
                 gif.palette = null;
-                if(!(gif.setFastAnalysis(!gif.isFastAnalysis()))) --n;
-//                prefix = "images/gif/animatedHue/AnimatedGif-";
-                prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.isFastAnalysis() ? "Fast" : "Slow")+"/AnimatedGif-F-";
+                if(!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
+                prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             }
             else {
                 pal.exact(palettes[n]);
                 gif.palette = pal;
-                prefix = "images/gif/animated/AnimatedGif-F-";
+                prefix = "images/gif/animated/AnimatedGif-";
             }
             for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + name + "-" + d + ".gif"), pixmaps, 16);
+                gif.write(Gdx.files.local(prefix + name + "-" + d + "-Q.gif"), pixmaps, 16);
             }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
@@ -402,7 +397,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
     }
 
     private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new FastShaderCaptureDemo(), getDefaultConfiguration());
+        return new Lwjgl3Application(new QualityShaderCaptureDemo(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
