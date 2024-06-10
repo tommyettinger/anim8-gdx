@@ -34,10 +34,12 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
         String[] names = new String[]{
                 "-Analyzed",
+                "-Snuggly",
                 "-Aurora", "-BW", "-Green", "-DB8", "-Prospecal"};
         FastPalette[] palettes = new FastPalette[]{
                 null,
                 new FastPalette(),
+                new FastPalette(FastPalette.AURORA),
                 new FastPalette(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
                 new FastPalette(new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,

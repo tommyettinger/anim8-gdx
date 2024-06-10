@@ -32,9 +32,9 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_SNUGGLY;
  */
 public class FastPalette extends PaletteReducer {
     /**
-     * Constructs a default FastPalette that uses the "Aurora" 255-color-plus-transparent palette.
+     * Constructs a default FastPalette that uses the "Snuggly" 255-color-plus-transparent palette.
      * Note that this uses a more-detailed and higher-quality metric than you would get by just specifying
-     * {@code new FastPalette(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
+     * {@code new FastPalette(PaletteReducer.SNUGGLY)}; this metric would be too slow to calculate at
      * runtime, but as pre-calculated data it works very well.
      */
     public FastPalette() {

@@ -28,6 +28,8 @@ import com.github.tommyettinger.anim8.*;
  * Everything, with 12 dither algorithms:
  * Finished writing in 450833 ms.
  */
+// slow computer:
+// Finished writing in 558949 ms.
 public class QualityShaderCaptureDemo extends ApplicationAdapter {
 // You (well, I) can convert GIF files this generates to APNG without losing a color, by using this Win32 cmd:
 // for %i in (*.gif) do (ffmpeg -i "%i" -plays 0 -framerate 16.67 "%~ni.apng" && mv "%~ni.apng" "%~ni.png")

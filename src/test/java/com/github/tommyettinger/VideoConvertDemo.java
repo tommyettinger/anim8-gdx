@@ -38,14 +38,12 @@ public class VideoConvertDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
         String[] names = new String[]{
                 "-Analyzed",
-                "-Aurora",
-                "-BW",
-                "-Green",
-                "-DB8",
-                "-Prospecal"};
+                "-Snuggly",
+                "-Aurora", "-BW", "-Green", "-DB8", "-Prospecal"};
         PaletteReducer[] palettes = new PaletteReducer[]{
                 null,
                 new PaletteReducer(),
+                new PaletteReducer(PaletteReducer.AURORA),
                 new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}),
                 new PaletteReducer(new int[]{0x00000000,
                         0x000000FF, 0x081820FF, 0x132C2DFF, 0x1E403BFF, 0x295447FF, 0x346856FF, 0x497E5BFF, 0x5E9463FF,

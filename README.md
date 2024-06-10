@@ -248,13 +248,13 @@ AnimatedGif were added in version 0.3.5 .
 
 You can create a PaletteReducer object by manually specifying an exact palette (useful for pixel art), attempting to
 analyze an existing image or animation (which can work well for large palette sizes, but not small sizes), or using the
-default palette (made by DawnBringer and called "AURORA", it has 255 colors plus transparent). Of these, using
+default palette (called "SNUGGLY", it nicely fits 255 colors plus transparent). Of these, using
 `analyze()` is the trickiest, and it generally should be permitted all 256 colors to work with. With `analyze()`, you
 can specify the threshold between colors for it to consider adding one to the palette, and this is a challenging value
 to set that depends on the image being dithered. Typically, between 50 and 600 are used, with higher values for smaller
 or more diverse palettes (that is, ones with fewer similar colors to try to keep). Usually you will do just fine with
-the default "AURORA" palette, or almost any practical 250+ color palette, because with so many colors it's hard to go
-wrong. Creating a PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use AURORA.
+the default "SNUGGLY" palette, or almost any practical 250+ color palette, because with so many colors it's hard to go
+wrong. Creating a PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use SNUGGLY.
 
 As of version 0.3.3, GIF supports using a different palette for each frame of an
 animation, analyzing colors separately for each frame. This supplements the previous behavior where a palette would

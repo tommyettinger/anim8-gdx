@@ -166,7 +166,7 @@ public class PaletteReducer {
      * This was the default for many releases, and had replaced another palette, Haltonic, that wasn't hand-chosen and
      * was much more "randomized." Aurora was the first palette used as a default here, and it was replaced because the
      * color metric at the time made it look bad. Aurora still looks good a lot of the time, but it has trouble with
-     * shades of yellow and with light green, at least.
+     * shades of yellow and with light green, at least. It was replaced with the default Snuggly palette in 0.4.4 .
      * <br>
      * While you can modify the individual items in this array, this is discouraged, because various constructors and
      * methods in this class use AURORA with a pre-made distance mapping of its colors. This mapping would become
@@ -948,9 +948,9 @@ public class PaletteReducer {
     }
     
     /**
-     * Constructs a default PaletteReducer that uses the "Aurora" 255-color-plus-transparent palette.
+     * Constructs a default PaletteReducer that uses the "Snuggly" 255-color-plus-transparent palette.
      * Note that this uses a more-detailed and higher-quality metric than you would get by just specifying
-     * {@code new PaletteReducer(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
+     * {@code new PaletteReducer(PaletteReducer.SNUGGLY)}; this metric would be too slow to calculate at
      * runtime, but as pre-calculated data it works very well.
      */
     public PaletteReducer() {
@@ -1312,10 +1312,10 @@ public class PaletteReducer {
     }
 
     /**
-     * Resets the palette to the 256-color (including transparent) "Aurora" palette. PaletteReducer already
+     * Resets the palette to the 256-color (including transparent) "Snuggly" palette. PaletteReducer already
      * stores most of the calculated data needed to use this one palette. Note that this uses a more-detailed
      * and higher-quality metric than you would get by just specifying
-     * {@code new PaletteReducer(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
+     * {@code new PaletteReducer(PaletteReducer.SNUGGLY)}; this metric would be too slow to calculate at
      * runtime, but as pre-calculated data it works very well.
      */
     public void setDefaultPalette(){
@@ -1325,7 +1325,7 @@ public class PaletteReducer {
      * Builds the palette information this PNG8 stores from the RGBA8888 ints in {@code rgbaPalette}, up to 256 colors.
      * Alpha is not preserved except for the first item in rgbaPalette, and only if it is {@code 0} (fully transparent
      * black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only has one color, then
-     * this defaults to the "Aurora" palette with 256 well-distributed colors (including transparent).
+     * this defaults to the "Snuggly" palette with 256 well-distributed colors (including transparent).
      *
      * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
      */
@@ -1337,7 +1337,7 @@ public class PaletteReducer {
      * or {@code limit}, whichever is less.
      * Alpha is not preserved except for the first item in rgbaPalette, and only if it is {@code 0} (fully transparent
      * black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only has one color, or if
-     * limit is less than 2, then this defaults to the "Aurora" palette with 256 well-distributed colors (including
+     * limit is less than 2, then this defaults to the "Snuggly" palette with 256 well-distributed colors (including
      * transparent).
      *
      * @param rgbaPalette an array of RGBA8888 ints; all will be used up to 256 items or the length of the array
@@ -1416,7 +1416,7 @@ public class PaletteReducer {
      * 256 colors.
      * Alpha is not preserved except for the first item in colorPalette, and only if its r, g, b, and a values are all
      * 0f (fully transparent black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, or only
-     * has one color, then this defaults to the "Aurora" palette with 256 well-distributed colors (including
+     * has one color, then this defaults to the "Snuggly" palette with 256 well-distributed colors (including
      * transparent).
      *
      * @param colorPalette an array of Color objects; all will be used up to 256 items or the length of the array
@@ -1430,7 +1430,7 @@ public class PaletteReducer {
      * 256 colors or {@code limit}, whichever is less.
      * Alpha is not preserved except for the first item in colorPalette, and only if its r, g, b, and a values are all
      * 0f (fully transparent black); otherwise all items are treated as opaque. If rgbaPalette is null, empty, only has
-     * one color, or limit is less than 2, then this defaults to the "Aurora" palette with 256 well-distributed
+     * one color, or limit is less than 2, then this defaults to the "Snuggly" palette with 256 well-distributed
      * colors (including transparent).
      *
      * @param colorPalette an array of Color objects; all will be used up to 256 items, limit, or the length of the array

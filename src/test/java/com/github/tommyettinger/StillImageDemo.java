@@ -108,6 +108,12 @@ public class StillImageDemo extends ApplicationAdapter {
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Prospecal.png"), pixmap, false, true);
 		}
 
+		quality.exact(QualityPalette.AURORA);
+		for(Dithered.DitherAlgorithm d : ALGORITHMS){
+			png8.setDitherAlgorithm(d);
+			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Aurora.png"), pixmap, false, true);
+		}
+
 		quality.setDefaultPalette();
 		for(Dithered.DitherAlgorithm d : ALGORITHMS){
 			png8.setDitherAlgorithm(d);
@@ -180,6 +186,12 @@ public class StillImageDemo extends ApplicationAdapter {
 		for(Dithered.DitherAlgorithm d : ALGORITHMS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-Prospecal.gif"), pixmaps, 1);
+		}
+
+		quality.exact(QualityPalette.AURORA);
+		for(Dithered.DitherAlgorithm d : ALGORITHMS) {
+			gif.setDitherAlgorithm(d);
+			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-" + d + "-Aurora.gif"), pixmaps, 1);
 		}
 
 		quality.setDefaultPalette();

@@ -23,6 +23,8 @@ import com.github.tommyettinger.anim8.*;
  * Credit for the shader adaptation goes to angelickite , a very helpful user on the libGDX Discord.
  * The Discord can be found at <a href="https://discord.gg/crTrDEK">this link</a>.
  */
+// slow computer:
+// Finished writing in 536302 ms.
 public class ShaderCaptureDemo extends ApplicationAdapter {
 // You (well, I) can convert GIF files this generates to APNG without losing a color, by using this Win32 cmd:
 // for %i in (*.gif) do (ffmpeg -i "%i" -plays 0 -framerate 16.67 "%~ni.apng" && mv "%~ni.apng" "%~ni.png")
@@ -334,7 +336,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 png8.setDitherAlgorithm(d);
-                png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-" + d + "-Q.png"), pixmaps, 16);
+                png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-" + d + ".png"), pixmaps, 16);
             }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
@@ -380,7 +382,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             }
             for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
                 gif.setDitherAlgorithm(d);
-                gif.write(Gdx.files.local(prefix + name + "-" + d + "-Q.gif"), pixmaps, 16);
+                gif.write(Gdx.files.local(prefix + name + "-" + d + ".gif"), pixmaps, 16);
             }
             for (Pixmap pm : pixmaps)
                 pm.dispose();

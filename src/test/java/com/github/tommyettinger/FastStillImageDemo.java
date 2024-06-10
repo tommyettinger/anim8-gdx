@@ -99,6 +99,12 @@ public class FastStillImageDemo extends ApplicationAdapter {
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-Prospecal.png"), pixmap, false, true);
 		}
 
+		reducer.exact(FastPalette.AURORA);
+		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+			png8.setDitherAlgorithm(d);
+			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-Aurora.png"), pixmap, false, true);
+		}
+
 		reducer.setDefaultPalette();
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
 			png8.setDitherAlgorithm(d);
@@ -159,6 +165,12 @@ public class FastStillImageDemo extends ApplicationAdapter {
 		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-Prospecal.gif"), pixmaps, 1);
+		}
+
+		reducer.exact(FastPalette.AURORA);
+		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+			gif.setDitherAlgorithm(d);
+			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-Aurora.gif"), pixmaps, 1);
 		}
 
 		reducer.setDefaultPalette();

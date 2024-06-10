@@ -42,10 +42,10 @@ import static com.github.tommyettinger.anim8.ConstantData.ENCODED_SNUGGLY;
  */
 public class QualityPalette extends PaletteReducer {
     /**
-     * Constructs a default QualityPalette that uses the "Aurora" 255-color-plus-transparent palette.
-     * Note that this uses a more-detailed and higher-quality metric than you would get by just specifying
-     * {@code new QualityPalette(PaletteReducer.AURORA)}; this metric would be too slow to calculate at
-     * runtime, but as pre-calculated data it works very well.
+     * Constructs a default QualityPalette that uses the "Snuggly" 255-color-plus-transparent palette.
+     * This uses about the same metric that you would get by specifying
+     * {@code new QualityPalette(PaletteReducer.SNUGGLY)}, but since creating a palette should be as fast as
+     * possible (and it might not use the same colors in practice), this precalculates the slowest work.
      */
     public QualityPalette() {
         exact(SNUGGLY, ENCODED_SNUGGLY);
