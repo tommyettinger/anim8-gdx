@@ -3361,12 +3361,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
 
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -3376,14 +3374,15 @@ public class PaletteReducer {
         float ditherStrength = this.ditherStrength * 20, halfDitherStrength = ditherStrength * 0.5f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -3460,12 +3459,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
 
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -3474,14 +3471,15 @@ public class PaletteReducer {
         float w1 = ditherStrength * 4, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -3596,11 +3594,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -3614,14 +3611,15 @@ public class PaletteReducer {
 
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -3791,11 +3789,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -3809,14 +3806,15 @@ public class PaletteReducer {
 
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -3899,11 +3897,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -3918,14 +3915,15 @@ public class PaletteReducer {
 
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -3997,11 +3995,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -4016,14 +4013,15 @@ public class PaletteReducer {
                 r1, g1, b1, r2, g2, b2, r4, g4, b4;
 
         for (int y = 0; y < h; y++) {
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int x = 0; x < lineLen; x++) {
                 color = pixmap.getPixel(x, y);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -4232,12 +4230,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
 
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -4248,14 +4244,15 @@ public class PaletteReducer {
         float w1 = ditherStrength * 3.5f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -4342,11 +4339,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -4360,14 +4356,15 @@ public class PaletteReducer {
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, py);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -4455,11 +4452,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -4475,14 +4471,15 @@ public class PaletteReducer {
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
-            for (int i = 0; i < lineLen; i++) {
-                curErrorRed[i] = nextErrorRed[i];
-                curErrorGreen[i] = nextErrorGreen[i];
-                curErrorBlue[i] = nextErrorBlue[i];
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
+
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, py);
                 if ((color & 0x80) == 0 && hasTransparent)
@@ -4585,11 +4582,10 @@ public class PaletteReducer {
             nextErrorGreen = nextErrorGreenFloats.ensureCapacity(lineLen);
             curErrorBlue = curErrorBlueFloats.ensureCapacity(lineLen);
             nextErrorBlue = nextErrorBlueFloats.ensureCapacity(lineLen);
-            for (int i = 0; i < lineLen; i++) {
-                nextErrorRed[i] = 0;
-                nextErrorGreen[i] = 0;
-                nextErrorBlue[i] = 0;
-            }
+
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
@@ -4600,9 +4596,9 @@ public class PaletteReducer {
             System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
             System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen);
 
-            Arrays.fill(nextErrorRed, (byte) 0);
-            Arrays.fill(nextErrorGreen, (byte) 0);
-            Arrays.fill(nextErrorBlue, (byte) 0);
+            Arrays.fill(nextErrorRed, 0, lineLen, 0);
+            Arrays.fill(nextErrorGreen, 0, lineLen, 0);
+            Arrays.fill(nextErrorBlue, 0, lineLen, 0);
 
             for (int x = 0; x < lineLen; x++) {
                 int color = pixmap.getPixel(x, y);
@@ -4720,6 +4716,7 @@ public class PaletteReducer {
         }
         pixmap.setBlending(blending);
         return pixmap;
+    }
     }
 
     /**
