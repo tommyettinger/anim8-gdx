@@ -3286,6 +3286,8 @@ public class PaletteReducer {
                 return reduceNeue(pixmap);
             case OVERBOARD:
                 return reduceOverboard(pixmap);
+            case BURKES:
+                return reduceBurkes(pixmap);
             default:
             case WREN:
                 return reduceWren(pixmap);
@@ -4752,8 +4754,8 @@ public class PaletteReducer {
         }
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        for (int y = 0; y < h; y++) {
-            int ny = y + 1;
+        for (int py = 0; py < h; py++) {
+            int ny = py + 1;
 
             System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen);
             System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen);
@@ -4764,21 +4766,21 @@ public class PaletteReducer {
             Arrays.fill(nextErrorBlue, 0, lineLen, 0);
 
             for (int px = 0; px < lineLen; px++) {
-                int color = pixmap.getPixel(px, y);
+                int color = pixmap.getPixel(px, py);
                 if ((color & 0x80) == 0 && hasTransparent)
-                    pixmap.drawPixel(px, y, 0);
+                    pixmap.drawPixel(px, py, 0);
                 else {
                     float er = curErrorRed[px];
                     float eg = curErrorGreen[px];
                     float eb = curErrorBlue[px];
-                    int rr = MathUtils.clamp((int)(((color >>> 24)       ) + er + 0.5f), 0, 0xFF);
-                    int gg = MathUtils.clamp((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0, 0xFF);
-                    int bb = MathUtils.clamp((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0, 0xFF);
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
                     byte paletteIndex = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))];
                     int used = paletteArray[paletteIndex & 0xFF];
-                    pixmap.drawPixel(px, y, used);
+                    pixmap.drawPixel(px, py, used);
                     int rdiff = (color >>> 24) - (used >>> 24);
                     int gdiff = (color >>> 16 & 255) - (used >>> 16 & 255);
                     int bdiff = (color >>> 8 & 255) - (used >>> 8 & 255);

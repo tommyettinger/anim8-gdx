@@ -763,7 +763,6 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 }
             }
         }
-
     }
 
     protected void analyzeBlue() {
@@ -1584,6 +1583,125 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 
+    protected void analyzeBurkes() {
+        final int nPix = indexedPixels.length;
+        int color, used, flipped = flipY ? height - 1 : 0, flipDir = flipY ? -1 : 1;
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+        boolean hasTransparent = paletteArray[0] == 0;
+
+        final int w = width;
+        byte paletteIndex;
+        float r4, r2, r1, g4, g2, g1, b4, b2, b1;
+        float strength = 0.1f * ditherStrength * (palette.populationBias * palette.populationBias);
+        float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+        if (palette.curErrorRedFloats == null) {
+            curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+            nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+            curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+            nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+            curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+            nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
+        } else {
+            curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+            nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+            curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+            nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+            curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+            nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+
+            Arrays.fill(nextErrorRed, 0, w, 0);
+            Arrays.fill(nextErrorGreen, 0, w, 0);
+            Arrays.fill(nextErrorBlue, 0, w, 0);
+        }
+
+        for (int y = 0, i = 0; y < height && i < nPix; y++) {
+            System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+            System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+            System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+            Arrays.fill(nextErrorRed, 0, w, 0);
+            Arrays.fill(nextErrorGreen, 0, w, 0);
+            Arrays.fill(nextErrorBlue, 0, w, 0);
+
+            int py = flipped + flipDir * y,
+                    ny = y + 1;
+
+            for (int px = 0; px < width & i < nPix; px++) {
+                color = image.getPixel(px, py);
+                if ((color & 0x80) == 0 && hasTransparent)
+                    indexedPixels[i++] = 0;
+                else {
+                    float er = curErrorRed[px];
+                    float eg = curErrorGreen[px];
+                    float eb = curErrorBlue[px];
+                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    usedEntry[(indexedPixels[i] = paletteIndex =
+                            paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))]) & 255] = true;
+                    used = paletteArray[paletteIndex & 0xFF];
+                    int rdiff = (color >>> 24) - (used >>> 24);
+                    int gdiff = (color >>> 16 & 255) - (used >>> 16 & 255);
+                    int bdiff = (color >>> 8 & 255) - (used >>> 8 & 255);
+                    r1 = rdiff * strength;
+                    g1 = gdiff * strength;
+                    b1 = bdiff * strength;
+                    r2 = r1 + r1;
+                    g2 = g1 + g1;
+                    b2 = b1 + b1;
+                    r4 = r2 + r2;
+                    g4 = g2 + g2;
+                    b4 = b2 + b2;
+                    if(px < w - 1)
+                    {
+                        curErrorRed[px+1]   += r4;
+                        curErrorGreen[px+1] += g4;
+                        curErrorBlue[px+1]  += b4;
+                        if(px < w - 2)
+                        {
+                            curErrorRed[px+2]   += r2;
+                            curErrorGreen[px+2] += g2;
+                            curErrorBlue[px+2]  += b2;
+                        }
+                    }
+                    if(ny < height)
+                    {
+                        if(px > 0)
+                        {
+                            nextErrorRed[px-1]   += r2;
+                            nextErrorGreen[px-1] += g2;
+                            nextErrorBlue[px-1]  += b2;
+                            if(px > 1)
+                            {
+                                nextErrorRed[px-2]   += r1;
+                                nextErrorGreen[px-2] += g1;
+                                nextErrorBlue[px-2]  += b1;
+                            }
+                        }
+                        nextErrorRed[px]   += r4;
+                        nextErrorGreen[px] += g4;
+                        nextErrorBlue[px]  += b4;
+                        if(px < w - 1)
+                        {
+                            nextErrorRed[px+1]   += r2;
+                            nextErrorGreen[px+1] += g2;
+                            nextErrorBlue[px+1]  += b2;
+                            if(px < w - 2)
+                            {
+                                nextErrorRed[px+2]   += r1;
+                                nextErrorGreen[px+2] += g1;
+                                nextErrorBlue[px+2]  += b1;
+                            }
+                        }
+                    }
+                    i++;
+                }
+            }
+        }
+    }
 
     /**
      * Analyzes image colors and creates color map.
@@ -1650,6 +1768,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case OVERBOARD:
                 analyzeOverboard();
+                break;
+            case BURKES:
+                analyzeBurkes();
                 break;
             default:
             case WREN:

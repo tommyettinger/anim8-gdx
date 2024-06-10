@@ -243,7 +243,17 @@ public interface Dithered {
          * it isn't always as capable of producing high-quality dithers with very small palettes. However, this tradeoff
          * also means it doesn't pick up low-quality artifacts when dither strength is high.
          */
-        OVERBOARD("Overboard");
+        OVERBOARD("Overboard"),
+        /**
+         * An error-diffusion dither like {@link #DIFFUSION}, but using Burkes dither instead of Floyd-Steinberg. This
+         * can often look better than Floyd-Steinberg, at least how it is implemented here. This remains the case even
+         * with fairly high dither strength.
+         * <br>
+         * The source for this is very similar to the other error-diffusion algorithms in use here, and probably was
+         * informed by <a href="https://tannerhelland.com/2012/12/28/dithering-eleven-algorithms-source-code.html">this blog post</a>
+         * by Tanner Helland.
+         */
+        BURKES("Burkes");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
@@ -254,10 +264,10 @@ public interface Dithered {
          * A cached array of the result of {@link #values()}, to avoid repeatedly allocating new
          * {@code DitherAlgorithm[]} arrays on each call to values().
          */
-        // currently (in version 0.4.3), this is:
-// NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD
+        // currently (in version 0.4.4), this is:
+// NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES
 // if alphabetized:
-// BLUE_NOISE, CHAOTIC_NOISE, DIFFUSION, DODGY, GRADIENT_NOISE, LOAF, NEUE, NONE, OVERBOARD, PATTERN, ROBERTS, SCATTER, WOVEN, WREN
+// BLUE_NOISE, BURKES, CHAOTIC_NOISE, DIFFUSION, DODGY, GRADIENT_NOISE, LOAF, NEUE, NONE, OVERBOARD, PATTERN, ROBERTS, SCATTER, WOVEN, WREN
         public static final DitherAlgorithm[] ALL = values();
 
         DitherAlgorithm(String name){
