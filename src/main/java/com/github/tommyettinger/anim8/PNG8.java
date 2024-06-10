@@ -1484,9 +1484,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -1535,9 +1535,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 int py = flipY ? (h - y - 1) : y,
                         ny = y + 1;
@@ -1773,9 +1773,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -1824,9 +1824,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 int py = flipY ? (h - y - 1) : y,
                         ny = y + 1;
@@ -1946,9 +1946,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -1997,9 +1997,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 int py = flipY ? (h - y - 1) : y,
                         ny = y + 1;
@@ -2121,9 +2121,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -2175,9 +2175,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 int py = flipY ? (h - y - 1) : y,
                         ny = y + 1;
@@ -2276,9 +2276,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -2328,9 +2328,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 int py = flipY ? (h - y - 1) : y,
                         ny = y + 1;
@@ -2448,9 +2448,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -2501,9 +2501,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 int py = flipY ? (h - y - 1) : y,
                         ny = y + 1;
@@ -2597,9 +2597,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -2651,9 +2651,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 int y = flipY ? (h - by - 1) : by;
                 for (int x = 0; x < w; x++) {
@@ -2777,9 +2777,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
             buffer.writeInt(w);
             buffer.writeInt(h);
@@ -2825,9 +2825,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
                 System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
 
                 for (int x = 0; x < w; x++) {
                     int color = pixmap.getPixel(x, y);
@@ -3379,6 +3379,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 break;
             case OVERBOARD:
                 writeOverboardDithered(output, frames, fps);
+                break;
+            case BURKES:
+                writeBurkesDithered(output, frames, fps);
                 break;
             default:
             case WREN:
@@ -4093,31 +4096,31 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         try {
             dataOutput.write(SIGNATURE);
 
-            final int width = pixmap.getWidth();
-            final int height = pixmap.getHeight();
+            final int w = pixmap.getWidth();
+            final int h = pixmap.getHeight();
             float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
             if (palette.curErrorRedFloats == null) {
-                curErrorRed = (palette.curErrorRedFloats = new FloatArray(width)).items;
-                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(width)).items;
-                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(width)).items;
-                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(width)).items;
-                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(width)).items;
-                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(width)).items;
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
             } else {
-                curErrorRed = palette.curErrorRedFloats.ensureCapacity(width);
-                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(width);
-                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(width);
-                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(width);
-                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(width);
-                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(width);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
-            buffer.writeInt(width);
-            buffer.writeInt(height);
+            buffer.writeInt(w);
+            buffer.writeInt(h);
             buffer.writeByte(8); // 8 bits per component.
             buffer.writeByte(COLOR_INDEXED);
             buffer.writeByte(COMPRESSION_DEFLATE);
@@ -4160,8 +4163,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 buffer.writeInt(fcTL);
                 buffer.writeInt(seq++);
-                buffer.writeInt(width);
-                buffer.writeInt(height);
+                buffer.writeInt(w);
+                buffer.writeInt(h);
                 buffer.writeInt(0);
                 buffer.writeInt(0);
                 buffer.writeShort(1);
@@ -4184,23 +4187,23 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 deflater.reset();
 
         if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(width)).items;
+            curLine = (curLineBytes = new ByteArray(w)).items;
         } else {
-            curLine = curLineBytes.ensureCapacity(width);
+            curLine = curLineBytes.ensureCapacity(w);
         }
 
-                for (int y = 0; y < height; y++) {
-                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, width);
-                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, width);
-                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, width);
+                for (int y = 0; y < h; y++) {
+                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
 
                     Arrays.fill(nextErrorRed, (byte) 0);
                     Arrays.fill(nextErrorGreen, (byte) 0);
                     Arrays.fill(nextErrorBlue, (byte) 0);
 
-                    int py = flipY ? (height - y - 1) : y,
+                    int py = flipY ? (h - y - 1) : y,
                             ny = y + 1;
-                    for (int px = 0; px < width; px++) {
+                    for (int px = 0; px < w; px++) {
                         color = pixmap.getPixel(px, py);
                         if ((color & 0x80) == 0 && hasTransparent)
                             curLine[px] = 0;
@@ -4222,13 +4225,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
                             gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
                             bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
-                            if(px < width - 1)
+                            if(px < w - 1)
                             {
                                 curErrorRed[px+1]   += rdiff * w7;
                                 curErrorGreen[px+1] += gdiff * w7;
                                 curErrorBlue[px+1]  += bdiff * w7;
                             }
-                            if(ny < height)
+                            if(ny < h)
                             {
                                 if(px > 0)
                                 {
@@ -4236,7 +4239,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                     nextErrorGreen[px-1] += gdiff * w3;
                                     nextErrorBlue[px-1]  += bdiff * w3;
                                 }
-                                if(px < width - 1)
+                                if(px < w - 1)
                                 {
                                     nextErrorRed[px+1]   += rdiff * w1;
                                     nextErrorGreen[px+1] += gdiff * w1;
@@ -4273,7 +4276,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //                    deflaterOutput.write(lineOut, 0, w);
 
                     deflaterOutput.write(FILTER_NONE);
-                    deflaterOutput.write(curLine, 0, width);
+                    deflaterOutput.write(curLine, 0, w);
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
@@ -4464,9 +4467,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
@@ -4670,9 +4673,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
@@ -4881,9 +4884,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
@@ -5069,9 +5072,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
@@ -5275,9 +5278,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
@@ -5458,9 +5461,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
@@ -5672,9 +5675,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
                 curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
                 nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
-                Arrays.fill(nextErrorRed, (byte) 0);
-                Arrays.fill(nextErrorGreen, (byte) 0);
-                Arrays.fill(nextErrorBlue, (byte) 0);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
             }
 
             buffer.writeInt(IHDR);
@@ -5713,7 +5716,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final float populationBias = palette.populationBias,
                     strength = ditherStrength * 0.5f * (populationBias * populationBias),
                     noiseStrength = 2f / (populationBias),
-                    limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5f);
+                    limit = 5f + 125f / (float) Math.sqrt(palette.colorCount + 1.5f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -5743,11 +5746,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-        if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(w)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(w);
-        }
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(w)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(w);
+                }
 
                 for (int by = 0, y = flipY ? h - 1 : 0; by < h; by++, y += flipDir) {
                     System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
@@ -5764,7 +5767,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             curLine[x] = 0;
                         else {
                             float er = 0f, eg = 0f, eb = 0f;
-                            switch ((x << 1 & 2) | (y & 1)){
+                            switch ((x << 1 & 2) | (y & 1)) {
                                 case 0:
                                     er += ((x ^ y) % 9 - 4);
                                     er += ((x * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL) >> 41) * 0x1p-20f;
@@ -5801,13 +5804,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             er = er * noiseStrength + curErrorRed[x];
                             eg = eg * noiseStrength + curErrorGreen[x];
                             eb = eb * noiseStrength + curErrorBlue[x];
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + Math.min(Math.max(er, -limit), limit) + 0.5f), 0), 0xFF);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + Math.min(Math.max(eg, -limit), limit) + 0.5f), 0), 0xFF);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + Math.min(Math.max(eb, -limit), limit) + 0.5f), 0), 0xFF);
+                            int rr = Math.min(Math.max((int) (((color >>> 24)) + Math.min(Math.max(er, -limit), limit) + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int) (((color >>> 16) & 0xFF) + Math.min(Math.max(eg, -limit), limit) + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int) (((color >>> 8) & 0xFF) + Math.min(Math.max(eb, -limit), limit) + 0.5f), 0), 0xFF);
                             byte paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
-                                                   | ((gg << 2) & 0x3E0)
-                                                   | ((bb >>> 3))];
+                                            | ((gg << 2) & 0x3E0)
+                                            | ((bb >>> 3))];
                             curLine[x] = paletteIndex;
                             int used = paletteArray[paletteIndex & 0xFF];
                             float rdiff = ((color >>> 24) - (used >>> 24)) * strength;
@@ -5822,47 +5825,237 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             float r4 = r2 + r2;
                             float g4 = g2 + g2;
                             float b4 = b2 + b2;
-                            if(x < w - 1)
-                            {
-                                curErrorRed[x+1]   += r4;
-                                curErrorGreen[x+1] += g4;
-                                curErrorBlue[x+1]  += b4;
-                                if(x < w - 2)
-                                {
+                            if (x < w - 1) {
+                                curErrorRed[x + 1] += r4;
+                                curErrorGreen[x + 1] += g4;
+                                curErrorBlue[x + 1] += b4;
+                                if (x < w - 2) {
 
-                                    curErrorRed[x+2]   += r2;
-                                    curErrorGreen[x+2] += g2;
-                                    curErrorBlue[x+2]  += b2;
+                                    curErrorRed[x + 2] += r2;
+                                    curErrorGreen[x + 2] += g2;
+                                    curErrorBlue[x + 2] += b2;
                                 }
                             }
-                            if(by+1 < h)
-                            {
-                                if(x > 0)
-                                {
-                                    nextErrorRed[x-1]   += r2;
-                                    nextErrorGreen[x-1] += g2;
-                                    nextErrorBlue[x-1]  += b2;
-                                    if(x > 1)
-                                    {
-                                        nextErrorRed[x-2]   += r1;
-                                        nextErrorGreen[x-2] += g1;
-                                        nextErrorBlue[x-2]  += b1;
+                            if (by + 1 < h) {
+                                if (x > 0) {
+                                    nextErrorRed[x - 1] += r2;
+                                    nextErrorGreen[x - 1] += g2;
+                                    nextErrorBlue[x - 1] += b2;
+                                    if (x > 1) {
+                                        nextErrorRed[x - 2] += r1;
+                                        nextErrorGreen[x - 2] += g1;
+                                        nextErrorBlue[x - 2] += b1;
                                     }
                                 }
-                                nextErrorRed[x]   += r4;
+                                nextErrorRed[x] += r4;
                                 nextErrorGreen[x] += g4;
-                                nextErrorBlue[x]  += b4;
-                                if(x < w - 1)
-                                {
-                                    nextErrorRed[x+1]   += r2;
-                                    nextErrorGreen[x+1] += g2;
-                                    nextErrorBlue[x+1]  += b2;
-                                    if(x < w - 2)
-                                    {
+                                nextErrorBlue[x] += b4;
+                                if (x < w - 1) {
+                                    nextErrorRed[x + 1] += r2;
+                                    nextErrorGreen[x + 1] += g2;
+                                    nextErrorBlue[x + 1] += b2;
+                                    if (x < w - 2) {
 
-                                        nextErrorRed[x+2]   += r1;
-                                        nextErrorGreen[x+2] += g1;
-                                        nextErrorBlue[x+2]  += b1;
+                                        nextErrorRed[x + 2] += r1;
+                                        nextErrorGreen[x + 2] += g1;
+                                        nextErrorBlue[x + 2] += b1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, w);
+                }
+                deflaterOutput.finish();
+                buffer.endChunk(dataOutput);
+            }
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
+
+    public void writeBurkesDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+        Pixmap pixmap = frames.first();
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            final int w = pixmap.getWidth();
+            final int h = pixmap.getHeight();
+            final int flipDir = flipY ? -1 : 1;
+            float r4, r2, r1, g4, g2, g1, b4, b2, b1;
+            float strength = 0.1f * ditherStrength * (palette.populationBias * palette.populationBias);
+            float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+            if (palette.curErrorRedFloats == null) {
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
+            } else {
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
+            }
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(w);
+            buffer.writeInt(h);
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p >>> 24);
+                buffer.write(p >>> 16);
+                buffer.write(p >>> 8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if (paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(acTL);
+            buffer.writeInt(frames.size);
+            buffer.writeInt(0);
+            buffer.endChunk(dataOutput);
+
+            byte[] curLine;
+
+            int seq = 0;
+            for (int i = 0; i < frames.size; i++) {
+
+                buffer.writeInt(fcTL);
+                buffer.writeInt(seq++);
+                buffer.writeInt(w);
+                buffer.writeInt(h);
+                buffer.writeInt(0);
+                buffer.writeInt(0);
+                buffer.writeShort(1);
+                buffer.writeShort(fps);
+                buffer.writeByte(0);
+                buffer.writeByte(0);
+                buffer.endChunk(dataOutput);
+
+                if (i == 0) {
+                    buffer.writeInt(IDAT);
+                } else {
+                    pixmap = frames.get(i);
+                    buffer.writeInt(fdAT);
+                    buffer.writeInt(seq++);
+
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+                }
+                deflater.reset();
+
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(w)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(w);
+                }
+
+                for (int by = 0, py = flipY ? h - 1 : 0; by < h; by++, py += flipDir) {
+                    System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+                    System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+                    System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+                    Arrays.fill(nextErrorRed, (byte) 0);
+                    Arrays.fill(nextErrorGreen, (byte) 0);
+                    Arrays.fill(nextErrorBlue, (byte) 0);
+
+                    for (int px = 0; px < w; px++) {
+                        int color = pixmap.getPixel(px, py);
+                        if ((color & 0x80) == 0 && hasTransparent)
+                            curLine[px] = 0;
+                        else {
+                            float er = curErrorRed[px];
+                            float eg = curErrorGreen[px];
+                            float eb = curErrorBlue[px];
+                            int rr = Math.min(Math.max((int) (((color >>> 24)) + er + 0.5f), 0), 0xFF);
+                            int gg = Math.min(Math.max((int) (((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                            int bb = Math.min(Math.max((int) (((color >>> 8) & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            byte paletteIndex =
+                                    paletteMapping[((rr << 7) & 0x7C00)
+                                            | ((gg << 2) & 0x3E0)
+                                            | ((bb >>> 3))];
+                            curLine[px] = paletteIndex;
+                            int used = paletteArray[paletteIndex & 0xFF];
+                            int rdiff = (color >>> 24) - (used >>> 24);
+                            int gdiff = (color >>> 16 & 255) - (used >>> 16 & 255);
+                            int bdiff = (color >>> 8 & 255) - (used >>> 8 & 255);
+                            r1 = rdiff * strength;
+                            g1 = gdiff * strength;
+                            b1 = bdiff * strength;
+                            r2 = r1 + r1;
+                            g2 = g1 + g1;
+                            b2 = b1 + b1;
+                            r4 = r2 + r2;
+                            g4 = g2 + g2;
+                            b4 = b2 + b2;
+                            if (px < w - 1) {
+                                curErrorRed[px + 1] += r4;
+                                curErrorGreen[px + 1] += g4;
+                                curErrorBlue[px + 1] += b4;
+                                if (px < w - 2) {
+
+                                    curErrorRed[px + 2] += r2;
+                                    curErrorGreen[px + 2] += g2;
+                                    curErrorBlue[px + 2] += b2;
+                                }
+                            }
+                            if (by + 1 < h) {
+                                if (px > 0) {
+                                    nextErrorRed[px - 1] += r2;
+                                    nextErrorGreen[px - 1] += g2;
+                                    nextErrorBlue[px - 1] += b2;
+                                    if (px > 1) {
+                                        nextErrorRed[px - 2] += r1;
+                                        nextErrorGreen[px - 2] += g1;
+                                        nextErrorBlue[px - 2] += b1;
+                                    }
+                                }
+                                nextErrorRed[px] += r4;
+                                nextErrorGreen[px] += g4;
+                                nextErrorBlue[px] += b4;
+                                if (px < w - 1) {
+                                    nextErrorRed[px + 1] += r2;
+                                    nextErrorGreen[px + 1] += g2;
+                                    nextErrorBlue[px + 1] += b2;
+                                    if (px < w - 2) {
+
+                                        nextErrorRed[px + 2] += r1;
+                                        nextErrorGreen[px + 2] += g1;
+                                        nextErrorBlue[px + 2] += b1;
                                     }
                                 }
                             }
