@@ -382,6 +382,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case OVERBOARD:
                 writeOverboardDithered(output, pixmap);
                 break;
+            case BURKES:
+                writeBurkesDithered(output, pixmap);
+                break;
             default:
             case WREN:
                 writeWrenDithered(output, pixmap);
@@ -2937,6 +2940,177 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     }
                 }
 
+                deflaterOutput.write(FILTER_NONE);
+                deflaterOutput.write(curLine, 0, w);
+            }
+            deflaterOutput.finish();
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
+    public void writeBurkesDithered(OutputStream output, Pixmap pixmap) {
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            buffer.writeInt(IHDR);
+
+            final int w = pixmap.getWidth();
+            final int h = pixmap.getHeight();
+            float r4, r2, r1, g4, g2, g1, b4, b2, b1;
+            float strength = 0.1f * ditherStrength * (palette.populationBias * palette.populationBias);
+            float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
+            if (palette.curErrorRedFloats == null) {
+                curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
+                nextErrorRed = (palette.nextErrorRedFloats = new FloatArray(w)).items;
+                curErrorGreen = (palette.curErrorGreenFloats = new FloatArray(w)).items;
+                nextErrorGreen = (palette.nextErrorGreenFloats = new FloatArray(w)).items;
+                curErrorBlue = (palette.curErrorBlueFloats = new FloatArray(w)).items;
+                nextErrorBlue = (palette.nextErrorBlueFloats = new FloatArray(w)).items;
+            } else {
+                curErrorRed = palette.curErrorRedFloats.ensureCapacity(w);
+                nextErrorRed = palette.nextErrorRedFloats.ensureCapacity(w);
+                curErrorGreen = palette.curErrorGreenFloats.ensureCapacity(w);
+                nextErrorGreen = palette.nextErrorGreenFloats.ensureCapacity(w);
+                curErrorBlue = palette.curErrorBlueFloats.ensureCapacity(w);
+                nextErrorBlue = palette.nextErrorBlueFloats.ensureCapacity(w);
+
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
+            }
+            buffer.writeInt(w);
+            buffer.writeInt(h);
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p>>>24);
+                buffer.write(p>>>16);
+                buffer.write(p>>>8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if(paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(IDAT);
+            deflater.reset();
+
+            int color, used;
+            byte paletteIndex;
+
+            byte[] curLine;
+            if (curLineBytes == null) {
+                curLine = (curLineBytes = new ByteArray(w)).items;
+            } else {
+                curLine = curLineBytes.ensureCapacity(w);
+            }
+
+            for (int y = 0; y < h; y++) {
+                System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w);
+                System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w);
+                System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w);
+
+                Arrays.fill(nextErrorRed, 0, w, 0);
+                Arrays.fill(nextErrorGreen, 0, w, 0);
+                Arrays.fill(nextErrorBlue, 0, w, 0);
+
+                int py = flipY ? (h - y - 1) : y,
+                        ny = y + 1;
+                for (int px = 0; px < w; px++) {
+                    color = pixmap.getPixel(px, py);
+                    if ((color & 0x80) == 0 && hasTransparent)
+                        curLine[px] = 0;
+                    else {
+                        float er = curErrorRed[px];
+                        float eg = curErrorGreen[px];
+                        float eb = curErrorBlue[px];
+                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
+                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
+                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                        curLine[px] = paletteIndex =
+                                paletteMapping[((rr << 7) & 0x7C00)
+                                        | ((gg << 2) & 0x3E0)
+                                        | ((bb >>> 3))];
+                        used = paletteArray[paletteIndex & 0xFF];
+                        int rdiff = (color >>> 24) - (used >>> 24);
+                        int gdiff = (color >>> 16 & 255) - (used >>> 16 & 255);
+                        int bdiff = (color >>> 8 & 255) - (used >>> 8 & 255);
+                        r1 = rdiff * strength;
+                        g1 = gdiff * strength;
+                        b1 = bdiff * strength;
+                        r2 = r1 + r1;
+                        g2 = g1 + g1;
+                        b2 = b1 + b1;
+                        r4 = r2 + r2;
+                        g4 = g2 + g2;
+                        b4 = b2 + b2;
+                        if(px < w - 1)
+                        {
+                            curErrorRed[px+1]   += r4;
+                            curErrorGreen[px+1] += g4;
+                            curErrorBlue[px+1]  += b4;
+                            if(px < w - 2)
+                            {
+                                curErrorRed[px+2]   += r2;
+                                curErrorGreen[px+2] += g2;
+                                curErrorBlue[px+2]  += b2;
+                            }
+                        }
+                        if(ny < h)
+                        {
+                            if(px > 0)
+                            {
+                                nextErrorRed[px-1]   += r2;
+                                nextErrorGreen[px-1] += g2;
+                                nextErrorBlue[px-1]  += b2;
+                                if(px > 1)
+                                {
+                                    nextErrorRed[px-2]   += r1;
+                                    nextErrorGreen[px-2] += g1;
+                                    nextErrorBlue[px-2]  += b1;
+                                }
+                            }
+                            nextErrorRed[px]   += r4;
+                            nextErrorGreen[px] += g4;
+                            nextErrorBlue[px]  += b4;
+                            if(px < w - 1)
+                            {
+                                nextErrorRed[px+1]   += r2;
+                                nextErrorGreen[px+1] += g2;
+                                nextErrorBlue[px+1]  += b2;
+                                if(px < w - 2)
+                                {
+                                    nextErrorRed[px+2]   += r1;
+                                    nextErrorGreen[px+2] += g1;
+                                    nextErrorBlue[px+2]  += b1;
+                                }
+                            }
+                        }
+                    }
+                }
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
             }
