@@ -332,73 +332,77 @@ Animated PNG can support full alpha as well (though file sizes can be large):
 Anim8 also can be used to support writing non-animated GIF images and indexed-mode PNG images.
 Here's a retouched version of the Mona Lisa,
 [source on Wikimedia Commons here](https://commons.wikimedia.org/wiki/File:Mona_Lisa_Digitally_Restored.tif), and
-various 8-color dithers using DawnBringer's carefully-chosen [DB8 palette](https://pixeljoint.com/forum/forum_posts.asp?TID=26050):
+various 8-color dithers using polyphrog's [Prospecal palette](https://lospec.com/palette-list/prospecal-8):
 
 Original (full-color):
 
 ![](src/test/resources/Mona_Lisa.jpg)
 
-Wren (the current default):
+Overboard (the current default):
 
-![](samples/Mona_Lisa-PNG8-Wren-DB8.png)
+![](samples/Mona_Lisa-PNG8-Overboard-Prospecal.png)
+
+Burkes:
+
+![](samples/Mona_Lisa-PNG8-Burkes-Prospecal.png)
+
+Wren:
+
+![](samples/Mona_Lisa-PNG8-Wren-Prospecal.png)
 
 Neue:
 
-![](samples/Mona_Lisa-PNG8-Neue-DB8.png)
+![](samples/Mona_Lisa-PNG8-Neue-Prospecal.png)
 
 Dodgy:
 
-![](samples/Mona_Lisa-PNG8-Dodgy-DB8.png)
+![](samples/Mona_Lisa-PNG8-Dodgy-Prospecal.png)
 
 Woven:
 
-![](samples/Mona_Lisa-PNG8-Woven-DB8.png)
+![](samples/Mona_Lisa-PNG8-Woven-Prospecal.png)
 
 Pattern:
 
-![](samples/Mona_Lisa-PNG8-Pattern-DB8.png)
+![](samples/Mona_Lisa-PNG8-Pattern-Prospecal.png)
 
 Diffusion:
 
-![](samples/Mona_Lisa-PNG8-Diffusion-DB8.png)
+![](samples/Mona_Lisa-PNG8-Diffusion-Prospecal.png)
 
 Gradient Noise:
 
-![](samples/Mona_Lisa-PNG8-GradientNoise-DB8.png)
+![](samples/Mona_Lisa-PNG8-GradientNoise-Prospecal.png)
 
 Blue Noise:
 
-![](samples/Mona_Lisa-PNG8-BlueNoise-DB8.png)
+![](samples/Mona_Lisa-PNG8-BlueNoise-Prospecal.png)
 
 Chaotic Noise:
 
-![](samples/Mona_Lisa-PNG8-ChaoticNoise-DB8.png)
+![](samples/Mona_Lisa-PNG8-ChaoticNoise-Prospecal.png)
 
 Scatter:
 
-![](samples/Mona_Lisa-PNG8-Scatter-DB8.png)
+![](samples/Mona_Lisa-PNG8-Scatter-Prospecal.png)
 
 Roberts:
 
-![](samples/Mona_Lisa-PNG8-Roberts-DB8.png)
+![](samples/Mona_Lisa-PNG8-Roberts-Prospecal.png)
 
 Loaf:
 
-![](samples/Mona_Lisa-PNG8-Loaf-DB8.png)
-
-Overboard:
-
-![](samples/Mona_Lisa-PNG8-Overboard-DB8.png)
+![](samples/Mona_Lisa-PNG8-Loaf-Prospecal.png)
 
 None (no dither):
 
-![](samples/Mona_Lisa-PNG8-None-DB8.png)
+![](samples/Mona_Lisa-PNG8-None-Prospecal.png)
 
-This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned DB8
-palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it. Restricting this
-oil painting to 8 colors is very challenging to dither well, and some algorithms definitely do a better job than others
-with such a small palette. However, with a 255-color palette, most of the algorithms are similar, and you mostly want to
-pick one with few or no artifacts that affect your image(s).
+This doesn't call the `analyze()` method on the original image, and instead uses `exact()` with the aforementioned
+Prospecal palette. If you are using `analyze()`, it works best when permitted all 255 colors available to it.
+Restricting this oil painting to 8 colors is very challenging to dither well, and some algorithms definitely do a better
+job than others with such a small palette. However, with a 255-color palette, most of the algorithms are similar, and
+you mostly want to pick one with few or no artifacts that affect your image(s).
 
 (If the Wikimedia Commons source file is deleted, the original is available in the history of
 [this other image](https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Mona_Lisa_(Louvre,_Paris)FXD.tif)).
