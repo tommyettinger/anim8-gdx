@@ -99,8 +99,8 @@ public interface Dithered {
          * {@link #GRADIENT_NOISE}, but isn't nearly as noisy (though it isn't noisy, it instead has regular
          * square-shaped artifacts, which are mostly noticeable with small palettes). Earlier versions of Pattern Dither
          * here had issues with lightness changing strangely based on dither strength, but these are mostly fixed now.
-         * {@link #WREN} is the current default; it does a better job at obscuring artifacts from dither, it maintains
-         * lightness well, and it handles gradients without banding. Setting the dither strength with
+         * {@link #OVERBOARD} is the current default; it does a better job at obscuring artifacts from dither, it
+         * maintains lightness well, and it handles gradients without banding. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} can really change how strongly artifacts appear here, but
          * artifacts may be very hard to spot with a full 255-color palette.
          */
@@ -153,7 +153,7 @@ public interface Dithered {
          * speed, and it was the default for a long time. Setting the dither strength to a low value makes this more
          * bold, with higher contrast, while setting the strength too high (above 1.5, or sometimes higher) can
          * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE}, {@link #DODGY}, and
-         * {@link #WREN} are much better at that and otherwise similar.
+         * {@link #OVERBOARD} are much better at that and otherwise similar.
          */
         SCATTER("Scatter"),
         /**
@@ -167,8 +167,8 @@ public interface Dithered {
          * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
          * Neue preserves both. {@link #DODGY} is a potential successor to NEUE, and acts much like it except that it
          * changes each RGB component separately, using three different blue noise textures. DODGY is, however, more
-         * chaotic-looking sometimes. There's always the current default dither, {@link #WREN}, which was inspired by
-         * NEUE, DODGY, and {@link #WOVEN} to get a generally-good compromise.
+         * chaotic-looking sometimes. There's always the current default dither, {@link #OVERBOARD}, which was inspired
+         * by NEUE, DODGY, and {@link #WOVEN} to get a generally-good compromise.
          */
         NEUE("Neue"),
         /**
@@ -224,8 +224,6 @@ public interface Dithered {
          * improve hue or lightness fidelity. These cases aren't especially common, and working around this is as easy
          * as calling {@link PaletteReducer#setDitherStrength(float)} (or its counterpart for a Gif or PNG class). These
          * artifacts have gotten less frequent with some changes to the algorithm just after it was introduced.
-         * <br>
-         * This is currently the default dither.
          */
         WREN("Wren"),
         /**
@@ -242,6 +240,8 @@ public interface Dithered {
          * It doesn't go quite as far as {@link #WREN} at allowing really tremendous changes in color, which does mean
          * it isn't always as capable of producing high-quality dithers with very small palettes. However, this tradeoff
          * also means it doesn't pick up low-quality artifacts when dither strength is high.
+         * <br>
+         * This is currently the default dither.
          */
         OVERBOARD("Overboard"),
         /**

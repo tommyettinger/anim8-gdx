@@ -118,6 +118,7 @@ slightly different API). You could also use FastPNG, which tend to write larger 
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
     - It tends to look very good in still images, and very bad in animations.
+    - BURKES is essentially a variant on this type of error diffusion, though it often looks better.
     - SCATTER and NEUE are mostly the same as this algorithm, but use blue noise to break up unpleasant patterns.
     - WOVEN dither uses a repeating pattern reminiscent of braids or hexagons to break up patterns, but introduces its own; this pattern is about the same as what ROBERTS uses.
     - WREN dither uses both blue noise and the ROBERTS/WOVEN pattern, so most patterns it would add get broken up.
@@ -154,7 +155,7 @@ slightly different API). You could also use FastPNG, which tend to write larger 
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
       error with blue-noise values.
-    - This used to be the default, but NEUE, DODGY, WOVEN, and WREN are all similar and generally better.
+    - This used to be the default, but NEUE, DODGY, WOVEN, WREN, and OVERBOARD are all similar and generally better.
     - Unlike DIFFUSION, this is somewhat suitable for animations, but fluid shapes look better with BLUE_NOISE or
       GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN and well by NEUE and BLUE_NOISE.
     - You may want to use a lower dither strength with SCATTER if you encounter horizontal line artifacts; 0.75 or 0.5
@@ -170,7 +171,7 @@ slightly different API). You could also use FastPNG, which tend to write larger 
       - Subtle banding sometimes happened even with NEUE on gradients before 0.3.5, but this improved in that release.
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
-    - This used to be the default, but the new default WREN handles perceived color quite a bit better.
+    - This used to be the default, but the new default OVERBOARD handles perceived color quite a bit better.
     - BLUE_NOISE, GRADIENT_NOISE, or ROBERTS will likely look better in pixel art animations, but NEUE can look better
       for still pixel art.
   - ROBERTS
@@ -199,13 +200,12 @@ slightly different API). You could also use FastPNG, which tend to write larger 
     - This dither algorithm is almost as good at reproducing colors as WOVEN, and is arguably preferable to it when the
       artifacts would be problematic.
     - It's better than NEUE at most things, but it isn't quite as smooth when the palette matches the image closely.
-    - This is similar to WREN, except that WREN also incorporates the braid-like R2 sequence.
+    - This is similar to WREN, except that WREN also incorporates the braid-like R2 sequence. OVERBOARD incorporates even more.
   - LOAF
     - A very simple, intentionally-low-fidelity ordered dither meant primarily for pixel art.
     - This has very obvious grid patterns, effectively repeating a 2x2 pixel area many times over similar color regions.
     - You will see fine-resolution checkerboard patterns very often here.
-    - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look
-      like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
+    - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
   - WREN
     - A complex mix of error diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those; I saved the best dither algorithm for last.
     - This preserves hue almost as well as WOVEN, but is better than WOVEN at preserving lightness, and has fewer noticeable artifacts.
@@ -213,7 +213,8 @@ slightly different API). You could also use FastPNG, which tend to write larger 
     - There are still use cases for the similar DODGY and WOVEN dithers.
       - DODGY can be noisier, but if even slight repetitive artifacts are an issue, that noise becomes an advantage relative to WREN.
       - WOVEN typically preserves hue more accurately because the predictable nature of its repetitive artifact happens to align with its error-diffusion, improving perceived color when viewed from a distance.
-    - This is the default and often the best of the bunch.
+    - This may have all sorts of artifacts if dither strength is too high. Sometimes even the default 1.0 is too high.
+    - This used to be the default, but OVERBOARD does better with both high and low dither strength.
   - OVERBOARD
     - You thought WREN was complicated? Think again. OVERBOARD takes a Burkes error diffusion dither and mixes in added error from variants on the R2 sequence, blue noise, and XOR-mod patterns into each channel of each pixel.
       - XOR-mod patterns are often seen in very small blocks of code, like Tweets or demoscene code, and have primarily diagonal lines in unpredictable patterns.
@@ -222,14 +223,21 @@ slightly different API). You could also use FastPNG, which tend to write larger 
     - This tends to have fewer artifacts, if any, at high dither strength. This is true relative to most dithers here.
     - It also tends to be smoother than WREN, without any "rough surface" appearance.
     - It is not as good at reproducing unusual colors (ones very different from what the palette contains), when compared to WREN or especially to WOVEN.
+    - This is the default and often the best of the bunch.
+  - BURKES
+    - This is fairly simple error diffusion dither than nonetheless has very smooth results.
+    - This is more faithful to the original error diffusion algorithm, which may explain why it looks better that Floyd-Steinberg (DIFFUSION) much of the time.
+    - Artifacts tend to be 45-degree lines, if they show up at all.
+    - Because this doesn't introduce extra noise, it will look very good with larger palettes, since the dithering should bring the colors to where they should be and not where the noise would offset them.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN and LOAF have obvious square grids.
-    - BLUE_NOISE, SCATTER, ane NEUE have varying forms of a spongy blue noise texture.
+    - BLUE_NOISE, SCATTER, NEUE, and OVERBOARD have varying forms of a spongy blue noise texture. OVERBOARD shows this less.
+    - DIFFUSION may have parallel vertical bars, and BURKES may have 45-degree lines appear.
     - GRADIENT_NOISE has a network of diagonal lines.
     - ROBERTS, WOVEN, and WREN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also
       sometimes look like scales, bubbles, or braids. WREN shows this artifact less noticeably than the others.
-    - DIFFUSION tends to have its error corrections jump around between frames, which looks jarring.
+    - DIFFUSION and BURKES tend to have their error corrections jump around between frames, which looks jarring.
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
     - For very small palettes, OVERBOARD can have noticeable diagonal lines from the Burkes dither it is based on.

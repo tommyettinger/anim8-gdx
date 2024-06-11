@@ -46,7 +46,7 @@ import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
  * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
  * reduce (or increase) dither strength, typically between 0 and 2;
  * the dithering algorithm used here by default is based on Burkes error-diffusion dithering but with patterns
- * broken up using blue noise and the R2 sequence ({@link DitherAlgorithm#WREN}), but you can select alternatives with
+ * broken up using a variety of noise ({@link DitherAlgorithm#OVERBOARD}), but you can select alternatives with
  * {@link #setDitherAlgorithm(DitherAlgorithm)}, such as the slow but high-quality Knoll Ordered Dither using
  * {@link DitherAlgorithm#PATTERN}, or no dither at all with {@link DitherAlgorithm#NONE}.
  * <br>
@@ -132,7 +132,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             palette = null;
     }
 
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.WREN;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.OVERBOARD;
     
     protected int width; // image size
 
@@ -1766,15 +1766,15 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             case NEUE:
                 analyzeNeue();
                 break;
-            case OVERBOARD:
-                analyzeOverboard();
+            case WREN:
+                analyzeWren();
                 break;
             case BURKES:
                 analyzeBurkes();
                 break;
             default:
-            case WREN:
-                analyzeWren();
+            case OVERBOARD:
+                analyzeOverboard();
                 break;
         }
         colorDepth = 8;

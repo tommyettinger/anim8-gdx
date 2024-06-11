@@ -3238,7 +3238,7 @@ public class PaletteReducer {
 
     /**
      * Modifies the given Pixmap so that it only uses colors present in this PaletteReducer, dithering when it can by
-     * using Wren dithering (this merely delegates to {@link #reduceWren(Pixmap)}).
+     * using Overboard dithering (this merely delegates to {@link #reduceOverboard(Pixmap)}).
      * If you want to reduce the colors in a Pixmap based on what it currently contains, call
      * {@link #analyze(Pixmap)} with {@code pixmap} as its argument, then call this method with the same
      * Pixmap. You may instead want to use a known palette instead of one computed from a Pixmap;
@@ -3247,18 +3247,18 @@ public class PaletteReducer {
      * @return the given Pixmap, for chaining
      */
     public Pixmap reduce (Pixmap pixmap) {
-        return reduceWren(pixmap);
+        return reduceOverboard(pixmap);
     }
 
     /**
      * Uses the given {@link Dithered.DitherAlgorithm} to decide how to dither {@code pixmap}.
      * @param pixmap a pixmap that will be modified in-place
-     * @param ditherAlgorithm a dithering algorithm enum value; if not recognized, defaults to {@link Dithered.DitherAlgorithm#WREN}
+     * @param ditherAlgorithm a dithering algorithm enum value; if not recognized, defaults to {@link Dithered.DitherAlgorithm#OVERBOARD}
      * @return {@code pixmap} after modifications
      */
     public Pixmap reduce(Pixmap pixmap, Dithered.DitherAlgorithm ditherAlgorithm){
         if(pixmap == null) return null;
-        if(ditherAlgorithm == null) return reduceWren(pixmap);
+        if(ditherAlgorithm == null) return reduceOverboard(pixmap);
         switch (ditherAlgorithm) {
             case NONE:
                 return reduceSolid(pixmap);
@@ -3284,13 +3284,13 @@ public class PaletteReducer {
                 return reduceLoaf(pixmap);
             case NEUE:
                 return reduceNeue(pixmap);
-            case OVERBOARD:
-                return reduceOverboard(pixmap);
             case BURKES:
                 return reduceBurkes(pixmap);
-            default:
             case WREN:
                 return reduceWren(pixmap);
+            default:
+            case OVERBOARD:
+                return reduceOverboard(pixmap);
         }
     }
 

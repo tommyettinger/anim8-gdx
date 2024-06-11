@@ -59,7 +59,7 @@ import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
  * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
  * reduce (or increase) dither strength, typically between 0 and 2;
  * the dithering algorithm used here by default is based on Burkes error-diffusion dithering but with patterns
- * broken up using blue noise and the R2 sequence ({@link DitherAlgorithm#WREN}), but you can select alternatives with
+ * broken up using various forms of noise ({@link DitherAlgorithm#OVERBOARD}), but you can select alternatives with
  * {@link #setDitherAlgorithm(DitherAlgorithm)}, such as the slow but high-quality Knoll Ordered Dither using
  * {@link DitherAlgorithm#PATTERN}, or no dither at all with {@link DitherAlgorithm#NONE}.
  * <br>
@@ -118,7 +118,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
     public PaletteReducer palette;
 
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.WREN;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.OVERBOARD;
 
     @Override
     public PaletteReducer getPalette() {
@@ -379,15 +379,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case NEUE:
                 writeNeueDithered(output, pixmap);
                 break;
-            case OVERBOARD:
-                writeOverboardDithered(output, pixmap);
+            case WREN:
+                writeWrenDithered(output, pixmap);
                 break;
             case BURKES:
                 writeBurkesDithered(output, pixmap);
                 break;
             default:
-            case WREN:
-                writeWrenDithered(output, pixmap);
+            case OVERBOARD:
+                writeOverboardDithered(output, pixmap);
         }
     }
 
@@ -3377,15 +3377,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case NEUE:
                 writeNeueDithered(output, frames, fps);
                 break;
-            case OVERBOARD:
-                writeOverboardDithered(output, frames, fps);
+            case WREN:
+                writeWrenDithered(output, frames, fps);
                 break;
             case BURKES:
                 writeBurkesDithered(output, frames, fps);
                 break;
             default:
-            case WREN:
-                writeWrenDithered(output, frames, fps);
+            case OVERBOARD:
+                writeOverboardDithered(output, frames, fps);
         }
     }
 
