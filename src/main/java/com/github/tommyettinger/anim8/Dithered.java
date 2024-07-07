@@ -253,7 +253,15 @@ public interface Dithered {
          * informed by <a href="https://tannerhelland.com/2012/12/28/dithering-eleven-algorithms-source-code.html">this blog post</a>
          * by Tanner Helland.
          */
-        BURKES("Burkes");
+        BURKES("Burkes"),
+        /**
+         * An error-diffusion dither based closely on {@link #BURKES}, but that modifies how much error gets diffused
+         * using a per-pixel multiplier obtained from blue noise. Using noise to (usually slightly) adjust the error
+         * makes some unpleasant artifacts in BURKES dither essentially disappear here, replaced with fuzzy sections.
+         * This does well on soft lightness gradients, much like how {@link #NEUE} does, and is significantly better
+         * than BURKES at this task.
+         */
+        OCEANIC("Oceanic");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
