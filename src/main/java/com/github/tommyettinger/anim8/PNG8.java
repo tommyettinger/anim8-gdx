@@ -2969,7 +2969,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth();
             final int h = pixmap.getHeight();
             float r4, r2, r1, g4, g2, g1, b4, b2, b1;
-            float strength = 0.14f * (float) Math.tanh(ditherStrength * (palette.populationBias * palette.populationBias));
+            final float s = 0.175f * ditherStrength * (palette.populationBias * palette.populationBias * palette.populationBias),
+                    strength = s * 0.29f / (0.19f + s);
             float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
             if (palette.curErrorRedFloats == null) {
                 curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
@@ -5896,7 +5897,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int h = pixmap.getHeight();
             final int flipDir = flipY ? -1 : 1;
             float r4, r2, r1, g4, g2, g1, b4, b2, b1;
-            float strength = 0.14f * (float) Math.tanh(ditherStrength * (palette.populationBias * palette.populationBias));
+            final float s = 0.175f * ditherStrength * (palette.populationBias * palette.populationBias * palette.populationBias),
+                    strength = s * 0.29f / (0.19f + s);
             float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
             if (palette.curErrorRedFloats == null) {
                 curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
