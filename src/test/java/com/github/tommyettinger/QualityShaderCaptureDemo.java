@@ -221,6 +221,11 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
         }
 
         batch.setShader(shader2);
+
+//        QualityPalette qp = new QualityPalette();
+//        qp.alterBigPalette(QualityPalette.BIG_PALETTE);
+//        qp.writeBigPalette(null);
+
 // used when we need to write a new preload file
 //        new PaletteReducer(PaletteReducer.HALTONIC).writePreloadFile(Gdx.files.local("EncodedHaltonic.txt"));
 
