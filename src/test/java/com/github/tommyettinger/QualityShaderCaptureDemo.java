@@ -228,10 +228,10 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
 
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8", "prospecal", "snuggly"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, QualityPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}, QualityPalette.SNUGGLY};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
-        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader, shader, shader};
+//        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8", "prospecal", "snuggly"};
+//        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, QualityPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}, QualityPalette.SNUGGLY};
+//        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
+//        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader, shader, shader};
 
 //        String[] nms = {"pastel", "green", "bw", "gb", "aurora"};
 //        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA};
@@ -243,10 +243,15 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
 //        int[][] pals = {null, null, null};
 //        long[] sds = {0x123456789L, -1L, 0x1234567890L};
 
+        String[] nms = {"ocean", "ocean-reductive", "ocean-hue", "ocean-analyzed", "ocean-snuggly"};
+        int[][] pals = {null, {}, {1}, {2}, QualityPalette.SNUGGLY};
+        long[] sds = {0x1234567890L, 0x1234567890L, 0x1234567890L, 0x1234567890L, 0x1234567890L};
+        ShaderProgram[] shs = {shader2, shader2, shader2, shader2, shader2};
+
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
 
-		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+//		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
 		renderPNG8(nms, pals, sds, shs);
         renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
@@ -320,6 +325,9 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
         png8.setCompression(2);
         png8.palette = new QualityPalette();
         for (int n = 0; n < names.length && n < palettes.length && n < seeds.length; n++) {
+            if (palettes[n] == null) {
+                continue;
+            }
             batch.setShader(shader = shaders[n]);
             name = names[n];
             long state = seeds[n];
@@ -336,7 +344,11 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
                 batch.end();
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
-            if (palettes[n] == null) {
+            if (palettes[n].length == 0) {
+                png8.palette.analyzeReductive(pixmaps);
+            } else if (palettes[n].length == 1 && palettes[n][0] == 1) {
+                png8.palette.analyzeHueWise(pixmaps);
+            } else if (palettes[n].length == 1 && palettes[n][0] == 2) {
                 png8.palette.analyze(pixmaps);
             } else {
                 png8.palette.exact(palettes[n]);
@@ -379,15 +391,26 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
             String prefix;
             if (palettes[n] == null) {
                 gif.palette = null;
-                if(!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
-                prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
-            }
-            else {
+                if (!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
+                prefix = "images/gif/animated" + (gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
+            } else if (palettes[n].length == 0) {
+                pal.analyzeReductive(pixmaps);
+                gif.palette = pal;
+                prefix = "images/gif/animatedReductive/AnimatedGif-";
+            } else if (palettes[n].length == 1 && palettes[n][0] == 1) {
+                pal.analyzeHueWise(pixmaps);
+                gif.palette = pal;
+                prefix = "images/gif/animatedHue/AnimatedGif-";
+            } else if (palettes[n].length == 1 && palettes[n][0] == 2) {
+                pal.analyze(pixmaps);
+                gif.palette = pal;
+                prefix = "images/gif/animatedAnalyzed/AnimatedGif-";
+            } else {
                 pal.exact(palettes[n]);
                 gif.palette = pal;
                 prefix = "images/gif/animated/AnimatedGif-";
             }
-            for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + name + "-" + d + "-Q.gif"), pixmaps, 16);
             }
