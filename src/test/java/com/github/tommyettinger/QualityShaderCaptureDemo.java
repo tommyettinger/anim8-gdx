@@ -27,6 +27,8 @@ import com.github.tommyettinger.anim8.*;
  * Finished writing in 262250 ms.
  * Everything, with 12 dither algorithms:
  * Finished writing in 450833 ms.
+ * Everything, newer PC, 16 dither algorithms:
+ * Finished writing in 523888 ms.
  */
 // slow computer:
 // Finished writing in 558949 ms.
