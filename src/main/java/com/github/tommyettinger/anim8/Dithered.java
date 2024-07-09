@@ -241,13 +241,23 @@ public interface Dithered {
          * it isn't always as capable of producing high-quality dithers with very small palettes. However, this tradeoff
          * also means it doesn't pick up low-quality artifacts when dither strength is high.
          * <br>
+         * This dither is based on Burkes dither, but you could also just use {@link #BURKES} to avoid adding in any
+         * extra noise. You could also use {@link #OCEANIC} to incorporate just a little noise, softly. Relative to
+         * those two (newer) dithers, OVERBOARD has a harder time with "curt" gradients, that is, those that change
+         * smoothly but very quickly, and quickly stop changing. It does do well with larger, more-free-form gradients.
+         * <br>
          * This is currently the default dither.
          */
         OVERBOARD("Overboard"),
         /**
          * An error-diffusion dither like {@link #DIFFUSION}, but using Burkes dither instead of Floyd-Steinberg. This
          * can often look better than Floyd-Steinberg, at least how it is implemented here. This remains the case even
-         * with fairly high dither strength.
+         * with fairly high dither strength. If you set the strength unreasonably high, this will slowly approach an
+         * upper limit for how strong it can get, but will never reach it.
+         * <br>
+         * If you encounter issues with BURKES dither, you can try the very similar {@link #OCEANIC} dither instead. It
+         * has almost the same code as BURKES, except that makes a small adjustment to every amount of error that gets
+         * diffused, using blue noise to make the adjustment deterministic but quasi-random.
          * <br>
          * The source for this is very similar to the other error-diffusion algorithms in use here, and probably was
          * informed by <a href="https://tannerhelland.com/2012/12/28/dithering-eleven-algorithms-source-code.html">this blog post</a>
@@ -259,7 +269,9 @@ public interface Dithered {
          * using a per-pixel multiplier obtained from blue noise. Using noise to (usually slightly) adjust the error
          * makes some unpleasant artifacts in BURKES dither essentially disappear here, replaced with fuzzy sections.
          * This does well on soft lightness gradients, much like how {@link #NEUE} does, and is significantly better
-         * than BURKES at this task.
+         * than BURKES at this task. It adds some noise, but not nearly as much as {@link #NEUE}, {@link #DODGY},
+         * {@link #SCATTER}, {@link #WREN}, or {@link #OVERBOARD}, while avoiding the repetitive artifacts in
+         * {@link #ROBERTS}, {@link #WOVEN}, and {@link #PATTERN}.
          */
         OCEANIC("Oceanic");
 
@@ -272,10 +284,10 @@ public interface Dithered {
          * A cached array of the result of {@link #values()}, to avoid repeatedly allocating new
          * {@code DitherAlgorithm[]} arrays on each call to values().
          */
-        // currently (in version 0.4.4), this is:
-// NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES
+        // currently (in version 0.4.5), this is:
+// NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC
 // if alphabetized:
-// BLUE_NOISE, BURKES, CHAOTIC_NOISE, DIFFUSION, DODGY, GRADIENT_NOISE, LOAF, NEUE, NONE, OVERBOARD, PATTERN, ROBERTS, SCATTER, WOVEN, WREN
+// BLUE_NOISE, BURKES, CHAOTIC_NOISE, DIFFUSION, DODGY, GRADIENT_NOISE, LOAF, NEUE, NONE, OCEANIC, OVERBOARD, PATTERN, ROBERTS, SCATTER, WOVEN, WREN
         public static final DitherAlgorithm[] ALL = values();
 
         DitherAlgorithm(String name){

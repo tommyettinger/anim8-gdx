@@ -17,6 +17,8 @@ import com.github.tommyettinger.anim8.*;
  * Analyzed all 84 images in   59690 ms
  * (later, with more and different images/dithers)
  * Analyzed all 120 images in 103791 ms
+ * (later, more everything, but a newer computer)
+ * Analyzed all 162 images in 169789 ms
  */
 public class StillImageDemo extends ApplicationAdapter {
 	private long total = 0;
