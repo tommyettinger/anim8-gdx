@@ -42,7 +42,7 @@ group 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:anim8-gdx:0.4.3"
 
-[compileJava, compileTestJava, javadoc]*.options*.encoding = 'ISO-8859-1'
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 // Disable JDK 8's doclint
 // http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
