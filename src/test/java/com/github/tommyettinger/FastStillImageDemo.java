@@ -132,7 +132,7 @@ public class FastStillImageDemo extends ApplicationAdapter {
 		String type = "";
 		{
 			for (int count : new int[]{16, 31, 255}) {
-				reducer.analyze(pixmaps, 100, count + 1);
+				reducer.analyze(pixmaps, 300, count + 1);
 
 				gif.setPalette(reducer);
 				for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {

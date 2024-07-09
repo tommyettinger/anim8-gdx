@@ -217,11 +217,11 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                         if(UIUtils.ctrl()) {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducer.analyzeHueWise(p0, 100, kc);
+                                reducer.analyzeHueWise(p0, 500, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducer.analyzeHueWise(p0, 100, kc);
+                                reducer.analyzeHueWise(p0, 500, kc);
                             }
 
 //                            if (UIUtils.shift())
@@ -237,11 +237,11 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                         else {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducer.analyze(p0, 100, kc);
+                                reducer.analyze(p0, 300, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducer.analyze(p0, 100, kc);
+                                reducer.analyze(p0, 300, kc);
                             }
                         }
 //                        System.out.println("Total for all color differences: " + reducer.totalDifference);
@@ -249,9 +249,9 @@ public class InteractiveFastReducer extends ApplicationAdapter {
                         break;
                     case Input.Keys.NUM_0:
                         if(UIUtils.ctrl())
-                            reducer.analyzeHueWise(p0, 100, 256);
+                            reducer.analyzeHueWise(p0, 500, 256);
                         else
-                            reducer.analyze(p0, 100);
+                            reducer.analyze(p0, 300);
                         refresh();
                         break;
                     case Input.Keys.B:

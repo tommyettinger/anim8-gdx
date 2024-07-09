@@ -350,11 +350,11 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
                 pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             if (palettes[n].length == 0) {
-                png8.palette.analyzeReductive(pixmaps);
+                png8.palette.analyzeReductive(pixmaps, 400);
             } else if (palettes[n].length == 1 && palettes[n][0] == 1) {
-                png8.palette.analyzeHueWise(pixmaps);
+                png8.palette.analyzeHueWise(pixmaps, 500);
             } else if (palettes[n].length == 1 && palettes[n][0] == 2) {
-                png8.palette.analyze(pixmaps);
+                png8.palette.analyze(pixmaps, 300);
             } else {
                 png8.palette.exact(palettes[n]);
             }
@@ -399,15 +399,15 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
                 if (!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
                 prefix = "images/gif/animated" + (gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
             } else if (palettes[n].length == 0) {
-                pal.analyzeReductive(pixmaps);
+                pal.analyzeReductive(pixmaps, 400);
                 gif.palette = pal;
                 prefix = "images/gif/animatedReductive/AnimatedGif-";
             } else if (palettes[n].length == 1 && palettes[n][0] == 1) {
-                pal.analyzeHueWise(pixmaps);
+                pal.analyzeHueWise(pixmaps, 500);
                 gif.palette = pal;
                 prefix = "images/gif/animatedHue/AnimatedGif-";
             } else if (palettes[n].length == 1 && palettes[n][0] == 2) {
-                pal.analyze(pixmaps);
+                pal.analyze(pixmaps, 300);
                 gif.palette = pal;
                 prefix = "images/gif/animatedAnalyzed/AnimatedGif-";
             } else {

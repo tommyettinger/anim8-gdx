@@ -68,11 +68,11 @@ public class StillImageDemo extends ApplicationAdapter {
 			reducer = (type.isEmpty()) ? regular : quality;
 			for (int count : new int[]{16, 31, 255}) {
 				if ("H".equals(type)) {
-					reducer.analyzeHueWise(pixmap, 100, count + 1);
+					reducer.analyzeHueWise(pixmap, 500, count + 1);
 				} else if ("R".equals(type)) {
-					reducer.analyzeReductive(pixmap, 300, count + 1);
+					reducer.analyzeReductive(pixmap, 400, count + 1);
 				} else {
-					reducer.analyze(pixmap, 100, count + 1);
+					reducer.analyze(pixmap, 300, count + 1);
 				}
 
 				png8.setPalette(reducer);
@@ -149,11 +149,11 @@ public class StillImageDemo extends ApplicationAdapter {
 			reducer = (type.isEmpty()) ? regular : quality;
 			for (int count : new int[]{16, 31, 255}) {
 				if ("H".equals(type)) {
-					reducer.analyzeHueWise(pixmaps, 100, count + 1);
+					reducer.analyzeHueWise(pixmaps, 500, count + 1);
 				} else if ("R".equals(type)) {
-					reducer.analyzeReductive(pixmaps, 300, count + 1);
+					reducer.analyzeReductive(pixmaps, 400, count + 1);
 				} else {
-					reducer.analyze(pixmaps, 100, count + 1);
+					reducer.analyze(pixmaps, 300, count + 1);
 				}
 				gif.setPalette(reducer);
 				for(Dithered.DitherAlgorithm d : ALGORITHMS) {

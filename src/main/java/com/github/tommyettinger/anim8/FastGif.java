@@ -81,7 +81,7 @@ public class FastGif extends AnimatedGif {
         if (clearPalette) {
             if (fastAnalysis && frames.size > 1) {
                 palette = new FastPalette();
-                palette.analyzeFast(frames.first(), 100, 256);
+                palette.analyzeFast(frames.first(), 300, 256);
             }
             else
                 palette = new FastPalette(frames.first());

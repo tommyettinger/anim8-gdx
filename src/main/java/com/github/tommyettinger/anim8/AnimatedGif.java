@@ -117,7 +117,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         if (clearPalette) {
             if (fastAnalysis && frames.size > 1) {
                 palette = new PaletteReducer();
-                palette.analyzeFast(frames.first(), 100, 256);
+                palette.analyzeFast(frames.first(), 300, 256);
             }
             else
                 palette = new PaletteReducer(frames.first());
@@ -1844,9 +1844,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         if(seq > 1 && clearPalette)
         {
             if(fastAnalysis)
-                palette.analyzeFast(image, 100, 256);
+                palette.analyzeFast(image, 300, 256);
             else
-                palette.analyze(image, 100, 256);
+                palette.analyze(image, 300, 256);
         }
         final int[] paletteArray = palette.paletteArray;
 

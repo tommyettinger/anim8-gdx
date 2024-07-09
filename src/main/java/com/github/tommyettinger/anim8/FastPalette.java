@@ -147,7 +147,7 @@ public class FastPalette extends PaletteReducer {
      * (see {@link #analyze(Pixmap, double)} for more info).
      *
      * @param pixmap    a Pixmap to analyze in detail to produce a palette
-     * @param threshold the minimum difference between colors required to put them in the palette (default 100)
+     * @param threshold the minimum difference between colors required to put them in the palette (default 300)
      */
     public FastPalette(Pixmap pixmap, double threshold) {
         analyze(pixmap, threshold);
