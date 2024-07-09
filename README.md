@@ -230,6 +230,11 @@ so more quickly, and avoid losing any color information.
     - This is more faithful to the original error diffusion algorithm, which may explain why it looks better that Floyd-Steinberg (DIFFUSION) much of the time.
     - Artifacts tend to be 45-degree lines, if they show up at all.
     - Because this doesn't introduce extra noise, it will look very good with larger palettes, since the dithering should bring the colors to where they should be and not where the noise would offset them.
+  - OCEANIC
+    - A slight tweak on BURKES that uses blue noise to make small changes to the error diffusion pattern.
+    - This mostly is an improvement on existing dithers when BURKES has noticeable artifacts, but it is rather good in general, as well.
+    - Where diagonal artifacts would have appeared with BURKES, this tends to show soft/fuzzy noise, but not over a large area.
+    - If no significant issues are found with OCEANIC, it may become the default dither, because it has a good balance of softness and accuracy.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN and LOAF have obvious square grids.
@@ -239,9 +244,11 @@ so more quickly, and avoid losing any color information.
     - ROBERTS, WOVEN, and WREN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also
       sometimes look like scales, bubbles, or braids. WREN shows this artifact less noticeably than the others.
     - DIFFUSION and BURKES tend to have their error corrections jump around between frames, which looks jarring.
+      - BURKES has this less dramatically than DIFFUSION, and OCEANIC is meant to avoid this. 
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
-    - For very small palettes, OVERBOARD can have noticeable diagonal lines from the Burkes dither it is based on.
+    - For very small palettes, OVERBOARD can have noticeable diagonal lines from the Burkes dither it is based on. So
+      can BURKES, of course, but OCEANIC does a good job at avoiding these.
 
 You can set the strength of most of these dithers using PaletteReducer's, PNG8's, or AnimatedGif's
 `setDitherStrength(float)` methods (use the method on the class that is producing output). For NONE,
@@ -286,10 +293,13 @@ palette construction. `analyzeHueWise()` is available in `FastPalette`, but not 
 `PaletteReducer`.
 
 Starting in version 0.4.3, you can use `PaletteReducer.analyzeReductive()` as an alternative to
-`PaletteReducer.analyze()` or other ways. It's not generally recommended, but it may have better quality in some
-situations. This analysis involves trimming down a huge 1024-color palette until it (in theory) contains only colors
-that match the current image well. In practice, it isn't usually as good as just using `QualityPalette.analyze()`, or
-even `PaletteReducer.analyze()`.
+`PaletteReducer.analyze()` or other ways. While it wasn't very good at first, it was updated in 0.4.5 and now does very
+well on small palettes (such as a 16-color reduction). This analysis involves trimming down a huge 1024-color palette
+until it (in theory) contains only colors that match the current image well. For smaller palettes, it can do
+considerably better than `analyze()` or `analyzeHueWise()`, but there isn't much difference at 256 colors. The actual
+palette this trims down is essentially a 4x-expanded version of the default SNUGGLY255 palette, and like it, was created
+by deterministically sampling the Oklab color space until enough colors were found, then Lloyd-relaxing the Voronoi
+cells around each color in Oklab space. (No one needs to understand that last sentence.)
 
 # Samples
 
@@ -342,6 +352,10 @@ Original (full-color):
 Overboard (the current default):
 
 ![](samples/Mona_Lisa-PNG8-Overboard-Prospecal.png)
+
+Oceanic:
+
+![](samples/Mona_Lisa-PNG8-Oceanic-Prospecal.png)
 
 Burkes:
 
