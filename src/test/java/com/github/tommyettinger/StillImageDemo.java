@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.anim8.*;
@@ -35,7 +36,6 @@ public class StillImageDemo extends ApplicationAdapter {
         Gdx.files.local("images").mkdirs();
 //        for(String name : new String[]{"Mona_Lisa.jpg"}) {
         for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
-//        for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png", "Anemone.png",}) {
 			System.out.println("Rendering PNG8 for " + name);
 			renderPNG8(name);
 			System.out.println("Rendering GIF for " + name);
@@ -50,7 +50,7 @@ public class StillImageDemo extends ApplicationAdapter {
     @Override
     public void render() {
         Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-        Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
     public void renderPNG8(String filename) {
@@ -206,11 +206,7 @@ public class StillImageDemo extends ApplicationAdapter {
 	}
 
 	public static void main(String[] args) {
-		createApplication();
-	}
-
-	private static Lwjgl3Application createApplication() {
-		return new Lwjgl3Application(new StillImageDemo(), getDefaultConfiguration());
+		new Lwjgl3Application(new StillImageDemo(), getDefaultConfiguration());
 	}
 
 	private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
