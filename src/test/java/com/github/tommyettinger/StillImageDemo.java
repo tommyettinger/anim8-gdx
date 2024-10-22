@@ -74,7 +74,7 @@ public class StillImageDemo extends ApplicationAdapter {
 				} else if ("R".equals(type)) {
 					reducer.analyzeReductive(pixmap, 400, count + 1);
 				} else {
-					reducer.analyze(pixmap, 300, count + 1);
+					reducer.analyze(pixmap, 100, count + 1);
 				}
 
 				png8.setPalette(reducer);
@@ -155,7 +155,7 @@ public class StillImageDemo extends ApplicationAdapter {
 				} else if ("R".equals(type)) {
 					reducer.analyzeReductive(pixmaps, 400, count + 1);
 				} else {
-					reducer.analyze(pixmaps, 300, count + 1);
+					reducer.analyze(pixmaps, 100, count + 1);
 				}
 				gif.setPalette(reducer);
 				for(Dithered.DitherAlgorithm d : ALGORITHMS) {

@@ -1748,7 +1748,7 @@ public class PaletteReducer {
      * @param pixmap a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
      */
     public void analyze(Pixmap pixmap) {
-        analyze(pixmap, 300);
+        analyze(pixmap, 100);
     }
 
     /**
@@ -1761,7 +1761,7 @@ public class PaletteReducer {
      * takes a threshold value to determine whether it should permit a less-common color into the palette, and if the
      * second color is different enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least
      * {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar to existing
-     * colors. The threshold is usually between 100 and 500, and 300 is a good default. Because this always uses the
+     * colors. The threshold is usually between 50 and 200, and 100 is a good default. Because this always uses the
      * maximum color limit, threshold should be lower than cases where the color limit is small. If the threshold is too
      * high, then some colors that would be useful to smooth out subtle color changes won't get considered, and colors
      * may change more abruptly. This doesn't return a value but instead stores the palette info in this object; a
@@ -1769,7 +1769,7 @@ public class PaletteReducer {
      * directly to {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)} ; usually between 100 and 500, 300 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)} ; usually between 50 and 200, 100 is a good default
      */
     public void analyze(Pixmap pixmap, double threshold) {
         analyze(pixmap, threshold, 256);
@@ -1785,14 +1785,14 @@ public class PaletteReducer {
      * determine whether it should permit a less-common color into the palette, and if the second color is different
      * enough (as measured by {@link #differenceAnalyzing(int, int)} ) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
-     * 100 and 500, and 300 is a good default. If the threshold is too high, then some colors that would be useful to
+     * 50 and 200, and 100 is a good default. If the threshold is too high, then some colors that would be useful to
      * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
      * Pixmap.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)} or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 500, 300 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 200, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap pixmap, double threshold, int limit) {
@@ -2662,7 +2662,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      */
     public void analyze(Array<Pixmap> pixmaps){
-        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, 300, 256);
+        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, 100, 256);
     }
 
     /**
@@ -2675,13 +2675,13 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 100 and 500, and 300 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 50 and 200, and 100 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 500, 300 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 200, 100 is a good default
      */
     public void analyze(Array<Pixmap> pixmaps, double threshold){
         analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
@@ -2697,13 +2697,13 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 100 and 500, and 300 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 50 and 200, and 100 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 500, 300 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 200, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Array<Pixmap> pixmaps, double threshold, int limit){
@@ -2719,14 +2719,14 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #differenceAnalyzing(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 100 and 500, and 300 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 50 and 200, and 100 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      * @param pixmapCount the maximum number of Pixmap entries in pixmaps to use
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 100 and 500, 300 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 200, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
