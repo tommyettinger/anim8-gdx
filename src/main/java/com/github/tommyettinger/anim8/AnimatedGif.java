@@ -1846,7 +1846,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
         final int w = width;
         byte paletteIndex;
-        final float s = (float) (0.13 * ditherStrength * (palette.populationBias * palette.populationBias)),
+        final float s = (0.13f * ditherStrength * (palette.populationBias * palette.populationBias)),
                 strength = s * 0.29f / (0.18f + s);
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (palette.curErrorRedFloats == null) {

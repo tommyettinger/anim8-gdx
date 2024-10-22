@@ -5025,7 +5025,7 @@ public class PaletteReducer {
         final float[] noiseA = TRI_BLUE_NOISE_MULTIPLIERS;
         final float[] noiseB = TRI_BLUE_NOISE_MULTIPLIERS_B;
         final float[] noiseC = TRI_BLUE_NOISE_MULTIPLIERS_C;
-        final float s = (float) (0.13 * ditherStrength * (populationBias * populationBias)),
+        final float s = (0.13f * ditherStrength * (populationBias * populationBias)),
                 strength = s * 0.29f / (0.18f + s);
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (curErrorRedFloats == null) {
