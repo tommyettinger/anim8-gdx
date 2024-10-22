@@ -235,6 +235,11 @@ so more quickly, and avoid losing any color information.
     - This mostly is an improvement on existing dithers when BURKES has noticeable artifacts, but it is rather good in general, as well.
     - Where diagonal artifacts would have appeared with BURKES, this tends to show soft/fuzzy noise, but not over a large area.
     - If no significant issues are found with OCEANIC, it may become the default dither, because it has a good balance of softness and accuracy.
+  - SEASIDE
+    - Very close to OCEANIC, this also uses blue noise to adjust the error diffusion; the difference is that it uses different blue noise textures for each RGB channel.
+    - This sometimes has better color reproduction than OCEANIC, but also sometimes doesn't. It's hard to tell why.
+    - Any repetitive small-scale patterns in this are likely to be different from those in OCEANIC, or absent entirely.
+    - When two colors are nearly-equally matched in a palette, OCEANIC tends to show a 1px checkerboard, whereas SEASIDE shows a more coarse-grained texture.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN and LOAF have obvious square grids.
@@ -248,7 +253,7 @@ so more quickly, and avoid losing any color information.
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
     - For very small palettes, OVERBOARD can have noticeable diagonal lines from the Burkes dither it is based on. So
-      can BURKES, of course, but OCEANIC does a good job at avoiding these.
+      can BURKES, of course, but OCEANIC and SEASIDE do a good job at avoiding these.
 
 You can set the strength of most of these dithers using PaletteReducer's, PNG8's, or AnimatedGif's
 `setDitherStrength(float)` methods (use the method on the class that is producing output). For NONE,
@@ -267,7 +272,7 @@ analyze an existing image or animation (which can work well for large palette si
 default palette (called "SNUGGLY", it nicely fits 255 colors plus transparent). Of these, using
 `analyze()` is the trickiest, and it generally should be permitted all 256 colors to work with. With `analyze()`, you
 can specify the threshold between colors for it to consider adding one to the palette, and this is a challenging value
-to set that depends on the image being dithered. Typically, between 50 and 600 are used, with higher values for smaller
+to set that depends on the image being dithered. Typically, between 50 and 200 are used, with higher values for smaller
 or more diverse palettes (that is, ones with fewer similar colors to try to keep). Usually you will do just fine with
 the default "SNUGGLY" palette, or almost any practical 250+ color palette, because with so many colors it's hard to go
 wrong. Creating a PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use SNUGGLY.
@@ -300,6 +305,9 @@ considerably better than `analyze()` or `analyzeHueWise()`, but there isn't much
 palette this trims down is essentially a 4x-expanded version of the default SNUGGLY255 palette, and like it, was created
 by deterministically sampling the Oklab color space until enough colors were found, then Lloyd-relaxing the Voronoi
 cells around each color in Oklab space. (No one needs to understand that last sentence.)
+
+Starting in version 0.4.6, all these color analysis techniques use comparable threshold values, defaulting to 100. Some
+palettes may need a higher or lower threshold only with some methods, though.
 
 # Samples
 
@@ -356,6 +364,10 @@ Overboard (the current default):
 Oceanic:
 
 ![](samples/Mona_Lisa-PNG8-Oceanic-Prospecal.png)
+
+Seaside:
+
+![](samples/Mona_Lisa-PNG8-Seaside-Prospecal.png)
 
 Burkes:
 
