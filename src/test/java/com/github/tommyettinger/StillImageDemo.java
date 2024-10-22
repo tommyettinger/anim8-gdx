@@ -70,7 +70,7 @@ public class StillImageDemo extends ApplicationAdapter {
 			reducer = (type.isEmpty()) ? regular : quality;
 			for (int count : new int[]{16, 31, 255}) {
 				if ("H".equals(type)) {
-					reducer.analyzeHueWise(pixmap, 500, count + 1);
+					reducer.analyzeHueWise(pixmap, 100, count + 1);
 				} else if ("R".equals(type)) {
 					reducer.analyzeReductive(pixmap, 400, count + 1);
 				} else {
@@ -151,7 +151,7 @@ public class StillImageDemo extends ApplicationAdapter {
 			reducer = (type.isEmpty()) ? regular : quality;
 			for (int count : new int[]{16, 31, 255}) {
 				if ("H".equals(type)) {
-					reducer.analyzeHueWise(pixmaps, 500, count + 1);
+					reducer.analyzeHueWise(pixmaps, 100, count + 1);
 				} else if ("R".equals(type)) {
 					reducer.analyzeReductive(pixmaps, 400, count + 1);
 				} else {

@@ -1882,7 +1882,7 @@ public class PaletteReducer {
      * determine whether it should permit a less-common color into the palette, and if the second color is different
      * enough (as measured by {@link #differenceHW(int, int)} ) by a value of at least {@code threshold}, it is allowed in
      * the palette, otherwise it is kept out for being too similar to existing colors. The threshold is usually between
-     * 200 and 800, and 500 is a good default. If the threshold is too high, then some colors that would be useful to
+     * 50 and 200, and 100 is a good default. If the threshold is too high, then some colors that would be useful to
      * smooth out subtle color changes won't get considered, and colors may change more abruptly. This doesn't return a
      * value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to {@link #reduce(Pixmap)} a
@@ -1897,7 +1897,7 @@ public class PaletteReducer {
      * {@link OtherMath#barronSpline(float, float, float)}. This last step works well with dithering.
      *
      * @param pixmap    a Pixmap to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by PNG8, or by AnimatedGif
-     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 200 and 800, 500 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 200, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeHueWise(Pixmap pixmap, double threshold, int limit) {
@@ -1905,7 +1905,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 3), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.000215;
+        threshold /= Math.pow(limit, 1.35) * 0.000043;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         IntArray enc = new IntArray(width * height);
@@ -2835,7 +2835,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      */
     public void analyzeHueWise(Array<Pixmap> pixmaps){
-        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, 500, 256);
+        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, 100, 256);
     }
 
     /**
@@ -2848,13 +2848,13 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #differenceHW(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 200 and 800, and 500 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 50 and 200, and 100 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 200 and 800, 500 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 50 and 200, 100 is a good default
      */
     public void analyzeHueWise(Array<Pixmap> pixmaps, double threshold){
         analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
@@ -2869,13 +2869,13 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #differenceHW(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 200 and 800, and 500 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 50 and 200, and 100 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
-     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 200 and 800, 500 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 50 and 200, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeHueWise(Array<Pixmap> pixmaps, double threshold, int limit){
@@ -2891,14 +2891,14 @@ public class PaletteReducer {
      * sufficiently different, this takes a threshold value to determine whether it should permit a less-common color
      * into the palette, and if the second color is different enough (as measured by {@link #differenceHW(int, int)}) by a
      * value of at least {@code threshold}, it is allowed in the palette, otherwise it is kept out for being too similar
-     * to existing colors. The threshold is usually between 200 and 800, and 500 is a good default. This doesn't return
+     * to existing colors. The threshold is usually between 50 and 200, and 100 is a good default. This doesn't return
      * a value but instead stores the palette info in this object; a PaletteReducer can be assigned to the
      * {@link PNG8#palette} or {@link AnimatedGif#palette} fields, or can be used directly to
      * {@link #reduce(Pixmap)} a Pixmap.
      *
      * @param pixmaps   a Pixmap array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      * @param pixmapCount the maximum number of Pixmap entries in pixmaps to use
-     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 200 and 800, 500 is a good default
+     * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 50 and 200, 100 is a good default
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeHueWise(Pixmap[] pixmaps, int pixmapCount, double threshold, int limit) {
@@ -2906,7 +2906,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 3), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.000215;
+        threshold /= Math.pow(limit, 1.35) * 0.000043;
         final int w0 = pixmaps[0].getWidth(), h0 = pixmaps[0].getHeight();
         IntIntMap counts = new IntIntMap(limit);
         IntArray enc = new IntArray(w0 * h0 * pixmapCount / 10);
