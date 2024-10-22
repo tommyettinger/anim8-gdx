@@ -693,7 +693,7 @@ public class PaletteReducer {
      * While, for some reason, you could change the contents to some other distribution of floats, I don't know why this
      * would be needed.
      */
-    
+
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS_B = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS_B;
     /**
      * A 64x64 grid of floats, with a median value of about 1.0, generated using the triangular-distributed blue noise
@@ -3316,6 +3316,8 @@ public class PaletteReducer {
                 return reduceWren(pixmap);
             case OCEANIC:
                 return reduceOceanic(pixmap);
+            case SEASIDE:
+                return reduceSeaside(pixmap);
             case OVERBOARD:
             default:
                 return reduceOverboard(pixmap);

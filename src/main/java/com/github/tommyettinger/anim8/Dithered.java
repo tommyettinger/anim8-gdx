@@ -273,7 +273,14 @@ public interface Dithered {
          * {@link #SCATTER}, {@link #WREN}, or {@link #OVERBOARD}, while avoiding the repetitive artifacts in
          * {@link #ROBERTS}, {@link #WOVEN}, and {@link #PATTERN}.
          */
-        OCEANIC("Oceanic");
+        OCEANIC("Oceanic"),
+        /**
+         * A close relative of {@link #OCEANIC}, this also incorporates noise into {@link #BURKES} to change how each
+         * pixel diffuses error. Unlike OCEANIC, the noise is different for each channel, which can improve how well
+         * this approximates colors with small palettes. This is the same technique used by {@link #DODGY} to improve
+         * upon {@link #NEUE}, and various other newer dithering algorithms here also use it.
+         */
+        SEASIDE("Seaside");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
