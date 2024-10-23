@@ -47,17 +47,17 @@ import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
  * reduce (or increase) dither strength, typically between 0 and 2;
  * the dithering algorithm used here by default is based on Burkes error-diffusion dithering but with patterns
  * broken up using a variety of noise ({@link DitherAlgorithm#OVERBOARD}), but you can select alternatives with
- * {@link #setDitherAlgorithm(DitherAlgorithm)}, such as the slow but high-quality Knoll Ordered Dither using
- * {@link DitherAlgorithm#PATTERN}, or no dither at all with {@link DitherAlgorithm#NONE}.
+ * {@link #setDitherAlgorithm(DitherAlgorithm)}. Using {@link DitherAlgorithm#LOAF} may usually look worse in still
+ * frames, but it tends to look great in fast animations because it won't have "static" from error-diffusion. You could
+ * just no dither at all with {@link DitherAlgorithm#NONE}, though that tends to look awful with small palettes.
  * <br>
  * You can write non-animated GIFs with this, but libGDX can't read them back in, so you may want to prefer {@link PNG8}
  * for images with 256 or fewer colors and no animation (libGDX can read in non-animated PNG files, as well as the first
  * frame of animated PNG files). If you have an animation that doesn't look good with dithering or has multiple levels
  * of transparency (GIF only supports one fully transparent color), you can use {@link AnimatedPNG} to output a
  * full-color animation. If you have a non-animated image that you want to save in lossless full-color, you can
- * sometimes use {@link FastPNG} (it is GWT-incompatible, but works elsewhere). You could use
- * {@link com.badlogic.gdx.graphics.PixmapIO.PNG} instead; the PNG code here is based on it, and although it isn't as
- * fast to write files, they are better-compressed.
+ * use {@link FastPNG} or {@link com.badlogic.gdx.graphics.PixmapIO.PNG}; the PNG code here is based on PixmapIO, and
+ * although FastPNG is faster to write files, PixmapIO's are better-compressed.
  * <br>
  * Based on <a href="https://github.com/nbadal/android-gif-encoder/blob/master/GifEncoder.java">Nick Badal's Android port</a> of
  * <a href="http://www.jappit.com/blog/2008/12/04/j2me-animated-gif-encoder/">Alessandro La Rossa's J2ME port</a> of this pure

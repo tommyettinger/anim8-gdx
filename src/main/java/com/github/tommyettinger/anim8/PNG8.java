@@ -421,8 +421,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * always analyze the Pixmap to get an accurate-enough palette, using the given threshold for analysis (which is
      * typically between 1 and 1000, and most often near 200-400). The write() methods in this class that don't have
      * "Precise" in the name will reduce the color depth somewhat, but this will keep the non-alpha components of colors
-     * exactly. For full precision on any color count, use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or
-     * {@link AnimatedPNG} for animations.
+     * exactly. For full precision on any color count, use {@link FastPNG},
+     * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
@@ -449,8 +449,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * palette, using the given threshold for analysis (which is typically between 1 and 1000, and most often near
      * 200-400). The dither algorithm can be configured with {@link #setDitherAlgorithm(DitherAlgorithm)}, if it gets
      * used at all. The write() methods in this class that don't have "Precise" in the name will reduce the color depth
-     * somewhat, but this will keep the non-alpha components of colors exactly. For full precision on any color count,
-     * use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
+     * somewhat, but this will keep the non-alpha components of colors exactly. For full precision on any color count, use {@link FastPNG},
+     * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
      * @param exactPalette if non-null, will try to use this palette exactly, in order and including unused colors
@@ -473,8 +473,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * can dither the image to use no more than 255 colors (plus fully transparent) based on ditherFallback and will
      * always analyze the Pixmap to get an accurate-enough palette. The write() methods in this class that don't have
      * "Precise" in the name will reduce the color depth somewhat, but this will keep the non-alpha components of colors
-     * exactly. For full precision on any color count, use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or
-     * {@link AnimatedPNG} for animations.
+     * exactly. For full precision on any color count, use {@link FastPNG},
+     * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
@@ -491,8 +491,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * always analyze the Pixmap to get an accurate-enough palette, using the given threshold for analysis (which is
      * typically between 1 and 1000, and most often near 200-400). The write() methods in this class that don't have
      * "Precise" in the name will reduce the color depth somewhat, but this will keep the non-alpha components of colors
-     * exactly. For full precision on any color count, use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or
-     * {@link AnimatedPNG} for animations.
+     * exactly. For full precision on any color count, use {@link FastPNG},
+     * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      * @param ditherFallback if the Pixmap contains too many colors, this determines whether it will dither the output
@@ -514,8 +514,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * palette, using the given threshold for analysis (which is typically between 1 and 1000, and most often near
      * 200-400). The dither algorithm can be configured with {@link #setDitherAlgorithm(DitherAlgorithm)}, if it gets
      * used at all. The write() methods in this class that don't have "Precise" in the name will reduce the color depth
-     * somewhat, but this will keep the non-alpha components of colors exactly. For full precision on any color count,
-     * use {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
+     * somewhat, but this will keep the non-alpha components of colors exactly. For full precision on any color count, use {@link FastPNG},
+     * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
      * @param exactPalette if non-null, will try to use this palette exactly, in order and including unused colors
@@ -654,7 +654,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * only succeed if there are no more than 256 colors in the Pixmap (treating all partially transparent colors as
      * fully transparent). If the attempt fails, this will throw an IllegalArgumentException. The write() methods in
      * this class that don't have "Precise" in the name will reduce the color depth somewhat, but this will keep the
-     * non-alpha components of colors exactly. For full precision on any color count, use
+     * non-alpha components of colors exactly. For full precision on any color count, use {@link FastPNG},
      * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param file a FileHandle that must be writable, and will have the given Pixmap written as a PNG-8 image
      * @param pixmap a Pixmap to write to the given output stream
@@ -678,7 +678,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * only succeed if there are no more than 256 colors in the Pixmap (treating all partially transparent colors as
      * fully transparent). If the attempt fails, this will throw an IllegalArgumentException. The write() methods in
      * this class that don't have "Precise" in the name will reduce the color depth somewhat, but this will keep the
-     * non-alpha components of colors exactly. For full precision on any color count, use
+     * non-alpha components of colors exactly. For full precision on any color count, use {@link FastPNG},
      * {@link com.badlogic.gdx.graphics.PixmapIO.PNG}, or {@link AnimatedPNG} for animations.
      * @param output an OutputStream that will not be closed
      * @param pixmap a Pixmap to write to the given output stream
