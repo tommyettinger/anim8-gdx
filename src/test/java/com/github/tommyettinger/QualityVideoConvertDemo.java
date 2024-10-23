@@ -65,7 +65,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
+        renderWorldGif(names, palettes);
         renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
         renderSolidsGif(names, palettes);
@@ -76,7 +76,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
-        renderGlobeGif(names, palettes);
+        renderWorldGif(names, palettes);
         renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
         renderSolidsGif(names, palettes);
@@ -218,9 +218,9 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         }
     }
 
-    public void renderGlobeGif(String[] names, QualityPalette[] palettes) {
-        System.out.println("Rendering globe GIF");
-        String name = "globe";
+    public void renderWorldGif(String[] names, QualityPalette[] palettes) {
+        System.out.println("Rendering world GIF");
+        String name = "world";
         Array<Pixmap> pixmaps = new Array<>(true, 180, Pixmap.class);
         for (int i = 0; i < 180; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));

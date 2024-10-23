@@ -1431,7 +1431,6 @@ public class PaletteReducer {
         System.arraycopy(palette, 0,  paletteArray, 0, colorCount);
         System.arraycopy(preload, 0,  paletteMapping, 0, 0x8000);
         populationBias = (float) Math.exp(-1.375/colorCount);
-        Gdx.app.debug("known", "Known palette took " + (System.currentTimeMillis() - startTime) + " ms.");
     }
 
     /**
