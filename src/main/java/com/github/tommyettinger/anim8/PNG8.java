@@ -1271,7 +1271,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             }
 
             int color;
-            final float strength = 3 * ditherStrength / palette.populationBias;
+            final float strength = (float)(ditherStrength * Math.pow(palette.populationBias, -8.0));
             for (int i = 0; i < 64; i++) {
                 PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
             }
@@ -4304,7 +4304,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine;
             int color;
 
-            final float strength = 3 * ditherStrength / palette.populationBias;
+            final float strength = (float)(ditherStrength * Math.pow(palette.populationBias, -8.0));
             for (int i = 0; i < 64; i++) {
                 PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
             }

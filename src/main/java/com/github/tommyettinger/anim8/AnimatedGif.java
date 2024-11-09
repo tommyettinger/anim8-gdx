@@ -676,7 +676,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float strength = 3 * ditherStrength / palette.populationBias;
+        final float strength = (float)(ditherStrength * Math.pow(palette.populationBias, -8.0));
         for (int i = 0; i < 64; i++) {
             PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
         }
