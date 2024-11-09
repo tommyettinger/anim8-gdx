@@ -3317,6 +3317,8 @@ public class PaletteReducer {
                 return reduceOceanic(pixmap);
             case SEASIDE:
                 return reduceSeaside(pixmap);
+            case GOURD:
+                return reduceGourd(pixmap);
             case OVERBOARD:
             default:
                 return reduceOverboard(pixmap);

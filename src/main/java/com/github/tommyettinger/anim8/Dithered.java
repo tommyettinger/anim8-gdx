@@ -280,7 +280,16 @@ public interface Dithered {
          * this approximates colors with small palettes. This is the same technique used by {@link #DODGY} to improve
          * upon {@link #NEUE}, and various other newer dithering algorithms here also use it.
          */
-        SEASIDE("Seaside");
+        SEASIDE("Seaside"),
+        /**
+         * A relative of {@link #LOAF}, this is another ordered dither, with comparable speed to and higher quality than
+         * LOAF (but less of a "hand-drawn" feeling), and higher speed and comparable quality to {@link #PATTERN}.
+         * This will have some grid-based artifacts, but because it uses a somewhat large 8x8 grid (as opposed to 2x2
+         * for LOAF), their appearance isn't always as obvious. Like LOAF and PATTERN, this should look good for
+         * animations, since it doesn't have the error-diffusion issues where diffused error can zigzag over a moving
+         * object during an animation.
+         */
+        GOURD("Gourd");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
