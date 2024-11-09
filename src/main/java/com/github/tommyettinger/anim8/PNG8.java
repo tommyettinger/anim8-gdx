@@ -870,7 +870,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
                 color = pixmap.getPixel(px, py);
-                if ((color & 0x80) == 0 && hasTransparent)
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     curLine[px] = 0;
                 else {
                     int rr = ((color >>> 24)       );
@@ -975,7 +975,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         adj = (px * 0.06711056f + y * 0.00583715f);
@@ -1086,7 +1086,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         int rr = ((color >>> 24)       );
@@ -1197,7 +1197,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         int adj = (int)((((px + y & 1) << 5) - 16) * strength);
@@ -1279,7 +1279,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         float adj = PaletteReducer.tempThresholdMatrix[(px & 7) | (y & 7) << 3];
@@ -1358,7 +1358,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         int rr = ((color >>> 24)       );
@@ -1475,7 +1475,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         int rr = ((color >>> 24)       );
@@ -1634,7 +1634,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         er = curErrorRed[px];
@@ -1773,7 +1773,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             int py = flipY ? (h - y - 1) : y;
             for (int px = 0; px < w; px++) {
                 color = pixmap.getPixel(px, py);
-                if ((color & 0x80) == 0 && hasTransparent)
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     curLine[px] = 0;
                 else {
                     int er = 0, eg = 0, eb = 0;
@@ -1923,7 +1923,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         float tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
@@ -2096,7 +2096,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
@@ -2274,7 +2274,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         er = Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorRed[px]);
@@ -2427,7 +2427,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         er = Math.min(Math.max(((((px+1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorRed[px]);
@@ -2600,7 +2600,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         er = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+1) * 0xC13FA9A902A6328FL + (y +1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorRed[px]), -limit), limit);
@@ -2749,7 +2749,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int y = flipY ? (h - by - 1) : by;
                 for (int x = 0; x < w; x++) {
                     color = pixmap.getPixel(x, y);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[x] = 0;
                     else {
                         er = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE  [(x & 63) | (by & 63) << 6] + 0.5f) * blueStrength + ((((x+1) * 0xC13FA9A902A6328FL + (by+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-24f - 0x1.4p-2f) * strength)), -limit), limit) + (curErrorRed[x]);
@@ -2922,7 +2922,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                 for (int x = 0; x < w; x++) {
                     int color = pixmap.getPixel(x, y);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[x] = 0;
                     else {
                         float er = 0f, eg = 0f, eb = 0f;
@@ -3133,7 +3133,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         float er = curErrorRed[px];
@@ -3306,7 +3306,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         float er = curErrorRed[px];
@@ -3488,7 +3488,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         ny = y + 1;
                 for (int px = 0; px < w; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         float er = curErrorRed[px];
@@ -3745,7 +3745,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 int py = flipY ? (height - y - 1) : y;
                 for (int px = 0; px < width; px++) {
                     color = pixmap.getPixel(px, py);
-                    if ((color & 0x80) == 0 && hasTransparent)
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
                         int rr = ((color >>> 24));
@@ -3852,6 +3852,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case SEASIDE:
                 writeSeasideDithered(output, frames, fps);
                 break;
+            case GOURD:
+                writeGourdDithered(output, frames, fps);
+                break;
             case OVERBOARD:
             default:
                 writeOverboardDithered(output, frames, fps);
@@ -3944,7 +3947,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             pos = (px * 0.06711056f + y * 0.00583715f);
@@ -4085,7 +4088,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             int rr = ((color >>> 24)       );
@@ -4226,7 +4229,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             int adj = (int)((((px + y & 1) << 5) - 16) * strength);
@@ -4235,6 +4238,119 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + adj, 0), 255);
                             int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
                             curLine[px] = paletteMapping[rgb555];
+                        }
+                    }
+
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, width);
+                }
+                deflaterOutput.finish();
+                buffer.endChunk(dataOutput);
+            }
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
+    public void writeGourdDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+        Pixmap pixmap = frames.first();
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            final int width = pixmap.getWidth();
+            final int height = pixmap.getHeight();
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(width);
+            buffer.writeInt(height);
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p >>> 24);
+                buffer.write(p >>> 16);
+                buffer.write(p >>> 8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if (paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(acTL);
+            buffer.writeInt(frames.size);
+            buffer.writeInt(0);
+            buffer.endChunk(dataOutput);
+
+            byte[] curLine;
+            int color;
+
+            final float strength = 3 * ditherStrength / palette.populationBias;
+            for (int i = 0; i < 64; i++) {
+                PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
+            }
+            int seq = 0;
+            for (int i = 0; i < frames.size; i++) {
+
+                buffer.writeInt(fcTL);
+                buffer.writeInt(seq++);
+                buffer.writeInt(width);
+                buffer.writeInt(height);
+                buffer.writeInt(0);
+                buffer.writeInt(0);
+                buffer.writeShort(1);
+                buffer.writeShort(fps);
+                buffer.writeByte(0);
+                buffer.writeByte(0);
+                buffer.endChunk(dataOutput);
+
+                if (i == 0) {
+                    buffer.writeInt(IDAT);
+                } else {
+                    pixmap = frames.get(i);
+                    buffer.writeInt(fdAT);
+                    buffer.writeInt(seq++);
+                }
+                deflater.reset();
+
+
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
+
+                for (int y = 0; y < height; y++) {
+                    int py = flipY ? (height - y - 1) : y;
+                    for (int px = 0; px < width; px++) {
+                        color = pixmap.getPixel(px, py);
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                            curLine[px] = 0;
+                        else {
+                            float adj = PaletteReducer.tempThresholdMatrix[(px & 7) | (y & 7) << 3];
+                            int rr = PaletteReducer.fromLinearLUT[(int)(PaletteReducer.toLinearLUT[(color >>> 24)       ] + adj)] & 255;
+                            int gg = PaletteReducer.fromLinearLUT[(int)(PaletteReducer.toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
+                            int bb = PaletteReducer.fromLinearLUT[(int)(PaletteReducer.toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
+                            curLine[px] = paletteMapping[((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3))];
                         }
                     }
 
@@ -4337,7 +4453,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             int rr = ((color >>> 24)       );
@@ -4483,7 +4599,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             int rr = ((color >>> 24)       );
@@ -4674,7 +4790,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ny = y + 1;
                     for (int px = 0; px < w; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             er = curErrorRed[px];
@@ -4845,7 +4961,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             int er = 0, eg = 0, eb = 0;
@@ -5028,7 +5144,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ny = y + 1;
                     for (int px = 0; px < w; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             float tbn = PaletteReducer.TRI_BLUE_NOISE_MULTIPLIERS[(px & 63) | ((y << 6) & 0xFC0)];
@@ -5236,7 +5352,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ny = y + 1;
                     for (int px = 0; px < w; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (py & 63) << 6] + 0.5f) * 0.005f); // plus or minus 255/400
@@ -5449,7 +5565,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ny = y + 1;
                     for (int px = 0; px < w; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             er = Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorRed[px]);
@@ -5635,7 +5751,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ny = y + 1;
                     for (int px = 0; px < w; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             er = Math.min(Math.max(((((px+1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-23f - 0x1.4p-1f) * strength, -limit), limit) + (curErrorRed[px]);
@@ -5842,7 +5958,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             ny = y + 1;
                     for (int px = 0; px < w; px++) {
                         color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             er = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f) + ((((px+1) * 0xC13FA9A902A6328FL + (y +1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1p-15f - 0x1p+7f)) * strength) + (curErrorRed[px]), -limit), limit);
@@ -6025,7 +6141,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     int y = flipY ? (h - by - 1) : by;
                     for (int x = 0; x < w; x++) {
                         color = pixmap.getPixel(x, y);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[x] = 0;
                         else {
                             er = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE  [(x & 63) | (by & 63) << 6] + 0.5f) * blueStrength + ((((x+1) * 0xC13FA9A902A6328FL + (by+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-24f - 0x1.4p-2f) * strength)), -limit), limit) + (curErrorRed[x]);
@@ -6232,7 +6348,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     for (int x = 0; x < w; x++) {
                         int color = pixmap.getPixel(x, y);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[x] = 0;
                         else {
                             float er = 0f, eg = 0f, eb = 0f;
@@ -6464,7 +6580,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     for (int px = 0; px < w; px++) {
                         int color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             float er = curErrorRed[px];
@@ -6662,7 +6778,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     for (int px = 0; px < w; px++) {
                         int color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             float er = curErrorRed[px];
@@ -6876,7 +6992,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     for (int px = 0; px < w; px++) {
                         int color = pixmap.getPixel(px, py);
-                        if ((color & 0x80) == 0 && hasTransparent)
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
                             float er = curErrorRed[px];
