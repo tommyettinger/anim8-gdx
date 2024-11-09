@@ -25,6 +25,8 @@ import com.github.tommyettinger.anim8.*;
 
 // on October 1, 2023, running this took     724021 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class FastVideoConvertDemo extends ApplicationAdapter {
+    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.GOURD};
+    //    private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
     private boolean fastAnalysis = true;
     @Override
     public void create() {
@@ -116,7 +118,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
             else
                 png8.setPalette(palettes[i]);
 
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 png8.setDitherAlgorithm(d);
                 png8.write(Gdx.files.local(prefix + namePalette + "-" + d + ".png"), pixmaps, 20);
             }
@@ -139,14 +141,11 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(new FastPalette(pixmaps));
-            else
-                gif.setPalette(palettes[i]);
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-F-";
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
             }
@@ -168,14 +167,11 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(new FastPalette(pixmaps));
-            else
-                gif.setPalette(palettes[i]);
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-F-";
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 12);
             }
@@ -194,14 +190,11 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(new FastPalette(pixmaps));
-            else
-                gif.setPalette(palettes[i]);
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-F-";
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 12);
             }
@@ -220,14 +213,11 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(new FastPalette(pixmaps));
-            else
-                gif.setPalette(palettes[i]);
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-F-";
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
             }
@@ -246,14 +236,11 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(new FastPalette(pixmaps));
-            else
-                gif.setPalette(palettes[i]);
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-F-";
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
             }
@@ -274,14 +261,11 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
         String namePalette;
         for (int i = 0; i < names.length; i++) {
             namePalette = name + names[i];
-            if(palettes[i] == null)
-                gif.setPalette(new FastPalette(pixmaps));
-            else
-                gif.setPalette(palettes[i]);
+            gif.setPalette(palettes[i]);
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-F-";
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + ".gif"), pixmaps, 20);
             }
