@@ -102,12 +102,14 @@ public class StillImageDemo extends ApplicationAdapter {
 		for(Dithered.DitherAlgorithm d : ALGORITHMS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-DB8.png"), pixmap, false, true);
+			png8.write(Gdx.files.local("images/png/" + name + "/" + name + "-PNG8-" + d + "-DB8.png"), pixmap, false, true);
 		}
 
 		quality.exact(new int[]{0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF});
 		for(Dithered.DitherAlgorithm d : ALGORITHMS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Prospecal.png"), pixmap, false, true);
+			png8.write(Gdx.files.local("images/png/" + name + "/" + name + "-PNG8-" + d + "-Prospecal.png"), pixmap, false, true);
 		}
 
 		quality.exact(QualityPalette.AURORA);

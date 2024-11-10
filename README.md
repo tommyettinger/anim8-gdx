@@ -207,6 +207,7 @@ so more quickly, and avoid losing any color information.
     - This has very obvious grid patterns, effectively repeating a 2x2 pixel area many times over similar color regions.
     - You will see fine-resolution checkerboard patterns very often here.
     - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
+    - LOAF does also work well for some animations, especially when compared to any error-diffusion dithers (which can have the error change wildly between frames).
   - WREN
     - A complex mix of error diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those; I saved the best dither algorithm for last.
     - This preserves hue almost as well as WOVEN, but is better than WOVEN at preserving lightness, and has fewer noticeable artifacts.
@@ -240,9 +241,15 @@ so more quickly, and avoid losing any color information.
     - This sometimes has better color reproduction than OCEANIC, but also sometimes doesn't. It's hard to tell why.
     - Any repetitive small-scale patterns in this are likely to be different from those in OCEANIC, or absent entirely.
     - When two colors are nearly-equally matched in a palette, OCEANIC tends to show a 1px checkerboard, whereas SEASIDE shows a more coarse-grained texture.
+  - GOURD
+    - Somewhere between PATTERN and LOAF, this is an ordered dither using a 8x8 grid it applies rather directly as added noise.
+    - Unlike those two, this linearizes the image colors before adding the noise, and gamma-corrects after that; this helps a lot.
+    - This is quite a bit faster than PATTERN, and gets almost-similar results.
+    - This dither is especially sensitive to changes in ditherStrength. 1.0f is recommended for most purposes, or maybe up to 0.25f less or more.
+    - Like LOAF, this is meant to be good for animations.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
-    - PATTERN and LOAF have obvious square grids.
+    - PATTERN, LOAF, and GOURD have obvious square grids.
     - BLUE_NOISE, SCATTER, NEUE, and OVERBOARD have varying forms of a spongy blue noise texture. OVERBOARD shows this less.
     - DIFFUSION may have parallel vertical bars, and BURKES may have 45-degree lines appear.
     - GRADIENT_NOISE has a network of diagonal lines.
@@ -262,8 +269,9 @@ will approach the appearance of NONE, setting it close to 1.0 is the default, an
 dither much stronger and may make the image less legible. NEUE, SCATTER, DODGY, and DIFFUSION sometimes have trouble
 with very high dither strengths, though how much trouble varies based on the palette, and they also tend to look good
 just before major issues appear. NEUE is calibrated to look best at dither strength 1.0, as is DODGY, but NEUE may stay
-looking good at higher strengths for longer than SCATTER or DODGY do. The `setDitherStrength(float)` methods on PNG8 and
-AnimatedGif were added in version 0.3.5 .
+looking good at higher strengths for longer than SCATTER or DODGY do. GOURD is quite sensitive to changes in
+ditherStrength; it usually doesn't look very good with strength less than 0.75f. The `setDitherStrength(float)` methods
+on PNG8 and AnimatedGif were added in version 0.3.5 .
 
 # Palette Generation
 
@@ -372,6 +380,10 @@ Seaside:
 Burkes:
 
 ![](samples/Mona_Lisa-PNG8-Burkes-Prospecal.png)
+
+Gourd:
+
+![](samples/Mona_Lisa-PNG8-Gourd-Prospecal.png)
 
 Wren:
 
