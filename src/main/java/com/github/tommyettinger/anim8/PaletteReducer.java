@@ -3840,7 +3840,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float strength = (float)(ditherStrength * Math.pow(populationBias, -8.0));
+        final float strength = (float)(ditherStrength * 1.25 * Math.pow(populationBias, -6.0));
         for (int i = 0; i < 64; i++) {
             tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
         }
