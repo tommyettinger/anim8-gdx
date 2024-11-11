@@ -5363,7 +5363,8 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color, used, cr, cg, cb, usedIndex;
+        int color, used, usedIndex;
+        float cr, cg, cb;
         final float errorMul = (ditherStrength * 0.5f / populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
@@ -5372,20 +5373,20 @@ public class PaletteReducer {
                     pixmap.drawPixel(px, y, 0);
                 else {
                     int er = 0, eg = 0, eb = 0;
-                    cr = (color >>> 24);
-                    cg = (color >>> 16 & 0xFF);
-                    cb = (color >>> 8 & 0xFF);
+                    cr = toLinearLUT[(color >>> 24)       ];
+                    cg = toLinearLUT[(color >>> 16 & 0xFF)];
+                    cb = toLinearLUT[(color >>> 8 & 0xFF) ];
                     for (int i = 0; i < 16; i++) {
-                        int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
-                        int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
-                        int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
+                        int rr = fromLinearLUT[(int)Math.min(Math.max(cr + er * errorMul, 0), 1023)] & 255;
+                        int gg = fromLinearLUT[(int)Math.min(Math.max(cg + eg * errorMul, 0), 1023)] & 255;
+                        int bb = fromLinearLUT[(int)Math.min(Math.max(cb + eb * errorMul, 0), 1023)] & 255;
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
                         candidates[i | 16] = shrink(candidates[i] = used = paletteArray[usedIndex]);
-                        er += cr - (used >>> 24);
-                        eg += cg - (used >>> 16 & 0xFF);
-                        eb += cb - (used >>> 8 & 0xFF);
+                        er += (cr - 255f) * (1f/3f) - (used >>> 24);
+                        eg += (cg - 255f) * (1f/3f) - (used >>> 16 & 0xFF);
+                        eb += (cb - 255f) * (1f/3f) - (used >>> 8 & 0xFF);
                     }
                     sort16(candidates);
                     pixmap.drawPixel(px, y, candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]]);
