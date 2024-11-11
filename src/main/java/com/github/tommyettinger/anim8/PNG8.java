@@ -44,7 +44,7 @@ import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
-import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
+import static com.github.tommyettinger.anim8.PaletteReducer.*;
 
 /** 
  * PNG-8 encoder with compression; can write animated and non-animated PNG images in indexed-mode.
@@ -1609,9 +1609,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             float rdiff, gdiff, bdiff;
-            float er, eg, eb;
             byte paletteIndex;
-            float w1 = palette.ditherStrength * 16 / palette.populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = palette.ditherStrength * 32 / palette.populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
@@ -1637,12 +1636,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
-                        er = curErrorRed[px];
-                        eg = curErrorGreen[px];
-                        eb = curErrorBlue[px];
-                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                        int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + curErrorRed[px]  , 0), 1023)] & 255;
+                        int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + curErrorGreen[px], 0), 1023)] & 255;
+                        int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + curErrorBlue[px] , 0), 1023)] & 255;
                         curLine[px] = paletteIndex =
                                 paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
@@ -4743,9 +4739,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             float rdiff, gdiff, bdiff;
-            float er, eg, eb;
             byte paletteIndex;
-            float w1 = palette.ditherStrength * 16 / palette.populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+            float w1 = palette.ditherStrength * 32 / palette.populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4797,12 +4792,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
-                            er = curErrorRed[px];
-                            eg = curErrorGreen[px];
-                            eb = curErrorBlue[px];
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + curErrorRed[px]  , 0), 1023)] & 255;
+                            int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + curErrorGreen[px], 0), 1023)] & 255;
+                            int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + curErrorBlue[px] , 0), 1023)] & 255;
                             curLine[px] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)

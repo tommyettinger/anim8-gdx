@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 
-import static com.github.tommyettinger.anim8.PaletteReducer.shrink;
+import static com.github.tommyettinger.anim8.PaletteReducer.*;
 
 /**
  * GIF encoder using standard LZW compression; can write animated and non-animated GIF images.
@@ -687,9 +687,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     indexedPixels[i++] = 0;
                 else {
                     float adj = PaletteReducer.tempThresholdMatrix[(px & 7) | (y & 7) << 3];
-                    int rr = PaletteReducer.fromLinearLUT[(int)(PaletteReducer.toLinearLUT[(color >>> 24)       ] + adj)] & 255;
-                    int gg = PaletteReducer.fromLinearLUT[(int)(PaletteReducer.toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
-                    int bb = PaletteReducer.fromLinearLUT[(int)(PaletteReducer.toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
                     int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
                     usedEntry[(indexedPixels[i] = paletteMapping[rgb555]) & 255] = true;
                     i++;
@@ -707,9 +707,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
         final int w = width;
         float rdiff, gdiff, bdiff;
-        float er, eg, eb;
         byte paletteIndex;
-        float w1 = palette.ditherStrength * 16 / palette.populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = palette.ditherStrength * 32 / palette.populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (palette.curErrorRedFloats == null) {
@@ -748,12 +747,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-                    er = curErrorRed[px];
-                    eg = curErrorGreen[px];
-                    eb = curErrorBlue[px];
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + curErrorRed[px]  , 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + curErrorGreen[px], 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + curErrorBlue[px] , 0), 1023)] & 255;
+
                     usedEntry[(indexedPixels[i] = paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
