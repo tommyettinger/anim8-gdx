@@ -709,7 +709,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = palette.ditherStrength * 4, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        float w1 = palette.ditherStrength * 16 / palette.populationBias, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
 
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (palette.curErrorRedFloats == null) {
@@ -759,12 +759,16 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
                     used = paletteArray[paletteIndex & 0xFF];
-                    rdiff = (0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
-                    gdiff = (0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = (0x1.8p-8f * ((color>>>8&255)- (used>>>8&255)) );
-                    rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
-                    gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
-                    bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
+                    rdiff = (0x1p-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = (0x1p-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = (0x1p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    // this alternate code used a sigmoid function to smoothly limit error.
+//                    rdiff = (0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
+//                    gdiff = (0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
+//                    bdiff = (0x1.8p-8f * ((color>>>8&255)- (used>>>8&255)) );
+//                    rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
+//                    gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
+//                    bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
 
                     if(px < w - 1)
                     {

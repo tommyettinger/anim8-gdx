@@ -269,7 +269,6 @@ public class QualityPalette extends PaletteReducer {
         return difference(r1, g1, b1, r2, g2, b2);
     }
 
-//    public double totalDifference = 0.0;
     /**
      * Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25.
      * This can be changed in an extending (possibly anonymous) class to use a different squared metric. This is used
@@ -293,9 +292,6 @@ public class QualityPalette extends PaletteReducer {
      */
     public double differenceAnalyzing(int r1, int g1, int b1, int r2, int g2, int b2) {
         return difference(r1, g1, b1, r2, g2, b2);
-//        double total = difference(r1, g1, b1, r2, g2, b2);
-//        totalDifference += total;
-//        return total;
     }
 
     /**
@@ -337,21 +333,6 @@ public class QualityPalette extends PaletteReducer {
         return Math.sqrt(L * L * L);
     }
 
-//    public static double forwardLight(final double L) {
-//        final double shape = 0.64516133, turning = 0.95;
-//        final double d = turning - L;
-//        double r;
-//        if(d < 0)
-//            r = ((1.0 - turning) * (L - 1.0)) / (1.0 - (L + shape * d)) + 1.0;
-//        else
-//            r = (turning * L) / (1e-50 + (L + shape * d));
-//        return r * r;
-//    }
-
-//	public static float forwardLight(final float L) {
-//		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
-//	}
-
     /**
      * Changes the curve of the internally-used lightness when it is output to another format. This makes the very-dark
      * area smaller, matching (closely) the curve that the standard sRGB lightness uses. This is typically used on "from
@@ -365,21 +346,6 @@ public class QualityPalette extends PaletteReducer {
     public static double reverseLight(double L) {
         return Math.pow(L, 2.0 / 3.0);
     }
-//    public static double reverseLight(double L) {
-//        L = Math.sqrt(L);
-//        final double shape = 1.55, turning = 0.95;
-//        final double d = turning - L;
-//        double r;
-//        if(d < 0)
-//            r = ((1.0 - turning) * (L - 1.0)) / (1.0 - (L + shape * d)) + 1.0;
-//        else
-//            r = (turning * L) / (1e-50 + (L + shape * d));
-//        return r;
-//    }
-
-//	public static float reverseLight(final float L) {
-//		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
-//	}
 
     public double difference(int color1, int color2) {
         if(((color1 ^ color2) & 0x80) == 0x80) return Double.MAX_VALUE;
