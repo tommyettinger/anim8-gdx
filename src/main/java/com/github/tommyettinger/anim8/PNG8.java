@@ -1760,14 +1760,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         final int w = pixmap.getWidth(), h = pixmap.getHeight();
 //        byte[] lineOut, curLine, prevLine;
         byte[] curLine;
-        if (curLineBytes == null) {
+            if (curLineBytes == null) {
             curLine = (curLineBytes = new ByteArray(w)).items;
         } else {
             curLine = curLineBytes.ensureCapacity(w);
         }
-        int color, used;
-        float cr, cg, cb;
-        int usedIndex;
+
+            int color, used;
+        int cr, cg, cb,  usedIndex;
         final float errorMul = palette.ditherStrength * 0.5f / palette.populationBias;
         for (int y = 0; y < h; y++) {
             int py = flipY ? (h - y - 1) : y;
@@ -1777,25 +1777,20 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     curLine[px] = 0;
                 else {
                     int er = 0, eg = 0, eb = 0;
-                    cr = toLinearLUT[(color >>> 24)        ];
-                    cg = toLinearLUT[(color >>> 16 & 0xFF) ];
-                    cb = toLinearLUT[(color >>> 8 & 0xFF)  ];
+                    cr = (color >>> 24);
+                    cg = (color >>> 16 & 0xFF);
+                    cb = (color >>> 8 & 0xFF);
                     for (int i = 0; i < 16; i++) {
-//                        int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
-//                        int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
-//                        int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
-                        int rr = fromLinearLUT[(int)Math.min(Math.max(cr + er * errorMul, 0), 1023)] & 255;
-                        int gg = fromLinearLUT[(int)Math.min(Math.max(cg + eg * errorMul, 0), 1023)] & 255;
-                        int bb = fromLinearLUT[(int)Math.min(Math.max(cb + eb * errorMul, 0), 1023)] & 255;
-
-
+                        int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
+                        int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
+                        int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
                         usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))] & 0xFF;
                         palette.candidates[i | 16] = shrink(used = paletteArray[palette.candidates[i] = usedIndex]);
-                        er += (cr - 255f) * (1f/3f) - (used >>> 24);
-                        eg += (cg - 255f) * (1f/3f) - (used >>> 16 & 0xFF);
-                        eb += (cb - 255f) * (1f/3f) - (used >>> 8 & 0xFF);
+                        er += cr - (used >>> 24);
+                        eg += cg - (used >>> 16 & 0xFF);
+                        eb += cb - (used >>> 8 & 0xFF);
                     }
                     PaletteReducer.sort16(palette.candidates);
                     curLine[px] = (byte)palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]];
@@ -4929,8 +4924,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine;
 
             int color, used;
-            float cr, cg, cb;
-            int usedIndex;
+            int cr, cg, cb,  usedIndex;
             final float errorMul = palette.ditherStrength * 0.5f / palette.populationBias;
 
             int seq = 0;
@@ -4971,20 +4965,20 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             curLine[px] = 0;
                         else {
                             int er = 0, eg = 0, eb = 0;
-                            cr = toLinearLUT[(color >>> 24)        ];
-                            cg = toLinearLUT[(color >>> 16 & 0xFF) ];
-                            cb = toLinearLUT[(color >>> 8 & 0xFF)  ];
+                            cr = (color >>> 24);
+                            cg = (color >>> 16 & 0xFF);
+                            cb = (color >>> 8 & 0xFF);
                             for (int c = 0; c < 16; c++) {
-                                int rr = fromLinearLUT[(int)Math.min(Math.max(cr + er * errorMul, 0), 1023)] & 255;
-                                int gg = fromLinearLUT[(int)Math.min(Math.max(cg + eg * errorMul, 0), 1023)] & 255;
-                                int bb = fromLinearLUT[(int)Math.min(Math.max(cb + eb * errorMul, 0), 1023)] & 255;
+                                int rr = Math.min(Math.max((int) (cr + er * errorMul), 0), 255);
+                                int gg = Math.min(Math.max((int) (cg + eg * errorMul), 0), 255);
+                                int bb = Math.min(Math.max((int) (cb + eb * errorMul), 0), 255);
                                 usedIndex = paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))] & 0xFF;
                                 palette.candidates[c | 16] = shrink(used = paletteArray[palette.candidates[c] = usedIndex]);
-                                er += (cr - 255f) * (1f/3f) - (used >>> 24);
-                                eg += (cg - 255f) * (1f/3f) - (used >>> 16 & 0xFF);
-                                eb += (cb - 255f) * (1f/3f) - (used >>> 8 & 0xFF);
+                                er += cr - (used >>> 24);
+                                eg += cg - (used >>> 16 & 0xFF);
+                                eb += cb - (used >>> 8 & 0xFF);
                             }
                             PaletteReducer.sort16(palette.candidates);
                             curLine[px] = (byte)palette.candidates[PaletteReducer.thresholdMatrix16[((px & 3) | (y & 3) << 2)]];
