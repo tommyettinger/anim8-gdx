@@ -3824,7 +3824,7 @@ public class PaletteReducer {
             toLinearLUT[i] = (float) Math.pow(i / 255.0, 1.0/2.2) * 767 + 127.5f;
         }
         for (int i = 0; i < 1024; i++) {
-            fromLinearLUT[i] = (byte) (Math.pow(Math.min(Math.max(i - 127.5, 0), 767) / 767.0, 2.2) * 255);
+            fromLinearLUT[i] = (byte) (Math.pow(Math.min(Math.max(i - 127.5, 0), 767) / 767.0, 2.2) * 255 + 0.5);
         }
     }
 

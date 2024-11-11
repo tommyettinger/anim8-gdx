@@ -148,8 +148,8 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                 0x00000000,
                 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF,
         };
-        reducerQ = new QualityPalette(palette);
-        reducerF = new FastPalette(palette);
+        reducerQ = new QualityPalette(eightPalette);
+        reducerF = new FastPalette(eightPalette);
 //        reducer = new PaletteReducer(PaletteReducer.HALTONIC);
 //        reducer.writePreloadFile(Gdx.files.local("haltonic.txt"));
         reducerQ.setDitherStrength(strength);
