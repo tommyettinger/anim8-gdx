@@ -3574,7 +3574,10 @@ public class PaletteReducer {
      * It's pretty good with gradients, though it may introduce artifacts. It has noticeable diagonal
      * lines in some places, but these tend to have mixed directions that obscure larger patterns.
      * This is very similar to {@link #reduceRoberts(Pixmap)}, but has different artifacts, and this
-     * dither tends to be stronger by default.
+     * dither tends to be stronger by default. This uses a simpler version of IGN by Job van der Zwan
+     * <a href="https://observablehq.com/d/92bc9c793858b2d7">as seen here</a>. It offsets each IGN
+     * value by a different amount per-channel, which allows each channel to produce some colors they
+     * normally wouldn't be able to with one IGN amount per pixel.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
@@ -3584,28 +3587,32 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj;
-        final float strength = 60f * ditherStrength / (populationBias * populationBias);
+        final float strength = Math.min(0.6f * ditherStrength / (populationBias * populationBias), 1f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     pixmap.drawPixel(px, y, 0);
                 else {
+                    // The original IGN for shaders:
                     // fract(fract(v_texCoords.xy * vec2(6.711056, 0.583715)) * 52.9829189)
-                    adj = (px * 0.06711056f + y * 0.00583715f);
-                    adj -= (int) adj;
-                    adj *= 52.9829189f;
-                    adj -= (int) adj;
-                    adj -= 0.5f;
-                    adj *= strength;
-//                    adj *= adj * adj;
-//                    adj *= Math.abs(adj);
-//                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
-                    adj += 0.5f; // for rounding
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + adj), 0), 255);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + adj), 0), 255);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + adj), 0), 255);
+
+                    // The original IGN, scaled by about 100x each way for pixels in an image:
+//                    float adj = (px * 0.06711056f + y * 0.00583715f);
+//                    adj -= (int) adj;
+//                    adj *= 52.9829189f;
+//                    adj -= (int) adj;
+//                    adj -= 0.5f;
+//                    adj *- strength;
+//                    adj += 0.5f; // for rounding
+
+                    // this is the 8-bit approximation to IGN:
+                    // https://observablehq.com/d/92bc9c793858b2d7
+//                    float adj = ((142 * px + 79 * y & 255) - 127.5f) * strength;
+
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (((142 * px + 79 * y + 0x36) & 255) - 127.5f) * strength)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (((142 * px + 79 * y + 0x53) & 255) - 127.5f) * strength)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (((142 * px + 79 * y + 0xC9) & 255) - 127.5f) * strength)] & 255;
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
