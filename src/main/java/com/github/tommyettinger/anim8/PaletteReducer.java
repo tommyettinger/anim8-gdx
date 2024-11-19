@@ -4212,12 +4212,11 @@ public class PaletteReducer {
 
     /**
      * A blue-noise-based dither; does not diffuse error, and uses a tiling blue noise pattern (which can be accessed
-     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a 8x8 threshold matrix (the kind
-     * used by {@link #reduceKnoll(Pixmap)}, but larger). This has a tendency to look closer to a color
-     * reduction with no dither (as with {@link #reduceSolid(Pixmap)} than to one with too much dither. Because it is an
+     * with {@link #TRI_BLUE_NOISE}, but shouldn't usually be modified) as well as a checkerboard pattern of light and
+     * dark. Because it is an
      * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
      * effects can appear in all the error-diffusion dithers here. If you can tolerate "spongy" artifacts appearing
-     * (which look worse on small palettes), you may get very good handling of lightness by raising dither strength.
+     * (which look worse on small palettes) and the checkerboard doesn't distract too much, this may work OK.
      * @param pixmap will be modified in-place and returned
      * @return pixmap, after modifications
      */
@@ -4227,23 +4226,26 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        float adj, strength = 60f * ditherStrength / (populationBias * OtherMath.cbrtPositive(colorCount));
+        float strength = 0.3125f * ditherStrength / (populationBias * populationBias * populationBias);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     pixmap.drawPixel(px, y, 0);
                 else {
-//                    float pos = (PaletteReducer.thresholdMatrix64[(px & 7) | (y & 7) << 3] - 31.5f) * 0.2f + 0.5f;
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
-                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
-                    int rr = Math.min(Math.max((int) (adj + ((color >>> 24)       )), 0), 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
-                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
-                    int gg = Math.min(Math.max((int) (adj + ((color >>> 16) & 0xFF)), 0), 255);
-                    adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f));
-                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
-                    int bb = Math.min(Math.max((int) (adj + ((color >>> 8)  & 0xFF)), 0), 255);
+                    float adj = ((px + y & 1) << 8) - 127.5f;
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
+//                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
+//                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
+//                    int rr = Math.min(Math.max((int) (adj + ((color >>> 24)       )), 0), 255);
+//                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
+//                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
+//                    int gg = Math.min(Math.max((int) (adj + ((color >>> 16) & 0xFF)), 0), 255);
+//                    adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f));
+//                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
+//                    int bb = Math.min(Math.max((int) (adj + ((color >>> 8)  & 0xFF)), 0), 255);
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
