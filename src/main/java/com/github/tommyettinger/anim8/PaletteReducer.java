@@ -3587,7 +3587,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float strength = Math.min(0.6f * ditherStrength / (populationBias * populationBias), 1f);
+        final float strength = Math.min(0.6f * 32f * ditherStrength / (float) Math.pow(populationBias, 8f), 255f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -3610,9 +3610,9 @@ public class PaletteReducer {
                     // https://observablehq.com/d/92bc9c793858b2d7
 //                    float adj = ((142 * px + 79 * y & 255) - 127.5f) * strength;
 
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (((142 * px + 79 * y + 0x36) & 255) - 127.5f) * strength)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (((142 * px + 79 * y + 0x53) & 255) - 127.5f) * strength)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (((142 * px + 79 * y + 0xC9) & 255) - 127.5f) * strength)] & 255;
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(OtherMath.probitF(((142 * px + 79 * y + 0x36) & 255) * (1f / 255f)) * strength, -100f), 100f))] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(OtherMath.probitF(((142 * px + 79 * y + 0x53) & 255) * (1f / 255f)) * strength, -100f), 100f))] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(OtherMath.probitF(((142 * px + 79 * y + 0xC9) & 255) * (1f / 255f)) * strength, -100f), 100f))] & 255;
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
