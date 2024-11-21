@@ -3854,10 +3854,14 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float strength = Math.min(Math.max((float)(ditherStrength * 85 * Math.pow(populationBias, -8.0)), -255), 255);
+        final float strength = (ditherStrength * 6.75f * (float) Math.pow(OtherMath.cbrtPositive(OtherMath.logRough(colorCount)) * 0.5649f, -8f)); // probitF
+//        final float strength = (float)(Math.min(Math.max(ditherStrength * 85 * Math.pow(populationBias, -8.0), -255), 255)); // triangularRemap
+//        System.out.println("strength is " + strength + " when ditherStrength is "+ ditherStrength + " and colorCount is " + colorCount);
+//        System.out.println("triangular remap is " + (float)(ditherStrength * 85 * Math.pow(populationBias, -8.0)));
         for (int i = 0; i < 64; i++) {
 //            tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
-            tempThresholdMatrix[i] = (OtherMath.triangularRemap(PaletteReducer.thresholdMatrix64[i], 63) - 0.5f) * strength;
+            tempThresholdMatrix[i] = Math.min(Math.max(OtherMath.probitF((PaletteReducer.thresholdMatrix64[i] + 0.5f) * 0x1p-6f) * strength, -127), 127);
+//            tempThresholdMatrix[i] = (OtherMath.triangularRemap(PaletteReducer.thresholdMatrix64[i], 63) - 0.5f) * strength;
         }
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
@@ -3865,10 +3869,11 @@ public class PaletteReducer {
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    float adj = tempThresholdMatrix[(px & 7) | (y & 7) << 3];
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
+//                    int idx = (px & 7) | (y & 7) << 3;
+
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + tempThresholdMatrix[(px & 7) ^ (y << 3 & 56)])] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + tempThresholdMatrix[(px & 7) ^ (y << 3 & 56) ^ 0x1D])] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + tempThresholdMatrix[(px & 7) ^ (y << 3 & 56) ^ 0x2B])] & 255;
                     int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[rgb555] & 0xFF]);
                 }
