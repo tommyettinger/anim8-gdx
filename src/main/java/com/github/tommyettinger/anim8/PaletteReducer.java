@@ -3854,9 +3854,10 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float strength = (float)(ditherStrength * 1.25 * Math.pow(populationBias, -6.0));
+        final float strength = Math.min(Math.max((float)(ditherStrength * 85 * Math.pow(populationBias, -8.0)), -255), 255);
         for (int i = 0; i < 64; i++) {
-            tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
+//            tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
+            tempThresholdMatrix[i] = (OtherMath.triangularRemap(PaletteReducer.thresholdMatrix64[i], 63) - 0.5f) * strength;
         }
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {

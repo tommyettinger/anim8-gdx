@@ -45,51 +45,87 @@ public final class OtherMath {
 }
 
     /**
-     * A way of taking a double in the (0.0, 1.0) range and mapping it to a Gaussian or normal distribution, so high
-     * inputs correspond to high outputs, and similarly for the low range. This is centered on 0.0 and its standard
-     * deviation seems to be 1.0 (the same as {@link Random#nextGaussian()}). If this is given an input of 0.0
-     * or less, it returns -38.5, which is slightly less than the result when given {@link Double#MIN_VALUE}. If it is
-     * given an input of 1.0 or more, it returns 38.5, which is significantly larger than the result when given the
-     * largest double less than 1.0 (this value is further from 1.0 than {@link Double#MIN_VALUE} is from 0.0). If
-     * given {@link Double#NaN}, it returns whatever {@link Math#copySign(double, double)} returns for the arguments
-     * {@code 38.5, Double.NaN}, which is implementation-dependent. It uses an algorithm by Peter John Acklam, as
-     * implemented by Sherali Karimov.
-     * <a href="https://web.archive.org/web/20150910002142/http://home.online.no/~pjacklam/notes/invnorm/impl/karimov/StatUtil.java">Original source</a>.
-     * <a href="https://web.archive.org/web/20151030215612/http://home.online.no/~pjacklam/notes/invnorm/">Information on the algorithm</a>.
-     * <a href="https://en.wikipedia.org/wiki/Probit_function">Wikipedia's page on the probit function</a> may help, but
-     * is more likely to just be confusing.
-     * <br>
-     * Acklam's algorithm and Karimov's implementation are both quite fast. This appears faster than generating
-     * Gaussian-distributed numbers using either the Box-Muller Transform or Marsaglia's Polar Method, though it isn't
-     * as precise and can't produce as extreme min and max results in the extreme cases they should appear. If given
-     * a typical uniform random {@code double} that's exclusive on 1.0, it won't produce a result higher than
-     * {@code 8.209536145151493}, and will only produce results of at least {@code -8.209536145151493} if 0.0 is
-     * excluded from the inputs (if 0.0 is an input, the result is {@code 38.5}). A chief advantage of using this with
-     * a random number generator is that it only requires one random double to obtain one Gaussian value;
-     * {@link Random#nextGaussian()} generates at least two random doubles for each two Gaussian values, but may rarely
-     * require much more random generation.
-     * @param d should be between 0 and 1, exclusive, but other values are tolerated
-     * @return a normal-distributed double centered on 0.0; all results will be between -38.5 and 38.5, both inclusive
+     * Approximates the natural logarithm of {@code x} (that is, with base E), using single-precision, somewhat roughly.
+     * @param x the argument to the logarithm; must be greater than 0
+     * @return an approximation of the logarithm of x with base E; can be any float
      */
-    public static double probit(final double d) {
-        if (d <= 0 || d >= 1) {
-            return Math.copySign(38.5, d - 0.5);
+    public static float logRough (float x)
+    {
+        final int vx = NumberUtils.floatToIntBits(x);
+        final float mx = NumberUtils.intBitsToFloat((vx & 0x007FFFFF) | 0x3f000000);
+        return vx * 8.262958E-8f - 86.10657f - 1.0383555f * mx - 1.1962888f / (0.3520887068f + mx);
+    }
+
+    // constants used by probitI() and probitF()
+    private static final float
+            a0f = 0.195740115269792f,
+            a1f = -0.652871358365296f,
+            a2f = 1.246899760652504f,
+            b0f = 0.155331081623168f,
+            b1f = -0.839293158122257f,
+            c3f = -1.000182518730158122f,
+            c0f = 16.682320830719986527f,
+            c1f = 4.120411523939115059f,
+            c2f = 0.029814187308200211f,
+            d0f = 7.173787663925508066f,
+            d1f = 8.759693508958633869f;
+
+
+    // constants used by probitL() and probitD()
+    private static final double
+            a0 = 0.195740115269792,
+            a1 = -0.652871358365296,
+            a2 = 1.246899760652504,
+            b0 = 0.155331081623168,
+            b1 = -0.839293158122257,
+            c3 = -1.000182518730158122,
+            c0 = 16.682320830719986527,
+            c1 = 4.120411523939115059,
+            c2 = 0.029814187308200211,
+            d0 = 7.173787663925508066,
+            d1 = 8.759693508958633869;
+
+    /**
+     * A single-precision probit() approximation that takes a float between 0 and 1 inclusive and returns an
+     * approximately-Gaussian-distributed float between -9.080134 and 9.080134 .
+     * The function maps the lowest inputs to the most negative outputs, the highest inputs to the most
+     * positive outputs, and inputs near 0.5 to outputs near 0.
+     * <a href="https://www.researchgate.net/publication/46462650_A_New_Approximation_to_the_Normal_Distribution_Quantile_Function">Uses this algorithm by Paul Voutier</a>.
+     * @param p should be between 0 and 1, inclusive.
+     * @return an approximately-Gaussian-distributed float between -9.080134 and 9.080134
+     */
+    public static float probitF(float p) {
+        if(0.0465f > p){
+            float r = (float)Math.sqrt(logRough(1f/(p*p)));
+            return c3f * r + c2f + (c1f * r + c0f) / (r * (r + d1f) + d0f);
+        } else if(0.9535f < p) {
+            float q = 1f - p, r = (float)Math.sqrt(logRough(1f/(q*q)));
+            return -c3f * r - c2f - (c1f * r + c0f) / (r * (r + d1f) + d0f);
+        } else {
+            float q = p - 0.5f, r = q * q;
+            return q * (a2f + (a1f * r + a0f) / (r * (r + b1f) + b0f));
         }
-        else if (d < 0.02425) {
-            final double q = Math.sqrt(-2.0 * Math.log(d));
-            return (((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) * q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00)
-                    / ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0);
-        }
-        else if (0.97575 < d) {
-            final double q = Math.sqrt(-2.0 * Math.log(1 - d));
-            return -(((((-7.784894002430293e-03 * q + -3.223964580411365e-01) * q + -2.400758277161838e+00) * q + -2.549732539343734e+00) * q + 4.374664141464968e+00) * q + 2.938163982698783e+00)
-                    / ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q + 2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0);
-        }
-        else {
-            final double q = d - 0.5;
-            final double r = q * q;
-            return (((((-3.969683028665376e+01 * r + 2.209460984245205e+02) * r + -2.759285104469687e+02) * r + 1.383577518672690e+02) * r + -3.066479806614716e+01) * r + 2.506628277459239e+00) * q
-                    / (((((-5.447609879822406e+01 * r + 1.615858368580409e+02) * r + -1.556989798598866e+02) * r + 6.680131188771972e+01) * r + -1.328068155288572e+01) * r + 1.0);
+    }
+
+    /**
+     * A double-precision probit() approximation that takes a double between 0 and 1 inclusive and returns an
+     * approximately-Gaussian-distributed double between -26.48372928592822 and 26.48372928592822 .
+     * The function maps the lowest inputs to the most negative outputs, the highest inputs to the most
+     * positive outputs, and inputs near 0.5 to outputs near 0.
+     * <a href="https://www.researchgate.net/publication/46462650_A_New_Approximation_to_the_Normal_Distribution_Quantile_Function">Uses this algorithm by Paul Voutier</a>.
+     * @param p should be between 0 and 1, inclusive.
+     * @return an approximately-Gaussian-distributed double between -26.48372928592822 and 26.48372928592822
+     */
+    public static double probit(double p) {
+        if(0.0465 > p){
+            double q = p + 7.458340731200208E-155, r = Math.sqrt(Math.log(1.0/(q*q)));
+            return c3 * r + c2 + (c1 * r + c0) / (r * (r + d1) + d0);
+        } else if(0.9535 < p) {
+            double q = 1.0 - p + 7.458340731200208E-155, r = Math.sqrt(Math.log(1.0/(q*q)));
+            return -c3 * r - c2 - (c1 * r + c0) / (r * (r + d1) + d0);
+        } else {
+            double q = p - 0.5, r = q * q;
+            return q * (a2 + (a1 * r + a0) / (r * (r + b1) + b0));
         }
     }
 
@@ -183,6 +219,19 @@ public final class OtherMath {
 //        final int i = NumberUtils.floatToIntBits(x);
 //        return NumberUtils.intBitsToFloat(((i & 0x7FFFFFFF) - 0x3F800000) / 3 + 0x3F800000 | (i & 0x80000000));
         return x * 1.25f / (0.25f + Math.abs(x));
+    }
+
+    /**
+     * The quantile for the triangular distribution, this takes a float u in the range 0 to limit, both inclusive, and
+     * produces a float between 0 and 1 that should be triangular-mapped if u was uniformly-distributed.
+     * @param u should be between 0 (inclusive) and limit (inclusive)
+     * @param limit the upper (inclusive) bound for u
+     * @return a float between 0 and 1, both inclusive, that will be triangular-distributed if u was uniform
+     */
+    public static float triangularRemap(final float u, final float limit) {
+        return (u <= 0.5f * limit
+                ? (float)Math.sqrt((0.5f/limit) * u)
+                : 1f - (float) Math.sqrt(0.5f - (0.5f/limit) * u));
     }
 
     /**
