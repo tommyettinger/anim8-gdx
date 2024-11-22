@@ -3587,8 +3587,8 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float strength = 50f * ditherStrength * (float) Math.pow(populationBias, -2f);
-//        final float strength = Math.min(0.63f * ditherStrength / (populationBias * populationBias), 1f);
+//        final float strength = 50f * ditherStrength * (float) Math.pow(populationBias, -2f);
+        final float strength = Math.min(0.63f * ditherStrength / (populationBias * populationBias), 1f);
 //        final float strength = Math.min(ditherStrength * populationBias, 1f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
@@ -3612,13 +3612,13 @@ public class PaletteReducer {
                     // https://observablehq.com/d/92bc9c793858b2d7
 //                    float adj = ((142 * px + 79 * y & 255) - 127.5f) * strength;
                     int xy = 142 * px + 79 * y & 255;
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(OtherMath.probitF((xy ^ 0x96) * (1f / 255f)) * strength, -100f), 100f))] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(OtherMath.probitF((xy ^ 0xA3) * (1f / 255f)) * strength, -100f), 100f))] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(OtherMath.probitF((xy ^ 0xC9) * (1f / 255f)) * strength, -100f), 100f))] & 255;
+//                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(OtherMath.probitF((xy ^ 0x96) * (1f / 255f)) * strength, -100f), 100f))] & 255;
+//                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(OtherMath.probitF((xy ^ 0xA3) * (1f / 255f)) * strength, -100f), 100f))] & 255;
+//                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(OtherMath.probitF((xy ^ 0xC9) * (1f / 255f)) * strength, -100f), 100f))] & 255;
 
-//                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((xy ^ 0x96) - 127.5f) * strength)] & 255;
-//                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((xy ^ 0xA3) - 127.5f) * strength)] & 255;
-//                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((xy ^ 0xC9) - 127.5f) * strength)] & 255;
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((xy ^ 0x96) - 127.5f) * strength)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((xy ^ 0xA3) - 127.5f) * strength)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((xy ^ 0xC9) - 127.5f) * strength)] & 255;
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
@@ -3871,7 +3871,11 @@ public class PaletteReducer {
         int color;
 //        final float strength = (ditherStrength * 6.75f * (float) Math.pow(OtherMath.cbrtPositive(OtherMath.logRough(colorCount)) * 0.5649f, -8f)); // probitF
 //        final float strength = (ditherStrength * 6.75f * (float) Math.pow(populationBias, -4f)); // probitF
-        final float strength = (ditherStrength * 4f * populationBias); // none
+//        final float strength = (ditherStrength * 4f * populationBias); // none
+//        final float strength = Math.min(ditherStrength * (8.75f - populationBias * 8f), 4f); // none
+        // is the lowest possible populationBias^4, 0.8188650241570136f is the difference between the highest populationBias^4 and the lowest.
+        final float strength = Math.min(ditherStrength * (4f - (populationBias * populationBias * populationBias * populationBias - 0.1598797460796939f) * (3.5f / 0.8188650241570136f)), 4f);
+//        final float strength = Math.min(1.5f * ditherStrength / (populationBias * populationBias * populationBias), 4f);
 //        final float strength = (float)(Math.min(Math.max(ditherStrength * 85 * Math.pow(populationBias, -8.0), -255), 255)); // triangularRemap
 //        System.out.println("strength is " + strength + " when ditherStrength is "+ ditherStrength + " and colorCount is " + colorCount);
 //        System.out.println("triangular remap is " + (float)(ditherStrength * 85 * Math.pow(populationBias, -8.0)));
@@ -3887,10 +3891,10 @@ public class PaletteReducer {
                     pixmap.drawPixel(px, y, 0);
                 else {
                     int idx = (px & 7) ^ (y << 3 & 56);
-
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + tempThresholdMatrix[idx])] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + tempThresholdMatrix[idx ^ 0x1D])] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + tempThresholdMatrix[idx ^ 0x2B])] & 255;
+                    
+                    int rr = (fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + tempThresholdMatrix[idx ^ 0b101110])] & 255);
+                    int gg = (fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + tempThresholdMatrix[idx ^ 0b110011])] & 255);
+                    int bb = (fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + tempThresholdMatrix[idx ^ 0b100111])] & 255);
                     int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[rgb555] & 0xFF]);
                 }
