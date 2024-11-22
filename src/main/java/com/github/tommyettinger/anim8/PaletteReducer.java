@@ -3835,15 +3835,18 @@ public class PaletteReducer {
     public static final byte[] fromLinearLUT = new byte[1024];
     static {
         for (int i = 0; i < 256; i++) {
-            toLinearLUT[i] = ((i <= 255f * 0.04045f)
-                    ? 12.92f / 255f * i
-                    : (float) (1.055 * Math.pow(i / 255.0, 1.0/2.4) - 0.055)) * 767 + 127.5f;
+            float small = i / 255f;
+            toLinearLUT[i] = (i <= 255f * 0.0031308f
+                    ? small * (12.92f)
+                    : (float) (1.055 * Math.pow(small, 1.0/2.4) - 0.055))
+                    * 767 + 127.5f;
         }
         for (int i = 0; i < 1024; i++) {
             double small = Math.min(Math.max(i - 127.5, 0), 767) / 767.0;
-            fromLinearLUT[i] = (byte) (int)((small <= 0.0031308
-                    ? small / (255f * 12.92f)
-                    : Math.pow((small + 0.055)/1.055, 2.4)) * 255 + 0.5);
+            fromLinearLUT[i] = (byte) (int)((small <= 0.04045
+                    ? small * (1.0 / 12.92)
+                    : Math.pow((small + 0.055)/1.055, 2.4))
+                    * 255 + 0.5);
         }
     }
 
