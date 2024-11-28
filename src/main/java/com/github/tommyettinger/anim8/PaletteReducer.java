@@ -706,6 +706,7 @@ public class PaletteReducer {
      */
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS_C = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS_C;
 
+    public static final float[] TRIANGULAR_BYTE_LOOKUP = new float[256];
     static {
         float rf, gf, bf, lf, mf, sf;
         int idx = 0;
@@ -728,6 +729,10 @@ public class PaletteReducer {
 
                     idx++;
                 }
+            }
+
+            for (int i = 0; i < 256; i++) {
+                TRIANGULAR_BYTE_LOOKUP[i] = OtherMath.triangularRemap(i + 0.5f, 256);
             }
         }
 //        for (int i = 1; i < 256; i++) {
@@ -3612,14 +3617,21 @@ public class PaletteReducer {
                     // this is the 8-bit approximation to IGN:
                     // https://observablehq.com/d/92bc9c793858b2d7
 //                    float adj = ((142 * px + 79 * y & 255) - 127.5f) * strength;
-                    int xy = 142 * px + 79 * y & 255;
+
+
+//                    int xy = 142 * px + 79 * y & 255;
+
 //                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(OtherMath.probitF((xy ^ 0x96) * (1f / 255f)) * strength, -100f), 100f))] & 255;
 //                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(OtherMath.probitF((xy ^ 0xA3) * (1f / 255f)) * strength, -100f), 100f))] & 255;
 //                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(OtherMath.probitF((xy ^ 0xC9) * (1f / 255f)) * strength, -100f), 100f))] & 255;
 
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((xy ^ 0x96) - 127.5f) * strength)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((xy ^ 0xA3) - 127.5f) * strength)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((xy ^ 0xC9) - 127.5f) * strength)] & 255;
+//                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((xy ^ 0x96) - 127.5f) * strength), 0), 255);
+//                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((xy ^ 0xA3) - 127.5f) * strength), 0), 255);
+//                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + ((xy ^ 0xC9) - 127.5f) * strength), 0), 255);
+//
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((142 * px + 79 * (y - 0x96) & 255) - 127.5f) * strength)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((142 * px + 79 * (y - 0xA3) & 255) - 127.5f) * strength)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((142 * px + 79 * (y - 0xC9) & 255) - 127.5f) * strength)] & 255;
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
