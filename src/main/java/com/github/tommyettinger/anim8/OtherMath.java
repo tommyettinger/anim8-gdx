@@ -233,6 +233,17 @@ public final class OtherMath {
                 ? (float)Math.sqrt((0.5f/limit) * u)
                 : 1f - (float) Math.sqrt(0.5f - (0.5f/limit) * u));
     }
+    /**
+     * A standard <a href="https://en.wikipedia.org/wiki/Triangle_wave">triangle wave</a> with a period of 1 and a range
+     * of -1 to 1 (both inclusive). Every integer input given to this will produce -1 as its output. Every input that is
+     * exactly 0.5 plus an integer will produce 1 as its output. In between, the graph is a straight line between those
+     * two points, going up, down, up, down, etc. as the input increases.
+     * @param t the input to the triangle wave; can be any float from -16384 to 4194304
+     * @return a float between -1f and 1f, both inclusive
+     */
+    public static float triangleWave(float t) {
+        return Math.abs(t - ((int) (t + 16384.5) - 16384)) * 4f - 1;
+    }
 
     /**
      * A variant on {@link Math#atan(double)} that does not tolerate infinite inputs and takes/returns floats.
