@@ -609,20 +609,21 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         boolean hasTransparent = paletteArray[0] == 0;
 
         final float populationBias = palette.populationBias;
-        final float str = Math.min(Math.max(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), -120), 120);
+        final float str = Math.min(Math.max(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), -127), 127);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 color = image.getPixel(px, flipped + flipDir * y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-                    // We get a sub-random angle from 0-PI2 using the R2 sequence.
-                    // This gets us an angle theta from anywhere on the circle, which we feed into three
-                    // different cos() calls, each with a different offset to get 3 different angles.
-                    final float theta = ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.921fb6p-21f); //0x1.921fb6p-21f is 0x1p-23f * MathUtils.PI2
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + MathUtils.cos(theta        ) * str)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + MathUtils.cos(theta + 1.04f) * str)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + MathUtils.cos(theta + 2.09f) * str)] & 255;
+                    // We get a sub-random value from 0-1 using the R2 sequence.
+                    // Offsetting this value by different values and feeding into triangleWave()
+                    // gives 3 different values for r, g, and b, without much bias toward high or low values.
+                    // There is correlation between r, g, and b in certain patterns.
+                    final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.209f) * str)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.518f) * str)] & 255;
                     usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))]) & 255] = true;
