@@ -1076,7 +1076,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color;
             final float populationBias = palette.populationBias;
-            final float str = (32f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+            final float str = Math.min(Math.max(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), -120), 120);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1084,16 +1084,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
-                        int rr = ((color >>> 24)       );
-                        int gg = ((color >>> 16) & 0xFF);
-                        int bb = ((color >>> 8)  & 0xFF);
                         // We get a sub-random angle from 0-PI2 using the R2 sequence.
                         // This gets us an angle theta from anywhere on the circle, which we feed into three
                         // different cos() calls, each with a different offset to get 3 different angles.
                         final float theta = ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.921fb6p-21f); //0x1.921fb6p-21f is 0x1p-23f * MathUtils.PI2
-                        rr = Math.min(Math.max((int)(rr + MathUtils.cos(theta        ) * str + 0.5f), 0), 255);
-                        gg = Math.min(Math.max((int)(gg + MathUtils.cos(theta + 1.04f) * str + 0.5f), 0), 255);
-                        bb = Math.min(Math.max((int)(bb + MathUtils.cos(theta + 2.09f) * str + 0.5f), 0), 255);
+                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + MathUtils.cos(theta        ) * str)] & 255;
+                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + MathUtils.cos(theta + 1.04f) * str)] & 255;
+                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + MathUtils.cos(theta + 2.09f) * str)] & 255;
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
@@ -4033,7 +4030,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             int color;
 
             final float populationBias = palette.populationBias;
-            final float str = (32f * ditherStrength / (populationBias * populationBias * populationBias * populationBias));
+            final float str = Math.min(Math.max(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), -120), 120);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4072,16 +4069,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
-                            int rr = ((color >>> 24)       );
-                            int gg = ((color >>> 16) & 0xFF);
-                            int bb = ((color >>> 8)  & 0xFF);
                             // We get a sub-random angle from 0-PI2 using the R2 sequence.
                             // This gets us an angle theta from anywhere on the circle, which we feed into three
                             // different cos() calls, each with a different offset to get 3 different angles.
                             final float theta = ((px * 0xC13FA9A902A6328FL + y * 0x91E10DA5C79E7B1DL >>> 41) * 0x1.921fb6p-21f); //0x1.921fb6p-21f is 0x1p-23f * MathUtils.PI2
-                            rr = Math.min(Math.max((int)(rr + MathUtils.cos(theta        ) * str + 0.5f), 0), 255);
-                            gg = Math.min(Math.max((int)(gg + MathUtils.cos(theta + 1.04f) * str + 0.5f), 0), 255);
-                            bb = Math.min(Math.max((int)(bb + MathUtils.cos(theta + 2.09f) * str + 0.5f), 0), 255);
+                            int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + MathUtils.cos(theta        ) * str)] & 255;
+                            int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + MathUtils.cos(theta + 1.04f) * str)] & 255;
+                            int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + MathUtils.cos(theta + 2.09f) * str)] & 255;
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];

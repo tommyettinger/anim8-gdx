@@ -3764,7 +3764,7 @@ public class PaletteReducer {
 //        float str = (32f * ditherStrength / (populationBias * populationBias));
 //        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
 //        float str = 32 * ditherStrength / (populationBias * populationBias * populationBias * populationBias);
-        float str = Math.min(Math.max(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), -120), 120);
+        final float str = Math.min(Math.max(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), -120), 120);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
