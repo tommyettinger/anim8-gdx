@@ -1327,10 +1327,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         float er, eg, eb;
         byte paletteIndex;
         final float populationBias = palette.populationBias;
-        float partialDitherStrength = (0.4f * ditherStrength * (populationBias * populationBias)),
-                strength = (40f * ditherStrength / (populationBias * populationBias)),
-                blueStrength = (0.15f * ditherStrength / (populationBias * populationBias)),
-                limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5f),
+        float partialDitherStrength = (0.5f * ditherStrength / (populationBias * populationBias)),
+                strength = (80f * ditherStrength / (populationBias * populationBias)),
+                blueStrength = (0.3f * ditherStrength / (populationBias * populationBias)),
+                limit = 5f + 200f / (float)Math.sqrt(palette.colorCount+1.5f),
                 r1, g1, b1, r2, g2, b2, r4, g4, b4;
 
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
@@ -1372,9 +1372,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     eg = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_B[(x & 63) | (y & 63) << 6] + 0.5f) * blueStrength + ((((x+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-24f - 0x1.4p-2f) * strength)), -limit), limit) + (curErrorGreen[x]);
                     eb = Math.min(Math.max(( ( (PaletteReducer.TRI_BLUE_NOISE_C[(x & 63) | (y & 63) << 6] + 0.5f) * blueStrength + ((((x+2) * 0xC13FA9A902A6328FL + (y-4) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-24f - 0x1.4p-2f) * strength)), -limit), limit) + (curErrorBlue[x]);
 
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + er, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + eg, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + eb, 0), 1023)] & 255;
                     usedEntry[(indexedPixels[i] = paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
