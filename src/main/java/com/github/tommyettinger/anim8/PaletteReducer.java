@@ -3825,7 +3825,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float strength = ditherStrength * populationBias; // this works much better with * instead of /
+        final float strength = Math.min(Math.max(2.5f + 5f * ditherStrength - 5.5f * populationBias, 0f), 7.9f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -3833,9 +3833,9 @@ public class PaletteReducer {
                     pixmap.drawPixel(px, y, 0);
                 else {
                     int adj = (int)((((px + y & 1) << 5) - 16) * strength); // either + 16 * strength or - 16 * strength
-                    int rr = Math.min(Math.max(((color >>> 24)       ) + adj, 0), 255);
-                    int gg = Math.min(Math.max(((color >>> 16) & 0xFF) + adj, 0), 255);
-                    int bb = Math.min(Math.max(((color >>> 8)  & 0xFF) + adj, 0), 255);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + adj, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + adj, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + adj, 0), 1023)] & 255;
                     int rgb555 = ((rr << 7) & 0x7C00) | ((gg << 2) & 0x3E0) | ((bb >>> 3));
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[rgb555] & 0xFF]);
                 }
