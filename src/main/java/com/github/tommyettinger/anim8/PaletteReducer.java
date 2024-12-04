@@ -4401,7 +4401,7 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = Math.min(ditherStrength * 5.5f / populationBias, 16f), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
+        final float w1 = Math.min(ditherStrength * 5.5f / populationBias, 16f), w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
 
