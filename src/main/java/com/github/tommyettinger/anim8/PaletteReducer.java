@@ -4508,10 +4508,10 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used;
         float rdiff, gdiff, bdiff;
-        float er, eg, eb;
+        float er, eg, eb, adj;
         byte paletteIndex;
-        float w1 = ditherStrength * 8f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                adj, strength = (70f * ditherStrength / (populationBias * populationBias * populationBias)),
+        final float w1 = ditherStrength * 8f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                strength = (70f * ditherStrength / (populationBias * populationBias * populationBias)),
                 limit = Math.min(127, (float) Math.pow(80, 1.635 - populationBias));
 
         for (int py = 0; py < h; py++) {
@@ -4535,7 +4535,6 @@ public class PaletteReducer {
                     er = adj + (curErrorRed[px]);
                     eg = adj + (curErrorGreen[px]);
                     eb = adj + (curErrorBlue[px]);
-
                     int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + er, 0), 1023)] & 255;
                     int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + eg, 0), 1023)] & 255;
                     int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + eb, 0), 1023)] & 255;

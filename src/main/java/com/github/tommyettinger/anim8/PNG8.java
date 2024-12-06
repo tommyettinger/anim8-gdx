@@ -2056,11 +2056,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             float rdiff, gdiff, bdiff;
-            float er, eg, eb;
+            float er, eg, eb, adj;
             byte paletteIndex;
-            float w1 = ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (32f * ditherStrength / (palette.populationBias * palette.populationBias)),
-                    limit = (float) Math.pow(80, 1.635 - palette.populationBias);
+            final float populationBias = palette.populationBias;
+            final float w1 = ditherStrength * 8f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    strength = (70f * ditherStrength / (populationBias * populationBias * populationBias)),
+                    limit = Math.min(127, (float) Math.pow(80, 1.635 - populationBias));
             byte[] curLine;
         if (curLineBytes == null) {
             curLine = (curLineBytes = new ByteArray(w)).items;
@@ -2089,18 +2090,17 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         er = adj + (curErrorRed[px]);
                         eg = adj + (curErrorGreen[px]);
                         eb = adj + (curErrorBlue[px]);
-
-                        int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                        int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                        int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                        int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + er, 0), 1023)] & 255;
+                        int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + eg, 0), 1023)] & 255;
+                        int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + eb, 0), 1023)] & 255;
                         curLine[px] = paletteIndex =
                                 paletteMapping[((rr << 7) & 0x7C00)
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))];
                         used = paletteArray[paletteIndex & 0xFF];
-                        rdiff = (0x1.7p-10f * ((color>>>24)-    (used>>>24))    );
-                        gdiff = (0x1.7p-10f * ((color>>>16&255)-(used>>>16&255)));
-                        bdiff = (0x1.7p-10f * ((color>>>8&255)- (used>>>8&255)) );
+                        rdiff = (0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
+                        gdiff = (0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
+                        bdiff = (0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
                         rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
                         gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
                         bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
@@ -5267,11 +5267,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color, used;
             float rdiff, gdiff, bdiff;
-            float er, eg, eb;
+            float er, eg, eb, adj;
             byte paletteIndex;
-            float w1 = ditherStrength * 7f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                    adj, strength = (32f * ditherStrength / (palette.populationBias * palette.populationBias)),
-                    limit = (float) Math.pow(80, 1.635 - palette.populationBias);
+            final float populationBias = palette.populationBias;
+            final float w1 = ditherStrength * 8f, w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
+                    strength = (70f * ditherStrength / (populationBias * populationBias * populationBias)),
+                    limit = Math.min(127, (float) Math.pow(80, 1.635 - populationBias));
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -5328,18 +5329,17 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             er = adj + (curErrorRed[px]);
                             eg = adj + (curErrorGreen[px]);
                             eb = adj + (curErrorBlue[px]);
-
-                            int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                            int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                            int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                            int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + er, 0), 1023)] & 255;
+                            int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + eg, 0), 1023)] & 255;
+                            int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + eb, 0), 1023)] & 255;
                             curLine[px] = paletteIndex =
                                     paletteMapping[((rr << 7) & 0x7C00)
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))];
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = (0x1.7p-10f * ((color>>>24)-    (used>>>24))    );
-                            gdiff = (0x1.7p-10f * ((color>>>16&255)-(used>>>16&255)));
-                            bdiff = (0x1.7p-10f * ((color>>>8&255)- (used>>>8&255)) );
+                            rdiff = (0x2.Ep-8f * ((color>>>24)-    (used>>>24))    );
+                            gdiff = (0x2.Ep-8f * ((color>>>16&255)-(used>>>16&255)));
+                            bdiff = (0x2.Ep-8f * ((color>>>8&255)- (used>>>8&255)) );
                             rdiff *= 1.25f / (0.25f + Math.abs(rdiff));
                             gdiff *= 1.25f / (0.25f + Math.abs(gdiff));
                             bdiff *= 1.25f / (0.25f + Math.abs(bdiff));
