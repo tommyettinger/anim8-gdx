@@ -1027,11 +1027,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         float er, eg, eb;
         byte paletteIndex;
         float populationBias = palette.populationBias;
-        float w1 = 25f * ditherStrength * populationBias * populationBias,
+        final float w1 = 8f * ditherStrength,
                 w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                strength = 0.25f * ditherStrength / (populationBias * populationBias),
-                limit = 5f + 90f / (float)Math.sqrt(palette.colorCount+1.5f),
-                dmul = 0x1.8p-9f;
+                strength = 0.35f * ditherStrength / (populationBias * populationBias * populationBias),
+                limit = 90f;
 
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (palette.curErrorRedFloats == null) {
@@ -1073,18 +1072,21 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     eg = Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorGreen[px]);
                     eb = Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorBlue[px]);
 
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + er, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + eg, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + eb, 0), 1023)] & 255;
                     usedEntry[(indexedPixels[i] = paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))]) & 255] = true;
                     used = paletteArray[paletteIndex & 0xFF];
 
-                    rdiff = (dmul * ((color>>>24)-    (used>>>24))    );
-                    gdiff = (dmul * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = (dmul * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff = (0x5p-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = (0x5p-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = (0x5p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff /= (0.5f + Math.abs(rdiff));
+                    gdiff /= (0.5f + Math.abs(gdiff));
+                    bdiff /= (0.5f + Math.abs(bdiff));
 
                     if(px < w - 1)
                     {
