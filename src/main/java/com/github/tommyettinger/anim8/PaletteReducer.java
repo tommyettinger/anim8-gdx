@@ -4622,11 +4622,10 @@ public class PaletteReducer {
         float rdiff, gdiff, bdiff;
         float er, eg, eb;
         byte paletteIndex;
-        float w1 = 25f * ditherStrength * populationBias * populationBias,
+        float w1 = 8f * ditherStrength,
                 w3 = w1 * 3f, w5 = w1 * 5f, w7 = w1 * 7f,
-                strength = 0.25f * ditherStrength / (populationBias * populationBias),
-                limit = 5f + 90f / (float)Math.sqrt(colorCount+1.5f),
-                dmul = 0x1.8p-9f;
+                strength = 0.35f * ditherStrength / (populationBias * populationBias * populationBias),
+                limit = 90f;
 
         for (int py = 0; py < h; py++) {
             int ny = py + 1;
@@ -4647,9 +4646,9 @@ public class PaletteReducer {
                     er = Math.min(Math.max(((TRI_BLUE_NOISE  [(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorRed[px]);
                     eg = Math.min(Math.max(((TRI_BLUE_NOISE_B[(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorGreen[px]);
                     eb = Math.min(Math.max(((TRI_BLUE_NOISE_C[(px & 63) | (py & 63) << 6] + 0.5f) * strength), -limit), limit) + (curErrorBlue[px]);
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + er, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + eg, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + eb, 0), 1023)] & 255;
                     paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
@@ -4657,12 +4656,12 @@ public class PaletteReducer {
                     used = paletteArray[paletteIndex & 0xFF];
                     pixmap.drawPixel(px, py, used);
 
-                    rdiff = (dmul * ((color>>>24)-    (used>>>24))    );
-                    gdiff = (dmul * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = (dmul * ((color>>>8&255)- (used>>>8&255)) );
-//                    rdiff /= (0.2f + Math.abs(rdiff));
-//                    gdiff /= (0.2f + Math.abs(gdiff));
-//                    bdiff /= (0.2f + Math.abs(bdiff));
+                    rdiff = (0x5p-8f * ((color>>>24)-    (used>>>24))    );
+                    gdiff = (0x5p-8f * ((color>>>16&255)-(used>>>16&255)));
+                    bdiff = (0x5p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff /= (0.5f + Math.abs(rdiff));
+                    gdiff /= (0.5f + Math.abs(gdiff));
+                    bdiff /= (0.5f + Math.abs(bdiff));
 
                     if(px < lineLen - 1)
                     {
