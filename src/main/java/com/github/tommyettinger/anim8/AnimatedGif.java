@@ -1453,10 +1453,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         boolean hasTransparent = paletteArray[0] == 0;
 
         final int w = width;
-        final float populationBias = palette.populationBias,
-                strength = ditherStrength * 0.5f * (populationBias * populationBias),
-                noiseStrength = 2f / (populationBias),
-                limit = 5f + 125f / (float)Math.sqrt(palette.colorCount+1.5f);
+        final float populationBias = palette.populationBias;
+        final float strength = ditherStrength * 1.5f * (populationBias * populationBias),
+                noiseStrength = 4f / (populationBias * populationBias),
+                limit = 110f;
 
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (palette.curErrorRedFloats == null) {
@@ -1530,9 +1530,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     er = er * noiseStrength + curErrorRed[x];
                     eg = eg * noiseStrength + curErrorGreen[x];
                     eb = eb * noiseStrength + curErrorBlue[x];
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + Math.min(Math.max(er, -limit), limit) + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + Math.min(Math.max(eg, -limit), limit) + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + Math.min(Math.max(eb, -limit), limit) + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(er, -limit), limit), 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(eg, -limit), limit), 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(eb, -limit), limit), 0), 1023)] & 255;
                     byte paletteIndex;
                     usedEntry[(indexedPixels[i] = paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)

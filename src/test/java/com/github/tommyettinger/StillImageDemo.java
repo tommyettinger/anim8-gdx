@@ -34,7 +34,8 @@ public class StillImageDemo extends ApplicationAdapter {
 //					Dithered.DitherAlgorithm.WREN,
 //					Dithered.DitherAlgorithm.SCATTER,
 //					Dithered.DitherAlgorithm.NEUE,
-					Dithered.DitherAlgorithm.DODGY,
+//					Dithered.DitherAlgorithm.DODGY,
+					Dithered.DitherAlgorithm.OVERBOARD,
 			};
 //			Dithered.DitherAlgorithm.ALL;
     @Override
