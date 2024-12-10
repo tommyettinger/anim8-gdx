@@ -4721,9 +4721,9 @@ public class PaletteReducer {
     public Pixmap reduceOverboard(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
-        final float strength = ditherStrength * 0.5f * (populationBias * populationBias),
-                noiseStrength = 2f / (populationBias),
-                limit = 5f + 125f / (float)Math.sqrt(colorCount+1.5f);
+        final float strength = ditherStrength * 1.5f * (populationBias * populationBias),
+                noiseStrength = 4f / (populationBias * populationBias),
+                limit = 110f;
 
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (curErrorRedFloats == null) {
@@ -4801,9 +4801,9 @@ public class PaletteReducer {
                     er = er * noiseStrength + curErrorRed[x];
                     eg = eg * noiseStrength + curErrorGreen[x];
                     eb = eb * noiseStrength + curErrorBlue[x];
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + Math.min(Math.max(er, -limit), limit) + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + Math.min(Math.max(eg, -limit), limit) + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + Math.min(Math.max(eb, -limit), limit) + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(er, -limit), limit), 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(eg, -limit), limit), 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(eb, -limit), limit), 0), 1023)] & 255;
                     byte paletteIndex = paletteMapping[((rr << 7) & 0x7C00)
                                                        | ((gg << 2) & 0x3E0)
                                                        | ((bb >>> 3))];
