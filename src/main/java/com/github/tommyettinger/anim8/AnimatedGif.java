@@ -1734,8 +1734,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final int w = width;
         byte paletteIndex;
         float r4, r2, r1, g4, g2, g1, b4, b2, b1;
-        final float s = 0.175f * ditherStrength * (palette.populationBias * palette.populationBias * palette.populationBias),
-                strength = s * 0.29f / (0.19f + s);
+        final float populationBias = palette.populationBias;
+        final float s = 0.175f * ditherStrength / (populationBias * populationBias * populationBias),
+                strength = s * 0.59f / (0.4f + s);
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (palette.curErrorRedFloats == null) {
             curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
@@ -1777,9 +1778,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     float er = curErrorRed[px];
                     float eg = curErrorGreen[px];
                     float eb = curErrorBlue[px];
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + er, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + eg, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + eb, 0), 1023)] & 255;
                     usedEntry[(indexedPixels[i] = paletteIndex =
                             paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
