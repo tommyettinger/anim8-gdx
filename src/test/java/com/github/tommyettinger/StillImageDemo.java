@@ -26,13 +26,13 @@ public class StillImageDemo extends ApplicationAdapter {
 	public Dithered.DitherAlgorithm[] ALGORITHMS =
 			new Dithered.DitherAlgorithm[]{
 //					Dithered.DitherAlgorithm.BLUE_NOISE,
-					Dithered.DitherAlgorithm.GRADIENT_NOISE,
+//					Dithered.DitherAlgorithm.GRADIENT_NOISE,
 //					Dithered.DitherAlgorithm.GOURD,
 //					Dithered.DitherAlgorithm.ROBERTS,
 //					Dithered.DitherAlgorithm.LOAF,
 //					Dithered.DitherAlgorithm.WOVEN,
 //					Dithered.DitherAlgorithm.WREN,
-//					Dithered.DitherAlgorithm.SCATTER,
+					Dithered.DitherAlgorithm.SCATTER,
 //					Dithered.DitherAlgorithm.NEUE,
 //					Dithered.DitherAlgorithm.DODGY,
 //					Dithered.DitherAlgorithm.OVERBOARD,

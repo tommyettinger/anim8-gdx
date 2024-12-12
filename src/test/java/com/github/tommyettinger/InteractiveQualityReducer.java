@@ -35,7 +35,7 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
     private Pixmap p0, p;
     private final int algorithmCount = Dithered.DitherAlgorithm.ALL.length;
     // NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD
-    private int index = 1;
+    private int index = 6;
     private float strength = 1f;
 
     public static void main(String[] arg) {
