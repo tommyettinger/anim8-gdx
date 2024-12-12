@@ -31,7 +31,7 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
     protected QualityPalette reducerQ;
     protected FastPalette reducerF;
     private PaletteReducer reducer;
-    private int[] palette, altPalette, eightPalette;
+    private int[] palette, altPalette, eightPalette, prospecalPalette;
     private Pixmap p0, p;
     private final int algorithmCount = Dithered.DitherAlgorithm.ALL.length;
     // NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD
@@ -149,6 +149,10 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                 0x00000000,
                 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF,
         };
+        prospecalPalette = new int[]{
+                0x00000000,
+                0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF
+        };
         reducerQ = new QualityPalette(eightPalette);
         reducerF = new FastPalette(eightPalette);
 //        reducer = new PaletteReducer(PaletteReducer.HALTONIC);
@@ -228,13 +232,13 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                         if(UIUtils.ctrl()) {
                             if (UIUtils.shift()) {
                                 int kc = (keycode - 6) * keycode;
-                                reducerQ.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
-                                reducerF.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
+                                reducerQ.analyzeHueWise(p0, REDUCTIVE_THRESHOLD, kc);
+                                reducerF.analyzeHueWise(p0, REDUCTIVE_THRESHOLD, kc);
                             }
                             else {
                                 int kc = keycode - 5;
-                                reducerQ.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
-                                reducerF.analyzeReductive(p0, REDUCTIVE_THRESHOLD, kc);
+                                reducerQ.analyzeHueWise(p0, REDUCTIVE_THRESHOLD, kc);
+                                reducerF.analyzeHueWise(p0, REDUCTIVE_THRESHOLD, kc);
                             }
 
 //                            if (UIUtils.shift())
@@ -265,8 +269,8 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                     case Input.Keys.NUM_0:
                         if(UIUtils.ctrl())
                         {
-                            reducerQ.analyzeReductive(p0, REDUCTIVE_THRESHOLD, 256);
-                            reducerF.analyzeReductive(p0, REDUCTIVE_THRESHOLD, 256);
+                            reducerQ.analyzeHueWise(p0, REDUCTIVE_THRESHOLD, 256);
+                            reducerF.analyzeHueWise(p0, REDUCTIVE_THRESHOLD, 256);
                         }
                         else
                         {
@@ -289,7 +293,10 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
                         refresh();
                         break;
                     case Input.Keys.D:
-                        if(UIUtils.shift())
+                        if(UIUtils.ctrl()){
+                            reducerQ.exact(prospecalPalette);
+                            reducerF.exact(prospecalPalette);
+                        } else if(UIUtils.shift())
                         {
                             reducerQ.exact(eightPalette);
                             reducerF.exact(eightPalette);

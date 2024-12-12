@@ -36,9 +36,9 @@ public class StillImageDemo extends ApplicationAdapter {
 //					Dithered.DitherAlgorithm.NEUE,
 //					Dithered.DitherAlgorithm.DODGY,
 //					Dithered.DitherAlgorithm.OVERBOARD,
-//					Dithered.DitherAlgorithm.BURKES,
+					Dithered.DitherAlgorithm.BURKES,
 //					Dithered.DitherAlgorithm.OCEANIC,
-					Dithered.DitherAlgorithm.SEASIDE,
+//					Dithered.DitherAlgorithm.SEASIDE,
 			};
 //			Dithered.DitherAlgorithm.ALL;
     @Override

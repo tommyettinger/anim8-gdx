@@ -4887,8 +4887,8 @@ public class PaletteReducer {
         boolean hasTransparent = (paletteArray[0] == 0);
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         float r4, r2, r1, g4, g2, g1, b4, b2, b1;
-        final float s = 0.175f * ditherStrength / (populationBias * populationBias * populationBias),
-                strength = s * 0.6f / (0.19f + s);
+        final float s = (0.13f * ditherStrength / (populationBias * populationBias)),
+                strength = s * 0.58f / (0.3f + s);
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (curErrorRedFloats == null) {
             curErrorRed = (curErrorRedFloats = new FloatArray(lineLen)).items;
