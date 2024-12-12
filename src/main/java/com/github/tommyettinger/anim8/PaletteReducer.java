@@ -5011,8 +5011,9 @@ public class PaletteReducer {
         final int w = pixmap.getWidth(), h = pixmap.getHeight();
         final float[] noise = TRI_BLUE_NOISE_MULTIPLIERS;
         float r4, r2, r1, g4, g2, g1, b4, b2, b1;
-        final float s = 0.175f * ditherStrength / (populationBias * populationBias * populationBias),
-                strength = s * 0.59f / (0.4f + s);
+        final float s = (0.13f * ditherStrength / (populationBias * populationBias)),
+                strength = s * 0.58f / (0.3f + s);
+
         float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
         if (curErrorRedFloats == null) {
             curErrorRed = (curErrorRedFloats = new FloatArray(w)).items;
