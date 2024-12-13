@@ -42,7 +42,7 @@ public void writeGif() {
 The above code uses AnimatedGif, but could also use AnimatedPNG or PNG8 to write to an animated PNG (with full-color or
 palette-based color, respectively). The FastGif, and FastPNG8 options are also out there, and they tend to be a little
 faster to run but produce larger files. There's also FastPNG, which is a replacement for PixmapIO.PNG, and does tend to
-be faster than it as well.
+be faster than it as well while producing full-color non-animated PNG images.
 
 If you are writing an image with a palette, such as a GIF or an indexed-mode PNG (called PNG8 here), the palette is
 limited to using at most 255 opaque colors, plus one fully-transparent color. To adequately reduce an image to a smaller
@@ -72,7 +72,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.12.1 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.4.7"
+  api "com.github.tommyettinger:anim8-gdx:0.5.0"
 }
 ```
 
@@ -81,7 +81,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.4.7:sources"`. The PNG-related code isn't available on GWT
+`implementation "com.github.tommyettinger:anim8-gdx:0.5.0:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work,
 as should `QualityPalette`. The classes `FastGif` and `FastPalette` should work on GWT, but no other "Fast" classes
 will. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml`, is:
@@ -95,25 +95,24 @@ entirely by using AnimatedPNG (it uses full color) or libGDX's PixmapIO.PNG (whi
 slightly different API). You could also use FastPNG, which is like PixmapIO's code but tends to write larger files, do
 so more quickly, and avoid losing any color information.
 
+All dithering algorithms except NONE, CHAOTIC_NOISE, and PATTERN changed appearance significantly in version 0.5.0
+because that version includes at least an attempt at gamma-correcting the images, and earlier versions did not. That
+means 0.5.0 should usually have closer lightness in the dither to what the original image had, relative to earlier
+anim8-gdx versions. History from ancient versions of anim8-gdx has been removed from this section for clarity.
+
   - NONE
     - No dither. Solid blocks of color only. Often looks bad unless the original image had few colors.
   - GRADIENT_NOISE
-    - A solid choice of an ordered dither, though it may have visible artifacts in the form of zig-zag diagonal lines.
-    - This changed slightly in 0.2.12, and should have less noticeable artifacts starting in that version.
-      - It changed again in 0.3.10, and now essentially has no artifacts at the boundaries between large similar areas. 
+    - A solid choice of an ordered dither, though it may have visible artifacts in the form of zigzag diagonal lines.
     - A variant on Jorge Jimenez' Gradient Interleaved Noise.
-    - This can look very good with higher dither strength, even when other dithers break down in quality.
-    - This is very similar to ROBERTS dither, but is a little stronger, usually. 
+    - This is very similar to ROBERTS dither, but is a little stronger, usually, with more light-and-dark variation. 
   - PATTERN
     - A more traditional ordered dither that emphasizes accurately representing lightness changes.
     - Has a strong "quilt-like" square artifact that is more noticeable with small palette sizes.
     - Unusually slow to compute, but very accurate at preserving smooth shapes.
     - Very good at preserving shape, and the best at handling smooth gradients.
-      - Changing the dither strength may have a small effect on lightness, but the effect
-        to expect for PATTERN should be about the same as any other dither. This was different
-        before version 0.2.8.
     - While this should be good for animations, it isn't in a common case: GIFs that get lossy-recompressed look absolutely horrible with this dither, but fine with any error-diffusion dithers.
-      - This uses case shows up most often right now when GIFs are embedded in a Discord message, because Discord does (very reasonably) try to limit bandwidth from heavy GIF files by recompressing them in a lossy way. 
+      - This uses case shows up most often right now when GIFs are embedded in a Discord message, because Discord does (very reasonably) try to limit bandwidth from heavy GIF files by recompressing them in a lossy way.
     - Uses Thomas Knoll's Pattern Dither, which is out-of-patent.
     - One of the best options when using large color palettes, and not very good for very small palettes.
   - DIFFUSION
@@ -121,8 +120,8 @@ so more quickly, and avoid losing any color information.
     - It tends to look very good in still images, and very bad in animations.
     - BURKES is essentially a variant on this type of error diffusion, though it often looks better.
     - SCATTER and NEUE are mostly the same as this algorithm, but use blue noise to break up unpleasant patterns.
-    - WOVEN dither uses a repeating pattern reminiscent of braids or hexagons to break up patterns, but introduces its own; this pattern is about the same as what ROBERTS uses.
-    - WREN dither uses both blue noise and the ROBERTS/WOVEN pattern, so most patterns it would add get broken up.
+    - WOVEN dither uses a repeating pattern reminiscent of braids or hexagons to break up patterns, but introduces its own.
+    - WREN dither uses both blue noise and the WOVEN pattern, so most patterns it would add get broken up.
     - Any of the dither algorithms based on this will probably look better than this will.
   - BLUE_NOISE
     - Blue noise as a concept is a little tricky to explain.
@@ -135,7 +134,8 @@ so more quickly, and avoid losing any color information.
       - The eyes of many animals (including humans) have light-sensing rod cells distributed in a blue-noise pattern inside the eye.
         - This means that when our eyes see textures with only a blue noise distribution to artifacts, those artifacts appear more natural than they would otherwise.
         - Contrast this with seeing textures that have an artifact like, say, a bright ring of pixels appearing every 10 pixels horizontally and every 10 pixels vertically; this would be very noticeable!
-    - This is mostly a typical blue-noise dither; it uses a different blue noise texture for each channel.
+    - This is not a typical blue-noise dither; it uses a different blue noise texture for each channel but also incorporates a fine-resolution checkerboard of light and dark.
+      - This breaks up patterns from the blue noise, but can look quite artifact-laden. 
     - BLUE_NOISE looks good for many animations because the dithered pixels don't move around between frames. This is
       especially true for pixel art animations, where flat areas of one color should really stay that color.
     - I should probably credit Alan Wolfe for writing so many invaluable articles about blue noise,
@@ -143,24 +143,16 @@ so more quickly, and avoid losing any color information.
       - This also uses a triangular-mapped blue noise texture, which means most of its pixels are in the middle of the
         range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
       - Blue noise is also used normally by SCATTER, NEUE, and WREN, as well as used strangely by CHAOTIC_NOISE.
-    - This changed in 0.2.12, and handles smooth gradients better now. In version 0.3.5, it changed again to improve
-      behavior on small palettes. It changed again in 0.3.8, 0.3.9, 0.3.13, and 0.3.14 to improve the appearance.
-    - As of 0.3.14, this acts like GRADIENT_NOISE, has subtle artifacts that are less harsh, where GRADIENT_NOISE has a
-      strong artifact that does improve how it handles lightness changes.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
       - This is much "harsher" than BLUE_NOISE currently is. 
-    - This is an okay algorithm here for animations, but BLUE_NOISE is much better, followed by NEUE or WOVEN.
-    - This may be somewhat more useful when using many colors than when using just a few.
-    - It's rather ugly with small palettes, and really not much better on large palettes.
+    - This is an okay algorithm here for animations, but GOURD, ROBERTS, and BLUE_NOISE are much better, followed by PATTERN.
+    - Well, not really okay. It's quite hideous. Use this when you want an anti-aesthetic choice for a bad dither.
   - SCATTER
     - A hybrid of DIFFUSION and BLUE_NOISE, this avoids some regular artifacts in Floyd-Steinberg by adjusting diffused
       error with blue-noise values.
-    - This used to be the default, but NEUE, DODGY, WOVEN, WREN, and OVERBOARD are all similar and generally better.
-    - Unlike DIFFUSION, this is somewhat suitable for animations, but fluid shapes look better with BLUE_NOISE or
-      GRADIENT_NOISE, and subtle gradients in still images are handled best by PATTERN and well by NEUE and BLUE_NOISE.
-    - You may want to use a lower dither strength with SCATTER if you encounter horizontal line artifacts; 0.75 or 0.5
-      should be low enough to eliminate them (not all palettes will experience these artifacts).
+    - This used to be the default, but newer dithers based on the same idea, including NEUE, DODGY, WOVEN, WREN,
+      OVERBOARD, OCEANIC, and SEASIDE, are all similar and generally better.
   - NEUE
     - Another hybrid of DIFFUSION and BLUE_NOISE, this has much better behavior on smooth gradients than SCATTER, at the
       price of not producing many flat areas of solid colors (it prefers to dither when possible).
@@ -169,27 +161,25 @@ so more quickly, and avoid losing any color information.
       triangular-mapped blue noise to each pixel at the same amount.
     - SCATTER, as well as many other dither algorithms here, tend to have banding on smooth
       gradients, while NEUE doesn't usually have any banding.
-      - Subtle banding sometimes happened even with NEUE on gradients before 0.3.5, but this improved in that release.
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
     - This used to be the default, but the new default OVERBOARD handles perceived color quite a bit better.
-    - BLUE_NOISE, GRADIENT_NOISE, or ROBERTS will likely look better in pixel art animations, but NEUE can look better
-      for still pixel art.
+    - BLUE_NOISE, GRADIENT_NOISE, GOURD, PATTERN, or ROBERTS will likely look better in pixel art animations, but NEUE
+      can look better for still pixel art.
   - ROBERTS
     - This is another ordered dither, this time using the R2 sequence, a pattern discovered by Dr. Martin Roberts that
       distributes extra error well, but always adds some error to an image.
-    - The dithering algorithm here is more complex than some other ordered dithers, and uses the fast `MathUtils.cos()`
-      in libGDX with three different inputs, offset from each other, to add error to the RGB channels.
+    - The dithering algorithm here is more complex than some other ordered dithers, and uses a triangle wave with three
+      different inputs, offset from each other, to add error to the RGB channels.
     - This adjusts each channel of a pixel differently, and the nearly-repeating nature of the R2 sequence makes very
       few patches of an image filled entirely with solid blocks of color. This makes it able
       to produce some color combinations via dithering that dithers like GRADIENT_NOISE, which affect all channels with
       the same error, can't produce with small palettes.
-    - This is much like GRADIENT_NOISE, but milder, or BLUE_NOISE, but stronger.
-    - You may want to also consider WOVEN or WREN if you like the effect this produces.
-    - This changed somewhat in versions 0.3.11, 0.3.13, and 0.3.14. 
+    - This is much like GRADIENT_NOISE, but somewhat milder, or BLUE_NOISE, but much milder.
+    - You may want to also consider WOVEN or WREN if you like the effect this produces, though this is better for animations.
   - WOVEN
     - This is an error-diffusion dither, like NEUE or SCATTER, but instead of using blue noise patterns to add error to
-      the image, this uses the finer-grained "fuzzy" pattern from ROBERTS.
+      the image, this uses the finer-grained "fuzzy" pattern from ROBERTS and its R2 sequence.
     - Unlike NEUE, SCATTER, or DIFFUSION, this uses a slightly different (offset) pattern for each RGB channel.
       - This can allow colors that wouldn't normally be produced easily by one of those three to appear here.
     - The artifacts in this may or may not be noticeable, depending on dither strength.
@@ -201,7 +191,8 @@ so more quickly, and avoid losing any color information.
     - This dither algorithm is almost as good at reproducing colors as WOVEN, and is arguably preferable to it when the
       artifacts would be problematic.
     - It's better than NEUE at most things, but it isn't quite as smooth when the palette matches the image closely.
-    - This is similar to WREN, except that WREN also incorporates the braid-like R2 sequence. OVERBOARD incorporates even more.
+    - This is similar to WREN, except that WREN also incorporates the braid-like R2 sequence. OVERBOARD incorporates
+      even more, though it can go too far and add artifacts.
   - LOAF
     - A very simple, intentionally-low-fidelity ordered dither meant primarily for pixel art.
     - This has very obvious grid patterns, effectively repeating a 2x2 pixel area many times over similar color regions.
@@ -209,7 +200,7 @@ so more quickly, and avoid losing any color information.
     - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
     - LOAF does also work well for some animations, especially when compared to any error-diffusion dithers (which can have the error change wildly between frames).
   - WREN
-    - A complex mix of error diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those; I saved the best dither algorithm for last.
+    - A complex mix of error diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those.
     - This preserves hue almost as well as WOVEN, but is better than WOVEN at preserving lightness, and has fewer noticeable artifacts.
     - This adjusts each channel separately, like how DODGY and WOVEN work but not like the older NEUE or SCATTER.
     - There are still use cases for the similar DODGY and WOVEN dithers.
@@ -223,7 +214,7 @@ so more quickly, and avoid losing any color information.
     - It doesn't use its whole repertoire for every channel, and selects which variants will add error using a simple ordered grid pattern.
     - This adjusts each channel separately, and is close in how its code works to WREN (which also does this).
     - This tends to have fewer artifacts, if any, at high dither strength. This is true relative to most dithers here.
-    - It also tends to be smoother than WREN, without any "rough surface" appearance.
+    - It also tends to be smoother than WREN, without any "rough surface" appearance, but may add artifacts where there were none.
     - It is not as good at reproducing unusual colors (ones very different from what the palette contains), when compared to WREN or especially to WOVEN.
     - This is the default and often the best of the bunch.
   - BURKES
@@ -235,7 +226,8 @@ so more quickly, and avoid losing any color information.
     - A slight tweak on BURKES that uses blue noise to make small changes to the error diffusion pattern.
     - This mostly is an improvement on existing dithers when BURKES has noticeable artifacts, but it is rather good in general, as well.
     - Where diagonal artifacts would have appeared with BURKES, this tends to show soft/fuzzy noise, but not over a large area.
-    - If no significant issues are found with OCEANIC, it may become the default dither, because it has a good balance of softness and accuracy.
+    - If no significant issues are found with OCEANIC, then either OCEANIC or the very similar SEASIDE algorithm may
+      become the default dither, because they have a good balance of softness and accuracy.
   - SEASIDE
     - Very close to OCEANIC, this also uses blue noise to adjust the error diffusion; the difference is that it uses different blue noise textures for each RGB channel.
     - This sometimes has better color reproduction than OCEANIC, but also sometimes doesn't. It's hard to tell why.
@@ -243,7 +235,6 @@ so more quickly, and avoid losing any color information.
     - When two colors are nearly-equally matched in a palette, OCEANIC tends to show a 1px checkerboard, whereas SEASIDE shows a more coarse-grained texture.
   - GOURD
     - Somewhere between PATTERN and LOAF, this is an ordered dither using a 8x8 grid it applies rather directly as added noise.
-    - Unlike those two, this linearizes the image colors before adding the noise, and gamma-corrects after that; this helps a lot.
     - This is quite a bit faster than PATTERN, and gets almost-similar results.
     - This dither is especially sensitive to changes in ditherStrength. 1.0f is recommended for most purposes, or maybe up to 0.25f less or more.
     - Like LOAF, this is meant to be good for animations.
@@ -258,7 +249,7 @@ so more quickly, and avoid losing any color information.
     - DIFFUSION and BURKES tend to have their error corrections jump around between frames, which looks jarring.
       - BURKES has this less dramatically than DIFFUSION, and OCEANIC is meant to avoid this. 
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
-      identical. This was also the behavior of NEUE in 0.3.0, but has since been changed.
+      identical.
     - For very small palettes, OVERBOARD can have noticeable diagonal lines from the Burkes dither it is based on. So
       can BURKES, of course, but OCEANIC and SEASIDE do a good job at avoiding these.
 
@@ -270,8 +261,7 @@ dither much stronger and may make the image less legible. NEUE, SCATTER, DODGY, 
 with very high dither strengths, though how much trouble varies based on the palette, and they also tend to look good
 just before major issues appear. NEUE is calibrated to look best at dither strength 1.0, as is DODGY, but NEUE may stay
 looking good at higher strengths for longer than SCATTER or DODGY do. GOURD is quite sensitive to changes in
-ditherStrength; it usually doesn't look very good with strength less than 0.75f. The `setDitherStrength(float)` methods
-on PNG8 and AnimatedGif were added in version 0.3.5 .
+ditherStrength; it usually doesn't look very good with strength less than 0.75f.
 
 # Palette Generation
 
@@ -285,7 +275,7 @@ or more diverse palettes (that is, ones with fewer similar colors to try to keep
 the default "SNUGGLY" palette, or almost any practical 250+ color palette, because with so many colors it's hard to go
 wrong. Creating a PaletteReducer without arguments, or calling `setDefaultPalette()` later, will set it to use SNUGGLY.
 
-As of version 0.3.3, GIF supports using a different palette for each frame of an
+GIF supports using a different palette for each frame of an
 animation, analyzing colors separately for each frame. This supplements the previous behavior where a palette would
 analyze all frames of an animation and find a 255-color palette that approximates the whole set of all frames
 well-enough. PNG8 still uses the previous behavior, and you can use it with AnimatedGif by creating a PaletteReducer
@@ -297,7 +287,7 @@ passing it an `Array<Pixmap>`, and assign that to the `palette` field; this is r
 frame will use the same palette (which means regions of solid color that don't change in the source won't change in the
 GIF; this isn't true if `palette` is null).
 
-Starting in version 0.3.7, you can use any of the `PaletteReducer.analyzeHueWise()` methods to analyze the palette of a
+You can use any of the `PaletteReducer.analyzeHueWise()` methods to analyze the palette of a
 `Pixmap` or multiple `Pixmap`s. This approach works well with rather small palettes (about 16 colors) because it tries
 to ensure some colors from every hue present in the image will be available in the palette. It stops being noticeably
 better than `analyze()` at around 25-30 colors in a palette (this can vary based on the image), and is almost always
@@ -305,16 +295,16 @@ slower than `analyze()`. Thanks to [caramel](https://caramellow.dev/) for (very 
 palette construction. `analyzeHueWise()` is available in `FastPalette`, but not optimized any differently from in
 `PaletteReducer`.
 
-Starting in version 0.4.3, you can use `PaletteReducer.analyzeReductive()` as an alternative to
-`PaletteReducer.analyze()` or other ways. While it wasn't very good at first, it was updated in 0.4.5 and now does very
-well on small palettes (such as a 16-color reduction). This analysis involves trimming down a huge 1024-color palette
+You can use `PaletteReducer.analyzeReductive()` as an alternative to
+`PaletteReducer.analyze()` or other ways. It does rather well on small palettes (such as a 16-color reduction). This
+analysis involves trimming down a huge 1024-color palette
 until it (in theory) contains only colors that match the current image well. For smaller palettes, it can do
 considerably better than `analyze()` or `analyzeHueWise()`, but there isn't much difference at 256 colors. The actual
 palette this trims down is essentially a 4x-expanded version of the default SNUGGLY255 palette, and like it, was created
 by deterministically sampling the Oklab color space until enough colors were found, then Lloyd-relaxing the Voronoi
 cells around each color in Oklab space. (No one needs to understand that last sentence.)
 
-Starting in version 0.4.6, all these color analysis techniques use comparable threshold values, defaulting to 100. Some
+All these color analysis techniques use comparable threshold values, defaulting to 100. Some
 palettes may need a higher or lower threshold only with some methods, though.
 
 # Samples

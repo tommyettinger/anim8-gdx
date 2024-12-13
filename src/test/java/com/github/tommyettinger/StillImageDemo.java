@@ -24,23 +24,23 @@ import com.github.tommyettinger.anim8.*;
 public class StillImageDemo extends ApplicationAdapter {
 	private long total = 0;
 	public Dithered.DitherAlgorithm[] ALGORITHMS =
-			new Dithered.DitherAlgorithm[]{
-//					Dithered.DitherAlgorithm.BLUE_NOISE,
-//					Dithered.DitherAlgorithm.GRADIENT_NOISE,
-//					Dithered.DitherAlgorithm.GOURD,
-//					Dithered.DitherAlgorithm.ROBERTS,
-//					Dithered.DitherAlgorithm.LOAF,
-//					Dithered.DitherAlgorithm.WOVEN,
-//					Dithered.DitherAlgorithm.WREN,
-					Dithered.DitherAlgorithm.SCATTER,
-//					Dithered.DitherAlgorithm.NEUE,
-//					Dithered.DitherAlgorithm.DODGY,
-//					Dithered.DitherAlgorithm.OVERBOARD,
-//					Dithered.DitherAlgorithm.BURKES,
-//					Dithered.DitherAlgorithm.OCEANIC,
+//			new Dithered.DitherAlgorithm[]{
+////					Dithered.DitherAlgorithm.BLUE_NOISE,
+////					Dithered.DitherAlgorithm.GRADIENT_NOISE,
+////					Dithered.DitherAlgorithm.GOURD,
+////					Dithered.DitherAlgorithm.ROBERTS,
+////					Dithered.DitherAlgorithm.LOAF,
+////					Dithered.DitherAlgorithm.WOVEN,
+////					Dithered.DitherAlgorithm.WREN,
+////					Dithered.DitherAlgorithm.SCATTER,
+////					Dithered.DitherAlgorithm.NEUE,
+////					Dithered.DitherAlgorithm.DODGY,
+////					Dithered.DitherAlgorithm.OVERBOARD,
+////					Dithered.DitherAlgorithm.BURKES,
+////					Dithered.DitherAlgorithm.OCEANIC,
 //					Dithered.DitherAlgorithm.SEASIDE,
-			};
-//			Dithered.DitherAlgorithm.ALL;
+//			};
+			Dithered.DitherAlgorithm.ALL;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);

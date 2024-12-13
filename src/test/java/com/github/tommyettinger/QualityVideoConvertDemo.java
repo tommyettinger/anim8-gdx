@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.github.tommyettinger.anim8.*;
+import com.github.tommyettinger.anim8.Dithered.DitherAlgorithm;
+
+import static com.github.tommyettinger.anim8.Dithered.DitherAlgorithm.*;
 
 /**
  * This takes two multiple-frame images/videos and dithers both of them in all the ways this can before writing to GIF
@@ -36,8 +39,33 @@ import com.github.tommyettinger.anim8.*;
 // on September 30, 2023, running just the PNG8                 code took 182646 ms. This omitted benchmarking analysis.
 // on October 1, 2023, running this took     726596 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class QualityVideoConvertDemo extends ApplicationAdapter {
-    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.GOURD};
+//    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.GOURD};
 //    private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+    private static final DitherAlgorithm[] DITHERS = {
+
+//        NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD
+
+        //Took 218108 ms
+//        PATTERN
+
+        //Took 34111 ms
+//        NONE
+
+        //Took 47694 ms
+//        ROBERTS
+
+        //Took 40174 ms
+//        GRADIENT_NOISE
+
+        //Took 39233 ms
+//        LOAF
+
+        //Took 35361 ms
+        GOURD
+
+        //
+//        NONE, GRADIENT_NOISE, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD
+};
     private boolean fastAnalysis = true;
     @Override
     public void create() {
@@ -128,7 +156,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
             else
                 png8.setPalette(palettes[i]);
 
-            for (Dithered.DitherAlgorithm d : DITHERS) {
+            for (DitherAlgorithm d : DITHERS) {
                 png8.setDitherAlgorithm(d);
                 png8.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.png"), pixmaps, 20);
             }
@@ -155,7 +183,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
-            for (Dithered.DitherAlgorithm d : DITHERS) {
+            for (DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
@@ -181,7 +209,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated" + (gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow") + "/AnimatedGif-";
-            for (Dithered.DitherAlgorithm d : DITHERS) {
+            for (DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
             }
@@ -204,7 +232,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
-            for (Dithered.DitherAlgorithm d : DITHERS) {
+            for (DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 12);
             }
@@ -227,7 +255,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
-            for (Dithered.DitherAlgorithm d : DITHERS) {
+            for (DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
@@ -250,7 +278,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
-            for (Dithered.DitherAlgorithm d : DITHERS) {
+            for (DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
@@ -275,7 +303,7 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
 
             gif.setFlipY(false);
             String prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
-            for (Dithered.DitherAlgorithm d : DITHERS) {
+            for (DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + namePalette + "-" + d + "-Q.gif"), pixmaps, 20);
             }
