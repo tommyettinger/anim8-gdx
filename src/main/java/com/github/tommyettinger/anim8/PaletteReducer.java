@@ -1804,7 +1804,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
+        threshold /= Math.min(0.5625, Math.pow(limit + 16, 1.45) * 0.00025);
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -1909,7 +1909,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 3), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.000043;
+        threshold /= Math.pow(limit, 1.35) * 0.00005375;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         IntArray enc = new IntArray(width * height);
@@ -2048,7 +2048,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
+        threshold /= Math.min(0.5625, Math.pow(limit + 16, 1.45) * 0.00025);
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -2563,7 +2563,8 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333);
+//        threshold /= Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333);
+        threshold /= Math.sqrt(limit + 16) * 0.5;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
         for (int y = 0; y < height; y++) {
@@ -2738,7 +2739,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.min(0.45, Math.pow(limit + 16, 1.45) * 0.0002);
+        threshold /= Math.min(0.5625, Math.pow(limit + 16, 1.45) * 0.00025);
         IntIntMap counts = new IntIntMap(limit);
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
@@ -2910,7 +2911,7 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 3), 256);
-        threshold /= Math.pow(limit, 1.35) * 0.000043;
+        threshold /= Math.pow(limit, 1.35) * 0.00005375;
         final int w0 = pixmaps[0].getWidth(), h0 = pixmaps[0].getHeight();
         IntIntMap counts = new IntIntMap(limit);
         IntArray enc = new IntArray(w0 * h0 * pixmapCount / 10);
@@ -3142,7 +3143,8 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-        threshold /= Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333);
+//        threshold /= Math.min(0.75, Math.pow(limit + 16, 1.45) * 0.0003333);
+        threshold /= Math.sqrt(limit + 16) * 0.5;
         IntIntMap counts = new IntIntMap(limit);
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
