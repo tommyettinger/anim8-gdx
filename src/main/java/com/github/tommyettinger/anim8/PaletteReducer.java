@@ -2563,10 +2563,11 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-//        threshold /= Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333);
-        threshold /= Math.sqrt(limit + 16) * 0.5;
+        threshold /= Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333);
+//        threshold /= Math.sqrt(limit + 16) * 0.5;
         final int width = pixmap.getWidth(), height = pixmap.getHeight();
         IntIntMap counts = new IntIntMap(limit);
+        int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 color = pixmap.getPixel(x, y) & 0xF8F8F880;
@@ -2592,23 +2593,36 @@ public class PaletteReducer {
                 color = e.key;
                 paletteArray[i] = color;
                 paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                reds[i] = color >>> 24;
+                greens[i] = color >>> 16 & 255;
+                blues[i] = color >>> 8 & 255;
                 i++;
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.375/colorCount);
         } else // reduce color count
         {
-            int i = 1, c = 0;
-            PER_BEST:
-            while (i < limit && c < cs) {
-                color = es.get(c++).key;
-                for (int j = 1; j < i; j++) {
-                    if (differenceAnalyzing(color, paletteArray[j]) < threshold)
-                        continue PER_BEST;
+            int i = 1, c;
+            BIG_LOOP:
+            for (int iterations = 0; iterations < 4; iterations++) {
+                c = 0;
+                PER_BEST:
+                for (; c < es.size; ) {
+                    color = es.get(c++).key;
+                    for (int j = 1; j < i; j++) {
+                        double diff = differenceAnalyzing(color, paletteArray[j]);
+                        if (diff < threshold)
+                            continue PER_BEST;
+                    }
+                    es.removeIndex(c-1);
+                    paletteArray[i] = color;
+                    paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                    reds[i] = color >>> 24;
+                    greens[i] = color >>> 16 & 255;
+                    blues[i] = color >>> 8 & 255;
+                    if (++i >= limit) break BIG_LOOP;
                 }
-                paletteArray[i] = color;
-                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-                i++;
+                threshold *= 0.65;
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.375/colorCount);
@@ -2627,7 +2641,7 @@ public class PaletteReducer {
                         bb = (b << 3 | b >>> 2);
                         dist = Double.MAX_VALUE;
                         for (int i = 1; i < colorCount; i++) {
-                            if (dist > (dist = Math.min(dist, differenceAnalyzing(paletteArray[i], rr, gg, bb))))
+                            if (dist > (dist = Math.min(dist, differenceAnalyzing(reds[i], greens[i], blues[i], rr, gg, bb))))
                                 paletteMapping[c2] = (byte) i;
                         }
                     }
@@ -3143,8 +3157,8 @@ public class PaletteReducer {
         Arrays.fill(paletteMapping, (byte) 0);
         int color;
         limit = Math.min(Math.max(limit, 2), 256);
-//        threshold /= Math.min(0.75, Math.pow(limit + 16, 1.45) * 0.0003333);
-        threshold /= Math.sqrt(limit + 16) * 0.5;
+        threshold /= Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333);
+//        threshold /= Math.sqrt(limit + 16) * 0.5;
         IntIntMap counts = new IntIntMap(limit);
         int[] reds = new int[limit], greens = new int[limit], blues = new int[limit];
         for (int i = 0; i < pixmapCount && i < pixmaps.length; i++) {
@@ -3185,21 +3199,27 @@ public class PaletteReducer {
             populationBias = (float) Math.exp(-1.375/colorCount);
         } else // reduce color count
         {
-            int i = 1, c = 0;
-            PER_BEST:
-            for (; i < limit && c < cs;) {
-                color = es.get(c++).key;
-                for (int j = 1; j < i; j++) {
-                    double diff = differenceAnalyzing(color, paletteArray[j]);
-                    if (diff < threshold)
-                        continue PER_BEST;
+            int i = 1, c;
+            BIG_LOOP:
+            for (int iterations = 0; iterations < 4; iterations++) {
+                c = 0;
+                PER_BEST:
+                for (; c < es.size; ) {
+                    color = es.get(c++).key;
+                    for (int j = 1; j < i; j++) {
+                        double diff = differenceAnalyzing(color, paletteArray[j]);
+                        if (diff < threshold)
+                            continue PER_BEST;
+                    }
+                    es.removeIndex(c-1);
+                    paletteArray[i] = color;
+                    paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
+                    reds[i] = color >>> 24;
+                    greens[i] = color >>> 16 & 255;
+                    blues[i] = color >>> 8 & 255;
+                    if (++i >= limit) break BIG_LOOP;
                 }
-                paletteArray[i] = color;
-                paletteMapping[(color >>> 17 & 0x7C00) | (color >>> 14 & 0x3E0) | (color >>> 11 & 0x1F)] = (byte) i;
-                reds[i] = color >>> 24;
-                greens[i] = color >>> 16 & 255;
-                blues[i] = color >>> 8 & 255;
-                i++;
+                threshold *= 0.65;
             }
             colorCount = i;
             populationBias = (float) Math.exp(-1.375/colorCount);
