@@ -40,7 +40,7 @@ def projectName = 'anim8-gdx'
 version "$VERSION_NAME"
 group 'com.github.tommyettinger'
 
-//api "com.github.tommyettinger:anim8-gdx:0.4.3"
+//api "com.github.tommyettinger:anim8-gdx:0.5.0"
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
