@@ -799,17 +799,18 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        float adj, strength = 0.3125f * ditherStrength / (palette.populationBias * palette.populationBias * palette.populationBias);
+        final float strength = 0.21875f * ditherStrength / (palette.populationBias * palette.populationBias);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
-            for (int px = 0; px < width & i < nPix; px++) {
-                color = image.getPixel(px, flipped + flipDir * y);
+            int ny = flipped + flipDir * y;
+            for (int x = 0; x < width & i < nPix; x++) {
+                color = image.getPixel(x, ny);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-                    adj = ((px + y & 1) << 8) - 127.5f;
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
+                    float adj = Math.min(Math.max(((TRI_BLUE_NOISE  [(x & 63) | (ny & 63) << 6] + ((x + ny & 1) << 8) - 127.5f) * strength), -100.5f), 101.5f);
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
 
                     usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)

@@ -4290,32 +4290,22 @@ public class PaletteReducer {
      */
     public Pixmap reduceBlueNoise (Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
-        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        final int w = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color;
-        float adj, strength = 0.3125f * ditherStrength / (populationBias * populationBias * populationBias);
+        final float strength = 0.21875f * ditherStrength / (populationBias * populationBias);
         for (int y = 0; y < h; y++) {
-            for (int px = 0; px < lineLen; px++) {
-                color = pixmap.getPixel(px, y);
+            for (int x = 0; x < w; x++) {
+                int color = pixmap.getPixel(x, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
-                    pixmap.drawPixel(px, y, 0);
+                    pixmap.drawPixel(x, y, 0);
                 else {
-                    adj = ((px + y & 1) << 8) - 127.5f;
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + Math.min(Math.max(((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + adj) * strength), -100), 100))] & 255;
-//                    adj = ((PaletteReducer.TRI_BLUE_NOISE_B[(px & 63) | (y & 63) << 6] + 0.5f));
-//                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
-//                    int rr = Math.min(Math.max((int) (adj + ((color >>> 24)       )), 0), 255);
-//                    adj = ((PaletteReducer.TRI_BLUE_NOISE_C[(px & 63) | (y & 63) << 6] + 0.5f));
-//                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
-//                    int gg = Math.min(Math.max((int) (adj + ((color >>> 16) & 0xFF)), 0), 255);
-//                    adj = ((PaletteReducer.TRI_BLUE_NOISE  [(px & 63) | (y & 63) << 6] + 0.5f));
-//                    adj = adj * strength / (12f + Math.abs(adj)) + 0.5f;
-//                    int bb = Math.min(Math.max((int) (adj + ((color >>> 8)  & 0xFF)), 0), 255);
+                    float adj = Math.min(Math.max(((TRI_BLUE_NOISE  [(x & 63) | (y & 63) << 6] + ((x + y & 1) << 8) - 127.5f) * strength), -100.5f), 101.5f);
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
 
-                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                    pixmap.drawPixel(x, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
                 }
