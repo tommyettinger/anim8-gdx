@@ -3611,7 +3611,9 @@ public class PaletteReducer {
 //        final float strength = Math.min(0.63f * ditherStrength / (populationBias * populationBias), 1f);
 //        final float strength = Math.min(ditherStrength * populationBias, 1f);
 //        final float strength = Math.min(ditherStrength * (2f - (populationBias * populationBias * populationBias * populationBias - 0.1598797460796939f) * ((2f * 0.875f) / 0.8188650241570136f)), 1f);
-        final float strength = Math.min(0.54f * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 1f);
+//        final float strength = Math.max(0.54f * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 6f);
+        final float strength = 0.9f * (float) Math.tanh(0.16f * ditherStrength * Math.pow(populationBias, -7.00));
+
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);

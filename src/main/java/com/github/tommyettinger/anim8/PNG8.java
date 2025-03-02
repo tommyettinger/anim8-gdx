@@ -972,8 +972,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             int color;
             final float populationBias = palette.populationBias;
-            final float strength = Math.min(0.54f * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 1f);
-
+            final float strength = 0.9f * (float) Math.tanh(0.16f * ditherStrength * Math.pow(populationBias, -7.00));
+            System.out.println("Palette color count: " + palette.colorCount + ", strength: " + strength);
+            
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -981,9 +982,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
-                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((142 * (px + 0x5F) + 79 * (y - 0x96) & 255) - 127.5f) * strength)] & 255;
-                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((142 * (px + 0xFA) + 79 * (y - 0xA3) & 255) - 127.5f) * strength)] & 255;
-                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((142 * (px + 0xA5) + 79 * (y - 0xC9) & 255) - 127.5f) * strength)] & 255;
+                        int rr = fromLinearLUT[Math.min(Math.max((int)(toLinearLUT[(color >>> 24)       ] + ((142 * (px + 0x5F) + 79 * (y - 0x96) & 255) - 127.5f) * strength), 0), 1023)] & 255;
+                        int gg = fromLinearLUT[Math.min(Math.max((int)(toLinearLUT[(color >>> 16) & 0xFF] + ((142 * (px + 0xFA) + 79 * (y - 0xA3) & 255) - 127.5f) * strength), 0), 1023)] & 255;
+                        int bb = fromLinearLUT[Math.min(Math.max((int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((142 * (px + 0xA5) + 79 * (y - 0xC9) & 255) - 127.5f) * strength), 0), 1023)] & 255;
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
@@ -3902,7 +3903,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             int color;
 
             final float populationBias = palette.populationBias;
-            final float strength = Math.min(0.54f * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 1f);
+            final float strength = 0.9f * (float) Math.tanh(0.16f * ditherStrength * Math.pow(populationBias, -7.00));
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {

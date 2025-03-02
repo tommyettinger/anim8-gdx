@@ -581,7 +581,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         boolean hasTransparent = paletteArray[0] == 0;
 
         final float populationBias = palette.populationBias;
-        final float strength = Math.min(0.54f * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 1f);
+        final float strength = 0.9f * (float) Math.tanh(0.16f * ditherStrength * Math.pow(populationBias, -7.00));
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 color = image.getPixel(px, flipped + flipDir * y);
@@ -673,13 +673,14 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         for (int i = 0; i < 64; i++) {
             PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
         }
-        for (int y = 0, i = 0; y < height && i < nPix; y++) {
-            for (int px = 0; px < width & i < nPix; px++) {
-                color = image.getPixel(px, flipped + flipDir * y);
+        for (int oy = 0, i = 0; oy < height && i < nPix; oy++) {
+            int y = flipped + flipDir * oy;
+            for (int x = 0; x < width & i < nPix; x++) {
+                color = image.getPixel(x, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-                    float adj = PaletteReducer.tempThresholdMatrix[(px & 7) | (y & 7) << 3];
+                    float adj = PaletteReducer.tempThresholdMatrix[(x & 7) | (oy & 7) << 3];
                     int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
                     int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
                     int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;

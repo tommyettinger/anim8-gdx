@@ -28,8 +28,8 @@ public class StillImageDemo extends ApplicationAdapter {
 
 //					Dithered.DitherAlgorithm.BLUE_NOISE,
 //					Dithered.DitherAlgorithm.LOAF,
-					Dithered.DitherAlgorithm.GOURD,
-//					Dithered.DitherAlgorithm.GRADIENT_NOISE,
+//					Dithered.DitherAlgorithm.GOURD,
+					Dithered.DitherAlgorithm.GRADIENT_NOISE,
 //					Dithered.DitherAlgorithm.ROBERTS,
 
 //					Dithered.DitherAlgorithm.DIFFUSION,
