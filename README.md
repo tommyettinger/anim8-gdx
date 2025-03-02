@@ -72,7 +72,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.13.1 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.5.0"
+  api "com.github.tommyettinger:anim8-gdx:0.5.1"
 }
 ```
 
@@ -81,7 +81,7 @@ You can also get a specific commit using JitPack, by following the instructions 
 commit, unless you are experiencing problems with one in particular.)
 
 A .gwt.xml file is present in the sources jar, and because GWT needs it, you can depend on the sources jar with
-`implementation "com.github.tommyettinger:anim8-gdx:0.5.0:sources"`. The PNG-related code isn't available on GWT
+`implementation "com.github.tommyettinger:anim8-gdx:0.5.1:sources"`. The PNG-related code isn't available on GWT
 because it needs `java.util.zip`, which is unavailable there, but PaletteReducer and AnimatedGif should both work,
 as should `QualityPalette`. The classes `FastGif` and `FastPalette` should work on GWT, but no other "Fast" classes
 will. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml`, is:
@@ -163,7 +163,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
       gradients, while NEUE doesn't usually have any banding.
     - NEUE may sometimes look "sandy" when there isn't a single good matching color for a flat span of pixels; if this
       is a problem, SCATTER can look better.
-    - This used to be the default, but the new default OVERBOARD handles perceived color quite a bit better.
+    - This used to be the default, but the new default WREN handles perceived color quite a bit better.
     - BLUE_NOISE, GRADIENT_NOISE, GOURD, PATTERN, or ROBERTS will likely look better in pixel art animations, but NEUE
       can look better for still pixel art.
   - ROBERTS
@@ -227,6 +227,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - Where diagonal artifacts would have appeared with BURKES, this tends to show soft/fuzzy noise, but not over a large area.
     - If no significant issues are found with OCEANIC, then either OCEANIC or the very similar SEASIDE algorithm may
       become the default dither, because they have a good balance of softness and accuracy.
+      - I went with WREN though, because some of its results were really excellent and none looked "off" in general. 
   - SEASIDE
     - Very close to OCEANIC, this also uses blue noise to adjust the error diffusion; the difference is that it uses different blue noise textures for each RGB channel.
     - This sometimes has better color reproduction than OCEANIC, but also sometimes doesn't. It's hard to tell why.
@@ -354,7 +355,11 @@ Original (full-color):
 
 ![](src/test/resources/Mona_Lisa.jpg)
 
-Overboard (the current default):
+Wren (the current default):
+
+![](samples/Mona_Lisa-PNG8-Wren-Prospecal.png)
+
+Overboard
 
 ![](samples/Mona_Lisa-PNG8-Overboard-Prospecal.png)
 
@@ -373,10 +378,6 @@ Burkes:
 Gourd:
 
 ![](samples/Mona_Lisa-PNG8-Gourd-Prospecal.png)
-
-Wren:
-
-![](samples/Mona_Lisa-PNG8-Wren-Prospecal.png)
 
 Neue:
 

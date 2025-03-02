@@ -40,32 +40,23 @@ import static com.github.tommyettinger.anim8.Dithered.DitherAlgorithm.*;
 // on October 1, 2023, running this took     726596 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class QualityVideoConvertDemo extends ApplicationAdapter {
 //    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.GOURD};
-//    private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
-    private static final DitherAlgorithm[] DITHERS = {
-
+    private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+//    private static final DitherAlgorithm[] DITHERS = {
 //        NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD
-
         //Took 218108 ms
 //        PATTERN
-
         //Took 34111 ms
 //        NONE
-
         //Took 47694 ms
 //        ROBERTS
-
         //Took 40174 ms
 //        GRADIENT_NOISE
-
         //Took 39233 ms
 //        LOAF
-
         //Took 35361 ms
-        GOURD
-
-        //
+//        GOURD
 //        NONE, GRADIENT_NOISE, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD
-};
+//};
     private boolean fastAnalysis = true;
     @Override
     public void create() {
@@ -96,9 +87,9 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
         renderWorldGif(names, palettes);
-        renderOklabGif(names, palettes);
+//        renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
-        renderSolidsGif(names, palettes);
+//        renderSolidsGif(names, palettes);
 
         fastAnalysis = false;
         names = new String[]{"-Analyzed"};
@@ -107,9 +98,9 @@ public class QualityVideoConvertDemo extends ApplicationAdapter {
         renderVideoGif(names, palettes);
         renderPixelGif(names, palettes);
         renderWorldGif(names, palettes);
-        renderOklabGif(names, palettes);
+//        renderOklabGif(names, palettes);
         renderTankGif(names, palettes);
-        renderSolidsGif(names, palettes);
+//        renderSolidsGif(names, palettes);
 
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms");
         Gdx.app.exit();
