@@ -3910,11 +3910,12 @@ public class PaletteReducer {
 //        final float strength = (ditherStrength * 4f * populationBias); // none
 //        final float strength = Math.min(ditherStrength * (8.75f - populationBias * 8f), 4f); // none
         // is the lowest possible populationBias^4, 0.8188650241570136f is the difference between the highest populationBias^4 and the lowest.
-        final float strength = Math.min(ditherStrength * (4f - (populationBias * populationBias * populationBias * populationBias - 0.1598797460796939f) * (3.5f / 0.8188650241570136f)), 4f);
+//        final float strength = Math.min(ditherStrength * (4f - (populationBias * populationBias * populationBias * populationBias - 0.1598797460796939f) * (3.5f / 0.8188650241570136f)), 4f);
 //        final float strength = Math.min(1.5f * ditherStrength / (populationBias * populationBias * populationBias), 4f);
 //        final float strength = (float)(Math.min(Math.max(ditherStrength * 85 * Math.pow(populationBias, -8.0), -255), 255)); // triangularRemap
 //        System.out.println("strength is " + strength + " when ditherStrength is "+ ditherStrength + " and colorCount is " + colorCount);
 //        System.out.println("triangular remap is " + (float)(ditherStrength * 85 * Math.pow(populationBias, -8.0)));
+        final float strength = (float)(ditherStrength * 0.7 * Math.pow(populationBias, -5.50));
         for (int i = 0; i < 64; i++) {
             tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
 //            tempThresholdMatrix[i] = Math.min(Math.max(OtherMath.probitF((PaletteReducer.thresholdMatrix64[i] + 0.5f) * 0x1p-6f) * strength, -127), 127);
