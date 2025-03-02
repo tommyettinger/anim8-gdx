@@ -206,8 +206,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - There are still use cases for the similar DODGY and WOVEN dithers.
       - DODGY can be noisier, but if even slight repetitive artifacts are an issue, that noise becomes an advantage relative to WREN.
       - WOVEN typically preserves hue more accurately because the predictable nature of its repetitive artifact happens to align with its error-diffusion, improving perceived color when viewed from a distance.
-    - This may have all sorts of artifacts if dither strength is too high. Sometimes even the default 1.0 is too high.
-    - This used to be the default, but OVERBOARD does better with both high and low dither strength.
+    - This used to be the default, OVERBOARD replaced it, and now after some small changes to WREN, it is back as the default dither.
   - OVERBOARD
     - You thought WREN was complicated? Think again. OVERBOARD takes a Burkes error diffusion dither and mixes in added error from variants on the R2 sequence, blue noise, and XOR-mod patterns into each channel of each pixel.
       - XOR-mod patterns are often seen in very small blocks of code, like Tweets or demoscene code, and have primarily diagonal lines in unpredictable patterns.
@@ -216,7 +215,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - This tends to have fewer artifacts, if any, at high dither strength. This is true relative to most dithers here.
     - It also tends to be smoother than WREN, without any "rough surface" appearance, but may add artifacts where there were none.
     - It is not as good at reproducing unusual colors (ones very different from what the palette contains), when compared to WREN or especially to WOVEN.
-    - This is the default and often the best of the bunch.
+    - It can have worse banding than other dithers of its type, like WREN.
   - BURKES
     - This is fairly simple error diffusion dither than nonetheless has very smooth results.
     - This is more faithful to the original error diffusion algorithm, which may explain why it looks better that Floyd-Steinberg (DIFFUSION) much of the time.

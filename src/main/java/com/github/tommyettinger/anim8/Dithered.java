@@ -99,7 +99,7 @@ public interface Dithered {
          * {@link #GRADIENT_NOISE}, but isn't nearly as noisy (though it isn't noisy, it instead has regular
          * square-shaped artifacts, which are mostly noticeable with small palettes). Earlier versions of Pattern Dither
          * here had issues with lightness changing strangely based on dither strength, but these are mostly fixed now.
-         * {@link #OVERBOARD} is the current default; it does a better job at obscuring artifacts from dither, it
+         * {@link #WREN} is the current default; it does a better job at obscuring artifacts from dither, it
          * maintains lightness well, and it handles gradients without banding. Setting the dither strength with
          * {@link PaletteReducer#setDitherStrength(float)} can really change how strongly artifacts appear here, but
          * artifacts may be very hard to spot with a full 255-color palette.
@@ -118,13 +118,15 @@ public interface Dithered {
          */
         DIFFUSION("Diffusion"),
         /**
-         * This is an ordered dither that modifies any error in a pixel's color by using 3 blue-noise patterns for each
-         * channel separately. The separate channels have their resulting positive or negative values added to the
-         * pixel's channels. This uses triangular-mapped blue noise patterns, which means most of its values are in the
+         * This is an ordered dither that modifies any error in a pixel's color by using a blue-noise pattern that
+         * affects lightness. The noise has its resulting positive or negative values added to the all three of the
+         * pixel's channels. This uses a triangular-mapped blue noise pattern, which means most of its values are in the
          * middle of its range and very few are at the extremely bright or dark. This yields closer results to
          * {@link #NONE} than other ordered dithers like {@link #GRADIENT_NOISE}; it preserves soft gradients reasonably
-         * well, and it keeps lightness moderately-well, but it can look "noisier" than the other ordered dithers. For
-         * reference, the blue noise texture this uses looks like
+         * well, and it keeps lightness moderately-well, but it can look "noisier" than the other ordered dithers. A key
+         * extra thing this does is to add a checkerboard pattern of light and dark pixels, which can be a noticeable
+         * artifact with small palettes or high dither strength.
+         * For reference, the blue noise texture this uses looks like
          * <a href="https://github.com/tommyettinger/MultiTileBlueNoise/blob/master/results/tri/64/blueTri64_0.png?raw=true">this small image</a>;
          * it looks different from a purely-random white noise texture because blue noise has no low frequencies in any
          * direction, while white noise has all frequencies in equal measure. This has been optimized for quality on
@@ -152,8 +154,9 @@ public interface Dithered {
          * noise. This offers an excellent mix of shape preservation, color preservation, animation-compatibility, and
          * speed, and it was the default for a long time. Setting the dither strength to a low value makes this more
          * bold, with higher contrast, while setting the strength too high (above 1.5, or sometimes higher) can
-         * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE}, {@link #DODGY}, and
-         * {@link #OVERBOARD} are much better at that and otherwise similar.
+         * introduce artifacts. This is only-just-okay at smooth gradient handling; {@link #NEUE}, {@link #DODGY},
+         * {@link #OVERBOARD}, {@link #WREN}, {@link #OCEANIC}, and {@link #SEASIDE} are much better at that and
+         * otherwise similar.
          */
         SCATTER("Scatter"),
         /**
@@ -167,7 +170,7 @@ public interface Dithered {
          * preserving fine color information (lightness is kept by Blue_Noise, but hue and saturation aren't very well);
          * Neue preserves both. {@link #DODGY} is a potential successor to NEUE, and acts much like it except that it
          * changes each RGB component separately, using three different blue noise textures. DODGY is, however, more
-         * chaotic-looking sometimes. There's always the current default dither, {@link #OVERBOARD}, which was inspired
+         * chaotic-looking sometimes. There's always the current default dither, {@link #WREN}, which was inspired
          * by NEUE, DODGY, and {@link #WOVEN} to get a generally-good compromise.
          */
         NEUE("Neue"),
@@ -224,17 +227,19 @@ public interface Dithered {
          * improve hue or lightness fidelity. These cases aren't especially common, and working around this is as easy
          * as calling {@link PaletteReducer#setDitherStrength(float)} (or its counterpart for a Gif or PNG class). These
          * artifacts have gotten less frequent with some changes to the algorithm just after it was introduced.
+         * <br>
+         * This is currently the default dither.
          */
         WREN("Wren"),
         /**
          * An error-diffusion dither (like {@link #DIFFUSION}, but using Burkes instead of Floyd-Steinberg) that uses
          * an assortment of patterns to add error to diffuse, selecting which patterns to use in a way that mimics a
-         * simple ordered dither. This looks a lot like {@link #WREN} in practice, but tends to be smoother, and avoids
-         * some serious artifacts if the dither strength is higher than 1. Unlike {@link #WREN} and {@link #WOVEN}, this
-         * won't usually add a "rough" or "canvas-like" appearance to parts of an image that are mostly flat in color,
-         * making it usually more faithful at keeping fine details. The main disadvantage of this dithering algorithm is
-         * that it is more complex than most of the others here, so copying or editing it would be more challenging. It
-         * doesn't appear to be much slower than {@link #WREN}, if it is slower at all.
+         * simple ordered dither. This looks a lot like {@link #WREN} in practice, but tends to have many patterns
+         * conflicting with each other, adding more color noise but reducing some error-diffusion artifacts. Unlike
+         * {@link #WREN} and {@link #WOVEN}, this won't usually add a "rough" or "canvas-like" appearance to parts of an
+         * image that are mostly flat in color, though it may add other "regular" patterns. The main disadvantage of
+         * this dithering algorithm is that it is more complex than most of the others here, so copying or editing it
+         * would be more challenging. It doesn't appear to be much slower than {@link #WREN}, if it is slower at all.
          * <br>
          * Like {@link #WREN}, but unlike {@link #NEUE}, this adds extra error differently to different RGB channels.
          * It doesn't go quite as far as {@link #WREN} at allowing really tremendous changes in color, which does mean
@@ -245,8 +250,6 @@ public interface Dithered {
          * extra noise. You could also use {@link #OCEANIC} to incorporate just a little noise, softly. Relative to
          * those two (newer) dithers, OVERBOARD has a harder time with "curt" gradients, that is, those that change
          * smoothly but very quickly, and quickly stop changing. It does do well with larger, more-free-form gradients.
-         * <br>
-         * This is currently the default dither.
          */
         OVERBOARD("Overboard"),
         /**
@@ -277,8 +280,11 @@ public interface Dithered {
         /**
          * A close relative of {@link #OCEANIC}, this also incorporates noise into {@link #BURKES} to change how each
          * pixel diffuses error. Unlike OCEANIC, the noise is different for each channel, which can improve how well
-         * this approximates colors with small palettes. This is the same technique used by {@link #DODGY} to improve
-         * upon {@link #NEUE}, and various other newer dithering algorithms here also use it.
+         * this approximates colors with small palettes, but can make the dither look more "confetti-like" by making one
+         * pixel more red, a neighbor more green, another nearby more blue, etc. This is the same technique used by
+         * {@link #DODGY} to improve upon {@link #NEUE}, and various other newer dithering algorithms here also use it.
+         * That technique does, however, make lightness not change as reliably as with {@link #OCEANIC}, which adds the
+         * same amount of change to all RGB channels at once (making them all approach black or white).
          */
         SEASIDE("Seaside"),
         /**

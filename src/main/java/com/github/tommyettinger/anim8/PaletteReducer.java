@@ -3338,8 +3338,6 @@ public class PaletteReducer {
                 return reduceNeue(pixmap);
             case BURKES:
                 return reduceBurkes(pixmap);
-            case WREN:
-                return reduceWren(pixmap);
             case OCEANIC:
                 return reduceOceanic(pixmap);
             case SEASIDE:
@@ -3347,8 +3345,10 @@ public class PaletteReducer {
             case GOURD:
                 return reduceGourd(pixmap);
             case OVERBOARD:
-            default:
                 return reduceOverboard(pixmap);
+            case WREN:
+            default:
+                return reduceWren(pixmap);
         }
     }
 

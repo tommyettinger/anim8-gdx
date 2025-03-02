@@ -379,9 +379,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case NEUE:
                 writeNeueDithered(output, pixmap);
                 break;
-            case WREN:
-                writeWrenDithered(output, pixmap);
-                break;
             case BURKES:
                 writeBurkesDithered(output, pixmap);
                 break;
@@ -395,8 +392,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 writeGourdDithered(output, pixmap);
                 break;
             case OVERBOARD:
-            default:
                 writeOverboardDithered(output, pixmap);
+                break;
+            case WREN:
+            default:
+                writeWrenDithered(output, pixmap);
+                break;
+
         }
     }
 
@@ -3829,9 +3831,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case NEUE:
                 writeNeueDithered(output, frames, fps);
                 break;
-            case WREN:
-                writeWrenDithered(output, frames, fps);
-                break;
             case BURKES:
                 writeBurkesDithered(output, frames, fps);
                 break;
@@ -3845,8 +3844,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 writeGourdDithered(output, frames, fps);
                 break;
             case OVERBOARD:
-            default:
                 writeOverboardDithered(output, frames, fps);
+                break;
+            case WREN:
+            default:
+                writeWrenDithered(output, frames, fps);
+                break;
         }
     }
 

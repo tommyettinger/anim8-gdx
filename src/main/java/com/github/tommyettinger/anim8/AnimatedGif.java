@@ -2059,8 +2059,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             case NEUE:
                 analyzeNeue();
                 break;
-            case WREN:
-                analyzeWren();
+            case OVERBOARD:
+                analyzeOverboard();
                 break;
             case BURKES:
                 analyzeBurkes();
@@ -2074,9 +2074,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             case GOURD:
                 analyzeGourd();
                 break;
-            case OVERBOARD:
+            case WREN:
             default:
-                analyzeOverboard();
+                analyzeWren();
                 break;
         }
         colorDepth = 8;
