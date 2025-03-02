@@ -3430,7 +3430,6 @@ public class PaletteReducer {
         pixmap.setBlending(Pixmap.Blending.None);
         int color, used;
         float rdiff, gdiff, bdiff;
-        float er, eg, eb;
         float ditherStrength = this.ditherStrength * 20, halfDitherStrength = ditherStrength * 0.5f;
         for (int y = 0; y < h; y++) {
             int ny = y + 1;
@@ -3448,12 +3447,9 @@ public class PaletteReducer {
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    er = curErrorRed[px];
-                    eg = curErrorGreen[px];
-                    eb = curErrorBlue[px];
-                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + er + 0.5f), 0), 0xFF);
-                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + eg + 0.5f), 0), 0xFF);
-                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + eb + 0.5f), 0), 0xFF);
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + curErrorRed[px]  , 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + curErrorGreen[px], 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + curErrorBlue[px] , 0), 1023)] & 255;
                     used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF];
@@ -3548,16 +3544,13 @@ public class PaletteReducer {
                     int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + curErrorRed[px]  , 0), 1023)] & 255;
                     int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + curErrorGreen[px], 0), 1023)] & 255;
                     int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + curErrorBlue[px] , 0), 1023)] & 255;
-//                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + curErrorRed[px]   + 0.5f), 0), 0xFF);
-//                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + curErrorGreen[px] + 0.5f), 0), 0xFF);
-//                    int bb = Math.min(Math.max((int)(((color >>> 8)  & 0xFF) + curErrorBlue[px]  + 0.5f), 0), 0xFF);
                     used = paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF];
                     pixmap.drawPixel(px, y, used);
-                    rdiff = (0x1p-8f * ((color>>>24)-    (used>>>24))    );
-                    gdiff = (0x1p-8f * ((color>>>16&255)-(used>>>16&255)));
-                    bdiff = (0x1p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                    rdiff = Math.min(Math.max(0x1p-8f * ((color>>>24)-    (used>>>24))    , -1), 1);
+                    gdiff = Math.min(Math.max(0x1p-8f * ((color>>>16&255)-(used>>>16&255)), -1), 1);
+                    bdiff = Math.min(Math.max(0x1p-8f * ((color>>>8&255)- (used>>>8&255)) , -1), 1);
                     // this alternate code used a sigmoid function to smoothly limit error.
 //                    rdiff = (0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
 //                    gdiff = (0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));

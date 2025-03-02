@@ -1630,9 +1630,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                         | ((gg << 2) & 0x3E0)
                                         | ((bb >>> 3))];
                         used = paletteArray[paletteIndex & 0xFF];
-                        rdiff = (0x1p-8f * ((color>>>24)-    (used>>>24))    );
-                        gdiff = (0x1p-8f * ((color>>>16&255)-(used>>>16&255)));
-                        bdiff = (0x1p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                        rdiff = Math.min(Math.max(0x1p-8f * ((color>>>24)-    (used>>>24))    , -1), 1);
+                        gdiff = Math.min(Math.max(0x1p-8f * ((color>>>16&255)-(used>>>16&255)), -1), 1);
+                        bdiff = Math.min(Math.max(0x1p-8f * ((color>>>8&255)- (used>>>8&255)) , -1), 1);
                         // this alternate code used a sigmoid function to smoothly limit error.
 //                    rdiff = (0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
 //                    gdiff = (0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
@@ -4772,9 +4772,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                             | ((gg << 2) & 0x3E0)
                                             | ((bb >>> 3))];
                             used = paletteArray[paletteIndex & 0xFF];
-                            rdiff = (0x1p-8f * ((color>>>24)-    (used>>>24))    );
-                            gdiff = (0x1p-8f * ((color>>>16&255)-(used>>>16&255)));
-                            bdiff = (0x1p-8f * ((color>>>8&255)- (used>>>8&255)) );
+                            rdiff = Math.min(Math.max(0x1p-8f * ((color>>>24)-    (used>>>24))    , -1), 1);
+                            gdiff = Math.min(Math.max(0x1p-8f * ((color>>>16&255)-(used>>>16&255)), -1), 1);
+                            bdiff = Math.min(Math.max(0x1p-8f * ((color>>>8&255)- (used>>>8&255)) , -1), 1);
                             // this alternate code used a sigmoid function to smoothly limit error.
 //                    rdiff = (0x1.8p-8f * ((color>>>24)-    (used>>>24))    );
 //                    gdiff = (0x1.8p-8f * ((color>>>16&255)-(used>>>16&255)));
