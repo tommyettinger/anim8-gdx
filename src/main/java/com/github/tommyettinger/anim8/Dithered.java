@@ -310,11 +310,13 @@ public interface Dithered {
          * An ordered dither that is very similar to {@link #BLUNT} but doesn't use a checkerboard directly, and instead
          * of using trianglar-mapped blue noise, uses a 128x128 triangular-mapped Bayer Matrix.  This produces a much
          * more "regular" and "grid-patterned" dither, while being less "scratchy" and "noisy". This is meant to look
-         * better when dithering art that has more flat areas than gradients. {@link #BLUNT}, on the other hand, will
-         * probably handle dithering gradients better than this will.
+         * better when dithering art that has more flat areas than gradients, but it turns out to handle gradients
+         * fairly well, too. {@link #BLUNT}, on the other hand, will be better able to "synthesize" colors not
+         * well-represented by the palette using clusters of different colors. This gives that feature up to handle
+         * lightness changes more smoothly.
          * <br>
-         * This uses a Tent distribution per RGB channel, and uses it with a Bayer Matrix, hence the name as a mixed-up
-         * order of Bayer and Tent.
+         * This uses a Tent distribution for its added error, and uses it with a Bayer Matrix, hence the name as a
+         * rearrangement of Bayer and Tent.
          */
         BANTER("Banter");
 

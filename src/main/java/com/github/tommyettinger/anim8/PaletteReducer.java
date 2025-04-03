@@ -3378,6 +3378,8 @@ public class PaletteReducer {
                 return reduceBlueNoise(pixmap);
             case BLUNT:
                 return reduceBlunt(pixmap);
+            case BANTER:
+                return reduceBanter(pixmap);
             case SCATTER:
                 return reduceScatter(pixmap);
             case ROBERTS:
@@ -4403,6 +4405,50 @@ public class PaletteReducer {
                     int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
                     int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
                     int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
+
+                    pixmap.drawPixel(x, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
+     * An ordered dither based on a triangular-mapped Bayer Matrix; does not diffuse error.
+     * Because it is an ordered dither, it avoids "swimming" patterns in animations with large flat sections of one
+     * color; these swimming effects can appear in all the error-diffusion dithers here. If you can tolerate "grid-like"
+     * artifacts appearing (which look worse on small palettes), this can work well. It works especially well for pixel
+     * art, or possibly modern art with large flat regions of one color. It also works well for gradients, but isn't as
+     * good with small palettes that don't represent a color present in the image well.
+     * <br>
+     * This is very similar to {@link #reduceBlunt(Pixmap)}, but with no checkerboard because the Bayer Matrix already
+     * looks similar to one, and with absolutely no "scratchy" noise. It just has "grid" artifacts instead. Unlike Blunt
+     * dither, it only uses one offset or variant on the triangular-mapped "variance source", which makes it unable to
+     * "synthesize" colors not well-represented in the palette, but better at handling lightness variations, including
+     * some gradients.
+     *
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceBanter (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int w = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        float strength = Math.min(Math.max(0.5f * ditherStrength / (populationBias * populationBias * populationBias), -0.95f), 0.95f);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int color = pixmap.getPixel(x, y);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    pixmap.drawPixel(x, y, 0);
+                else {
+                    float adj = TRI_BAYER_MATRIX[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] * strength;
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
 
                     pixmap.drawPixel(x, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
