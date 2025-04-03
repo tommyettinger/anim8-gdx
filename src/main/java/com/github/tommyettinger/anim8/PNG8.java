@@ -364,6 +364,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case BLUE_NOISE:
                 writeBlueNoiseDithered(output, pixmap);
                 break;
+            case BLUNT:
+                writeBluntDithered(output, pixmap);
+                break;
             case SCATTER:
                 writeScatterDithered(output, pixmap);
                 break;
@@ -1392,6 +1395,88 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //
 //                deflaterOutput.write(FILTER_PAETH);
 //                deflaterOutput.write(lineOut, 0, w);
+
+                deflaterOutput.write(FILTER_NONE);
+                deflaterOutput.write(curLine, 0, w);
+            }
+            deflaterOutput.finish();
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
+    public void writeBluntDithered(OutputStream output, Pixmap pixmap) {
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(pixmap.getWidth());
+            buffer.writeInt(pixmap.getHeight());
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p>>>24);
+                buffer.write(p>>>16);
+                buffer.write(p>>>8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if(paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(IDAT);
+            deflater.reset();
+
+            final int w = pixmap.getWidth(), h = pixmap.getHeight();
+            byte[] curLine;
+            if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(w)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(w);
+        }
+
+            int color;
+            final float populationBias = palette.populationBias;
+            final float strength = Math.min(Math.max(0.35f * ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f);
+            for (int oy = 0; oy < h; oy++) {
+                int y = flipY ? (h - oy - 1) : oy;
+                for (int x = 0; x < w; x++) {
+                    color = pixmap.getPixel(x, y);
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                        curLine[x] = 0;
+                    else {
+                        float adj = (x+y<<7&128)-63.5f;
+                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
+                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
+                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
+
+                        curLine[x] = paletteMapping[((rr << 7) & 0x7C00)
+                                | ((gg << 2) & 0x3E0)
+                                | ((bb >>> 3))];
+                    }
+                }
 
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
@@ -3820,6 +3905,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case BLUE_NOISE:
                 writeBlueNoiseDithered(output, frames, fps);
                 break;
+            case BLUNT:
+                writeBluntDithered(output, frames, fps);
+                break;
             case WOVEN:
                 writeWovenDithered(output, frames, fps);
                 break;
@@ -4444,6 +4532,140 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
                             int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
                             int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
+
+                            curLine[x] = paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))];
+                        }
+                    }
+//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//
+//                    //Paeth
+//                    for (int x = 1; x < width; x++) {
+//                        int a = curLine[x - 1] & 0xff;
+//                        int b = prevLine[x] & 0xff;
+//                        int c = prevLine[x - 1] & 0xff;
+//                        int p = a + b - c;
+//                        int pa = p - a;
+//                        if (pa < 0) pa = -pa;
+//                        int pb = p - b;
+//                        if (pb < 0) pb = -pb;
+//                        int pc = p - c;
+//                        if (pc < 0) pc = -pc;
+//                        if (pa <= pb && pa <= pc)
+//                            c = a;
+//                        else if (pb <= pc)
+//                            c = b;
+//                        lineOut[x] = (byte) (curLine[x] - c);
+//                    }
+//
+//                    deflaterOutput.write(FILTER_PAETH);
+//                    deflaterOutput.write(lineOut, 0, width);
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, width);
+                }
+                deflaterOutput.finish();
+                buffer.endChunk(dataOutput);
+            }
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
+    public void writeBluntDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+        Pixmap pixmap = frames.first();
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            final int width = pixmap.getWidth();
+            final int height = pixmap.getHeight();
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(width);
+            buffer.writeInt(height);
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p >>> 24);
+                buffer.write(p >>> 16);
+                buffer.write(p >>> 8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if (paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(acTL);
+            buffer.writeInt(frames.size);
+            buffer.writeInt(0);
+            buffer.endChunk(dataOutput);
+
+            byte[] curLine;
+
+            final float populationBias = palette.populationBias;
+            final float strength = Math.min(Math.max(0.35f * ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f);
+
+            int seq = 0;
+            for (int i = 0; i < frames.size; i++) {
+
+                buffer.writeInt(fcTL);
+                buffer.writeInt(seq++);
+                buffer.writeInt(width);
+                buffer.writeInt(height);
+                buffer.writeInt(0);
+                buffer.writeInt(0);
+                buffer.writeShort(1);
+                buffer.writeShort(fps);
+                buffer.writeByte(0);
+                buffer.writeByte(0);
+                buffer.endChunk(dataOutput);
+
+                if (i == 0) {
+                    buffer.writeInt(IDAT);
+                } else {
+                    pixmap = frames.get(i);
+                    buffer.writeInt(fdAT);
+                    buffer.writeInt(seq++);
+                }
+                deflater.reset();
+
+        if (curLineBytes == null) {
+            curLine = (curLineBytes = new ByteArray(width)).items;
+        } else {
+            curLine = curLineBytes.ensureCapacity(width);
+        }
+                for (int oy = 0; oy < height; oy++) {
+                    int y = flipY ? (height - oy - 1) : oy;
+                    for (int x = 0; x < width; x++) {
+                        int color = pixmap.getPixel(x, y);
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                            curLine[x] = 0;
+                        else {
+                            float adj = (x+y<<7&128)-63.5f;
+                            int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
+                            int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
+                            int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
 
                             curLine[x] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)

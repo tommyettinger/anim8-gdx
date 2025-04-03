@@ -302,6 +302,8 @@ public interface Dithered {
          * RGB cube where it can choose a dithered pixel. This tends to look similar to {@link #BLUE_NOISE}, but with
          * the checkerboard pattern weaker and the blue noise stronger. It is more likely to counterbalance when it
          * places many similar pixels by mingling a few very different pixels in with them.
+         * <br>
+         * The extra blue noise hits with a bit of "blunt force" compared to error diffusion dithers.
          */
         BLUNT("Blunt");
 

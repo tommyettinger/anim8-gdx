@@ -822,6 +822,38 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 
+    protected void analyzeBlunt() {
+        final int nPix = indexedPixels.length;
+        int color;
+        int flipped = flipY ? height - 1 : 0;
+        int flipDir = flipY ? -1 : 1;
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+        boolean hasTransparent = paletteArray[0] == 0;
+
+        final float populationBias = palette.populationBias;
+        final float strength = Math.min(Math.max(0.35f * ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f);
+        for (int y = 0, i = 0; y < height && i < nPix; y++) {
+            int ny = flipped + flipDir * y;
+            for (int x = 0; x < width & i < nPix; x++) {
+                color = image.getPixel(x, ny);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    indexedPixels[i++] = 0;
+                else {
+                    float adj = (x+y<<7&128)-63.5f;
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
+
+                    usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))]) & 255] = true;
+                    i++;
+                }
+            }
+        }
+    }
+
     protected void analyzeScatter() {
         final int nPix = indexedPixels.length;
         int color, used, flipped = flipY ? height - 1 : 0, flipDir = flipY ? -1 : 1;
@@ -2047,6 +2079,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case BLUE_NOISE:
                 analyzeBlue();
+                break;
+            case BLUNT:
+                analyzeBlunt();
                 break;
             case SCATTER:
                 analyzeScatter();
