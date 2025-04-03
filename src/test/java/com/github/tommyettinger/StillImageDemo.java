@@ -24,9 +24,10 @@ import com.github.tommyettinger.anim8.*;
 public class StillImageDemo extends ApplicationAdapter {
 	private long total = 0;
 	public Dithered.DitherAlgorithm[] ALGORITHMS =
-//			new Dithered.DitherAlgorithm[]{
+			new Dithered.DitherAlgorithm[]{
 //
 //					Dithered.DitherAlgorithm.BLUE_NOISE,
+					Dithered.DitherAlgorithm.BLUNT,
 //					Dithered.DitherAlgorithm.LOAF,
 //					Dithered.DitherAlgorithm.GOURD,
 //					Dithered.DitherAlgorithm.GRADIENT_NOISE,
@@ -42,8 +43,8 @@ public class StillImageDemo extends ApplicationAdapter {
 //					Dithered.DitherAlgorithm.SCATTER,
 //					Dithered.DitherAlgorithm.NEUE,
 //					Dithered.DitherAlgorithm.DODGY,
-//			};
-			Dithered.DitherAlgorithm.ALL;
+			};
+//			Dithered.DitherAlgorithm.ALL;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
@@ -76,10 +77,6 @@ public class StillImageDemo extends ApplicationAdapter {
 		FileHandle file = Gdx.files.classpath(filename);
 		String name = file.nameWithoutExtension();
 		Pixmap pixmap = new Pixmap(file);
-		// black and white
-//        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x000000FF, 0xFFFFFFFF}));
-		// gb palette
-//        png8.setPalette(new PaletteReducer(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}));
 		PaletteReducer regular = new PaletteReducer(), quality = new QualityPalette(), reducer;
 		final String[] types = {"", "H", "Q", "R"};
 		for(String type : types) {
