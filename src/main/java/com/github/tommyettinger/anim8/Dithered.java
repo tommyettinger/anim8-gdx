@@ -295,7 +295,15 @@ public interface Dithered {
          * animations, since it doesn't have the error-diffusion issues where diffused error can zigzag over a moving
          * object during an animation.
          */
-        GOURD("Gourd");
+        GOURD("Gourd"),
+        /**
+         * An ordered dither based on using Blue Noise with a Tent (or triangular-mapped) distribution. Specifically,
+         * this uses a different triangular distribution for each channel, forming something like an octagon inside the
+         * RGB cube where it can choose a dithered pixel. This tends to look similar to {@link #BLUE_NOISE}, but with
+         * the checkerboard pattern weaker and the blue noise stronger. It is more likely to counterbalance when it
+         * places many similar pixels by mingling a few very different pixels in with them.
+         */
+        BLUNT("Blunt");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.

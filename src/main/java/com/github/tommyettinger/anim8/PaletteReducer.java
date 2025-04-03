@@ -3323,7 +3323,9 @@ public class PaletteReducer {
             case DIFFUSION:
                 return reduceFloydSteinberg(pixmap);
             case BLUE_NOISE:
-                return reduceBlueNoise(pixmap); 
+                return reduceBlueNoise(pixmap);
+            case BLUNT:
+                return reduceBlunt(pixmap);
             case SCATTER:
                 return reduceScatter(pixmap);
             case ROBERTS:
@@ -4307,6 +4309,48 @@ public class PaletteReducer {
                     int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
                     int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
                     int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
+
+                    pixmap.drawPixel(x, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
+     * A blue-noise-based ordered dither; does not diffuse error, and uses three tiling blue noise patterns (which can
+     * be accessed with {@link #TRI_BLUE_NOISE}, {@link #TRI_BLUE_NOISE_B}, and {@link #TRI_BLUE_NOISE_C}, but shouldn't
+     * usually be modified) as well as a mild checkerboard pattern of light and dark. Because it is an
+     * ordered dither, it avoids "swimming" patterns in animations with large flat sections of one color; these swimming
+     * effects can appear in all the error-diffusion dithers here. If you can tolerate "spongy" artifacts appearing
+     * (which look worse on small palettes) and the checkerboard doesn't distract too much, this may work OK.
+     * <br>
+     * This is very similar to {@link #reduceBlueNoise(Pixmap)}, but the checkerboard is less powerful relative to the
+     * blue noise patterns (and there is a pattern per RGB channel). The extra blue noise hits with a bit of "blunt
+     * force" compared to error diffusion dithers.
+     *
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
+     */
+    public Pixmap reduceBlunt (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int w = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        final float strength = Math.min(Math.max(0.35f * ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int color = pixmap.getPixel(x, y);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    pixmap.drawPixel(x, y, 0);
+                else {
+                    float adj = (x+y<<7&128)-63.5f;
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
 
                     pixmap.drawPixel(x, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
