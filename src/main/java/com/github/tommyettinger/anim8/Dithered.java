@@ -305,7 +305,18 @@ public interface Dithered {
          * <br>
          * The extra blue noise hits with a bit of "blunt force" compared to error diffusion dithers.
          */
-        BLUNT("Blunt");
+        BLUNT("Blunt"),
+        /**
+         * An ordered dither that is very similar to {@link #BLUNT} but doesn't use a checkerboard directly, and instead
+         * of using trianglar-mapped blue noise, uses a 128x128 triangular-mapped Bayer Matrix.  This produces a much
+         * more "regular" and "grid-patterned" dither, while being less "scratchy" and "noisy". This is meant to look
+         * better when dithering art that has more flat areas than gradients. {@link #BLUNT}, on the other hand, will
+         * probably handle dithering gradients better than this will.
+         * <br>
+         * This uses a Tent distribution per RGB channel, and uses it with a Bayer Matrix, hence the name as a mixed-up
+         * order of Bayer and Tent.
+         */
+        BANTER("Banter");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.

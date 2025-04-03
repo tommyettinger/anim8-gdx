@@ -693,8 +693,8 @@ public class PaletteReducer {
      * While, for some reason, you could change the contents to some other distribution of floats, I don't know why this
      * would be needed.
      */
-
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS_B = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS_B;
+
     /**
      * A 64x64 grid of floats, with a median value of about 1.0, generated using the triangular-distributed blue noise
      * from {@link #TRI_BLUE_NOISE_C}. If you randomly selected two floats from this and multiplied them, the average
@@ -705,6 +705,77 @@ public class PaletteReducer {
      * would be needed.
      */
     public static final float[] TRI_BLUE_NOISE_MULTIPLIERS_C = ConstantData.TRI_BLUE_NOISE_MULTIPLIERS_C;
+
+    /**
+     * Triangular Bayer Matrix bits per side. The side length is a power of two, and this is that power, so
+     * the actual length of a side is 128 pixels.
+     */
+    private static final int TBM_BITS = 7;
+    /**
+     * Triangular Bayer Matrix bitmask. Used to quickly limit negative or large positions into the range 0 (inclusive)
+     * to (2 to the {@link #TBM_BITS}) (exclusive).
+     */
+    private static final int TBM_MASK = (1 << TBM_BITS) - 1;
+
+    /**
+     * Takes two 8-bit unsigned integers index1 and index2, and returns a Morton code, with interleaved index1 and
+     * index2 bits and index1 in the least significant bit. With this method, index1 and index2 can have up to 8 bits.
+     * This returns a 32-bit Morton code but only uses 16 bits, and will not encode information in the upper 16 bits.
+     * Source: <a href="http://and-what-happened.blogspot.com/2011/08/fast-2d-and-3d-hilbert-curves-and.html">and-what-happened blog post</a>.
+     *
+     * @param x byte to interleave into the least-significant bit
+     * @param y byte to interleave into the second-least-significant bit
+     * @return an int that interleaves x and y into the low-order 16 bits
+     */
+    public static  int interleaveBytes(int x, int y) {
+        x |= x << 4;
+        y |= y << 4;
+        x &= 0x00000f0f;
+        y &= 0x00000f0f;
+        x |= x << 2;
+        y |= y << 2;
+        x &= 0x00003333;
+        y &= 0x00003333;
+        x |= x << 1;
+        y |= y << 1;
+        x &= 0x00005555;
+        y &= 0x00005555;
+        return x | y << 1;
+    }
+
+    /**
+     * Reverses the low 16 bits of a given int, and sets the upper 16 bits to 0.
+     * From <a href="https://graphics.stanford.edu/~seander/bithacks.html#ReverseParallel">Bit Twiddling Hacks</a>.
+     * @param v 16-bit or smaller int to reverse bits
+     * @return v with its low 16 bits reversed in order
+     */
+    public static int reverseShortBits(int v) {
+        v = ((v >>> 1) & 0x5555) | ((v & 0x5555) << 1);
+        v = ((v >>> 2) & 0x3333) | ((v & 0x3333) << 2);
+        v = ((v >>> 4) & 0x0F0F) | ((v & 0x0F0F) << 4);
+        v = ((v >>> 8) & 0x00FF) | ((v & 0x00FF) << 8);
+        return v;
+    }
+
+    /**
+     * Computes the value of a point in a Bayer Matrix with the given side length in bits (it is always a power of two).
+     * The given x and y should each be between 0 (inclusive) and (2 to the {@code bits}) (exclusive).
+     * This produces a uniformly-distributed Bayer Matrix; every number from 0 to (4 to the {@code bits}) minus 1 will
+     * be present once in the matrix.
+     * @param x between 0 (inclusive) and (2 to the {@code bits}) (exclusive)
+     * @param y between 0 (inclusive) and (2 to the {@code bits}) (exclusive)
+     * @param bits the side length in bits of the square matrix
+     * @return a unique value from the Bayer Matrix with the given side length
+     */
+    public static int bayer(int x, int y, int bits) {return reverseShortBits(interleaveBytes(x ^ y, y)) >>> 16 - bits - bits;}
+
+    /**
+     * A large Bayer Matrix that holds approximately-triangular-mapped values instead of the usual uniform mapping.
+     * This means the lowest value, which is the byte -128, and the highest value, which is 127, each appear once, and
+     * the middle values -1 and 0 each appear 127 times. The side length of this square matrix is (2 to the
+     * {@link #TBM_BITS}), or 128.
+     */
+    public static final byte[] TRI_BAYER_MATRIX = new byte[1 << TBM_BITS + TBM_BITS];
 
     public static final float[] TRIANGULAR_BYTE_LOOKUP = new float[256];
     static {
@@ -735,39 +806,20 @@ public class PaletteReducer {
                 TRIANGULAR_BYTE_LOOKUP[i] = OtherMath.triangularRemap(i + 0.5f, 256);
             }
         }
-//        for (int i = 1; i < 256; i++) {
-//            EXACT_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 4f, 0.5f);
-//            ANALYTIC_LOOKUP[i] = OtherMath.barronSpline(i / 255f, 3f, 0.5f);
-//        }
 
-//
-//        double r, g, b, x, y, z;
-//        int idx = 0;
-//        for (int ri = 0; ri < 32; ri++) {
-//            r = ri / 31.0;
-//            r = ((r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92);
-//            for (int gi = 0; gi < 32; gi++) {
-//                g = gi / 31.0;
-//                g = ((g > 0.04045) ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92);
-//                for (int bi = 0; bi < 32; bi++) {
-//                    b = bi / 31.0;
-//                    b = ((b > 0.04045) ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92);
-//
-//                    x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.950489; // 0.96422;
-//                    y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.000000; // 1.00000;
-//                    z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.088840; // 0.82521;
-//
-//                    x = (x > 0.008856) ? Math.cbrt(x) : (7.787037037037037 * x) + 0.13793103448275862;
-//                    y = (y > 0.008856) ? Math.cbrt(y) : (7.787037037037037 * y) + 0.13793103448275862;
-//                    z = (z > 0.008856) ? Math.cbrt(z) : (7.787037037037037 * z) + 0.13793103448275862;
-//
-//                    LAB[0][idx] = (116.0 * y) - 16.0;
-//                    LAB[1][idx] = 500.0 * (x - y);
-//                    LAB[2][idx] = 200.0 * (y - z);
-//                    idx++;
-//                }
-//            }
-//        }
+        byte[] levelArray = new byte[1 << TBM_BITS + TBM_BITS];
+        int span = 1, lastIndex = levelArray.length - 1;
+        for(int i = 0, inner = 0; i < 128; i++) {
+            for (int j = 0; j < span; j++) {
+                levelArray[inner] = (byte)(i+128);
+                levelArray[lastIndex - inner] = (byte)(127 - i);
+                inner++;
+            }
+            span += (-63 + i | 63 - i) >>> 31;
+        }
+        for (int i = 0; i < TRI_BAYER_MATRIX.length; i++) {
+            TRI_BAYER_MATRIX[i] = levelArray[bayer(i & TBM_MASK, i >>> TBM_BITS, TBM_BITS)];
+        }
     }
 
     public static int oklabToRGB(float L, float A, float B, float alpha)
