@@ -979,8 +979,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             int color;
             final float populationBias = palette.populationBias;
             final float strength = 0.9f * (float) Math.tanh(0.16f * ditherStrength * Math.pow(populationBias, -7.00));
-            System.out.println("Palette color count: " + palette.colorCount + ", strength: " + strength);
-            
+
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
