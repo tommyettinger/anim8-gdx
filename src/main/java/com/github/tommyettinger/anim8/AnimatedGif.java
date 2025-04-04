@@ -854,6 +854,37 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         }
     }
 
+    protected void analyzeBanter() {
+        final int nPix = indexedPixels.length;
+        int color;
+        int flipped = flipY ? height - 1 : 0;
+        int flipDir = flipY ? -1 : 1;
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+        boolean hasTransparent = paletteArray[0] == 0;
+
+        final float strength = Math.min(Math.max(0.17f * ditherStrength * (float) Math.pow(palette.populationBias, -10f), -0.95f), 0.95f);
+        for (int y = 0, i = 0; y < height && i < nPix; y++) {
+            int ny = flipped + flipDir * y;
+            for (int x = 0; x < width & i < nPix; x++) {
+                color = image.getPixel(x, ny);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    indexedPixels[i++] = 0;
+                else {
+                    float adj = TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] * strength;
+                    int rr = fromLinearLUT[(int) (toLinearLUT[(color >>> 24)] + adj)] & 255;
+                    int gg = fromLinearLUT[(int) (toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
+                    int bb = fromLinearLUT[(int) (toLinearLUT[(color >>> 8) & 0xFF] + adj)] & 255;
+
+                    usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))]) & 255] = true;
+                    i++;
+                }
+            }
+        }
+    }
+
     protected void analyzeScatter() {
         final int nPix = indexedPixels.length;
         int color, used, flipped = flipY ? height - 1 : 0, flipDir = flipY ? -1 : 1;
@@ -2082,6 +2113,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case BLUNT:
                 analyzeBlunt();
+                break;
+            case BANTER:
+                analyzeBanter();
                 break;
             case SCATTER:
                 analyzeScatter();

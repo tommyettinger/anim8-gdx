@@ -23,7 +23,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 
 import java.util.Arrays;
@@ -710,12 +709,12 @@ public class PaletteReducer {
      * Triangular Bayer Matrix bits per side. The side length is a power of two, and this is that power, so
      * the actual length of a side is 128 pixels.
      */
-    private static final int TBM_BITS = 7;
+    public static final int TBM_BITS = 7;
     /**
      * Triangular Bayer Matrix bitmask. Used to quickly limit negative or large positions into the range 0 (inclusive)
      * to (2 to the {@link #TBM_BITS}) (exclusive).
      */
-    private static final int TBM_MASK = (1 << TBM_BITS) - 1;
+    public static final int TBM_MASK = (1 << TBM_BITS) - 1;
 
     /**
      * Takes two 8-bit unsigned integers index1 and index2, and returns a Morton code, with interleaved index1 and
@@ -775,7 +774,13 @@ public class PaletteReducer {
      * the middle values -1 and 0 each appear 127 times. The side length of this square matrix is (2 to the
      * {@link #TBM_BITS}), or 128.
      */
-    public static final byte[] TRI_BAYER_MATRIX = new byte[1 << TBM_BITS + TBM_BITS];
+    public static final byte[] TRI_BAYER_MATRIX_128 = new byte[1 << TBM_BITS + TBM_BITS];
+
+//    /**
+//     * A smaller Bayer Matrix that holds uniform-mapped values from -128 to 127. Each possible byte value appears
+//     * exactly once. The side length of this matrix is (2 to the 4), or 16.
+//     */
+//    public static final byte[] BAYER_MATRIX_16 = new byte[1 << 8];
 
     public static final float[] TRIANGULAR_BYTE_LOOKUP = new float[256];
     static {
@@ -817,9 +822,16 @@ public class PaletteReducer {
             }
             span += (-63 + i | 63 - i) >>> 31;
         }
-        for (int i = 0; i < TRI_BAYER_MATRIX.length; i++) {
-            TRI_BAYER_MATRIX[i] = levelArray[bayer(i & TBM_MASK, i >>> TBM_BITS, TBM_BITS)];
+        for (int y = 0, n = 1 << TBM_BITS, i = 0; y < n; y++) {
+            for (int x = 0; x < n; x++) {
+                TRI_BAYER_MATRIX_128[i++] = levelArray[bayer(x, y, TBM_BITS)];
+            }
         }
+//        for (int x = 0, n = 1 << 4, i = 0; x < n; x++) {
+//            for (int y = 0; y < n; y++) {
+//                BAYER_MATRIX_16[i++] = (byte) (bayer(x, y, 4) - 128);
+//            }
+//        }
     }
 
     public static int oklabToRGB(float L, float A, float B, float alpha)
@@ -4438,14 +4450,14 @@ public class PaletteReducer {
         final int w = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        float strength = Math.min(Math.max(0.5f * ditherStrength / (populationBias * populationBias * populationBias), -0.95f), 0.95f);
+        float strength = Math.min(Math.max(0.17f * ditherStrength * (float) Math.pow(populationBias, -10f), -0.95f), 0.95f);
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int color = pixmap.getPixel(x, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     pixmap.drawPixel(x, y, 0);
                 else {
-                    float adj = TRI_BAYER_MATRIX[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] * strength;
+                    float adj = TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] * strength;
                     int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
                     int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
                     int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
