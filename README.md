@@ -142,7 +142,8 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
       such as [this introduction](https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/).
       - This also uses a triangular-mapped blue noise texture, which means most of its pixels are in the middle of the
         range, and are only rarely very bright or dark. This helps the smoothness of the dithering.
-      - Blue noise is also used normally by SCATTER, NEUE, and WREN, as well as used strangely by CHAOTIC_NOISE.
+      - Blue noise is also used normally by SCATTER, NEUE, WREN, and BLUNT, as well as used strangely by CHAOTIC_NOISE.
+    - If BLUE_NOISE doesn't look quite right for your images, you can try BLUNT, which is very close, but noisier with less checkerboard effect.
   - CHAOTIC_NOISE
     - Like BLUE_NOISE, but it will dither different frames differently, and looks much more dirty/splattered.
       - This is much "harsher" than BLUE_NOISE currently is. 
@@ -199,6 +200,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - You will see fine-resolution checkerboard patterns very often here.
     - While PATTERN is much better at preserving curves, gradients, and lightness in general, it doesn't really look like hand-made pixel art, so this can be used as a lo-fi version of PATTERN.
     - LOAF does also work well for some animations, especially when compared to any error-diffusion dithers (which can have the error change wildly between frames).
+    - Consider the other dithers GOURD and BANTER if this doesn't fit your needs but you still want an ordered, grid-like dither.
   - WREN
     - A complex mix of error diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those.
     - This preserves hue almost as well as WOVEN, but is better than WOVEN at preserving lightness, and has fewer noticeable artifacts.
@@ -238,10 +240,22 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - This is quite a bit faster than PATTERN, and gets almost-similar results.
     - This dither is especially sensitive to changes in ditherStrength. 1.0f is recommended for most purposes, or maybe up to 0.25f less or more.
     - Like LOAF, this is meant to be good for animations.
+    - This is similar to BANTER, but GOURD doesn't use the "triangular-mapped" grid that BANTER does.
+  - BLUNT
+    - Very close to BLUE_NOISE, but with the checkerboard effect diminished and noise increased.
+    - This is an ordered dither, so it's meant to be good for animations, but it really does need a lot of colors in the palette to look decent.
+    - The noisiness of three blue noise textures (one per RGB channel) is much less distracting for large palettes.
+    - This handles smooth color gradients rather well.
+  - BANTER
+    - This is derived from BLUNT but uses just one triangular-mapped Bayer Matrix instead of three triangular-mapped blue noise textures.
+    - It has much more noticeable grid artifacts, but these quickly disappear as strength is reduced (but lightness gets less accurate).
+    - This still may have some grid artifacts visible even with large palettes, but pixel art tends to make them less noticeable.
+    - Gradients actually are handled pretty well here, as are animations.
+    - This is also an ordered dither.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
-    - PATTERN, LOAF, and GOURD have obvious square grids.
-    - BLUE_NOISE, SCATTER, NEUE, and OVERBOARD have varying forms of a spongy blue noise texture. OVERBOARD shows this less.
+    - PATTERN, LOAF, GOURD, and BANTER have obvious square grids.
+    - BLUE_NOISE, SCATTER, NEUE, OVERBOARD, and BLUNT have varying forms of a spongy blue noise texture. OVERBOARD shows this less.
     - DIFFUSION may have parallel vertical bars, and BURKES may have 45-degree lines appear.
     - GRADIENT_NOISE has a network of diagonal lines.
     - ROBERTS, WOVEN, and WREN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also
@@ -406,6 +420,14 @@ Gradient Noise:
 Blue Noise:
 
 ![](samples/Mona_Lisa-PNG8-BlueNoise-Prospecal.png)
+
+Blunt:
+
+![](samples/Mona_Lisa-PNG8-Blunt-Prospecal.png)
+
+Banter:
+
+![](samples/Mona_Lisa-PNG8-Banter-Prospecal.png)
 
 Chaotic Noise:
 

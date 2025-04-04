@@ -20,10 +20,10 @@ compileJava {
         options.release.set(8)
     }
     else {
-        sourceCompatibility = 7
-        targetCompatibility = 7
+        sourceCompatibility = 8
+        targetCompatibility = 8
         if (JavaVersion.current().isJava9Compatible()) {
-            options.release.set(7)
+            options.release.set(8)
         }
     }
 }
