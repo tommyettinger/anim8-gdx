@@ -2059,6 +2059,38 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
         }
     }
+    protected void analyzeMarten() {
+        final int nPix = indexedPixels.length;
+        int flipped = flipY ? height - 1 : 0;
+        int flipDir = flipY ? -1 : 1;
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+        boolean hasTransparent = paletteArray[0] == 0;
+
+        final float populationBias = palette.populationBias;
+        final float str = Math.min(120f * ((float) Math.sqrt(ditherStrength) * (1f / (populationBias * populationBias * populationBias) - 0.85f)), 127f);
+        for (int y = 0, i = 0; y < height && i < nPix; y++) {
+            for (int px = 0; px < width & i < nPix; px++) {
+                int color = image.getPixel(px, flipped + flipDir * y);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    indexedPixels[i++] = 0;
+                else {
+                    // We get a sub-random value from 0-1 using the R2 sequence.
+                    // Offsetting this value by different values and feeding into triangleWave()
+                    // gives 3 different values for r, g, and b, without much bias toward high or low values.
+                    // There is correlation between r, g, and b in certain patterns.
+                    final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                    usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))]) & 255] = true;
+                    i++;
+                }
+            }
+        }
+    }
 
     /**
      * Analyzes image colors and creates color map.
@@ -2143,6 +2175,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case GOURD:
                 analyzeGourd();
+                break;
+            case MARTEN:
+                analyzeMarten();
                 break;
             case WREN:
             default:
