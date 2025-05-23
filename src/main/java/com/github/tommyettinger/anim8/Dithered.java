@@ -318,7 +318,17 @@ public interface Dithered {
          * This uses a Tent distribution for its added error, and uses it with a Bayer Matrix, hence the name as a
          * rearrangement of Bayer and Tent.
          */
-        BANTER("Banter");
+        BANTER("Banter"),
+        /**
+         * An ordered dither that only differs from {@link #ROBERTS} slightly by adding less error when the palette is
+         * larger. This should help the common case of using a high-quality 255-color palette to dither either still
+         * images or videos/animations (because this is an ordered dither, it won't have error-diffusion's problems with
+         * animated inputs).
+         * <br>
+         * The name comes partly from Dr. Martin Roberts (since this uses his R2 sequence) and partly from the fluffy
+         * animal called a marten, which is fitting because the dither is much softer for large palettes here.
+         */
+        MARTEN("Marten");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.

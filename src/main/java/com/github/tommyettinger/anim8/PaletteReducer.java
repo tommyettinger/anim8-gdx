@@ -3414,6 +3414,8 @@ public class PaletteReducer {
                 return reduceGourd(pixmap);
             case OVERBOARD:
                 return reduceOverboard(pixmap);
+            case MARTEN:
+                return reduceMarten(pixmap);
             case WREN:
             default:
                 return reduceWren(pixmap);
@@ -5577,7 +5579,6 @@ public class PaletteReducer {
      * <br>
      * Using pattern dither tends to produce some of the best results for lightness-based gradients, but when viewed
      * close-up the "needlepoint" pattern can be jarring for images that should look natural.
-     * @see #reduceKnollRoberts(Pixmap) An alternative that uses a similar pattern but skews it to obscure the grid
      * @param pixmap a Pixmap that will be modified
      * @return {@code pixmap}, after modifications
      */
@@ -5612,6 +5613,38 @@ public class PaletteReducer {
                     }
                     sort16(candidates);
                     pixmap.drawPixel(px, y, candidates[thresholdMatrix16[((px & 3) | (y & 3) << 2)]]);
+                }
+            }
+        }
+        pixmap.setBlending(blending);
+        return pixmap;
+    }
+
+    /**
+     * A variant on {@link #reduceRoberts(Pixmap)} that introduces much less error when the palette is large.
+     * @param pixmap a Pixmap that will be modified
+     * @return {@code pixmap}, after modifications
+     */
+    public Pixmap reduceMarten (Pixmap pixmap) {
+        boolean hasTransparent = (paletteArray[0] == 0);
+        final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
+        Pixmap.Blending blending = pixmap.getBlending();
+        pixmap.setBlending(Pixmap.Blending.None);
+        int color;
+        final float str = Math.min(120f * ((float) Math.sqrt(ditherStrength) * (1f / (populationBias * populationBias * populationBias) - 0.85f)), 127f);
+        for (int y = 0; y < h; y++) {
+            for (int px = 0; px < lineLen; px++) {
+                color = pixmap.getPixel(px, y);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    pixmap.drawPixel(px, y, 0);
+                else {
+                    final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                    pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))] & 0xFF]);
                 }
             }
         }

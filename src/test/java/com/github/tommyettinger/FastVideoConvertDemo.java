@@ -30,7 +30,7 @@ public class FastVideoConvertDemo extends ApplicationAdapter {
     private boolean fastAnalysis = true;
     @Override
     public void create() {
-        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+        Gdx.app.setLogLevel(Application.LOG_INFO);
         long startTime = TimeUtils.millis();
 
         Gdx.files.local("images").mkdirs();
