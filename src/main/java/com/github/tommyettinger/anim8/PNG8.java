@@ -400,6 +400,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             case OVERBOARD:
                 writeOverboardDithered(output, pixmap);
                 break;
+            case MARTEN:
+                writeMartenDithered(output, pixmap);
+                break;
             case WREN:
             default:
                 writeWrenDithered(output, pixmap);
@@ -1146,6 +1149,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             Gdx.app.error("anim8", e.getMessage());
         }
     }
+
     public void writeLoafDithered(OutputStream output, Pixmap pixmap) {
         DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
         final int[] paletteArray = palette.paletteArray;
@@ -3749,6 +3753,116 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
     }
 
+    public void writeMartenDithered(OutputStream output, Pixmap pixmap) {
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(pixmap.getWidth());
+            buffer.writeInt(pixmap.getHeight());
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p>>>24);
+                buffer.write(p>>>16);
+                buffer.write(p>>>8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if(paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(IDAT);
+            deflater.reset();
+
+            final int w = pixmap.getWidth(), h = pixmap.getHeight();
+//            byte[] lineOut, curLine, prevLine;
+            byte[] curLine;
+            if (curLineBytes == null) {
+                curLine = (curLineBytes = new ByteArray(w)).items;
+            } else {
+                curLine = curLineBytes.ensureCapacity(w);
+            }
+
+            final float populationBias = palette.populationBias;
+            final float str = Math.min(120f * ((float) Math.sqrt(ditherStrength) * (1f / (populationBias * populationBias * populationBias) - 0.85f)), 127f);
+            for (int y = 0; y < h; y++) {
+                int py = flipY ? (h - y - 1) : y;
+                for (int px = 0; px < w; px++) {
+                    int color = pixmap.getPixel(px, py);
+                    if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                        curLine[px] = 0;
+                    else {
+                        // We get a sub-random value from 0-1 using the R2 sequence.
+                        // Offsetting this value by different values and feeding into triangleWave()
+                        // gives 3 different values for r, g, and b, without much bias toward high or low values.
+                        // There is correlation between r, g, and b in certain patterns.
+                        final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
+                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
+                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
+                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                        curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
+                                | ((gg << 2) & 0x3E0)
+                                | ((bb >>> 3))];
+
+                    }
+                }
+
+//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//
+//                    //Paeth
+//                    for (int x = 1; x < w; x++) {
+//                        int a = curLine[x - 1] & 0xff;
+//                        int b = prevLine[x] & 0xff;
+//                        int c = prevLine[x - 1] & 0xff;
+//                        int p = a + b - c;
+//                        int pa = p - a;
+//                        if (pa < 0) pa = -pa;
+//                        int pb = p - b;
+//                        if (pb < 0) pb = -pb;
+//                        int pc = p - c;
+//                        if (pc < 0) pc = -pc;
+//                        if (pa <= pb && pa <= pc)
+//                            c = a;
+//                        else if (pb <= pc)
+//                            c = b;
+//                        lineOut[x] = (byte) (curLine[x] - c);
+//                    }
+//
+//                    deflaterOutput.write(FILTER_PAETH);
+//                    deflaterOutput.write(lineOut, 0, w);
+
+                deflaterOutput.write(FILTER_NONE);
+                deflaterOutput.write(curLine, 0, w);
+            }
+            deflaterOutput.finish();
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
     /**
      * Writes the given Pixmaps to the requested FileHandle at 30 frames per second.
      * If {@link #palette} is null (the default unless it has been assigned a PaletteReducer value), this will
@@ -4020,6 +4134,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 break;
             case OVERBOARD:
                 writeOverboardDithered(output, frames, fps);
+                break;
+            case MARTEN:
+                writeMartenDithered(output, frames, fps);
                 break;
             case WREN:
             default:
@@ -7501,6 +7618,146 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, w);
+                }
+                deflaterOutput.finish();
+                buffer.endChunk(dataOutput);
+            }
+
+            buffer.writeInt(IEND);
+            buffer.endChunk(dataOutput);
+
+            output.flush();
+        } catch (IOException e) {
+            Gdx.app.error("anim8", e.getMessage());
+        }
+    }
+
+    public void writeMartenDithered(OutputStream output, Array<Pixmap> frames, int fps) {
+        Pixmap pixmap = frames.first();
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+
+        DeflaterOutputStream deflaterOutput = new DeflaterOutputStream(buffer, deflater);
+        DataOutputStream dataOutput = new DataOutputStream(output);
+        try {
+            dataOutput.write(SIGNATURE);
+
+            final int width = pixmap.getWidth();
+            final int height = pixmap.getHeight();
+
+            buffer.writeInt(IHDR);
+            buffer.writeInt(width);
+            buffer.writeInt(height);
+            buffer.writeByte(8); // 8 bits per component.
+            buffer.writeByte(COLOR_INDEXED);
+            buffer.writeByte(COMPRESSION_DEFLATE);
+            buffer.writeByte(FILTER_NONE);
+            buffer.writeByte(INTERLACE_NONE);
+            buffer.endChunk(dataOutput);
+
+            buffer.writeInt(PLTE);
+            for (int i = 0; i < paletteArray.length; i++) {
+                int p = paletteArray[i];
+                buffer.write(p >>> 24);
+                buffer.write(p >>> 16);
+                buffer.write(p >>> 8);
+            }
+            buffer.endChunk(dataOutput);
+
+            boolean hasTransparent = false;
+            if (paletteArray[0] == 0) {
+                hasTransparent = true;
+                buffer.writeInt(TRNS);
+                buffer.write(0);
+                buffer.endChunk(dataOutput);
+            }
+            buffer.writeInt(acTL);
+            buffer.writeInt(frames.size);
+            buffer.writeInt(0);
+            buffer.endChunk(dataOutput);
+
+//            byte[] lineOut, curLine, prevLine;
+            byte[] curLine;
+
+            final float populationBias = palette.populationBias;
+            final float str = Math.min(120f * ((float) Math.sqrt(ditherStrength) * (1f / (populationBias * populationBias * populationBias) - 0.85f)), 127f);
+
+            int seq = 0;
+            for (int i = 0; i < frames.size; i++) {
+
+                buffer.writeInt(fcTL);
+                buffer.writeInt(seq++);
+                buffer.writeInt(width);
+                buffer.writeInt(height);
+                buffer.writeInt(0);
+                buffer.writeInt(0);
+                buffer.writeShort(1);
+                buffer.writeShort(fps);
+                buffer.writeByte(0);
+                buffer.writeByte(0);
+                buffer.endChunk(dataOutput);
+
+                if (i == 0) {
+                    buffer.writeInt(IDAT);
+                } else {
+                    pixmap = frames.get(i);
+                    buffer.writeInt(fdAT);
+                    buffer.writeInt(seq++);
+                }
+                deflater.reset();
+
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
+
+                for (int y = 0; y < height; y++) {
+                    int py = flipY ? (height - y - 1) : y;
+                    for (int px = 0; px < width; px++) {
+                        int color = pixmap.getPixel(px, py);
+                        if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                            curLine[px] = 0;
+                        else {
+                            // We get a sub-random value from 0-1 using the R2 sequence.
+                            // Offsetting this value by different values and feeding into triangleWave()
+                            // gives 3 different values for r, g, and b, without much bias toward high or low values.
+                            // There is correlation between r, g, and b in certain patterns.
+                            final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
+                            int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
+                            int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
+                            int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                            curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
+                                    | ((gg << 2) & 0x3E0)
+                                    | ((bb >>> 3))];
+                        }
+                    }
+//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
+//
+//                    //Paeth
+//                    for (int x = 1; x < width; x++) {
+//                        int a = curLine[x - 1] & 0xff;
+//                        int b = prevLine[x] & 0xff;
+//                        int c = prevLine[x - 1] & 0xff;
+//                        int p = a + b - c;
+//                        int pa = p - a;
+//                        if (pa < 0) pa = -pa;
+//                        int pb = p - b;
+//                        if (pb < 0) pb = -pb;
+//                        int pc = p - c;
+//                        if (pc < 0) pc = -pc;
+//                        if (pa <= pb && pa <= pc)
+//                            c = a;
+//                        else if (pb <= pc)
+//                            c = b;
+//                        lineOut[x] = (byte) (curLine[x] - c);
+//                    }
+//
+//                    deflaterOutput.write(FILTER_PAETH);
+//                    deflaterOutput.write(lineOut, 0, width);
+
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, width);
                 }
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
