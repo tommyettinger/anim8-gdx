@@ -2075,7 +2075,6 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-//                    final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1.9E3779B9p-23f);
                     // We get a sub-random value from 0-1 using interleaved gradient noise.
                     // Offsetting this value by different values and feeding into triangleWave()
                     // gives 3 different values for r, g, and b, without much bias toward high or low values.

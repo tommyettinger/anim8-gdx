@@ -3801,7 +3801,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             }
 
             final float populationBias = palette.populationBias;
-            final float str = Math.min(120f * ((float) Math.sqrt(ditherStrength) * (1f / (populationBias * populationBias * populationBias) - 0.85f)), 127f);
+            final float str = Math.min(120f * (ditherStrength * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -3809,11 +3809,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                     if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
-                        // We get a sub-random value from 0-1 using the R2 sequence.
+                        // We get a sub-random value from 0-1 using interleaved gradient noise.
                         // Offsetting this value by different values and feeding into triangleWave()
                         // gives 3 different values for r, g, and b, without much bias toward high or low values.
                         // There is correlation between r, g, and b in certain patterns.
-                        final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
+                        final float theta = ((px * 142 + y * 79 & 255) * 0x1p-8f);
                         int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
                         int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
                         int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
@@ -7680,7 +7680,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine;
 
             final float populationBias = palette.populationBias;
-            final float str = Math.min(120f * ((float) Math.sqrt(ditherStrength) * (1f / (populationBias * populationBias * populationBias) - 0.85f)), 127f);
+            final float str = Math.min(120f * (ditherStrength * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -7719,11 +7719,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
-                            // We get a sub-random value from 0-1 using the R2 sequence.
+                            // We get a sub-random value from 0-1 using interleaved gradient noise.
                             // Offsetting this value by different values and feeding into triangleWave()
                             // gives 3 different values for r, g, and b, without much bias toward high or low values.
                             // There is correlation between r, g, and b in certain patterns.
-                            final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
+                            final float theta = ((px * 142 + y * 79 & 255) * 0x1p-8f);
                             int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
                             int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
                             int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;

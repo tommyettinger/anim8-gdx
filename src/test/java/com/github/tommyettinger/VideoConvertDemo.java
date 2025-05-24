@@ -29,8 +29,8 @@ import com.github.tommyettinger.anim8.*;
 // Just checking Analyzed, Aurora, and DB8 on PNG8 only: 122927 ms.
 // on October 1, 2023, running this took     748577 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class VideoConvertDemo extends ApplicationAdapter {
-    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.MARTEN};
-//        private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+//    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.MARTEN};
+        private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
     private boolean fastAnalysis = true;
     @Override
     public void create() {
