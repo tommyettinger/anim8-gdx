@@ -72,7 +72,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.13.1 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.5.2"
+  api "com.github.tommyettinger:anim8-gdx:0.5.3"
 }
 ```
 
@@ -91,7 +91,7 @@ will. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml`, is:
 If you do use this on GWT, the GWT build.gradle file also needs a dependency on anim8-gdx's sources:
 
 ```groovy
-  implementation "com.github.tommyettinger:anim8-gdx:0.5.2:sources"
+  implementation "com.github.tommyettinger:anim8-gdx:0.5.3:sources"
 ```
 
 # Dithering Algorithms
@@ -257,12 +257,20 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - This still may have some grid artifacts visible even with large palettes, but pixel art tends to make them less noticeable.
     - Gradients actually are handled pretty well here, as are animations.
     - This is also an ordered dither.
+  - MARTEN
+    - This is based on ROBERTS but instead of the R2 sequence to introduce noise, it uses interleaved gradient noise,
+      the same as what GRADIENT_NOISE uses.
+    - Unlike either of those, this introduces less error in larger palettes, making it a better fit for 255-color
+      palettes and ones produced by analysis of any kind. 
+    - This is an ordered dither, and should look good with animations.
+    - The introduced error stays pretty soft, hence the name (a marten is a type of fluffy animal).
+    - This is also a bit of an homage to Dr. Martin Roberts, since this is similar to ROBERTS dither.
   - Most algorithms have artifacts that stay the same across frames, which can be distracting for some palettes and some
     input images.
     - PATTERN, LOAF, GOURD, and BANTER have obvious square grids.
     - BLUE_NOISE, SCATTER, NEUE, OVERBOARD, and BLUNT have varying forms of a spongy blue noise texture. OVERBOARD shows this less.
     - DIFFUSION may have parallel vertical bars, and BURKES may have 45-degree lines appear.
-    - GRADIENT_NOISE has a network of diagonal lines.
+    - GRADIENT_NOISE and MARTEN have networks of diagonal lines.
     - ROBERTS, WOVEN, and WREN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also
       sometimes look like scales, bubbles, or braids. WREN shows this artifact less noticeably than the others.
     - DIFFUSION and BURKES tend to have their error corrections jump around between frames, which looks jarring.
@@ -445,6 +453,10 @@ Scatter:
 Roberts:
 
 ![](samples/Mona_Lisa-PNG8-Roberts-Prospecal.png)
+
+Marten:
+
+![](samples/Mona_Lisa-PNG8-Marten-Prospecal.png)
 
 Loaf:
 
