@@ -236,10 +236,23 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
 
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8", "prospecal", "snuggly"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, QualityPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}, QualityPalette.SNUGGLY};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
-        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader, shader, shader};
+        String[] nms = {
+                "blanket", "bold", "ocean", "flashy", "pastel", "green",
+                "bw", "gb", "aurora", "db8", "prospecal", "snuggly",
+                "ocean-reductive", "ocean-hue", "ocean-analyzed", "ocean-snuggly"};
+        int[][] pals = {
+                null, null, null, null, null, null,
+                {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, QualityPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}, QualityPalette.SNUGGLY,
+                {}, {1}, {2}, QualityPalette.SNUGGLY};
+        long[] sds = {
+                0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L,
+                0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L,
+                0x1234567890L, 0x1234567890L, 0x1234567890L, 0x1234567890L};
+        ShaderProgram[] shs = {
+                shader2, shader2, shader2, shader, shader, shader,
+                shader, shader, shader, shader, shader, shader,
+                shader2, shader2, shader2, shader2
+        };
 
 //        String[] nms = {"pastel", "green", "bw", "gb", "aurora"};
 //        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA};
