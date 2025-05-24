@@ -43,6 +43,9 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
     private float seed;
     private int width, height;
     private String name;
+    private static final Dithered.DitherAlgorithm[] DITHERS =
+            //Dithered.DitherAlgorithm.ALL;
+            {Dithered.DitherAlgorithm.MARTEN};
 
     @Override
     public void create() {
@@ -358,7 +361,7 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
             } else {
                 png8.palette.exact(palettes[n]);
             }
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 png8.setDitherAlgorithm(d);
                 png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-" + d + "-Q.png"), pixmaps, 16);
             }
@@ -415,7 +418,7 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
                 gif.palette = pal;
                 prefix = "images/gif/animated/AnimatedGif-";
             }
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + name + "-" + d + "-Q.gif"), pixmaps, 16);
             }
