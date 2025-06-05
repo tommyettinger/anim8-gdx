@@ -23,7 +23,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 
 import java.util.Arrays;
@@ -5886,7 +5885,7 @@ public class PaletteReducer {
             int s = shrink(palette[idx]);
             float L = OKLAB[0][s];
             float A = OKLAB[1][s] * aMul;
-            float B = OKLAB[2][s] + MathUtils.asin(L - 0.6f) * bMul * (1f - A * A);
+            float B = OKLAB[2][s] + OtherMath.asin(L - 0.6f) * bMul * (1f - A * A);
             palette[idx] = oklabToRGB(L, A, B, (palette[idx] & 0xFE) / 254f);
         }
         return this;

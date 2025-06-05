@@ -290,6 +290,20 @@ public final class OtherMath {
         else if(y < 0) return x - 1.5707963267948966f;
         else return x + y; // returns 0 for 0,0 or NaN if either y or x is NaN
     }
+    /**
+     * Returns arcsine in radians; less accurate than Math.asin but may be faster. Average error of 0.000028447 radians (0.0016298931
+     * degrees), largest error of 0.000067592 radians (0.0038727364 degrees). This implementation does not return NaN if given an
+     * out-of-range input (Math.asin does return NaN), unless the input is NaN.
+     *
+     * @param a asin is defined only when {@code a} is between -1f and 1f, inclusive
+     * @return between {@code -0.5 * PI} and {@code 0.5 * PI} when {@code a} is in the defined range
+     */
+    public static float asin(final float a) {
+        if (a >= 0f) {
+            return (float) ((Math.PI * 0.5) - Math.sqrt(1.0 - a) * (1.5707288 + a * (-0.2121144 + a * (0.0742610 + a * -0.0187293))));
+        }
+        return (float) (Math.sqrt(1.0 + a) * (1.5707288 + a * (0.2121144 + a * (0.0742610 + a * 0.0187293))) - (Math.PI * 0.5));
+    }
 
     /**
      * A generalization on bias and gain functions that can represent both; this version is branch-less.

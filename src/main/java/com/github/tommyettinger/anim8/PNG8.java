@@ -7907,6 +7907,55 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
     /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
+     * palette by changing each used color so lighter colors lean towards warmer, more golden hues,
+     * while darker colors lean toward cooler or more bluish hues. Extremely red or green colors are intensified
+     * slightly to contrast them with the light and dark colors' changes.
+     * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
+     * @param output FileHandle that should be writable and empty
+     */
+    public static void hueShift(FileHandle input, FileHandle output) {
+        hueShift(input, output, 1f);
+    }
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
+     * palette by changing each used color so lighter colors lean towards warmer, more golden hues,
+     * while darker colors lean toward cooler or more bluish hues. Extremely red or green colors are intensified
+     * slightly to contrast them with the light and dark colors' changes.
+     * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
+     * @param output FileHandle that should be writable and empty
+     * @param strengthMultiplier typically 1.0f or near it; higher values make the effect stronger
+     */
+    public static void hueShift(FileHandle input, FileHandle output, float strengthMultiplier) {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if (pal == null) {
+                output.write(inputStream, false);
+                return;
+            }
+            float aMul = 1.1f * strengthMultiplier, bMul = 0.125f * strengthMultiplier;
+            for (int p = 0; p < pal.length - 2; ) {
+                int rgb = (pal[p] & 255) << 24 | (pal[p + 1] & 255) << 16 | (pal[p + 2] & 255) << 8 | 255;
+
+                int s = shrink(rgb);
+                float L = OKLAB[0][s];
+                float A = OKLAB[1][s] * aMul;
+                float B = OKLAB[2][s] + OtherMath.asin(L - 0.6f) * bMul * (1f - A * A);
+                rgb = oklabToRGB(L, A, B, 1f);
+                pal[p] = (byte) (rgb >>> 24);
+                pal[p + 1] = (byte) (rgb >>> 16);
+                pal[p + 2] = (byte) (rgb >>> 8);
+                p += 3;
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits the red,
      * green, and blue channels of each color in its palette (which is all colors in the image) by running each channel
      * through a function ({@link OtherMath#centralize(byte)}) that biases any channel values
@@ -7917,22 +7966,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      */
     public static void centralizePalette(FileHandle input, FileHandle output)
     {
-        try {
-            InputStream inputStream = input.read();
-            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
-            byte[] pal = chunks.get("PLTE");
-            if(pal == null)
-            {
-                output.write(inputStream, false);
-                return;
-            }
-            for (int p = 0; p < pal.length; p++) {
-                pal[p] = OtherMath.centralize(pal[p]);
-            }
-            writeChunks(output.write(false), chunks);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        centralizePalette(input, output, 1f);
     }
 
     /**
