@@ -23,6 +23,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
 
 import java.util.Arrays;
@@ -5863,21 +5864,31 @@ public class PaletteReducer {
     }
 
     /**
-     * Edits this PaletteReducer by changing each used color so lighter colors lean towards warmer hues, while darker
-     * colors lean toward cooler or more purple-ish hues.
+     * Edits this PaletteReducer by changing each used color so lighter colors lean towards warmer, more golden hues,
+     * while darker colors lean toward cooler or more bluish hues. Extremely red or green colors are intensified
+     * slightly to contrast them with the light and dark colors' changes.
      * @return this PaletteReducer, for chaining
      */
     public PaletteReducer hueShift() {
+        return hueShift(1f);
+    }
+    /**
+     * Edits this PaletteReducer by changing each used color so lighter colors lean towards warmer, more golden hues,
+     * while darker colors lean toward cooler or more bluish hues. Extremely red or green colors are intensified
+     * slightly to contrast them with the light and dark colors' changes.
+     * @param strengthMultiplier typically 1.0f or near it; higher values make the effect stronger
+     * @return this PaletteReducer, for chaining
+     */
+    public PaletteReducer hueShift(float strengthMultiplier) {
         int[] palette = paletteArray;
+        float aMul = 1.1f * strengthMultiplier, bMul = 0.125f * strengthMultiplier;
         for (int idx = 0; idx < colorCount; idx++) {
             int s = shrink(palette[idx]);
             float L = OKLAB[0][s];
-            float A = OKLAB[1][s] + (L - 0.5f) * 0.04f;
-            float B = OKLAB[2][s] + (L - 0.5f) * 0.08f;
+            float A = OKLAB[1][s] * aMul;
+            float B = OKLAB[2][s] + MathUtils.asin(L - 0.6f) * bMul * (1f - A * A);
             palette[idx] = oklabToRGB(L, A, B, (palette[idx] & 0xFE) / 254f);
         }
         return this;
     }
-
-
 }
