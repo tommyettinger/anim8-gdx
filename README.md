@@ -72,7 +72,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.9.11 or higher
   // libGDX 1.13.1 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.5.3"
+  api "com.github.tommyettinger:anim8-gdx:0.5.4"
 }
 ```
 
@@ -91,14 +91,14 @@ will. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml`, is:
 If you do use this on GWT, the GWT build.gradle file also needs a dependency on anim8-gdx's sources:
 
 ```groovy
-  implementation "com.github.tommyettinger:anim8-gdx:0.5.3:sources"
+  implementation "com.github.tommyettinger:anim8-gdx:0.5.4:sources"
 ```
 
 # Dithering Algorithms
 You have a choice between several dithering algorithms if you write to GIF or PNG8; you can also avoid choosing one
 entirely by using AnimatedPNG (it uses full color) or libGDX's PixmapIO.PNG (which isn't animated and has a
-slightly different API). You could also use FastPNG, which is like PixmapIO's code but tends to write larger files, do
-so more quickly, and avoid losing any color information.
+slightly different API). You could also use FastPNG, which is like PixmapIO's code but tends to write larger files, does
+so more quickly, and avoids losing any color information.
 
 All dithering algorithms except NONE, CHAOTIC_NOISE, and PATTERN changed appearance significantly in version 0.5.0
 because that version includes at least an attempt at gamma-correcting the images, and earlier versions did not. That
