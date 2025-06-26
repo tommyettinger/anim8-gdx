@@ -2068,7 +2068,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         boolean hasTransparent = paletteArray[0] == 0;
 
         final float populationBias = palette.populationBias;
-        final float str = Math.min(120f * (ditherStrength * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
+        final float str = Math.min(1100f * (ditherStrength / (float) Math.sqrt(palette.colorCount) * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 int color = image.getPixel(px, flipped + flipDir * y);

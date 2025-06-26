@@ -5631,7 +5631,7 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        final float str = Math.min(120f * (ditherStrength * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
+        final float str = Math.min(1100f * (ditherStrength / (float) Math.sqrt(colorCount) * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 int color = pixmap.getPixel(px, y);
