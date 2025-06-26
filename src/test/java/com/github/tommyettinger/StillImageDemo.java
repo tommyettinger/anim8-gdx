@@ -24,7 +24,7 @@ import com.github.tommyettinger.anim8.*;
 public class StillImageDemo extends ApplicationAdapter {
 	private long total = 0;
 	public Dithered.DitherAlgorithm[] ALGORITHMS =
-//			new Dithered.DitherAlgorithm[]{
+			new Dithered.DitherAlgorithm[]{
 //
 //					Dithered.DitherAlgorithm.BLUE_NOISE,
 //					Dithered.DitherAlgorithm.BLUNT,
@@ -33,7 +33,7 @@ public class StillImageDemo extends ApplicationAdapter {
 //					Dithered.DitherAlgorithm.GOURD,
 //					Dithered.DitherAlgorithm.GRADIENT_NOISE,
 //					Dithered.DitherAlgorithm.ROBERTS,
-//					Dithered.DitherAlgorithm.MARTEN,
+					Dithered.DitherAlgorithm.MARTEN,
 //
 //					Dithered.DitherAlgorithm.DIFFUSION,
 //					Dithered.DitherAlgorithm.WREN,
@@ -45,8 +45,8 @@ public class StillImageDemo extends ApplicationAdapter {
 //					Dithered.DitherAlgorithm.SCATTER,
 //					Dithered.DitherAlgorithm.NEUE,
 //					Dithered.DitherAlgorithm.DODGY,
-//			};
-			Dithered.DitherAlgorithm.ALL;
+			};
+//			Dithered.DitherAlgorithm.ALL;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);

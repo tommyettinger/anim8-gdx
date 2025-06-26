@@ -39,8 +39,8 @@ import static com.github.tommyettinger.anim8.Dithered.DitherAlgorithm.*;
 // on September 30, 2023, running just the PNG8                 code took 182646 ms. This omitted benchmarking analysis.
 // on October 1, 2023, running this took     726596 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class QualityVideoConvertDemo extends ApplicationAdapter {
-//    private static final Dithered.DitherAlgorithm[] DITHERS = {MARTEN};
-    private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+    private static final Dithered.DitherAlgorithm[] DITHERS = {MARTEN};
+//    private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
 //    private static final DitherAlgorithm[] DITHERS = {
 //        NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY, LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD
         //Took 218108 ms

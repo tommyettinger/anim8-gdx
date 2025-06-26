@@ -26,6 +26,8 @@ import com.github.tommyettinger.anim8.*;
  * Finished writing in 256073 ms.
  */
 public class FastShaderCaptureDemo extends ApplicationAdapter {
+    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.MARTEN};
+//        private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
 
     private SpriteBatch batch;
     private Texture pixel;
@@ -340,7 +342,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
             else {
                 png8.palette.exact(palettes[n]);
             }
-            for (Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+            for (Dithered.DitherAlgorithm d : DITHERS) {
                 png8.setDitherAlgorithm(d);
                 png8.write(Gdx.files.local("images/png/animated/PNG8-F-" + name + "-" + d + ".png"), pixmaps, 16);
             }
@@ -388,7 +390,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 gif.palette = pal;
                 prefix = "images/gif/animated/AnimatedGif-F-";
             }
-            for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+            for(Dithered.DitherAlgorithm d : DITHERS){
                 gif.setDitherAlgorithm(d);
                 gif.write(Gdx.files.local(prefix + name + "-" + d + ".gif"), pixmaps, 16);
             }

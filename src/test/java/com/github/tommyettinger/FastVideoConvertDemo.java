@@ -25,8 +25,8 @@ import com.github.tommyettinger.anim8.*;
 
 // on October 1, 2023, running this took     724021 ms. (This didn't write PNG or APNG files, and doesn't over-analyze.)
 public class FastVideoConvertDemo extends ApplicationAdapter {
-    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.GOURD};
-    //    private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.MARTEN};
+//        private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
     private boolean fastAnalysis = true;
     @Override
     public void create() {

@@ -20,6 +20,9 @@ import com.github.tommyettinger.anim8.FastPalette;
  * Analyzed all 48 images in 36415 ms
  */
 public class FastStillImageDemo extends ApplicationAdapter {
+	private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.MARTEN};
+	//        private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+
 	private long total = 0;
     @Override
     public void create() {
@@ -67,7 +70,7 @@ public class FastStillImageDemo extends ApplicationAdapter {
 				reducer.analyze(pixmap, 100, count + 1);
 
 				png8.setPalette(reducer);
-				for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+				for(Dithered.DitherAlgorithm d : DITHERS){
 					png8.setDitherAlgorithm(d);
 					png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-" + type + count + ".png"), pixmap, false, true);
 				}
@@ -76,37 +79,37 @@ public class FastStillImageDemo extends ApplicationAdapter {
 		}
 		reducer.exact(new int[]{0, 255, -1});
 		png8.setPalette(reducer);
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+		for(Dithered.DitherAlgorithm d : DITHERS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-BW.png"), pixmap, false, true);
 		}
 
 		reducer.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+		for(Dithered.DitherAlgorithm d : DITHERS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-GB.png"), pixmap, false, true);
 		}
 
 		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+		for(Dithered.DitherAlgorithm d : DITHERS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-DB8.png"), pixmap, false, true);
 		}
 
 		reducer.exact(new int[]{0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF});
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+		for(Dithered.DitherAlgorithm d : DITHERS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-Prospecal.png"), pixmap, false, true);
 		}
 
 		reducer.exact(FastPalette.AURORA);
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+		for(Dithered.DitherAlgorithm d : DITHERS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-Aurora.png"), pixmap, false, true);
 		}
 
 		reducer.setDefaultPalette();
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL){
+		for(Dithered.DitherAlgorithm d : DITHERS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-F-" + d + "-Default.png"), pixmap, false, true);
 		}
@@ -135,7 +138,7 @@ public class FastStillImageDemo extends ApplicationAdapter {
 				reducer.analyze(pixmaps, 300, count + 1);
 
 				gif.setPalette(reducer);
-				for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+				for(Dithered.DitherAlgorithm d : DITHERS) {
 					gif.setDitherAlgorithm(d);
 					gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-" + type + count + ".gif"), pixmaps, 1);
 				}
@@ -144,37 +147,37 @@ public class FastStillImageDemo extends ApplicationAdapter {
 		}
 		reducer.exact(new int[]{0, 255, -1});
 		gif.setPalette(reducer);
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+		for(Dithered.DitherAlgorithm d : DITHERS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-BW.gif"), pixmaps, 1);
 		}
 
 		reducer.exact(new int[]{0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF});
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+		for(Dithered.DitherAlgorithm d : DITHERS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-GB.gif"), pixmaps, 1);
 		}
 
 		reducer.exact(new int[]{0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF});
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+		for(Dithered.DitherAlgorithm d : DITHERS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-DB8.gif"), pixmaps, 1);
 		}
 
 		reducer.exact(new int[]{0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF});
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+		for(Dithered.DitherAlgorithm d : DITHERS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-Prospecal.gif"), pixmaps, 1);
 		}
 
 		reducer.exact(FastPalette.AURORA);
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+		for(Dithered.DitherAlgorithm d : DITHERS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-Aurora.gif"), pixmaps, 1);
 		}
 
 		reducer.setDefaultPalette();
-		for(Dithered.DitherAlgorithm d : Dithered.DitherAlgorithm.ALL) {
+		for(Dithered.DitherAlgorithm d : DITHERS) {
 			gif.setDitherAlgorithm(d);
 			gif.write(Gdx.files.local("images/gif/" + name + "-Gif-F-" + d + "-Default.gif"), pixmaps, 1);
 		}

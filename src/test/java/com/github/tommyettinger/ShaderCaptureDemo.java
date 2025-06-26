@@ -38,8 +38,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
     private String name;
 
     private static final Dithered.DitherAlgorithm[] DITHERS =
-            Dithered.DitherAlgorithm.ALL;
-//            {Dithered.DitherAlgorithm.MARTEN};
+//            Dithered.DitherAlgorithm.ALL;
+            {Dithered.DitherAlgorithm.MARTEN};
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);

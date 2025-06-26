@@ -44,8 +44,8 @@ public class QualityShaderCaptureDemo extends ApplicationAdapter {
     private int width, height;
     private String name;
     private static final Dithered.DitherAlgorithm[] DITHERS =
-            Dithered.DitherAlgorithm.ALL;
-//            {Dithered.DitherAlgorithm.MARTEN};
+//            Dithered.DitherAlgorithm.ALL;
+            {Dithered.DitherAlgorithm.MARTEN};
 
     @Override
     public void create() {
