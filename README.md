@@ -20,9 +20,6 @@ public void writeGif() {
 // this assumes you're calling this from a class that uses render() to draw to the screen.
         render();
 // this gets a screenshot of the current window and adds it to the Array of Pixmap.
-// there are two ways to do this; this way works in older libGDX versions, but it is deprecated in current libGDX: 
-//        pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
-// the newer way is only available in more-recent libGDX (I know 1.10.0 through 1.12.0 have it); it is not deprecated:
         pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
     }
 // AnimatedGif is from anim8; if no extra settings are specified it will calculate a 255-color palette from

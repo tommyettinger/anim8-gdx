@@ -273,8 +273,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-        Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+        ScreenUtils.clear(0f, 0f, 0f, 0f);
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && UIUtils.alt()) {
             if (Gdx.graphics.isFullscreen())
                 Gdx.graphics.setWindowedMode(480, 320);
@@ -302,8 +301,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
             Array<Pixmap> pixmaps = new Array<>(80);
             for (int i = 1; i <= 80; i++) {
-                Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-                Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+                ScreenUtils.clear(0f, 0f, 0f, 0f);
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
@@ -332,8 +330,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
             Array<Pixmap> pixmaps = new Array<>(80);
             for (int i = 1; i <= 80; i++) {
-                Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-                Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+                ScreenUtils.clear(0f, 0f, 0f, 0f);
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
@@ -372,8 +369,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
             Array<Pixmap> pixmaps = new Array<>(80);
             for (int i = 1; i <= 80; i++) {
-                Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-                Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+                ScreenUtils.clear(0f, 0f, 0f, 0f);
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
