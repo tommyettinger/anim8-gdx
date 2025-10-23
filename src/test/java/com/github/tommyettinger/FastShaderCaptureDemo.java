@@ -303,7 +303,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, height, width, -height);
                 batch.end();
-                pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+                pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             apng.write(Gdx.files.local("images/apng/animated/AnimatedPNG-" + name + "-full.png"), pixmaps, 16);
             int index = 1;
@@ -333,7 +333,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, height, width, -height);
                 batch.end();
-                pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+                pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             if (palettes[n] == null)
             {
@@ -375,7 +375,7 @@ public class FastShaderCaptureDemo extends ApplicationAdapter {
                 shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, height, width, -height);
                 batch.end();
-                pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+                pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             String prefix;
             if (palettes[n] == null) {

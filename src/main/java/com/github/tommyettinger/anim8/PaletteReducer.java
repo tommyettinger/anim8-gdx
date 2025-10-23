@@ -2745,7 +2745,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      */
     public void analyze(Array<Pixmap> pixmaps){
-        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, 100, 256);
+        analyze(pixmaps.toArray(Pixmap[]::new), pixmaps.size, 100, 256);
     }
 
     /**
@@ -2767,7 +2767,7 @@ public class PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 200, 100 is a good default
      */
     public void analyze(Array<Pixmap> pixmaps, double threshold){
-        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
+        analyze(pixmaps.toArray(Pixmap[]::new), pixmaps.size, threshold, 256);
     }
 
     /**
@@ -2790,7 +2790,7 @@ public class PaletteReducer {
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyze(Array<Pixmap> pixmaps, double threshold, int limit){
-        analyze(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
+        analyze(pixmaps.toArray(Pixmap[]::new), pixmaps.size, threshold, limit);
     }
     /**
      * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
@@ -2918,7 +2918,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      */
     public void analyzeHueWise(Array<Pixmap> pixmaps){
-        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, 100, 256);
+        analyzeHueWise(pixmaps.toArray(Pixmap[]::new), pixmaps.size, 100, 256);
     }
 
     /**
@@ -2940,7 +2940,7 @@ public class PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #differenceHW(int, int)}; usually between 50 and 200, 100 is a good default
      */
     public void analyzeHueWise(Array<Pixmap> pixmaps, double threshold){
-        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
+        analyzeHueWise(pixmaps.toArray(Pixmap[]::new), pixmaps.size, threshold, 256);
     }
     /**
      * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
@@ -2962,7 +2962,7 @@ public class PaletteReducer {
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeHueWise(Array<Pixmap> pixmaps, double threshold, int limit){
-        analyzeHueWise(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
+        analyzeHueWise(pixmaps.toArray(Pixmap[]::new), pixmaps.size, threshold, limit);
     }
     /**
      * Analyzes all of the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),
@@ -3136,7 +3136,7 @@ public class PaletteReducer {
      * @param pixmaps   a Pixmap Array to analyze, making a palette which can be used by this to {@link #reduce(Pixmap)}, by AnimatedGif, or by PNG8
      */
     public void analyzeReductive(Array<Pixmap> pixmaps){
-        analyzeReductive(pixmaps.toArray(Pixmap.class), pixmaps.size, 100, 256);
+        analyzeReductive(pixmaps.toArray(Pixmap[]::new), pixmaps.size, 100, 256);
     }
 
     /**
@@ -3162,7 +3162,7 @@ public class PaletteReducer {
      * @param threshold a minimum color difference as produced by {@link #differenceAnalyzing(int, int)}; usually between 50 and 200, 100 is a good default
      */
     public void analyzeReductive(Array<Pixmap> pixmaps, double threshold){
-        analyzeReductive(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, 256);
+        analyzeReductive(pixmaps.toArray(Pixmap[]::new), pixmaps.size, threshold, 256);
     }
 
     /**
@@ -3189,7 +3189,7 @@ public class PaletteReducer {
      * @param limit     the maximum number of colors to allow in the resulting palette; typically no more than 256
      */
     public void analyzeReductive(Array<Pixmap> pixmaps, double threshold, int limit){
-        analyzeReductive(pixmaps.toArray(Pixmap.class), pixmaps.size, threshold, limit);
+        analyzeReductive(pixmaps.toArray(Pixmap[]::new), pixmaps.size, threshold, limit);
     }
     /**
      * Analyzes all the Pixmap items in {@code pixmaps} for color count and frequency (as if they are one image),

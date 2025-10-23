@@ -138,7 +138,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     public void renderVideoGif(String[] names, PaletteReducer[] palettes) {
         System.out.println("Rendering video GIF");
         String name = "market";
-        Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap[]::new);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }
@@ -164,7 +164,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     public void renderPixelGif(String[] names, PaletteReducer[] palettes) {
         System.out.println("Rendering tyrant GIF");
         String name = "tyrant";
-        Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 64, Pixmap[]::new);
         for (int i = 0; i < 64; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
@@ -187,7 +187,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     public void renderTankGif(String[] names, PaletteReducer[] palettes) {
         System.out.println("Rendering pixel tank GIF");
         String name = "tank";
-        Array<Pixmap> pixmaps = new Array<>(true, 16, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 16, Pixmap[]::new);
         for (int i = 0; i < 16; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
@@ -210,7 +210,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     public void renderWorldGif(String[] names, PaletteReducer[] palettes) {
         System.out.println("Rendering world GIF");
         String name = "world";
-        Array<Pixmap> pixmaps = new Array<>(true, 180, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 180, Pixmap[]::new);
         for (int i = 0; i < 180; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
@@ -233,7 +233,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     public void renderOklabGif(String[] names, PaletteReducer[] palettes) {
         System.out.println("Rendering Oklab GIF");
         String name = "oklab";
-        Array<Pixmap> pixmaps = new Array<>(true, 120, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 120, Pixmap[]::new);
         for (int i = 0; i < 120; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
         }
@@ -257,7 +257,7 @@ public class VideoConvertDemo extends ApplicationAdapter {
     public void renderSolidsGif(String[] names, PaletteReducer[] palettes) {
         System.out.println("Rendering solids GIF");
         String name = "solids";
-        Array<Pixmap> pixmaps = new Array<>(true, 256, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 256, Pixmap[]::new);
         for (int i = 0; i < 256; i++) {
 //        for(int i : new int[]{0, 63, 64, 65, 127, 128, 129, 190, 191, 192, 255}) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".png")));
