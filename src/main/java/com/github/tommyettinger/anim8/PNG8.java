@@ -3579,8 +3579,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth();
             final int h = pixmap.getHeight();
             final float populationBias = palette.populationBias;
-            final float s = (0.13f * ditherStrength / (populationBias * populationBias)),
-                    strength = s * 0.58f / (0.3f + s);
+            final float s = 0.15f * populationBias * ditherStrength,
+                    strength = s * 0.6f / (0.35f + s);
             float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
             if (palette.curErrorRedFloats == null) {
                 curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
@@ -3692,13 +3692,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                 curErrorRed[px+2]   += r2 * noiseA[modifier];
                                 curErrorGreen[px+2] += g2 * noiseB[modifier];
                                 curErrorBlue[px+2]  += b2 * noiseC[modifier];
-                            }
-                            if(px < w - 3)
-                            {
-                                modifier = ((px + 3 & 63) | ((py << 6) & 0xFC0));
-                                curErrorRed[px+2]   += r1 * noiseA[modifier];
-                                curErrorGreen[px+2] += g1 * noiseB[modifier];
-                                curErrorBlue[px+2]  += b1 * noiseC[modifier];
                             }
                         }
                         if(ny < h)
@@ -7427,8 +7420,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int h = pixmap.getHeight();
             final int flipDir = flipY ? -1 : 1;
             final float populationBias = palette.populationBias;
-            final float s = (0.13f * ditherStrength / (populationBias * populationBias)),
-                    strength = s * 0.58f / (0.3f + s);
+            final float s = 0.15f * populationBias * ditherStrength,
+                    strength = s * 0.6f / (0.35f + s);
             float[] curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue;
             if (palette.curErrorRedFloats == null) {
                 curErrorRed = (palette.curErrorRedFloats = new FloatArray(w)).items;
@@ -7569,13 +7562,6 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                                     curErrorRed[px+2]   += r2 * noiseA[modifier];
                                     curErrorGreen[px+2] += g2 * noiseB[modifier];
                                     curErrorBlue[px+2]  += b2 * noiseC[modifier];
-                                }
-                                if(px < w - 3)
-                                {
-                                    modifier = ((px + 3 & 63) | ((py << 6) & 0xFC0));
-                                    curErrorRed[px+2]   += r1 * noiseA[modifier];
-                                    curErrorGreen[px+2] += g1 * noiseB[modifier];
-                                    curErrorBlue[px+2]  += b1 * noiseC[modifier];
                                 }
                             }
                             if(ny < h)

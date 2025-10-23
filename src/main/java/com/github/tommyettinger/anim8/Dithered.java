@@ -284,7 +284,9 @@ public interface Dithered {
          * pixel more red, a neighbor more green, another nearby more blue, etc. This is the same technique used by
          * {@link #DODGY} to improve upon {@link #NEUE}, and various other newer dithering algorithms here also use it.
          * That technique does, however, make lightness not change as reliably as with {@link #OCEANIC}, which adds the
-         * same amount of change to all RGB channels at once (making them all approach black or white).
+         * same amount of change to all RGB channels at once (making them all approach black or white). Dither strength
+         * is also handled differently in SEASIDE from OCEANIC, with an approach meant to apply slightly more dither
+         * strength (relative to other dither algorithms, but not absolutely) to smaller palettes.
          */
         SEASIDE("Seaside"),
         /**
