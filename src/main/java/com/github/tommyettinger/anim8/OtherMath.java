@@ -21,8 +21,6 @@ package com.github.tommyettinger.anim8;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.NumberUtils;
 
-import java.util.Random;
-
 /**
  * Various math functions that don't fit anywhere else, mostly relating to the shape of a distribution.
  * These include the parameterizable 0-1 curve produced by {@link #barronSpline(float, float, float)}, the

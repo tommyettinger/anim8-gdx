@@ -251,7 +251,7 @@ public class QualityPalette extends PaletteReducer {
      * <br>
      * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube. This does absolutely
      * nothing fancy with the colors, but this approach does well often. The same code is used by
-     * {@link #differenceMatch(int, int, int, int, int, int)},
+     * differenceMatch(int, int, int, int, int, int),
      * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
      * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
      * QualityPalette to change one, some, or all of these methods. The other difference methods call the 6-argument
@@ -277,7 +277,7 @@ public class QualityPalette extends PaletteReducer {
      * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube. This does absolutely
      * nothing fancy with the colors, but this approach does well often. The same code is used by
      * {@link #differenceMatch(int, int, int, int, int, int)},
-     * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
+     * differenceAnalyzing(int, int, int, int, int, int), and
      * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
      * QualityPalette to change one, some, or all of these methods. The other difference methods call the 6-argument
      * overloads, so the override only needs to affect one method.
@@ -303,7 +303,7 @@ public class QualityPalette extends PaletteReducer {
      * nothing fancy with the colors, but this approach does well often. The same code is used by
      * {@link #differenceMatch(int, int, int, int, int, int)},
      * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
-     * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
+     * differenceHW(int, int, int, int, int, int), but classes can (potentially anonymously) subclass
      * QualityPalette to change one, some, or all of these methods. The other difference methods call the 6-argument
      * overloads, so the override only needs to affect one method.
      *
