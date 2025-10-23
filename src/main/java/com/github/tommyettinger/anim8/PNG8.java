@@ -1649,13 +1649,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         used = paletteArray[paletteIndex & 0xFF];
                         adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                         adj *= adj * adj;
-                        //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
-                        //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
-                        ////   different as long as the colors encountered so far were different. The numbers can
-                        ////   each be positive or negative, and are reduced to a manageable size, summed, and
-                        ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
-                        ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
-                        ////   Two of the random numbers use an XLCG, and the last uses an LCG.
+                        // Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
+                        // The next 3 lines generate 3 low-quality-random numbers based on s, which should be
+                        //   different as long as the colors encountered so far were different. The numbers can
+                        //   each be positive or negative, and are reduced to a manageable size, summed, and
+                        //   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
+                        //   distribution, centered on about 0.0 and weighted so most results are close to 0.
+                        //   Two of the random numbers use an XLCG, and the last uses an LCG.
                         adj += ((px + y & 1) - 0.5f) * 0x1.8p-49 * strength *
                                 (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
                                         ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
@@ -5145,13 +5145,13 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             used = paletteArray[paletteIndex & 0xFF];
                             adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                             adj *= adj * adj;
-                            //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
-                            //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
-                            ////   different as long as the colors encountered so far were different. The numbers can
-                            ////   each be positive or negative, and are reduced to a manageable size, summed, and
-                            ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
-                            ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
-                            ////   Two of the random numbers use an XLCG, and the last uses an LCG.
+                            // Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
+                            // The next 3 lines generate 3 low-quality-random numbers based on s, which should be
+                            //   different as long as the colors encountered so far were different. The numbers can
+                            //   each be positive or negative, and are reduced to a manageable size, summed, and
+                            //   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
+                            //   distribution, centered on about 0.0 and weighted so most results are close to 0.
+                            //   Two of the random numbers use an XLCG, and the last uses an LCG.
                             adj += ((px + y & 1) - 0.5f) * 0x1.8p-49 * strength *
                                     (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
                                             ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +

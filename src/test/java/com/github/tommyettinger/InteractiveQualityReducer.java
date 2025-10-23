@@ -64,7 +64,7 @@ public class InteractiveQualityReducer extends ApplicationAdapter {
 
     public void load(String name) {
         if(p0 != null) p0.dispose();
-        //// loads a file by its full path, which we get via drag+drop
+        // loads a file by its full path, which we get via drag+drop
         if (Gdx.files.internal(name).exists())
             p0 = new Pixmap(Gdx.files.internal(name));
         else

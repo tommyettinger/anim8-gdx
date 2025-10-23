@@ -235,7 +235,7 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
                         curLine[x++] = (byte) ((pixel >>> 8) & 0xff);
                         curLine[x++] = (byte) (pixel & 0xff);
                     }
-////PAETH
+// //PAETH
 //                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
 //                    lineOut[1] = (byte) (curLine[1] - prevLine[1]);
 //                    lineOut[2] = (byte) (curLine[2] - prevLine[2]);
@@ -261,10 +261,10 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
 //
 //                    deflaterOutput.write(PAETH);
 //                    deflaterOutput.write(lineOut, 0, lineLen);
-////NONE
+// //NONE
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, lineLen);
-////SUB
+// //SUB
 //                    lineOut[0] = curLine[0];
 //                    lineOut[1] = curLine[1];
 //                    lineOut[2] = curLine[2];
@@ -275,9 +275,9 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
 //                    }
 //                    deflaterOutput.write(FILTER_SUB);
 //                    deflaterOutput.write(lineOut, 0, lineLen);
-//// End of filtering code
+// // End of filtering code
 //
-//// used by Paeth filtering
+// // used by Paeth filtering
 //                    byte[] temp = curLine;
 //                    curLine = prevLine;
 //                    prevLine = temp;

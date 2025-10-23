@@ -600,11 +600,11 @@ public class PaletteReducer {
 //            r = (turning * L) / (1e-20f + (L + shape * d));
 //        return r * r;
 //    }
-//
-////	public static float forwardLight(final float L) {
-////		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
-////	}
-//
+
+//	public static float forwardLight(final float L) {
+//		return (L - 1.004f) / (1f - L * 0.4285714f) + 1.004f;
+//	}
+
 //    /**
 //     * Changes the curve of the internally-used lightness when it is output to another format. This makes the very-dark
 //     * area smaller, matching (kind-of) the curve that the standard sRGB lightness uses. This is typically used on "from
@@ -623,10 +623,10 @@ public class PaletteReducer {
 //            r = (turning * L) / (1e-20f + (L + shape * d));
 //        return r;
 //    }
-//
-////	public static float reverseLight(final float L) {
-////		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
-////	}
+
+//	public static float reverseLight(final float L) {
+//		return (L - 0.993f) / (1f + L * 0.75f) + 0.993f;
+//	}
 
     /**
      * Stores Oklab components corresponding to RGB555 indices.
@@ -1292,7 +1292,7 @@ public class PaletteReducer {
      * <br>
      * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube. This does absolutely
      * nothing fancy with the colors, but this approach does well often. The same code is used by
-     * {@link #differenceMatch(int, int, int, int, int, int)},
+     * differenceMatch(int, int, int, int, int, int),
      * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
      * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
      * PaletteReducer to change one, some, or all of these methods. The other difference methods call the 6-argument
@@ -1329,7 +1329,7 @@ public class PaletteReducer {
      * This uses Euclidean distance between the RGB colors in the 256-edge-length color cube. This does absolutely
      * nothing fancy with the colors, but this approach does well often. The same code is used by
      * {@link #differenceMatch(int, int, int, int, int, int)},
-     * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
+     * differenceAnalyzing(int, int, int, int, int, int), and
      * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
      * PaletteReducer to change one, some, or all of these methods. The other difference methods call the 6-argument
      * overloads, so the override only needs to affect one method.
@@ -1371,7 +1371,7 @@ public class PaletteReducer {
      * nothing fancy with the colors, but this approach does well often. The same code is used by
      * {@link #differenceMatch(int, int, int, int, int, int)},
      * {@link #differenceAnalyzing(int, int, int, int, int, int)}, and
-     * {@link #differenceHW(int, int, int, int, int, int)}, but classes can (potentially anonymously) subclass
+     * differenceHW(int, int, int, int, int, int), but classes can (potentially anonymously) subclass
      * PaletteReducer to change one, some, or all of these methods. The other difference methods call the 6-argument
      * overloads, so the override only needs to affect one method.
      *
@@ -1615,8 +1615,8 @@ public class PaletteReducer {
         }
     };
 
-    /// Start of code primarily based on FastUtil.
-    /// See https://github.com/vigna/fastutil/blob/8.5.8/LICENSE-2.0 for
+    // Start of code primarily based on FastUtil.
+    // See https://github.com/vigna/fastutil/blob/8.5.8/LICENSE-2.0 for
     // the license of this block (Apache License 2.0).
 
     private static void swap (int[] items, int first, int second) {
@@ -1797,7 +1797,7 @@ public class PaletteReducer {
         inPlaceMerge(items, from, mid, to, c);
     }
 
-    //// End of code primarily from FastUtil.
+    // End of code primarily from FastUtil.
 
     /**
      * Analyzes {@code pixmap} for color count and frequency, building a palette with at most 256 colors if there are
@@ -2017,13 +2017,12 @@ public class PaletteReducer {
             int i = 3, encs = enc.size, segments = Math.min(encs, limit - 3) + 1 >> 1, e = 0;
             double lightPieces = Math.ceil(Math.log(limit));
             PER_BEST:
-            for (int s = 0; i < limit; s++) {
+            while (i < limit) {
                 if(e > (e %= encs)){
                     segments++;
                     lightPieces++;
                     threshold *= 0.9;
                 }
-                s %= segments;
                 int segStart = e, segEnd = Math.min(segStart + (int)Math.ceil(encs / (double)segments), encs), segLen = segEnd - segStart;
                 sort(ei, segStart, segLen, lightnessComparator);
                 for (int li = 0; li < lightPieces && li < segLen && i < limit; li++) {
@@ -2671,7 +2670,7 @@ public class PaletteReducer {
             for (int iterations = 0; iterations < 4; iterations++) {
                 c = 0;
                 PER_BEST:
-                for (; c < es.size; ) {
+                while (c < es.size) {
                     color = es.get(c++).key;
                     for (int j = 1; j < i; j++) {
                         double diff = differenceAnalyzing(color, paletteArray[j]);
@@ -2860,7 +2859,7 @@ public class PaletteReducer {
         {
             int i = 1, c = 0;
             PER_BEST:
-            for (; i < limit && c < cs;) {
+            while (i < limit && c < cs) {
                 color = es.get(c++).key;
                 for (int j = 1; j < i; j++) {
                     double diff = differenceAnalyzing(color, paletteArray[j]);
@@ -3047,13 +3046,12 @@ public class PaletteReducer {
             int i = 3, encs = enc.size, segments = Math.min(encs, limit - 3) + 1 >> 1, e = 0;
             double lightPieces = Math.ceil(Math.log(limit));
             PER_BEST:
-            for (int s = 0; i < limit; s++) {
+            while (i < limit) {
                 if(e > (e %= encs)){
                     segments++;
                     lightPieces++;
                     threshold *= 0.9;
                 }
-                s %= segments;
                 int segStart = e, segEnd = Math.min(segStart + (int)Math.ceil(encs / (double)segments), encs), segLen = segEnd - segStart;
                 sort(ei, segStart, segLen, lightnessComparator);
                 for (int li = 0; li < lightPieces && li < segLen && i < limit; li++) {
@@ -3268,7 +3266,7 @@ public class PaletteReducer {
             for (int iterations = 0; iterations < 4; iterations++) {
                 c = 0;
                 PER_BEST:
-                for (; c < es.size; ) {
+                while (c < es.size) {
                     color = es.get(c++).key;
                     for (int j = 1; j < i; j++) {
                         double diff = differenceAnalyzing(color, paletteArray[j]);
@@ -3869,9 +3867,9 @@ public class PaletteReducer {
 
                     // other options
 //                    // sign-preserving square root, emphasizes extremes
-////                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
+// //                    adj = Math.copySign((float) Math.sqrt(Math.abs(adj)), adj);
 //                    // sign-preserving square, emphasizes low-magnitude values
-////                    adj *= Math.abs(adj);
+// //                    adj *= Math.abs(adj);
                     // Used in 0.3.13, has a heavy color bias
 //                    int rr = Math.min(Math.max((int)(((color >>> 24)       ) + ((((px-1) * 0xC13FA9A902A6328FL + (y+1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
 //                    int gg = Math.min(Math.max((int)(((color >>> 16) & 0xFF) + ((((px+3) * 0xC13FA9A902A6328FL + (y-1) * 0x91E10DA5C79E7B1DL) >>> 41) * 0x1.4p-22f - 0x1.4p0f) * str + 0.5f), 0), 255);
@@ -3904,8 +3902,8 @@ public class PaletteReducer {
     }
     /**
      * An intentionally low-fidelity dither, meant for pixel art.
-     * @param pixmap
-     * @return
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
      */
     public Pixmap reduceLoaf(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
@@ -3968,8 +3966,8 @@ public class PaletteReducer {
     /**
      * A higher-quality relative of {@link #reduceLoaf(Pixmap)} that uses a 8x8 grid instead of a 2x2 checkerboard, and
      * that gamma-corrects its changes.
-     * @param pixmap
-     * @return
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
      */
     public Pixmap reduceGourd(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
@@ -4123,8 +4121,8 @@ public class PaletteReducer {
      * uses them. The strengths of various components here have changed from the values used in Woven; the
      * error-diffusion strength is higher by default and the adjustment from blue noise and/or R2 values is
      * comparatively mild.
-     * @param pixmap
-     * @return
+     * @param pixmap will be modified in-place and returned
+     * @return pixmap, after modifications
      */
     public Pixmap reduceWrenOriginal(Pixmap pixmap) {
         boolean hasTransparent = (paletteArray[0] == 0);
@@ -4504,13 +4502,13 @@ public class PaletteReducer {
                             | ((bb >>> 3))] & 0xFF];
                     adj = ((PaletteReducer.TRI_BLUE_NOISE[(px & 63) | (y & 63) << 6] + 0.5f) * 0.007843138f);
                     adj *= adj * adj;
-                    //// Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
-                    //// The next 3 lines generate 3 low-quality-random numbers based on s, which should be
-                    ////   different as long as the colors encountered so far were different. The numbers can
-                    ////   each be positive or negative, and are reduced to a manageable size, summed, and
-                    ////   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
-                    ////   distribution, centered on about 0.0 and weighted so most results are close to 0.
-                    ////   Two of the random numbers use an XLCG, and the last uses an LCG. 
+                    // Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
+                    // The next 3 lines generate 3 low-quality-random numbers based on s, which should be
+                    //   different as long as the colors encountered so far were different. The numbers can
+                    //   each be positive or negative, and are reduced to a manageable size, summed, and
+                    //   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
+                    //   distribution, centered on about 0.0 and weighted so most results are close to 0.
+                    //   Two of the random numbers use an XLCG, and the last uses an LCG.
                     adj += ((px + y & 1) - 0.5f) * 0x1.8p-49 * strength *
                             (((s ^ 0x9E3779B97F4A7C15L) * 0xC6BC279692B5CC83L >> 15) +
                                     ((~s ^ 0xDB4F0B9175AE2165L) * 0xD1B54A32D192ED03L >> 15) +
@@ -5474,7 +5472,9 @@ public class PaletteReducer {
     }
     
     /**
-     * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 8.
+     * Sorting network, found by
+     * <a href="http://pages.ripco.net/~jgamble/nw.html">(broken link to John Gamble's site)</a>,
+     * considered the best known for length 8.
      * @param i8 an 8-or-more-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
      */
     static void sort8(final int[] i8) {
@@ -5499,7 +5499,10 @@ public class PaletteReducer {
         compareSwap(i8, 3, 4);
     }
     /**
-     * Sorting network, found by http://pages.ripco.net/~jgamble/nw.html , considered the best known for length 16.
+     * Sorting network, found by
+     * <a href="http://pages.ripco.net/~jgamble/nw.html">(broken link to John Gamble's site)</a>, considered the best
+     * known for length 16.
+     *
      * @param i16 a 16-element array that will be sorted in-place by {@link #compareSwap(int[], int, int)}
      */
     static void sort16(final int[] i16)
@@ -5665,7 +5668,7 @@ public class PaletteReducer {
      * Yliluoma in <a href="https://bisqwit.iki.fi/story/howto/dither/jy/">this dithering article</a>. Yliluoma used an
      * 8x8 threshold matrix because at the time 4x4 was still covered by the patent, but using 4x4 allows a much faster
      * sorting step (this uses a sorting network, which works well for small input sizes like 16 items). This is stil
-     * very significantly slower than the other dithers here (except for {@link #reduceKnoll(Pixmap)}.
+     * very significantly slower than the other dithers here (except for {@link #reduceKnoll(Pixmap)}).
      * <br>
      * While the original Knoll pattern dither has square-shaped "needlepoint" artifacts, this has a varying-size
      * hexagonal or triangular pattern of dots that it uses to dither. Much like how Simplex noise uses a triangular

@@ -201,10 +201,10 @@ public class FastPNG implements Disposable {
                     curLine[x++] = (byte) ((pixel >>> 8) & 0xff);
                     curLine[x++] = (byte) (pixel & 0xff);
                 }
-////NONE filtering
+// //NONE filtering
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, lineLen);
-//// End of filtering code
+// // End of filtering code
 //
             }
             deflaterOutput.finish();

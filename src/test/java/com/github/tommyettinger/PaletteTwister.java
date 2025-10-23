@@ -48,7 +48,7 @@ public class PaletteTwister extends ApplicationAdapter {
     public void load(String name) {
         Gdx.files.local("tmp/twister").mkdirs();
         FileHandle out = Gdx.files.local("tmp/twister/" + System.currentTimeMillis() + ".png"), in;
-        //// loads a file by its full path, which we get via drag+drop
+        // loads a file by its full path, which we get via drag+drop
         if (Gdx.files.internal(name).exists())
             in = Gdx.files.internal(name);
         else
