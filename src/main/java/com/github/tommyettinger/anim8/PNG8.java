@@ -7942,6 +7942,42 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
     /**
      * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
+     * palette by changing each used color's Oklab L component (lightness), running it through the
+     * Interpolation given here. The L component is limited to the 0 to 1 floating-point range.
+     *
+     * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
+     * @param output FileHandle that should be writable and empty
+     * @param changeL an Interpolation that will apply to the L component, with L=0 representing minimum lightness (black) and L=1 representing maximum lightness (white)
+     */
+    public static void editPaletteLightness(FileHandle input, FileHandle output, Interpolation changeL) {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if (pal == null) {
+                output.write(inputStream, false);
+                return;
+            }
+            for (int p = 0; p < pal.length - 2; ) {
+                int rgb = (pal[p] & 255) << 24 | (pal[p + 1] & 255) << 16 | (pal[p + 2] & 255) << 8 | 255;
+
+                int s = shrink(rgb);
+                float L = Math.min(Math.max(changeL.apply(OKLAB[0][s]),  0f), 1f);
+                float A = OKLAB[1][s];
+                float B = OKLAB[2][s];
+                rgb = oklabToRGB(L, A, B, 1f);
+                pal[p] = (byte) (rgb >>> 24);
+                pal[p + 1] = (byte) (rgb >>> 16);
+                pal[p + 2] = (byte) (rgb >>> 8);
+                p += 3;
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
      * palette by changing each used color's Oklab components, running L, A, and B through each corresponding
      * Interpolation given here. If an Interpolation normally operates on the 0 to 1 range, it still will do that for
      * the L channel, but A and B run from -1 to 1, and those Interpolations will use
