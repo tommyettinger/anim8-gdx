@@ -39,6 +39,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
@@ -7763,7 +7764,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
     /**
-     * Simple PNG IO from https://www.java-tips.org/java-se-tips-100019/23-java-awt-image/2283-png-file-format-decoder-in-java.html .
+     * Simple PNG IO from <a href="https://www.java-tips.org/java-se-tips-100019/23-java-awt-image/2283-png-file-format-decoder-in-java.html">Java-Tips.org</a> .
      * @param inStream an input stream to read from; will be closed at the end of this method
      * @return an {@link OrderedMap} of chunk names to chunk contents
      * @throws IOException if the file is not a PNG or is extremely long
@@ -7788,7 +7789,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 in.readFully(data);
                 // Read the CRC, discard it.
                 int crc = in.readInt();
-                String type = new String(typeBytes, "UTF8");
+                String type = new String(typeBytes, StandardCharsets.UTF_8);
                 chunks.put(type, data);
             } catch (EOFException eofe) {
                 trucking = false;
@@ -7799,19 +7800,19 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
 
     /**
-     * Simple PNG IO from https://www.java-tips.org/java-se-tips-100019/23-java-awt-image/2283-png-file-format-decoder-in-java.html .
+     * Simple PNG IO from <a href="https://www.java-tips.org/java-se-tips-100019/23-java-awt-image/2283-png-file-format-decoder-in-java.html">Java-Tips.org</a> .
      * @param outStream an output stream; will be closed when this method ends
      * @param chunks an OrderedMap of chunks, almost always produced by {@link #readChunks(InputStream)}
      */
     protected static void writeChunks(OutputStream outStream, OrderedMap<String, byte[]> chunks) {
-        DataOutputStream out = new DataOutputStream(outStream);
         CRC32 crc = new CRC32();
+        DataOutputStream out = new DataOutputStream(outStream);
         try {
             out.writeLong(0x89504e470d0a1a0aL);
             byte[] k;
             for (ObjectMap.Entry<String, byte[]> ent : chunks.entries()) {
                 out.writeInt(ent.value.length);
-                k = ent.key.getBytes("UTF8");
+                k = ent.key.getBytes(StandardCharsets.UTF_8);
                 out.write(k);
                 crc.update(k, 0, k.length);
                 out.write(ent.value);
@@ -7928,6 +7929,47 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 float L = OKLAB[0][s];
                 float A = OKLAB[1][s] * aMul;
                 float B = OKLAB[2][s] + OtherMath.asin(L - 0.6f) * bMul * (1f - A * A);
+                rgb = oklabToRGB(L, A, B, 1f);
+                pal[p] = (byte) (rgb >>> 24);
+                pal[p + 1] = (byte) (rgb >>> 16);
+                pal[p + 2] = (byte) (rgb >>> 8);
+                p += 3;
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
+     * palette by changing each used color's Oklab components, running L, A, and B through each corresponding
+     * Interpolation given here. If an Interpolation normally operates on the 0 to 1 range, it still will do that for
+     * the L channel, but A and B run from -1 to 1, and those Interpolations will use
+     * {@link Interpolation#apply(float, float, float)} to interpolate between -1 and 1, instead of 0 to 1.
+     *
+     * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
+     * @param output FileHandle that should be writable and empty
+     * @param changeL an Interpolation that will apply to the L component, with L=0 representing minimum lightness (black) and L=1 representing maximum lightness (white)
+     * @param changeA an Interpolation that will apply to the A component (in the -1 to 1 range), with A=-1 representing the most-green hue, A=1 representing the most-red hue, and A=0 representing neither green nor red
+     * @param changeB an Interpolation that will apply to the B component (in the -1 to 1 range), with B=-1 representing the most-blue hue, B=1 representing the most-yellow hue, and B=0 representing neither blue nor yellow
+     */
+    public static void editPaletteOklab(FileHandle input, FileHandle output,
+                                        Interpolation changeL, Interpolation changeA, Interpolation changeB) {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if (pal == null) {
+                output.write(inputStream, false);
+                return;
+            }
+            for (int p = 0; p < pal.length - 2; ) {
+                int rgb = (pal[p] & 255) << 24 | (pal[p + 1] & 255) << 16 | (pal[p + 2] & 255) << 8 | 255;
+
+                int s = shrink(rgb);
+                float L = Math.min(Math.max(changeL.apply( 0f, 1f, OKLAB[0][s]),  0f), 1f);
+                float A = Math.min(Math.max(changeA.apply(-1f, 1f, OKLAB[1][s] * 0.5f + 0.5f), -1f), 1f);
+                float B = Math.min(Math.max(changeB.apply(-1f, 1f, OKLAB[2][s] * 0.5f + 0.5f), -1f), 1f);
                 rgb = oklabToRGB(L, A, B, 1f);
                 pal[p] = (byte) (rgb >>> 24);
                 pal[p + 1] = (byte) (rgb >>> 16);
