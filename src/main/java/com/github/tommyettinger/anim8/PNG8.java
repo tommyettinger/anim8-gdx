@@ -60,7 +60,7 @@ import static com.github.tommyettinger.anim8.PaletteReducer.*;
  * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
  * reduce (or increase) dither strength, typically between 0 and 2;
  * the dithering algorithm used here by default is based on Burkes error-diffusion dithering but with patterns
- * broken up using various forms of noise ({@link DitherAlgorithm#OVERBOARD}), but you can select alternatives with
+ * broken up using various forms of noise ({@link DitherAlgorithm#WREN}), but you can select alternatives with
  * {@link #setDitherAlgorithm(DitherAlgorithm)}, such as the slow but high-quality Knoll Ordered Dither using
  * {@link DitherAlgorithm#PATTERN}, or no dither at all with {@link DitherAlgorithm#NONE}.
  * <br>
@@ -119,7 +119,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
     public PaletteReducer palette;
 
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.OVERBOARD;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.WREN;
 
     @Override
     public PaletteReducer getPalette() {

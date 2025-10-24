@@ -247,9 +247,10 @@ public interface Dithered {
          * also means it doesn't pick up low-quality artifacts when dither strength is high.
          * <br>
          * This dither is based on Burkes dither, but you could also just use {@link #BURKES} to avoid adding in any
-         * extra noise. You could also use {@link #OCEANIC} to incorporate just a little noise, softly. Relative to
-         * those two (newer) dithers, OVERBOARD has a harder time with "curt" gradients, that is, those that change
-         * smoothly but very quickly, and quickly stop changing. It does do well with larger, more-free-form gradients.
+         * extra noise. You could also use {@link #OCEANIC} or {@link #SEASIDE} to incorporate just a little noise,
+         * softly. Relative to those two (newer) dithers, OVERBOARD has a harder time with "curt" gradients, that is,
+         * those that change smoothly but very quickly, and quickly stop changing. It does do well with larger,
+         * more-free-form gradients.
          */
         OVERBOARD("Overboard"),
         /**
@@ -273,8 +274,12 @@ public interface Dithered {
          * makes some unpleasant artifacts in BURKES dither essentially disappear here, replaced with fuzzy sections.
          * This does well on soft lightness gradients, much like how {@link #NEUE} does, and is significantly better
          * than BURKES at this task. It adds some noise, but not nearly as much as {@link #NEUE}, {@link #DODGY},
-         * {@link #SCATTER}, {@link #WREN}, or {@link #OVERBOARD}, while avoiding the repetitive artifacts in
-         * {@link #ROBERTS}, {@link #WOVEN}, and {@link #PATTERN}.
+         * {@link #SCATTER}, {@link #WREN}, or {@link #OVERBOARD}, while avoiding some repetitive artifacts in
+         * {@link #ROBERTS}, {@link #WOVEN}, and {@link #PATTERN}. There is a chance of a repetitive 45-degree diagonal
+         * line artifact appearing somewhat often in images dithered with this; {@link #SEASIDE} is a slight change to
+         * this dither that is meant to break up that artifact, handle some color gradients more smoothly, and treat
+         * dither strength differently for large and for small palettes. SEASIDE doesn't handle purely-lightness-based
+         * gradients as well as OCEANIC, a tradeoff required by handling color gradients better.
          */
         OCEANIC("Oceanic"),
         /**

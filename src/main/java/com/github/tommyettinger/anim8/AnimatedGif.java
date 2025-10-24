@@ -45,7 +45,7 @@ import static com.github.tommyettinger.anim8.PaletteReducer.*;
  * a distance, they look closer to the original colors. You can us {@link PaletteReducer#setDitherStrength(float)} to
  * reduce (or increase) dither strength, typically between 0 and 2;
  * the dithering algorithm used here by default is based on Burkes error-diffusion dithering but with patterns
- * broken up using a variety of noise ({@link DitherAlgorithm#OVERBOARD}), but you can select alternatives with
+ * broken up using a variety of noise ({@link DitherAlgorithm#WREN}), but you can select alternatives with
  * {@link #setDitherAlgorithm(DitherAlgorithm)}. Using {@link DitherAlgorithm#LOAF} may usually look worse in still
  * frames, but it tends to look great in fast animations because it won't have "static" from error-diffusion. You could
  * just no dither at all with {@link DitherAlgorithm#NONE}, though that tends to look awful with small palettes.
@@ -131,7 +131,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             palette = null;
     }
 
-    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.OVERBOARD;
+    protected DitherAlgorithm ditherAlgorithm = DitherAlgorithm.WREN;
     
     protected int width; // image size
 

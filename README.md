@@ -236,7 +236,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - Very close to OCEANIC, this also uses blue noise to adjust the error diffusion; the difference is that it uses different blue noise textures for each RGB channel.
     - This sometimes has better color reproduction than OCEANIC, but also sometimes doesn't. It's hard to tell why.
     - Any repetitive small-scale patterns in this are likely to be different from those in OCEANIC, or absent entirely.
-    - When two colors are nearly-equally matched in a palette, OCEANIC tends to show a 1px checkerboard, whereas SEASIDE shows a more coarse-grained texture.
+    - When two colors are nearly-equally matched in a palette, OCEANIC tends to show a 1px checkerboard, whereas SEASIDE is less likely to show any repetitive artifact.
   - GOURD
     - Somewhere between PATTERN and LOAF, this is an ordered dither using a 8x8 grid it applies rather directly as added noise.
     - This is quite a bit faster than PATTERN, and gets almost-similar results.
@@ -271,11 +271,11 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - ROBERTS, WOVEN, and WREN have a tilted grid pattern, approximately, of lighter or darker pixels. This can also
       sometimes look like scales, bubbles, or braids. WREN shows this artifact less noticeably than the others.
     - DIFFUSION and BURKES tend to have their error corrections jump around between frames, which looks jarring.
-      - BURKES has this less dramatically than DIFFUSION, and OCEANIC is meant to avoid this. 
+      - BURKES has this less dramatically than DIFFUSION, and OCEANIC and SEASIDE are meant to avoid this. 
     - CHAOTIC_NOISE has the opposite problem; it never keeps the same artifacts between frames, even if those frames are
       identical.
     - For very small palettes, OVERBOARD can have noticeable diagonal lines from the Burkes dither it is based on. So
-      can BURKES, of course, but OCEANIC and SEASIDE do a good job at avoiding these.
+      can BURKES, of course, but OCEANIC and especially SEASIDE do a good job at avoiding these.
 
 You can set the strength of most of these dithers using PaletteReducer's, PNG8's, or AnimatedGif's
 `setDitherStrength(float)` methods (use the method on the class that is producing output). For NONE,
