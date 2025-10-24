@@ -5834,6 +5834,33 @@ public class PaletteReducer {
     }
 
     /**
+     * Edits this PaletteReducer by changing each used color in the RGB color space with an {@link Interpolation} per
+     * channel. In many cases you will want to use the same Interpolation for each channel, but in others you may want a
+     * small custom Interpolation for each channel. The alpha transparency of each color will always be unchanged.
+     * If you don't want to change a channel at all, you can pass {@link Interpolation#linear} for that channel.
+     * <br>
+     * You can also consider {@link #alterColorsOklab(Interpolation, Interpolation, Interpolation)} if you want to
+     * adjust lightness separately from chromatic components.
+     *
+     * @param changeR an Interpolation, such as {@link Interpolation#circleOut}, which will apply to the red channel
+     * @param changeG an Interpolation, such as {@link Interpolation#circleOut}, which will apply to the green channel
+     * @param changeB an Interpolation, such as {@link Interpolation#circleOut}, which will apply to the blue channel
+     * @return this PaletteReducer, for chaining
+     */
+    public PaletteReducer alterColors(Interpolation changeR, Interpolation changeG, Interpolation changeB) {
+        int[] palette = paletteArray;
+        for (int idx = 0; idx < colorCount; idx++) {
+            int p = palette[idx];
+            palette[idx] =
+                    Math.min(Math.max((int)changeR.apply(0, 255.999f, (p >>> 24      ) / 255f), 0), 255) << 24 |
+                    Math.min(Math.max((int)changeG.apply(0, 255.999f, (p >>> 16 & 255) / 255f), 0), 255) << 16 |
+                    Math.min(Math.max((int)changeB.apply(0, 255.999f, (p >>>  8 & 255) / 255f), 0), 255) <<  8 |
+                    (p & 255);
+        }
+        return this;
+    }
+
+    /**
      * Edits this PaletteReducer by changing each used color in the Oklab color space with an {@link Interpolation}.
      * This allows adjusting lightness, such as for gamma correction, but also individually emphasizing or
      * de-emphasizing different aspects of the chroma. You could use {@link Interpolation#pow2InInverse} to use the
@@ -5848,7 +5875,7 @@ public class PaletteReducer {
      * <br>
      * If you are already familiar with Oklab, CIE LAB, or another LAB color space, {@code lightness} controls the L
      * channel, {@code greenToRed} controls the A channel, and {@code blueToYellow} controls the B channel.
-     * 
+     *
      * @param lightness an Interpolation that will affect the lightness of each color
      * @param greenToRed an Interpolation that will make colors more green if it evaluates below 0.5 or more red otherwise
      * @param blueToYellow an Interpolation that will make colors more blue if it evaluates below 0.5 or more yellow otherwise
@@ -5873,7 +5900,7 @@ public class PaletteReducer {
      * made (or as little change as this can permit). If saturationMultiplier is between 0 and 1, the image will become
      * less colorful, or if saturationMultiplier is greater than 1, it will become more colorful (unless already
      * grayscale or very close to it).
-     * 
+     *
      * @param saturationMultiplier will be multiplied with each color's "distance from grayscale", or chroma
      * @return this PaletteReducer, for chaining
      */
