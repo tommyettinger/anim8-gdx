@@ -7978,6 +7978,47 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     }
     /**
      * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
+     * palette by changing each used color's Oklab chroma components. How this works internally doesn't matter as much,
+     * but it leaves the lightness untouched, and only affects how much closer (or further) a color should be to gray at
+     * its lightness. If {@code saturationMultiplier} is 0, this makes the image grayscale. If it is 1, the image will
+     * have no change (other than possibly some minor shifts due to the loss of the 3 least-significant bits from each
+     * channel). If it is between 0 and 1, the image will be less colorful, and more grayish. If it is greater than 1,
+     * the image will have any colors that aren't pure gray become more colorful (saturated), clamped to a maximum
+     * saturation in extreme cases.
+     *
+     * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
+     * @param output FileHandle that should be writable and empty
+     * @param saturationMultiplier if 0, will make the image grayscale; if 1, will make no change; if greater than 1, will oversaturate the image
+     */
+    public static void editPaletteSaturation(FileHandle input, FileHandle output, float saturationMultiplier) {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if (pal == null) {
+                output.write(inputStream, false);
+                return;
+            }
+            for (int p = 0; p < pal.length - 2; ) {
+                int rgb = (pal[p] & 255) << 24 | (pal[p + 1] & 255) << 16 | (pal[p + 2] & 255) << 8 | 255;
+
+                int s = shrink(rgb);
+                float L = OKLAB[0][s];
+                float A = Math.min(Math.max(OKLAB[1][s] * saturationMultiplier, -1f), 1f);
+                float B = Math.min(Math.max(OKLAB[2][s] * saturationMultiplier, -1f), 1f);
+                rgb = oklabToRGB(L, A, B, 1f);
+                pal[p] = (byte) (rgb >>> 24);
+                pal[p + 1] = (byte) (rgb >>> 16);
+                pal[p + 2] = (byte) (rgb >>> 8);
+                p += 3;
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
      * palette by changing each used color's Oklab components, running L, A, and B through each corresponding
      * Interpolation given here. If an Interpolation normally operates on the 0 to 1 range, it still will do that for
      * the L channel, but A and B run from -1 to 1, and those Interpolations will use

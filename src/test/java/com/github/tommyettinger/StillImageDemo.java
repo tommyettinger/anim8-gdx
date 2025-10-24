@@ -153,24 +153,22 @@ public class StillImageDemo extends ApplicationAdapter {
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_7-Centralize.png"), 0.7f);
             PNG8.centralizePalette(input,
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_4-Centralize.png"), 0.4f);
-            Interpolation fixed0_5 = new Interpolation() {
-                @Override
-                public float apply(float a) {
-                    return 0.5f;
-                }
-            };
-            PNG8.editPaletteOklab(input,
-                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Grayscale.png"),
-                    Interpolation.linear, fixed0_5, fixed0_5);
-            PNG8.editPaletteOklab(input,
-                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-2-Saturated.png"),
-                    Interpolation.linear, Interpolation.pow2, Interpolation.pow2);
-            PNG8.editPaletteOklab(input,
-                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-3-Saturated.png"),
-                    Interpolation.linear, Interpolation.pow3, Interpolation.pow3);
-            PNG8.editPaletteOklab(input,
-                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-4-Saturated.png"),
-                    Interpolation.linear, Interpolation.pow4, Interpolation.pow4);
+
+            PNG8.editPaletteSaturation(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_0-Saturated.png"),
+                    0.0f);
+            PNG8.editPaletteSaturation(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_3-Saturated.png"),
+                    0.3f);
+            PNG8.editPaletteSaturation(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_7-Saturated.png"),
+                    0.7f);
+            PNG8.editPaletteSaturation(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-1_5-Saturated.png"),
+                    1.5f);
+            PNG8.editPaletteSaturation(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-2_0-Saturated.png"),
+                    2.0f);
 
             PNG8.editPaletteLightness(input,
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Lighten.png"),
