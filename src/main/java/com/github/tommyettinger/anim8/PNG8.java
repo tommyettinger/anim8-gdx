@@ -7863,8 +7863,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
     /**
      * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits the red,
      * green, and blue channels of each color in its palette (which is all colors in the image) by converting them to a
-     * 0.0-1.0 range and giving that to {@code editor}. <a href="https://github.com/libgdx/libgdx/wiki/Interpolation">The
-     * libGDX wiki page on Interpolation</a> has valuable info.
+     * 0.0 to 1.0 range and giving that to {@code editor}.
+     * <a href="https://github.com/libgdx/libgdx/wiki/Interpolation">The libGDX wiki page on Interpolation</a> has
+     * valuable info.
+     *
      * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
      * @param output FileHandle that should be writable and empty
      * @param editor an Interpolation, such as {@link Interpolation#circleOut} (which brightens all but the darkest areas)
@@ -7884,6 +7886,42 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 pal[p  ] = (byte)editor.apply(0f, 255.999f, (pal[p  ] & 255) / 255f);
                 pal[p+1] = (byte)editor.apply(0f, 255.999f, (pal[p+1] & 255) / 255f);
                 pal[p+2] = (byte)editor.apply(0f, 255.999f, (pal[p+2] & 255) / 255f);
+                p+=3;
+            }
+            writeChunks(output.write(false), chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits the red,
+     * green, and blue channels of each color in its palette (which is all colors in the image) by converting them to a
+     * 0.0 to 1.0 range and giving that to the corresponding Interpolation for that channel.
+     * <a href="https://github.com/libgdx/libgdx/wiki/Interpolation">The libGDX wiki page on Interpolation</a> has
+     * valuable info.
+     *
+     * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
+     * @param output FileHandle that should be writable and empty
+     * @param changeR an Interpolation, such as {@link Interpolation#circleOut}, which will apply to the red channel
+     * @param changeG an Interpolation, such as {@link Interpolation#circleOut}, which will apply to the green channel
+     * @param changeB an Interpolation, such as {@link Interpolation#circleOut}, which will apply to the blue channel
+     */
+    public static void editPalette(FileHandle input, FileHandle output,
+                                   Interpolation changeR, Interpolation changeG, Interpolation changeB)
+    {
+        try {
+            InputStream inputStream = input.read();
+            OrderedMap<String, byte[]> chunks = readChunks(inputStream);
+            byte[] pal = chunks.get("PLTE");
+            if(pal == null)
+            {
+                output.write(inputStream, false);
+                return;
+            }
+            for (int p = 0; p < pal.length - 2;) {
+                pal[p  ] = (byte)changeR.apply(0f, 255.999f, (pal[p  ] & 255) / 255f);
+                pal[p+1] = (byte)changeG.apply(0f, 255.999f, (pal[p+1] & 255) / 255f);
+                pal[p+2] = (byte)changeB.apply(0f, 255.999f, (pal[p+2] & 255) / 255f);
                 p+=3;
             }
             writeChunks(output.write(false), chunks);
@@ -7944,6 +7982,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
      * palette by changing each used color's Oklab L component (lightness), running it through the
      * Interpolation given here. The L component is limited to the 0 to 1 floating-point range.
+     * <a href="https://github.com/libgdx/libgdx/wiki/Interpolation">The libGDX wiki page on Interpolation</a> has
+     * valuable info.
      *
      * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
      * @param output FileHandle that should be writable and empty
@@ -8021,8 +8061,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
      * Given a FileHandle to read from and a FileHandle to write to, duplicates the input FileHandle and edits its
      * palette by changing each used color's Oklab components, running L, A, and B through each corresponding
      * Interpolation given here. If an Interpolation normally operates on the 0 to 1 range, it still will do that for
-     * the L channel, but A and B run from -1 to 1, and those Interpolations will use
-     * {@link Interpolation#apply(float, float, float)} to interpolate between -1 and 1, instead of 0 to 1.
+     * the L channel, but A and B run from -1 to 1. The shape of an Interpolator's graph will remain the same, but the
+     * channel input will be in the 0 to 1 range, and will map to the -1 to 1 range for the output.
+     * <a href="https://github.com/libgdx/libgdx/wiki/Interpolation">The libGDX wiki page on Interpolation</a> has
+     * valuable info.
      *
      * @param input FileHandle to read from that should contain an indexed-mode PNG (such as one this class wrote)
      * @param output FileHandle that should be writable and empty
