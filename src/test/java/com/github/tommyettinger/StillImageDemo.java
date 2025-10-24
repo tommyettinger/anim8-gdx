@@ -6,6 +6,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.tommyettinger.anim8.*;
@@ -24,7 +25,7 @@ import com.github.tommyettinger.anim8.*;
 public class StillImageDemo extends ApplicationAdapter {
 	private long total = 0;
 	public Dithered.DitherAlgorithm[] ALGORITHMS =
-			new Dithered.DitherAlgorithm[]{
+//			new Dithered.DitherAlgorithm[]{
 //
 //					Dithered.DitherAlgorithm.BLUE_NOISE,
 //					Dithered.DitherAlgorithm.BLUNT,
@@ -40,13 +41,13 @@ public class StillImageDemo extends ApplicationAdapter {
 //					Dithered.DitherAlgorithm.OVERBOARD,
 //					Dithered.DitherAlgorithm.BURKES,
 //					Dithered.DitherAlgorithm.OCEANIC,
-					Dithered.DitherAlgorithm.SEASIDE,
+//					Dithered.DitherAlgorithm.SEASIDE,
 //					Dithered.DitherAlgorithm.WOVEN,
 //					Dithered.DitherAlgorithm.SCATTER,
 //					Dithered.DitherAlgorithm.NEUE,
 //					Dithered.DitherAlgorithm.DODGY,
-			};
-//			Dithered.DitherAlgorithm.ALL;
+//			};
+			Dithered.DitherAlgorithm.ALL;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
@@ -57,10 +58,10 @@ public class StillImageDemo extends ApplicationAdapter {
         for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
 			System.out.println("Rendering PNG8 for " + name);
 			renderPNG8(name);
-			System.out.println("Rendering GIF for " + name);
-			renderGif(name);
-			System.out.println("Rendering PNG for " + name);
-			renderPNG(name);
+//			System.out.println("Rendering GIF for " + name);
+//			renderGif(name);
+//			System.out.println("Rendering PNG for " + name);
+//			renderPNG(name);
 		}
 		System.out.println("Analyzed all " + total + " images in " + (System.currentTimeMillis() - startTime) + " ms");
         Gdx.app.exit();
@@ -136,6 +137,68 @@ public class StillImageDemo extends ApplicationAdapter {
 		for(Dithered.DitherAlgorithm d : ALGORITHMS){
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Default.png"), pixmap, false, true);
+		}
+
+		for(Dithered.DitherAlgorithm d : ALGORITHMS){
+            FileHandle input = Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Default.png");
+			PNG8.hueShift(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-1_0-HueShift.png"), 1.0f);
+			PNG8.hueShift(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_5-HueShift.png"), 0.5f);
+			PNG8.hueShift(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-1_5-HueShift.png"), 1.5f);
+            PNG8.centralizePalette(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-1_0-Centralize.png"), 1.0f);
+            PNG8.centralizePalette(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_7-Centralize.png"), 0.7f);
+            PNG8.centralizePalette(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_4-Centralize.png"), 0.4f);
+            Interpolation fixed0_5 = new Interpolation() {
+                @Override
+                public float apply(float a) {
+                    return 0.5f;
+                }
+            };
+            PNG8.editPaletteOklab(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Grayscale.png"),
+                    Interpolation.linear, fixed0_5, fixed0_5);
+            PNG8.editPaletteOklab(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-2-Saturated.png"),
+                    Interpolation.linear, Interpolation.pow2, Interpolation.pow2);
+            PNG8.editPaletteOklab(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-3-Saturated.png"),
+                    Interpolation.linear, Interpolation.pow3, Interpolation.pow3);
+            PNG8.editPaletteOklab(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-4-Saturated.png"),
+                    Interpolation.linear, Interpolation.pow4, Interpolation.pow4);
+
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Lighten.png"),
+                    Interpolation.circleOut);
+
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Darken.png"),
+                    Interpolation.circleIn);
+
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_5-LowContrast.png"),
+                    new OtherMath.BiasGain(0.5f, 0.5f));
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_7-LowContrast.png"),
+                    new OtherMath.BiasGain(0.7f, 0.5f));
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_3-LowContrast.png"),
+                    new OtherMath.BiasGain(0.3f, 0.5f));
+
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-2-HighContrast.png"),
+                    Interpolation.pow2);
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-3-HighContrast.png"),
+                    Interpolation.pow3);
+            PNG8.editPaletteLightness(input,
+                    Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-4-HighContrast.png"),
+                    Interpolation.pow4);
 		}
 		total++;
 	}
