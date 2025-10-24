@@ -5823,8 +5823,12 @@ public class PaletteReducer {
         int[] palette = paletteArray;
         for (int idx = 0; idx < colorCount; idx++) {
             int s = shrink(palette[idx]);
-            palette[idx] = oklabToRGB(lightness.apply(OKLAB[0][s]), OKLAB[1][s], OKLAB[2][s],
-                    (palette[idx] & 0xFE) / 254f);
+            palette[idx] = oklabToRGB(
+                    lightness.apply(OKLAB[0][s]),
+                    OKLAB[1][s],
+                    OKLAB[2][s],
+                    (palette[idx] & 0xFE) / 254f
+            );
         }
         return this;
     }
@@ -5840,7 +5844,11 @@ public class PaletteReducer {
      * less-extreme version by using {@link Interpolation#smooth}. To desaturate colors is a different task; you can
      * create a {@link OtherMath.BiasGain} Interpolation with 0.5 turning and maybe 0.25 to 0.75 shape to produce
      * different strengths of desaturation. Using a shape of 1.5 to 4 with BiasGain is another way to saturate the
-     * colors.
+     * colors. If you don't want to change a channel at all, you can pass {@link Interpolation#linear} for that channel.
+     * <br>
+     * If you are already familiar with Oklab, CIE LAB, or another LAB color space, {@code lightness} controls the L
+     * channel, {@code greenToRed} controls the A channel, and {@code blueToYellow} controls the B channel.
+     * 
      * @param lightness an Interpolation that will affect the lightness of each color
      * @param greenToRed an Interpolation that will make colors more green if it evaluates below 0.5 or more red otherwise
      * @param blueToYellow an Interpolation that will make colors more blue if it evaluates below 0.5 or more yellow otherwise
@@ -5854,6 +5862,31 @@ public class PaletteReducer {
             float A = greenToRed.apply(-1, 1, OKLAB[1][s] * 0.5f + 0.5f);
             float B = blueToYellow.apply(-1, 1, OKLAB[2][s] * 0.5f + 0.5f);
             palette[idx] = oklabToRGB(L, A, B, (palette[idx] & 0xFE) / 254f);
+        }
+        return this;
+    }
+
+    /**
+     * Edits this PaletteReducer by changing each used color in the Oklab color space, keeping lightness the same but
+     * multiplying the channels that determine "colorful-ness" by {@code saturationMultiplier}, and clamping extreme
+     * values. If saturationMultiplier is 0, this makes the image grayscale. If saturationMultiplier is 1, no change is
+     * made (or as little change as this can permit). If saturationMultiplier is between 0 and 1, the image will become
+     * less colorful, or if saturationMultiplier is greater than 1, it will become more colorful (unless already
+     * grayscale or very close to it).
+     * 
+     * @param saturationMultiplier will be multiplied with each color's "distance from grayscale", or chroma
+     * @return this PaletteReducer, for chaining
+     */
+    public PaletteReducer alterColorsSaturation(float saturationMultiplier) {
+        int[] palette = paletteArray;
+        for (int idx = 0; idx < colorCount; idx++) {
+            int s = shrink(palette[idx]);
+            palette[idx] = oklabToRGB(
+                    OKLAB[0][s],
+                    Math.min(Math.max(OKLAB[1][s] * saturationMultiplier, -1f), 1f),
+                    Math.min(Math.max(OKLAB[2][s] * saturationMultiplier, -1f), 1f),
+                    (palette[idx] & 0xFE) / 254f
+            );
         }
         return this;
     }
