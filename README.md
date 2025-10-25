@@ -67,9 +67,9 @@ this topic later, since this is a major focus of the library.
 A typical Gradle dependency on anim8 looks like this (in the core module's dependencies for a typical libGDX project):
 ```groovy
 dependencies {
-  //... other dependencies are here, like libGDX 1.9.11 or higher
-  // libGDX 1.13.1 is recommended currently, but versions as old as 1.9.11 work.
-  api "com.github.tommyettinger:anim8-gdx:0.5.4"
+  //... other dependencies are here, like libGDX 1.14.0 or higher
+  // libGDX 1.14.0 is the current dependency for this library
+  api "com.github.tommyettinger:anim8-gdx:0.6.0"
 }
 ```
 
@@ -88,8 +88,13 @@ will. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml`, is:
 If you do use this on GWT, the GWT build.gradle file also needs a dependency on anim8-gdx's sources:
 
 ```groovy
-  implementation "com.github.tommyettinger:anim8-gdx:0.5.4:sources"
+  implementation "com.github.tommyettinger:anim8-gdx:0.6.0:sources"
 ```
+
+If you use TeaVM instead of GWT, most of the `java.util.zip` package actually is implemented, and this may work without
+any sort of custom exclusion like GWT needs. That said, writing to a PNG or GIF file in the browser is a rather
+different task that writing one on a typical PC platform, so you might need to stick to the `PaletteReducer` (and its
+subclasses) code to reduce palettes of `Pixmap` instances.
 
 # Dithering Algorithms
 You have a choice between several dithering algorithms if you write to GIF or PNG8; you can also avoid choosing one
@@ -101,6 +106,39 @@ All dithering algorithms except NONE, CHAOTIC_NOISE, and PATTERN changed appeara
 because that version includes at least an attempt at gamma-correcting the images, and earlier versions did not. That
 means 0.5.0 should usually have closer lightness in the dither to what the original image had, relative to earlier
 anim8-gdx versions. History from ancient versions of anim8-gdx has been removed from this section for clarity.
+
+If you don't know what dither to use, the main choices are between some type of error-diffusion dither, or some type of
+ordered dither. Ordered dithers tend to have fewer noticeable artifacts in animations, while error-diffusion tends to
+look a lot better for non-animated images, especially those with lots of colors.
+
+The highest-quality ordered dither here
+is also one of the first implemented here, PATTERN, but PATTERN dither is quite slow relative to any other dither here.
+The next-best ordered dither options are probably GOURD (which is similar to PATTERN in how it looks, but does less work
+improving gradients and so is faster) and MARTEN (which is completely unrelated to GOURD, and uses a non-grid-based
+pattern instead of the grids PATTERN and GOURD use). Anything except PATTERN should be about the same speed in this
+library... but PATTERN is unusually, and often noticeably, slower. BANTER can sometimes look very good for specific
+input images, especially if you adjust the dither strength.
+
+For error-diffusion dithers, WREN is the default if no algorithm is specified, and it's a well-rounded mix of standard
+error-diffusion with a few subtle noise patterns to break up artifacts from its diffusion algorithm. If the introduced
+noise is a problem, BURKES dither doesn't introduce noise and tends to look rather good, while SEASIDE is like BURKES
+plus some noise, but is calibrated differently for large and small palettes, incorporating less noise for larger
+palettes than small ones. Most other error-diffusion dithers here can be replaced by one of those three mentioned
+dithers, but if you are fine with lots of artifacts and want better color appearance at a distance, then WOVEN dither
+can be an improvement on any of the other types (sometimes).
+
+Earlier dithers like
+DIFFUSION, SCATTER, NEUE, DODGY, OVERBOARD, and OCEANIC here are mostly obsolete because the newer types either
+implement a known algorithm more effectively (DIFFUSION isn't the most faithful Floyd-Steinberg implementation, but
+BURKES is faithful), or are evolutions on the same strategies used in earlier attempts to incorporate noise into
+error-diffusion techniques. OVERBOARD is like WREN but is too noisy usually; OCEANIC is like SEASIDE but has more
+noticeable linear artifacts (though it handles lightness changes better), while SCATTER, NEUE, and DODGY are all
+essentially worse precursors to WREN's type of algorithm.
+
+For aesthetic reasons meant to evoke "retro" hardware limits, you may want LOAF or NONE as a choice of algorithm.
+LOAF barely dithers at all, and adds some checkerboard noise if it can't use a flat zone of one color. 
+NONE doesn't dither at all, which can look quite bad for small palettes but usually is somewhat acceptable for
+larger ones, especially in animations.
 
   - NONE
     - No dither. Solid blocks of color only. Often looks bad unless the original image had few colors.
@@ -120,7 +158,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
   - DIFFUSION
     - This is Floyd-Steinberg error-diffusion dithering.
     - It tends to look very good in still images, and very bad in animations.
-    - BURKES is essentially a variant on this type of error diffusion, though it often looks better.
+    - BURKES is essentially a variant on this type of error-diffusion, though it often looks better.
     - SCATTER and NEUE are mostly the same as this algorithm, but use blue noise to break up unpleasant patterns.
     - WOVEN dither uses a repeating pattern reminiscent of braids or hexagons to break up patterns, but introduces its own.
     - WREN dither uses both blue noise and the WOVEN pattern, so most patterns it would add get broken up.
@@ -204,7 +242,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - LOAF does also work well for some animations, especially when compared to any error-diffusion dithers (which can have the error change wildly between frames).
     - Consider the other dithers GOURD and BANTER if this doesn't fit your needs but you still want an ordered, grid-like dither.
   - WREN
-    - A complex mix of error diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those.
+    - A complex mix of error-diffusion a la DIFFUSION, the R2 sequence from ROBERTS, and blue noise to break up the patterns from those.
     - This preserves hue almost as well as WOVEN, but is better than WOVEN at preserving lightness, and has fewer noticeable artifacts.
     - This adjusts each channel separately, like how DODGY and WOVEN work but not like the older NEUE or SCATTER.
     - There are still use cases for the similar DODGY and WOVEN dithers.
@@ -212,7 +250,7 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
       - WOVEN typically preserves hue more accurately because the predictable nature of its repetitive artifact happens to align with its error-diffusion, improving perceived color when viewed from a distance.
     - This used to be the default, OVERBOARD replaced it, and now after some small changes to WREN, it is back as the default dither.
   - OVERBOARD
-    - You thought WREN was complicated? Think again. OVERBOARD takes a Burkes error diffusion dither and mixes in added error from variants on the R2 sequence, blue noise, and XOR-mod patterns into each channel of each pixel.
+    - You thought WREN was complicated? Think again. OVERBOARD takes a Burkes error-diffusion dither and mixes in added error from variants on the R2 sequence, blue noise, and XOR-mod patterns into each channel of each pixel.
       - XOR-mod patterns are often seen in very small blocks of code, like Tweets or demoscene code, and have primarily diagonal lines in unpredictable patterns.
     - It doesn't use its whole repertoire for every channel, and selects which variants will add error using a simple ordered grid pattern.
     - This adjusts each channel separately, and is close in how its code works to WREN (which also does this).
@@ -221,22 +259,23 @@ anim8-gdx versions. History from ancient versions of anim8-gdx has been removed 
     - It is not as good at reproducing unusual colors (ones very different from what the palette contains), when compared to WREN or especially to WOVEN.
     - It can have worse banding than other dithers of its type, like WREN.
   - BURKES
-    - This is fairly simple error diffusion dither than nonetheless has very smooth results.
-    - This is more faithful to the original error diffusion algorithm, which may explain why it looks better that Floyd-Steinberg (DIFFUSION) much of the time.
+    - This is fairly simple error-diffusion dither than nonetheless has very smooth results.
+    - This is more faithful to the original error-diffusion algorithm, which may explain why it looks better that Floyd-Steinberg (DIFFUSION) much of the time.
     - Artifacts tend to be 45-degree lines, if they show up at all.
     - Because this doesn't introduce extra noise, it will look very good with larger palettes, since the dithering should bring the colors to where they should be and not where the noise would offset them.
   - OCEANIC
-    - A slight tweak on BURKES that uses blue noise to make small changes to the error diffusion pattern.
+    - A slight tweak on BURKES that uses blue noise to make small changes to the error-diffusion pattern.
     - This mostly is an improvement on existing dithers when BURKES has noticeable artifacts, but it is rather good in general, as well.
     - Where diagonal artifacts would have appeared with BURKES, this tends to show soft/fuzzy noise, but not over a large area.
     - If no significant issues are found with OCEANIC, then either OCEANIC or the very similar SEASIDE algorithm may
       become the default dither, because they have a good balance of softness and accuracy.
       - I went with WREN though, because some of its results were really excellent and none looked "off" in general. 
   - SEASIDE
-    - Very close to OCEANIC, this also uses blue noise to adjust the error diffusion; the difference is that it uses different blue noise textures for each RGB channel.
+    - Very close to OCEANIC, this also uses blue noise to adjust the error-diffusion; the difference is that it uses different blue noise textures for each RGB channel.
     - This sometimes has better color reproduction than OCEANIC, but also sometimes doesn't. It's hard to tell why.
     - Any repetitive small-scale patterns in this are likely to be different from those in OCEANIC, or absent entirely.
     - When two colors are nearly-equally matched in a palette, OCEANIC tends to show a 1px checkerboard, whereas SEASIDE is less likely to show any repetitive artifact.
+    - This improved in version 0.6.0 by changing its error-diffusion to more-closely match how BURKES dither works; this eliminated some of the "coarseness" present in earlier versions.
   - GOURD
     - Somewhere between PATTERN and LOAF, this is an ordered dither using a 8x8 grid it applies rather directly as added noise.
     - This is quite a bit faster than PATTERN, and gets almost-similar results.
