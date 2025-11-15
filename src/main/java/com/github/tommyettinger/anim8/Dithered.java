@@ -337,7 +337,17 @@ public interface Dithered {
          * The name comes partly from Dr. Martin Roberts (since this is based on ROBERTS dither) and partly from the
          * fluffy animal called a marten, which is fitting because the dither is much softer for large palettes here.
          */
-        MARTEN("Marten");
+        MARTEN("Marten"),
+        /**
+         * A simple but effective ordered dither related to {@link #GRADIENT_NOISE}, this is also known as "a dither"
+         * and was created by Øyvind Kolås. This is based on "method 4" from
+         * <a href="http://pippin.gimp.org/a_dither/">this page</a>, with small changes to how different channels are
+         * offset, and the changes made in a linear color space. The larger change here is how the dither strength is
+         * selected; like {@link #SEASIDE}, this uses a much lower dither "power" for palettes approaching the hard
+         * limit of 256 colors. Even though it uses a higher power when a palette is small, it doesn't clamp the
+         * used power; it hyperbolically approaches the highest power allowed as dither strength goes higher.
+         */
+        ADDITIVE("Additive");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
