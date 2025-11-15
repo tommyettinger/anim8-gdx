@@ -598,6 +598,35 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             }
         }
     }
+    protected void analyzeAdditive() {
+        final int nPix = indexedPixels.length;
+        int color;
+        int flipped = flipY ? height - 1 : 0;
+        int flipDir = flipY ? -1 : 1;
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+        boolean hasTransparent = paletteArray[0] == 0;
+
+        final float populationBias = palette.populationBias;
+        final float s = 0.08f * ditherStrength / (float) Math.pow(populationBias, 8f),
+                strength = s / (0.35f + s);
+        for (int y = 0, i = 0; y < height && i < nPix; y++) {
+            for (int px = 0; px < width & i < nPix; px++) {
+                color = image.getPixel(px, flipped + flipDir * y);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    indexedPixels[i++] = 0;
+                else {
+                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((119 * px + 180 * y + 54 & 255) - 127.5f) * strength)] & 255;
+                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((119 * px + 180 * y + 81 & 255) - 127.5f) * strength)] & 255;
+                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((119 * px + 180 * y      & 255) - 127.5f) * strength)] & 255;
+                    usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))]) & 255] = true;
+                    i++;
+                }
+            }
+        }
+    }
     protected void analyzeRoberts() {
         final int nPix = indexedPixels.length;
         int color;
@@ -2122,6 +2151,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case GRADIENT_NOISE:
                 analyzeGradient();
+                break;
+            case ADDITIVE:
+                analyzeAdditive();
                 break;
             case ROBERTS:
                 analyzeRoberts();
