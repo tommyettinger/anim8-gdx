@@ -21,8 +21,7 @@ import com.github.tommyettinger.anim8.FastPalette;
  * Analyzed all 48 images in 36415 ms
  */
 public class FastStillImageDemo extends ApplicationAdapter {
-	private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.MARTEN};
-	//        private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+	private static final Dithered.DitherAlgorithm[] DITHERS = Config.ALGORITHMS;
 
 	private long total = 0;
     @Override

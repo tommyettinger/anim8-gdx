@@ -27,8 +27,7 @@ import com.github.tommyettinger.anim8.*;
  * Finished writing in 256073 ms.
  */
 public class FastShaderCaptureDemo extends ApplicationAdapter {
-    private static final Dithered.DitherAlgorithm[] DITHERS = {Dithered.DitherAlgorithm.MARTEN};
-//        private static final Dithered.DitherAlgorithm[] DITHERS = Dithered.DitherAlgorithm.ALL;
+    private static final Dithered.DitherAlgorithm[] DITHERS = Config.ALGORITHMS;
 
     private SpriteBatch batch;
     private Texture pixel;

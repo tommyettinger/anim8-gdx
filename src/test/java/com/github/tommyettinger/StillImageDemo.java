@@ -11,6 +11,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.tommyettinger.anim8.*;
 
+import static com.github.tommyettinger.Config.ALGORITHMS;
+
 /**
  * Currently just dithers a few pictures (my cat, then from Wikimedia Commons, a tropical frog, a public domain
  * landscape painting, a remastered Mona Lisa, and a public domain baroque painting) as a still GIF, PNG8, and
@@ -24,30 +26,6 @@ import com.github.tommyettinger.anim8.*;
  */
 public class StillImageDemo extends ApplicationAdapter {
 	private long total = 0;
-	public Dithered.DitherAlgorithm[] ALGORITHMS =
-//			new Dithered.DitherAlgorithm[]{
-//
-//					Dithered.DitherAlgorithm.BLUE_NOISE,
-//					Dithered.DitherAlgorithm.BLUNT,
-//					Dithered.DitherAlgorithm.BANTER,
-//					Dithered.DitherAlgorithm.LOAF,
-//					Dithered.DitherAlgorithm.GOURD,
-//					Dithered.DitherAlgorithm.GRADIENT_NOISE,
-//					Dithered.DitherAlgorithm.ROBERTS,
-//					Dithered.DitherAlgorithm.MARTEN,
-//
-//					Dithered.DitherAlgorithm.DIFFUSION,
-//					Dithered.DitherAlgorithm.WREN,
-//					Dithered.DitherAlgorithm.OVERBOARD,
-//					Dithered.DitherAlgorithm.BURKES,
-//					Dithered.DitherAlgorithm.OCEANIC,
-//					Dithered.DitherAlgorithm.SEASIDE,
-//					Dithered.DitherAlgorithm.WOVEN,
-//					Dithered.DitherAlgorithm.SCATTER,
-//					Dithered.DitherAlgorithm.NEUE,
-//					Dithered.DitherAlgorithm.DODGY,
-//			};
-			Dithered.DitherAlgorithm.ALL;
     @Override
     public void create() {
         //Gdx.app.setLogLevel(Application.LOG_DEBUG);
@@ -58,10 +36,12 @@ public class StillImageDemo extends ApplicationAdapter {
         for(String name : new String[]{"Mona_Lisa.jpg", "Earring.jpg", "Cat.jpg", "Frog.jpg", "Landscape.jpg", "Pixel_Art.png",}) {
 			System.out.println("Rendering PNG8 for " + name);
 			renderPNG8(name);
-//			System.out.println("Rendering GIF for " + name);
-//			renderGif(name);
-//			System.out.println("Rendering PNG for " + name);
-//			renderPNG(name);
+            System.out.println("Rendering PNG8 mods for " + name);
+            renderPNG8Modifications(name);
+			System.out.println("Rendering GIF for " + name);
+			renderGif(name);
+			System.out.println("Rendering PNG for " + name);
+			renderPNG(name);
 		}
 		System.out.println("Analyzed all " + total + " images in " + (System.currentTimeMillis() - startTime) + " ms");
         Gdx.app.exit();
@@ -138,14 +118,28 @@ public class StillImageDemo extends ApplicationAdapter {
 			png8.setDitherAlgorithm(d);
 			png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Default.png"), pixmap, false, true);
 		}
-
-		for(Dithered.DitherAlgorithm d : ALGORITHMS){
+        total++;
+	}
+    public void renderPNG8Modifications(String filename) {
+        PNG8 png8 = new PNG8();
+        png8.setFlipY(false);
+        png8.setCompression(2);
+        FileHandle file = Gdx.files.classpath(filename);
+        String name = file.nameWithoutExtension();
+        Pixmap pixmap = new Pixmap(file);
+        PaletteReducer quality = new QualityPalette(), reducer;
+        for(Dithered.DitherAlgorithm d : ALGORITHMS){
             FileHandle input = Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Default.png");
-			PNG8.hueShift(input,
+            if(!input.exists()){
+                quality.setDefaultPalette();
+                png8.setDitherAlgorithm(d);
+                png8.write(Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-Default.png"), pixmap, false, true);
+            }
+            PNG8.hueShift(input,
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-1_0-HueShift.png"), 1.0f);
-			PNG8.hueShift(input,
+            PNG8.hueShift(input,
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-0_5-HueShift.png"), 0.5f);
-			PNG8.hueShift(input,
+            PNG8.hueShift(input,
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-1_5-HueShift.png"), 1.5f);
             PNG8.centralizePalette(input,
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-1_0-Centralize.png"), 1.0f);
@@ -197,9 +191,8 @@ public class StillImageDemo extends ApplicationAdapter {
             PNG8.editPaletteLightness(input,
                     Gdx.files.local("images/png/" + name + "-PNG8-" + d + "-4-HighContrast.png"),
                     Interpolation.pow4);
-		}
-		total++;
-	}
+        }
+    }
 
     public void renderPNG(String name) {
         FastPNG png = new FastPNG();
