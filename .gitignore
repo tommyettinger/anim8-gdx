@@ -66,3 +66,5 @@ nb-configuration.xml
 ## extra folders
 /hueShifted/
 /images/
+/src/test/resources/logos/
+/src/test/resources/logos
