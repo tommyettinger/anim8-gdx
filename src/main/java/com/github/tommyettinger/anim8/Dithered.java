@@ -383,9 +383,20 @@ public interface Dithered {
          * A very similar algorithm is the dither option "a" in the popular video conversion program FFMPEG, which can
          * be used to dither videos being reduced to GIF or other low-color formats. There is also an "ed" dither that
          * uses Floyd-Steinberg error diffusion, which is close to {@link #DIFFUSION}, and one that uses Bayer matrices,
-         * which looks somewhat similar to {@link #PATTERN}.
+         * which should be close to {@link #BAYER}.
          */
-        ADDITIVE("Additive");
+        ADDITIVE("Additive"),
+        /**
+         * One of the "old standard" ordered dithers, and one that is nearly synonymous with "ordered dither," this uses
+         * an 8x8 grid, called a threshold matrix or Bayer matrix, that offsets lightness by a predetermined amount per
+         * pixel position. This calculates dither strength quite differently from how other dithers here did, or
+         * sometimes still do. It looks best for most palettes when dither strength is 1.0, but some extremely "harsh"
+         * palettes, with only a few very different colors, may do better with higher strength values. Note that because
+         * of how image scaling is usually performed, noninteger scaling of a Bayer-dithered image is more likely to
+         * have noticeable grid artifacts. At integer scales, Bayer dither looks more like how a human might choose to
+         * dither an image (given a lot of time, or with low dither strength).
+         */
+        BAYER("Bayer");
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
