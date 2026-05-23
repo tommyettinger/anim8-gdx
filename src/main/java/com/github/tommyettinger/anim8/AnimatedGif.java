@@ -859,17 +859,48 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         boolean hasTransparent = paletteArray[0] == 0;
 
         final float strength = 10f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
-        for (int y = 0, i = 0; y < height && i < nPix; y++) {
-            int ny = flipped + flipDir * y;
+        for (int oy = 0, i = 0; oy < height && i < nPix; oy++) {
+            int y = flipped + flipDir * oy;
             for (int x = 0; x < width & i < nPix; x++) {
-                int color = image.getPixel(x, ny);
+                int color = image.getPixel(x, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-                    float adj = (thresholdMatrix64[((x & 7) | (ny & 7) << 3)] - 31.5f) * strength;
+                    float adj = (thresholdMatrix64[((x & 7) | (y & 7) << 3)] - 31.5f) * strength;
                     int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + adj, 0), 1023)] & 255;
                     int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + adj, 0), 1023)] & 255;
                     int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + adj, 0), 1023)] & 255;
+
+                    usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
+                            | ((gg << 2) & 0x3E0)
+                            | ((bb >>> 3))]) & 255] = true;
+                    i++;
+                }
+            }
+        }
+    }
+
+    protected void analyzeBaydient() {
+        final int nPix = indexedPixels.length;
+        int flipped = flipY ? height - 1 : 0;
+        int flipDir = flipY ? -1 : 1;
+        final int[] paletteArray = palette.paletteArray;
+        final byte[] paletteMapping = palette.paletteMapping;
+        boolean hasTransparent = paletteArray[0] == 0;
+
+        final float ignStrength = 2f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
+        final float bayerStrength = ignStrength * 0.15f;
+        for (int oy = 0, i = 0; oy < height && i < nPix; oy++) {
+            int y = flipped + flipDir * oy;
+            for (int x = 0; x < width & i < nPix; x++) {
+                int color = image.getPixel(x, y);
+                if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
+                    indexedPixels[i++] = 0;
+                else {
+                    float ord = (thresholdMatrix64[((x & 7) | (y & 7) << 3)] - 31.5f) * bayerStrength;
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + ord + ((142 * (x + 0x5F) + 79 * (y - 0x96) & 255) - 127.5f) * ignStrength, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16 & 0xFF)] + ord + ((142 * (x + 0xFA) + 79 * (y - 0xA3) & 255) - 127.5f) * ignStrength, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8 & 0xFF) ] + ord + ((142 * (x + 0xA5) + 79 * (y - 0xC9) & 255) - 127.5f) * ignStrength, 0), 1023)] & 255;
 
                     usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
@@ -2199,6 +2230,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 break;
             case BAYER:
                 analyzeBayer();
+                break;
+            case BAYDIENT:
+                analyzeBaydient();
                 break;
             case BLUNT:
                 analyzeBlunt();
