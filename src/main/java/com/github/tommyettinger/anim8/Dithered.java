@@ -415,7 +415,7 @@ public interface Dithered {
          * A cached array of the result of {@link #values()}, to avoid repeatedly allocating new
          * {@code DitherAlgorithm[]} arrays on each call to values().
          * <br>
-         * Currently (in version 0.7.0), this is:
+         * Currently (in version 0.6.2), this is:
          * <br>
          * NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY,
          * LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD, BLUNT, BANTER, MARTEN, ADDITIVE, BAYER, BAYDIENT
