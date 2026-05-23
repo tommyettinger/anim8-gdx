@@ -396,7 +396,15 @@ public interface Dithered {
          * have noticeable grid artifacts. At integer scales, Bayer dither looks more like how a human might choose to
          * dither an image (given a lot of time, or with low dither strength).
          */
-        BAYER("Bayer");
+        BAYER("Bayer"),
+        /**
+         * An uneven mix of an 8x8 Bayer matrix and the roughly 3x3 interleaved gradient noise pattern used by
+         * {@link #GRADIENT_NOISE}, this is meant to break up the visible patterns in {@link #BAYER}. It uses similar
+         * dither strength calculation to BAYER, and also looks best when dither strength is 1.0 or sometimes higher.
+         * When zoomed to noninteger scales, BAYDIENT is much more likely to still look "smooth" than BAYER.
+         */
+        BAYDIENT("Baydient"),
+        ;
 
         /**
          * Used by {@link #toString()} to store a more human-readable name that isn't ALWAYS_YELLING.
@@ -407,15 +415,15 @@ public interface Dithered {
          * A cached array of the result of {@link #values()}, to avoid repeatedly allocating new
          * {@code DitherAlgorithm[]} arrays on each call to values().
          * <br>
-         * Currently (in version 0.6.1), this is:
+         * Currently (in version 0.7.0), this is:
          * <br>
          * NONE, GRADIENT_NOISE, PATTERN, DIFFUSION, BLUE_NOISE, CHAOTIC_NOISE, SCATTER, NEUE, ROBERTS, WOVEN, DODGY,
-         * LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD, BLUNT, BANTER, MARTEN, ADDITIVE
+         * LOAF, WREN, OVERBOARD, BURKES, OCEANIC, SEASIDE, GOURD, BLUNT, BANTER, MARTEN, ADDITIVE, BAYER, BAYDIENT
          * <br>
          * If alphabetized:
          * <br>
-         * ADDITIVE, BANTER, BLUE_NOISE, BLUNT, BURKES, CHAOTIC_NOISE, DIFFUSION, DODGY, GOURD, GRADIENT_NOISE, LOAF,
-         * MARTEN, NEUE, NONE, OCEANIC, OVERBOARD, PATTERN, ROBERTS, SCATTER, SEASIDE, WOVEN, WREN
+         * ADDITIVE, BANTER, BAYDIENT, BAYER, BLUE_NOISE, BLUNT, BURKES, CHAOTIC_NOISE, DIFFUSION, DODGY, GOURD,
+         * GRADIENT_NOISE, LOAF, MARTEN, NEUE, NONE, OCEANIC, OVERBOARD, PATTERN, ROBERTS, SCATTER, SEASIDE, WOVEN, WREN
          */
         public static final DitherAlgorithm[] ALL = values();
 
