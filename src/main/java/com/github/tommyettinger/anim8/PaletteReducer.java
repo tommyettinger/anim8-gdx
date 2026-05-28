@@ -4408,7 +4408,7 @@ public class PaletteReducer {
         final int w = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        final float strength = 0.21875f * ditherStrength / (populationBias * populationBias);
+        final float strength = 1.25f * ditherStrength * (float)Math.pow(colorCount, -0.4f);
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int color = pixmap.getPixel(x, y);

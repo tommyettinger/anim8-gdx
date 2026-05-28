@@ -1451,7 +1451,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
 
             int color;
-            final float strength = 0.21875f * ditherStrength / (palette.populationBias * palette.populationBias);
+            final float strength = 1.25f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
             for (int oy = 0; oy < h; oy++) {
                 int y = flipY ? (h - oy - 1) : oy;
                 for (int x = 0; x < w; x++) {
@@ -5062,7 +5062,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
 
-            final float strength = 0.21875f * ditherStrength / (palette.populationBias * palette.populationBias);
+            final float strength = 1.25f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -5088,11 +5088,12 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-        if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(width)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(width);
-        }
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
+
                 for (int oy = 0; oy < height; oy++) {
                     int y = flipY ? (height - oy - 1) : oy;
                     for (int x = 0; x < width; x++) {

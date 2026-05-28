@@ -828,7 +828,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float strength = 0.21875f * ditherStrength / (palette.populationBias * palette.populationBias);
+        final float strength = 1.25f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             int ny = flipped + flipDir * y;
             for (int x = 0; x < width & i < nPix; x++) {
