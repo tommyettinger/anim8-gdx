@@ -22,6 +22,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.StreamUtils;
@@ -572,24 +573,24 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     }
     protected void analyzeGradient() {
         final int nPix = indexedPixels.length;
-        int color;
         int flipped = flipY ? height - 1 : 0;
         int flipDir = flipY ? -1 : 1;
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float populationBias = palette.populationBias;
-        final float strength = 0.9f * (float) Math.tanh(0.16f * ditherStrength * Math.pow(populationBias, -7.00));
+        final float strength = 0.25f * ditherStrength * (palette.colorCount <= 128
+                ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
-                color = image.getPixel(px, flipped + flipDir * y);
+                int color = image.getPixel(px, flipped + flipDir * y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((142 * (px + 0x5F) + 79 * (y - 0x96) & 255) - 127.5f) * strength)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((142 * (px + 0xFA) + 79 * (y - 0xA3) & 255) - 127.5f) * strength)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((142 * (px + 0xA5) + 79 * (y - 0xC9) & 255) - 127.5f) * strength)] & 255;
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + ((142 * (px + 0x5F) + 79 * (y - 0x96) & 255) - 127.5f) * strength, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16 & 0xFF)] + ((142 * (px + 0xFA) + 79 * (y - 0xA3) & 255) - 127.5f) * strength, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8 & 0xFF) ] + ((142 * (px + 0xA5) + 79 * (y - 0xC9) & 255) - 127.5f) * strength, 0), 1023)] & 255;
                     usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))]) & 255] = true;
