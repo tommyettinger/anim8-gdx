@@ -1289,7 +1289,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine = curLineBytes.ensureCapacity(w);
             }
 
-            final float strength = Math.min(Math.max(2.5f + 5f * ditherStrength - 5.5f * palette.populationBias, 0f), 7.9f);
+            final float strength = 5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
 
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
@@ -4475,11 +4475,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-        if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(width)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(width);
-        }
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
 
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
@@ -4836,9 +4836,8 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.endChunk(dataOutput);
 
             byte[] curLine;
-            int color;
 
-            final float strength = Math.min(Math.max(2.5f + 5f * ditherStrength - 5.5f * palette.populationBias, 0f), 7.9f);
+            final float strength = 5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4864,16 +4863,16 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-        if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(width)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(width);
-        }
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
 
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
-                        color = pixmap.getPixel(px, py);
+                        int color = pixmap.getPixel(px, py);
                         if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {

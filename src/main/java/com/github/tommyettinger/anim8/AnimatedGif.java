@@ -663,17 +663,16 @@ public class AnimatedGif implements AnimationWriter, Dithered {
     }
     protected void analyzeLoaf() {
         final int nPix = indexedPixels.length;
-        int color;
         int flipped = flipY ? height - 1 : 0;
         int flipDir = flipY ? -1 : 1;
         final int[] paletteArray = palette.paletteArray;
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float strength = Math.min(Math.max(2.5f + 5f * ditherStrength - 5.5f * palette.populationBias, 0f), 7.9f);
+        final float strength = 5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
-                color = image.getPixel(px, flipped + flipDir * y);
+                int color = image.getPixel(px, flipped + flipDir * y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
