@@ -3901,7 +3901,10 @@ public class PaletteReducer {
 //        float str = (32f * ditherStrength / (populationBias * populationBias));
 //        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
 //        float str = 32 * ditherStrength / (populationBias * populationBias * populationBias * populationBias);
-        final float str = Math.min(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 127);
+//        final float str = Math.min(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 127);
+        final float str = 45f * ditherStrength * (colorCount <= 128
+                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
+                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -3938,9 +3941,9 @@ public class PaletteReducer {
 //                    bb = Math.min(Math.max((int)(bb + MathUtils.cos(theta + 2.09f) * str + 0.5f), 0), 255);
 
                     final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.209f) * str)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.518f) * str)] & 255;
+                    int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.209f) * str, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.518f) * str, 0), 1023)] & 255;
                     
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)

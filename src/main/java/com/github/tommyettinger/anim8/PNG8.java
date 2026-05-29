@@ -1179,8 +1179,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
         }
 
             int color;
-            final float populationBias = palette.populationBias;
-            final float str = Math.min(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 127);
+            final float str = 45f * ditherStrength * (palette.colorCount <= 128
+                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1193,9 +1194,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         // gives 3 different values for r, g, and b, without much bias toward high or low values.
                         // There is correlation between r, g, and b in certain patterns.
                         final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
-                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
-                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.209f) * str)] & 255;
-                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.518f) * str)] & 255;
+                        int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
+                        int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.209f) * str, 0), 1023)] & 255;
+                        int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.518f) * str, 0), 1023)] & 255;
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
@@ -4672,10 +4673,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
-            int color;
 
-            final float populationBias = palette.populationBias;
-            final float str = Math.min(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 127);
+            final float str = 45f * ditherStrength * (palette.colorCount <= 128
+                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4701,16 +4702,16 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-        if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(width)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(width);
-        }
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
 
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
-                        color = pixmap.getPixel(px, py);
+                        int color = pixmap.getPixel(px, py);
                         if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
@@ -4719,9 +4720,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             // gives 3 different values for r, g, and b, without much bias toward high or low values.
                             // There is correlation between r, g, and b in certain patterns.
                             final float theta = ((px * 0xC13FA9A9 + y * 0x91E10DA5 >>> 9) * 0x1p-23f);
-                            int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
-                            int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.209f) * str)] & 255;
-                            int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.518f) * str)] & 255;
+                            int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
+                            int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.209f) * str, 0), 1023)] & 255;
+                            int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.518f) * str, 0), 1023)] & 255;
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];
