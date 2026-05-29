@@ -3757,17 +3757,18 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float s = 0.08f * ditherStrength / (float) Math.pow(populationBias, 8f),
-                strength = s / (0.35f + s);
+        final float strength = 0.25f * ditherStrength * (colorCount <= 128
+                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
+                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     pixmap.drawPixel(px, y, 0);
                 else {
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + ((119 * px + 180 * y + 54 & 255) - 127.5f) * strength)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + ((119 * px + 180 * y + 81 & 255) - 127.5f) * strength)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + ((119 * px + 180 * y      & 255) - 127.5f) * strength)] & 255;
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + ((119 * px + 180 * y + 54 & 255) - 127.5f) * strength, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16 & 0xFF)] + ((119 * px + 180 * y + 81 & 255) - 127.5f) * strength, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8 & 0xFF) ] + ((119 * px + 180 * y      & 255) - 127.5f) * strength, 0), 1023)] & 255;
 
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
