@@ -4046,8 +4046,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine = curLineBytes.ensureCapacity(w);
             }
 
-            final float populationBias = palette.populationBias;
-            final float str = Math.min(1100f * (ditherStrength / (float) Math.sqrt(palette.colorCount) * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
+            final float str = 45f * ditherStrength * (palette.colorCount <= 128
+                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -4060,40 +4061,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         // gives 3 different values for r, g, and b, without much bias toward high or low values.
                         // There is correlation between r, g, and b in certain patterns.
                         final float theta = ((px * 142 + y * 79 & 255) * 0x1p-8f);
-                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
-                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
-                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                        int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
+                        int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str, 0), 1023)] & 255;
+                        int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str, 0), 1023)] & 255;
                         curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
                                 | ((bb >>> 3))];
 
                     }
                 }
-
-//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
-//
-//                    //Paeth
-//                    for (int x = 1; x < w; x++) {
-//                        int a = curLine[x - 1] & 0xff;
-//                        int b = prevLine[x] & 0xff;
-//                        int c = prevLine[x - 1] & 0xff;
-//                        int p = a + b - c;
-//                        int pa = p - a;
-//                        if (pa < 0) pa = -pa;
-//                        int pb = p - b;
-//                        if (pb < 0) pb = -pb;
-//                        int pc = p - c;
-//                        if (pc < 0) pc = -pc;
-//                        if (pa <= pb && pa <= pc)
-//                            c = a;
-//                        else if (pb <= pc)
-//                            c = b;
-//                        lineOut[x] = (byte) (curLine[x] - c);
-//                    }
-//
-//                    deflaterOutput.write(FILTER_PAETH);
-//                    deflaterOutput.write(lineOut, 0, w);
-
                 deflaterOutput.write(FILTER_NONE);
                 deflaterOutput.write(curLine, 0, w);
             }
@@ -8260,8 +8236,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 //            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
 
-            final float populationBias = palette.populationBias;
-            final float str = Math.min(1100f * (ditherStrength / (float) Math.sqrt(palette.colorCount) * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
+            final float str = 45f * ditherStrength * (palette.colorCount <= 128
+                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
 
@@ -8304,38 +8281,14 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             // gives 3 different values for r, g, and b, without much bias toward high or low values.
                             // There is correlation between r, g, and b in certain patterns.
                             final float theta = ((px * 142 + y * 79 & 255) * 0x1p-8f);
-                            int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
-                            int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
-                            int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                            int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
+                            int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str, 0), 1023)] & 255;
+                            int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str, 0), 1023)] & 255;
                             curLine[px] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)
                                     | ((bb >>> 3))];
                         }
                     }
-//                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
-//
-//                    //Paeth
-//                    for (int x = 1; x < width; x++) {
-//                        int a = curLine[x - 1] & 0xff;
-//                        int b = prevLine[x] & 0xff;
-//                        int c = prevLine[x - 1] & 0xff;
-//                        int p = a + b - c;
-//                        int pa = p - a;
-//                        if (pa < 0) pa = -pa;
-//                        int pb = p - b;
-//                        if (pb < 0) pb = -pb;
-//                        int pc = p - c;
-//                        if (pc < 0) pc = -pc;
-//                        if (pa <= pb && pa <= pc)
-//                            c = a;
-//                        else if (pb <= pc)
-//                            c = b;
-//                        lineOut[x] = (byte) (curLine[x] - c);
-//                    }
-//
-//                    deflaterOutput.write(FILTER_PAETH);
-//                    deflaterOutput.write(lineOut, 0, width);
-
                     deflaterOutput.write(FILTER_NONE);
                     deflaterOutput.write(curLine, 0, width);
                 }

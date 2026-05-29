@@ -2149,8 +2149,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float populationBias = palette.populationBias;
-        final float str = Math.min(1100f * (ditherStrength / (float) Math.sqrt(palette.colorCount) * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
+        final float str = 45f * ditherStrength * (palette.colorCount <= 128
+                ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 int color = image.getPixel(px, flipped + flipDir * y);
@@ -2162,9 +2164,9 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     // gives 3 different values for r, g, and b, without much bias toward high or low values.
                     // There is correlation between r, g, and b in certain patterns.
                     final float theta = ((px * 142 + y * 79 & 255) * 0x1p-8f);
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                    int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str, 0), 1023)] & 255;
                     usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))]) & 255] = true;

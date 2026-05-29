@@ -5742,7 +5742,9 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        final float str = Math.min(1100f * (ditherStrength / (float) Math.sqrt(colorCount) * (1f / (populationBias * populationBias * populationBias) - 0.7f)), 127f);
+        final float str = 45f * ditherStrength * (colorCount <= 128
+                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
+                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 int color = pixmap.getPixel(px, y);
@@ -5754,9 +5756,9 @@ public class PaletteReducer {
                     // gives 3 different values for r, g, and b, without much bias toward high or low values.
                     // There is correlation between r, g, and b in certain patterns.
                     final float theta = ((px * 142 + y * 79 & 255) * 0x1p-8f);
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str)] & 255;
+                    int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str, 0), 1023)] & 255;
                     pixmap.drawPixel(px, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
                             | ((bb >>> 3))] & 0xFF]);
