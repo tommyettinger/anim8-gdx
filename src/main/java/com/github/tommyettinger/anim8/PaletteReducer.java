@@ -4028,18 +4028,15 @@ public class PaletteReducer {
         final int lineLen = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        int color;
-//        final float strength = (ditherStrength * 6.75f * (float) Math.pow(OtherMath.cbrtPositive(OtherMath.logRough(colorCount)) * 0.5649f, -8f)); // probitF
-//        final float strength = (ditherStrength * 6.75f * (float) Math.pow(populationBias, -4f)); // probitF
-//        final float strength = (ditherStrength * 4f * populationBias); // none
-//        final float strength = Math.min(ditherStrength * (8.75f - populationBias * 8f), 4f); // none
-        // is the lowest possible populationBias^4, 0.8188650241570136f is the difference between the highest populationBias^4 and the lowest.
-//        final float strength = Math.min(ditherStrength * (4f - (populationBias * populationBias * populationBias * populationBias - 0.1598797460796939f) * (3.5f / 0.8188650241570136f)), 4f);
-//        final float strength = Math.min(1.5f * ditherStrength / (populationBias * populationBias * populationBias), 4f);
-//        final float strength = (float)(Math.min(Math.max(ditherStrength * 85 * Math.pow(populationBias, -8.0), -255), 255)); // triangularRemap
-//        System.out.println("strength is " + strength + " when ditherStrength is "+ ditherStrength + " and colorCount is " + colorCount);
-//        System.out.println("triangular remap is " + (float)(ditherStrength * 85 * Math.pow(populationBias, -8.0)));
-        final float strength = (float)(ditherStrength * 0.7 * Math.pow(populationBias, -5.50));
+
+        // This uses a Bayer matrix, but per-channel with different offsets, which typically weakens the effect a lot.
+        // We use a piecewise function with two simple lines, one for smaller counts that multiplies by about 2 to 3
+        // usually, and one for larger counts that approaches multiplying by 1.
+        // strength is at most ditherStrength * 3.1870692 when colorCount is 3.
+        // strength is at its lowest ditherStrength * 1 when colorCount is 256.
+        final float strength = ditherStrength * (colorCount <= 128
+                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
+                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
         for (int i = 0; i < 64; i++) {
             tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
 //            tempThresholdMatrix[i] = Math.min(Math.max(OtherMath.probitF((PaletteReducer.thresholdMatrix64[i] + 0.5f) * 0x1p-6f) * strength, -127), 127);
@@ -4047,7 +4044,7 @@ public class PaletteReducer {
         }
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
-                color = pixmap.getPixel(px, y);
+               int color = pixmap.getPixel(px, y);
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     pixmap.drawPixel(px, y, 0);
                 else {

@@ -1368,15 +1368,21 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine = curLineBytes.ensureCapacity(w);
             }
 
-            int color;
-            final float strength = (float)(ditherStrength * 0.7 * Math.pow(palette.populationBias, -5.50));
+            // This uses a Bayer matrix, but per-channel with different offsets, which typically weakens the effect a lot.
+            // We use a piecewise function with two simple lines, one for smaller counts that multiplies by about 2 to 3
+            // usually, and one for larger counts that approaches multiplying by 1.
+            // strength is at most ditherStrength * 3.1870692 when colorCount is 3.
+            // strength is at its lowest ditherStrength * 1 when colorCount is 256.
+            final float strength = ditherStrength * (palette.colorCount <= 128
+                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
             for (int i = 0; i < 64; i++) {
                 PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
             }
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
-                    color = pixmap.getPixel(px, py);
+                    int color = pixmap.getPixel(px, py);
                     if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[px] = 0;
                     else {
@@ -4921,9 +4927,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.endChunk(dataOutput);
 
             byte[] curLine;
-            int color;
 
-            final float strength = (float)(ditherStrength * 0.7 * Math.pow(palette.populationBias, -5.50));
+            // This uses a Bayer matrix, but per-channel with different offsets, which typically weakens the effect a lot.
+            // We use a piecewise function with two simple lines, one for smaller counts that multiplies by about 2 to 3
+            // usually, and one for larger counts that approaches multiplying by 1.
+            // strength is at most ditherStrength * 3.1870692 when colorCount is 3.
+            // strength is at its lowest ditherStrength * 1 when colorCount is 256.
+            final float strength = ditherStrength * (palette.colorCount <= 128
+                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
+                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
             for (int i = 0; i < 64; i++) {
                 PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
             }
@@ -4961,7 +4973,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
                     for (int px = 0; px < width; px++) {
-                        color = pixmap.getPixel(px, py);
+                        int color = pixmap.getPixel(px, py);
                         if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[px] = 0;
                         else {
