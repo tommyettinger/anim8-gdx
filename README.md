@@ -69,7 +69,7 @@ A typical Gradle dependency on anim8 looks like this (in the core module's depen
 dependencies {
   //... other dependencies are here, like libGDX 1.14.0 or higher
   // libGDX 1.14.0 is the current dependency for this library
-  api "com.github.tommyettinger:anim8-gdx:0.6.2"
+  api "com.github.tommyettinger:anim8-gdx:0.7.0"
 }
 ```
 
@@ -88,7 +88,7 @@ will. The GWT inherits line, which is needed in `GdxDefinition.gwt.xml`, is:
 If you do use this on GWT, the GWT build.gradle file also needs a dependency on anim8-gdx's sources:
 
 ```groovy
-  implementation "com.github.tommyettinger:anim8-gdx:0.6.2:sources"
+  implementation "com.github.tommyettinger:anim8-gdx:0.7.0:sources"
 ```
 
 If you use TeaVM instead of GWT, most of the `java.util.zip` package actually is implemented, and this may work without
