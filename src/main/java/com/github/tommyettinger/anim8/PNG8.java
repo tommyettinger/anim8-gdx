@@ -1717,25 +1717,23 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth(), h = pixmap.getHeight();
             byte[] curLine;
             if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(w)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(w);
-        }
+                curLine = (curLineBytes = new ByteArray(w)).items;
+            } else {
+                curLine = curLineBytes.ensureCapacity(w);
+            }
 
-            int color;
-            final float populationBias = palette.populationBias;
-            final float strength = Math.min(Math.max(0.35f * ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f);
+            final float strength = 1.5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
             for (int oy = 0; oy < h; oy++) {
                 int y = flipY ? (h - oy - 1) : oy;
                 for (int x = 0; x < w; x++) {
-                    color = pixmap.getPixel(x, y);
+                    int color = pixmap.getPixel(x, y);
                     if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[x] = 0;
                     else {
                         float adj = (x+y<<7&128)-63.5f;
-                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
-                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
-                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
+                        int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength, 0), 1023)] & 255;
+                        int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength, 0), 1023)] & 255;
+                        int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength, 0), 1023)] & 255;
 
                         curLine[x] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
@@ -5401,8 +5399,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte[] curLine;
 
-            final float populationBias = palette.populationBias;
-            final float strength = Math.min(Math.max(0.35f * ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f);
+            final float strength = 1.5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -5428,11 +5425,11 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 }
                 deflater.reset();
 
-        if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(width)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(width);
-        }
+                if (curLineBytes == null) {
+                    curLine = (curLineBytes = new ByteArray(width)).items;
+                } else {
+                    curLine = curLineBytes.ensureCapacity(width);
+                }
                 for (int oy = 0; oy < height; oy++) {
                     int y = flipY ? (height - oy - 1) : oy;
                     for (int x = 0; x < width; x++) {
@@ -5441,9 +5438,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                             curLine[x] = 0;
                         else {
                             float adj = (x+y<<7&128)-63.5f;
-                            int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
-                            int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
-                            int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
+                            int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength, 0), 1023)] & 255;
+                            int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength, 0), 1023)] & 255;
+                            int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength, 0), 1023)] & 255;
 
                             curLine[x] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)

@@ -4522,7 +4522,7 @@ public class PaletteReducer {
         final int w = pixmap.getWidth(), h = pixmap.getHeight();
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
-        final float strength = Math.min(Math.max(0.35f * ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f);
+        final float strength = 1.5f * ditherStrength * (float)Math.pow(colorCount, -0.4f);
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int color = pixmap.getPixel(x, y);
@@ -4530,9 +4530,9 @@ public class PaletteReducer {
                     pixmap.drawPixel(x, y, 0);
                 else {
                     float adj = (x+y<<7&128)-63.5f;
-                    int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength)] & 255;
-                    int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength)] & 255;
-                    int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength)] & 255;
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + (TRI_BLUE_NOISE  [(x + 62 & 63) << 6 | (y + 66  & 63)] + adj) * strength, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + (TRI_BLUE_NOISE_B[(x + 31 & 63) << 6 | (y + 113 & 63)] + adj) * strength, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + (TRI_BLUE_NOISE_C[(x + 71 & 63) << 6 | (y + 41  & 63)] + adj) * strength, 0), 1023)] & 255;
 
                     pixmap.drawPixel(x, y, paletteArray[paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
