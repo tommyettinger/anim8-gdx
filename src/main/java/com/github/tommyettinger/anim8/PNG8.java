@@ -1797,24 +1797,23 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             final int w = pixmap.getWidth(), h = pixmap.getHeight();
             byte[] curLine;
             if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(w)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(w);
-        }
+                curLine = (curLineBytes = new ByteArray(w)).items;
+            } else {
+                curLine = curLineBytes.ensureCapacity(w);
+            }
 
-            int color;
-            float strength = Math.min(Math.max(0.17f * ditherStrength * (float) Math.pow(palette.populationBias, -10f), -0.95f), 0.95f);
+            final float strength = 3.5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
             for (int oy = 0; oy < h; oy++) {
                 int y = flipY ? (h - oy - 1) : oy;
                 for (int x = 0; x < w; x++) {
-                    color = pixmap.getPixel(x, y);
+                    int color = pixmap.getPixel(x, y);
                     if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                         curLine[x] = 0;
                     else {
-                        float adj = TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] * strength;
-                        int rr = fromLinearLUT[(int)(toLinearLUT[(color >>> 24)       ] + adj)] & 255;
-                        int gg = fromLinearLUT[(int)(toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
-                        int bb = fromLinearLUT[(int)(toLinearLUT[(color >>> 8)  & 0xFF] + adj)] & 255;
+                        float adj = (TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] + 0.5f) * strength;
+                        int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + adj, 0), 1023)] & 255;
+                        int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + adj, 0), 1023)] & 255;
+                        int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + adj, 0), 1023)] & 255;
 
                         curLine[x] = paletteMapping[((rr << 7) & 0x7C00)
                                 | ((gg << 2) & 0x3E0)
@@ -5532,7 +5531,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte[] curLine;
 
-            float strength = Math.min(Math.max(0.17f * ditherStrength * (float) Math.pow(palette.populationBias, -10f), -0.95f), 0.95f);
+            final float strength = 3.5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -5570,10 +5569,10 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                         if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                             curLine[x] = 0;
                         else {
-                            float adj = TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] * strength;
-                            int rr = fromLinearLUT[(int) (toLinearLUT[(color >>> 24)] + adj)] & 255;
-                            int gg = fromLinearLUT[(int) (toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
-                            int bb = fromLinearLUT[(int) (toLinearLUT[(color >>> 8) & 0xFF] + adj)] & 255;
+                            float adj = (TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] + 0.5f) * strength;
+                            int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + adj, 0), 1023)] & 255;
+                            int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + adj, 0), 1023)] & 255;
+                            int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + adj, 0), 1023)] & 255;
 
                             curLine[x] = paletteMapping[((rr << 7) & 0x7C00)
                                     | ((gg << 2) & 0x3E0)

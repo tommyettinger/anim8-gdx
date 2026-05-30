@@ -957,7 +957,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float strength = Math.min(Math.max(0.17f * ditherStrength * (float) Math.pow(palette.populationBias, -10f), -0.95f), 0.95f);
+        final float strength = 3.5f * ditherStrength * (float)Math.pow(palette.colorCount, -0.4f);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             int ny = flipped + flipDir * y;
             for (int x = 0; x < width & i < nPix; x++) {
@@ -965,10 +965,10 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                 if (hasTransparent && (color & 0x80) == 0) /* if this pixel is less than 50% opaque, draw a pure transparent pixel. */
                     indexedPixels[i++] = 0;
                 else {
-                    float adj = TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] * strength;
-                    int rr = fromLinearLUT[(int) (toLinearLUT[(color >>> 24)] + adj)] & 255;
-                    int gg = fromLinearLUT[(int) (toLinearLUT[(color >>> 16) & 0xFF] + adj)] & 255;
-                    int bb = fromLinearLUT[(int) (toLinearLUT[(color >>> 8) & 0xFF] + adj)] & 255;
+                    float adj = (TRI_BAYER_MATRIX_128[(x & TBM_MASK) << TBM_BITS | (y & TBM_MASK)] + 0.5f) * strength;
+                    int rr = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + adj, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + adj, 0), 1023)] & 255;
+                    int bb = fromLinearLUT[(int)Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + adj, 0), 1023)] & 255;
 
                     usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
