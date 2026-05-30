@@ -4,7 +4,7 @@ import com.github.tommyettinger.anim8.Dithered;
 
 public class Config {
     public static final Dithered.DitherAlgorithm[] ALGORITHMS =
-			new Dithered.DitherAlgorithm[]{
+//			new Dithered.DitherAlgorithm[]{
 //					Dithered.DitherAlgorithm.ADDITIVE,
 //					Dithered.DitherAlgorithm.BLUE_NOISE,
 //					Dithered.DitherAlgorithm.BLUNT,
@@ -25,9 +25,9 @@ public class Config {
 //					Dithered.DitherAlgorithm.SCATTER,
 //					Dithered.DitherAlgorithm.NEUE,
 //					Dithered.DitherAlgorithm.DODGY,
-					Dithered.DitherAlgorithm.BAYER,
-					Dithered.DitherAlgorithm.BAYDIENT,
-			};
-//            Dithered.DitherAlgorithm.ALL;
+//					Dithered.DitherAlgorithm.BAYER,
+//					Dithered.DitherAlgorithm.BAYDIENT,
+//			};
+            Dithered.DitherAlgorithm.ALL;
 
 }
