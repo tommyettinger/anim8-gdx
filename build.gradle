@@ -5,15 +5,17 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.34.0'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.37.0'
     }
 }
 
 apply plugin: 'java-library'
 apply plugin: 'com.vanniktech.maven.publish'
 
-java.targetCompatibility = JavaVersion.VERSION_11
-sourceCompatibility = 11
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 if(JavaVersion.current().isJava9Compatible()) {
     allprojects {
         tasks.withType(JavaCompile).tap {
@@ -30,7 +32,7 @@ group 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:anim8-gdx:0.3.7"
 
-def gdxVersion = '1.13.5'
+def gdxVersion = '1.14.2'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'ISO-8859-1'
 
