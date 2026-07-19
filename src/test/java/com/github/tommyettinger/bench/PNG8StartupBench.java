@@ -57,7 +57,7 @@ public class PNG8StartupBench extends ApplicationAdapter {
         PNG8 png8 = new PNG8();
         System.out.println("Took " + (TimeUtils.millis() - startTime) + " ms to construct a PNG8");
         long subTime = TimeUtils.millis();
-        Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap.class);
+        Array<Pixmap> pixmaps = new Array<>(true, 90, Pixmap[]::new);
         for (int i = 1; i <= 90; i++) {
             pixmaps.add(new Pixmap(Gdx.files.internal(name + "/" + name + "_" + i + ".jpg")));
         }

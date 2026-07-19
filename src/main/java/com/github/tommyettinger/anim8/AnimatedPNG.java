@@ -77,22 +77,21 @@ import java.util.zip.DeflaterOutputStream;
  * @author Tommy Ettinger
  */
 public class AnimatedPNG implements AnimationWriter, Disposable {
-    static private final byte[] SIGNATURE = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};
-    static private final int IHDR = 0x49484452, acTL = 0x6163544C,
+    private static final byte[] SIGNATURE = {(byte) 137, 80, 78, 71, 13, 10, 26, 10};
+    private static final int IHDR = 0x49484452, acTL = 0x6163544C,
             fcTL = 0x6663544C, IDAT = 0x49444154,
             fdAT = 0x66644154, IEND = 0x49454E44;
-    static private final byte COLOR_ARGB = 6;
-    static private final byte COMPRESSION_DEFLATE = 0;
-    static private final byte FILTER_NONE = 0;
-    static private final byte INTERLACE_NONE = 0;
-    static private final byte FILTER_SUB = 1;
-    static private final byte FILTER_PAETH = 4;
+    private static final byte COLOR_ARGB = 6;
+    private static final byte COMPRESSION_DEFLATE = 0;
+    private static final byte FILTER_NONE = 0;
+    private static final byte INTERLACE_NONE = 0;
+//    private static final byte FILTER_SUB = 1;
+//    private static final byte FILTER_PAETH = 4;
 
     private final ChunkBuffer buffer;
     private final Deflater deflater;
-    private ByteArray lineOutBytes, curLineBytes, prevLineBytes;
+    private ByteArray curLineBytes;
     private boolean flipY = true;
-    private int lastLineLen;
 
     /**
      * Creates an AnimatedPNG writer with an initial buffer size of 16384. The buffer can resize later if needed.
@@ -195,9 +194,7 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
             buffer.endChunk(dataOutput);
 
             int lineLen = width * 4;
-            byte[] lineOut;
             byte[] curLine;
-            byte[] prevLine;
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -224,17 +221,10 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
                 deflater.reset();
 
                 if (curLineBytes == null) {
-                    lineOut = (lineOutBytes = new ByteArray(lineLen)).items;
                     curLine = (curLineBytes = new ByteArray(lineLen)).items;
-                    prevLine = (prevLineBytes = new ByteArray(lineLen)).items;
                 } else {
                     curLine = curLineBytes.ensureCapacity(lineLen);
-                    lineOut = lineOutBytes.ensureCapacity(lineLen);
-                    prevLine = prevLineBytes.ensureCapacity(lineLen);
-                    for (int ln = 0, n = lastLineLen; ln < n; ln++)
-                        prevLine[ln] = 0;
                 }
-                lastLineLen = lineLen;
 
                 for (int y = 0; y < height; y++) {
                     int py = flipY ? (height - y - 1) : y;
@@ -245,7 +235,7 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
                         curLine[x++] = (byte) ((pixel >>> 8) & 0xff);
                         curLine[x++] = (byte) (pixel & 0xff);
                     }
-////PAETH
+// //PAETH
 //                    lineOut[0] = (byte) (curLine[0] - prevLine[0]);
 //                    lineOut[1] = (byte) (curLine[1] - prevLine[1]);
 //                    lineOut[2] = (byte) (curLine[2] - prevLine[2]);
@@ -271,26 +261,27 @@ public class AnimatedPNG implements AnimationWriter, Disposable {
 //
 //                    deflaterOutput.write(PAETH);
 //                    deflaterOutput.write(lineOut, 0, lineLen);
-////NONE
-//                    deflaterOutput.write(FILTER_NONE);
-//                    deflaterOutput.write(curLine, 0, lineLen);
-////SUB
-                    lineOut[0] = curLine[0];
-                    lineOut[1] = curLine[1];
-                    lineOut[2] = curLine[2];
-                    lineOut[3] = curLine[3];
-
-                    for (int x = 4; x < lineLen; x++) {
-                        lineOut[x] = (byte) (curLine[x] - curLine[x - 4]);
-                    }
-                    deflaterOutput.write(FILTER_SUB);
-                    deflaterOutput.write(lineOut, 0, lineLen);
-
-                    byte[] temp = curLine;
-                    curLine = prevLine;
-                    prevLine = temp;
+// //NONE
+                    deflaterOutput.write(FILTER_NONE);
+                    deflaterOutput.write(curLine, 0, lineLen);
+// //SUB
+//                    lineOut[0] = curLine[0];
+//                    lineOut[1] = curLine[1];
+//                    lineOut[2] = curLine[2];
+//                    lineOut[3] = curLine[3];
+//
+//                    for (int x = 4; x < lineLen; x++) {
+//                        lineOut[x] = (byte) (curLine[x] - curLine[x - 4]);
+//                    }
+//                    deflaterOutput.write(FILTER_SUB);
+//                    deflaterOutput.write(lineOut, 0, lineLen);
+// // End of filtering code
+//
+// // used by Paeth filtering
+//                    byte[] temp = curLine;
+//                    curLine = prevLine;
+//                    prevLine = temp;
                 }
-//                ((Buffer)pixels).position(oldPosition);
                 deflaterOutput.finish();
                 buffer.endChunk(dataOutput);
             }

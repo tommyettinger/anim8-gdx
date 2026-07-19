@@ -5,10 +5,10 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.github.tommyettinger.anim8.PNG8;
@@ -45,8 +45,9 @@ public class PaletteTwister extends ApplicationAdapter {
     }
 
     public void load(String name) {
-        FileHandle out = Gdx.files.local(System.currentTimeMillis() + ".png"), in;
-        //// loads a file by its full path, which we get via drag+drop
+        Gdx.files.local("tmp/twister").mkdirs();
+        FileHandle out = Gdx.files.local("tmp/twister/" + System.currentTimeMillis() + ".png"), in;
+        // loads a file by its full path, which we get via drag+drop
         if (Gdx.files.internal(name).exists())
             in = Gdx.files.internal(name);
         else
@@ -166,14 +167,13 @@ public class PaletteTwister extends ApplicationAdapter {
         batch.enableBlending();
         Gdx.input.setInputProcessor(inputProcessor());
 
-        load("images/Cat-PNG8-Scatter-256.png");
+        load("images/png/Cat-PNG8-Neue-255.png");
     }
 
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0.4f, 0.4f, 0.4f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        ScreenUtils.clear(0.4f, 0.4f, 0.4f, 1f);
 
         batch.setProjectionMatrix(screenView.getCamera().combined);
         batch.begin();
@@ -193,19 +193,19 @@ public class PaletteTwister extends ApplicationAdapter {
             public boolean keyDown(int keycode) {
                 switch (keycode) {
                     case Input.Keys.C:
-                        load("images/Cat-PNG8-Scatter-256.png");
+                        load("images/png/Cat-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.M:
-                        load("images/Mona_Lisa-PNG8-Scatter-256.png");
+                        load("images/png/Mona_Lisa-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.L:
-                        load("images/Landscape-PNG8-Scatter-256.png");
+                        load("images/png/Landscape-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.F:
-                        load("images/Frog-PNG8-Scatter-256.png");
+                        load("images/png/Frog-PNG8-Neue-255.png");
                         break;
                     case Input.Keys.G:
-                        load("images/PNG8-green-pattern.png");
+                        load("images/apng/animated/PNG8-green-neue.png");
                         break;
                     case Input.Keys.P:
                         load("Pixel_Art.png");

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -22,16 +23,21 @@ import com.github.tommyettinger.anim8.*;
  * Credit for the shader adaptation goes to angelickite , a very helpful user on the libGDX Discord.
  * The Discord can be found at <a href="https://discord.gg/crTrDEK">this link</a>.
  */
+// slow computer:
+// Finished writing in 536302 ms.
 public class ShaderCaptureDemo extends ApplicationAdapter {
-
+// You (well, I) can convert GIF files this generates to APNG without losing a color, by using this Win32 cmd:
+// for %i in (*.gif) do (ffmpeg -i "%i" -plays 0 -framerate 16.67 "%~ni.apng" && mv "%~ni.apng" "%~ni.png")
     private SpriteBatch batch;
     private Texture pixel;
-    private ShaderProgram shader, shader2;
+    private ShaderProgram shader;
 
     private long startTime;
     private float seed;
     private int width, height;
     private String name;
+
+    private static final Dithered.DitherAlgorithm[] DITHERS = Config.ALGORITHMS;
 
     @Override
     public void create() {
@@ -202,7 +208,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             Gdx.app.exit();
             return;
         }
-        shader2 = new ShaderProgram(vertex2, fragment2);
+        ShaderProgram shader2 = new ShaderProgram(vertex2, fragment2);
         if (!shader2.isCompiled()) {
             Gdx.app.error("Shader", "error compiling shader2:\n" + shader2.getLog());
             Gdx.app.exit();
@@ -217,10 +223,19 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         long state = 0x123456789L; name = "flashy"; // flashy, bw, gb
 //        long state = 0x1234567890L; name = "green"; // green
 
-        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green", "bw", "gb", "aurora", "db8"};
-        int[][] pals = {null, null, null, null, null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}};
-        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L};
-        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader, shader, shader, shader, shader};
+        String[] nms = {"blanket", "bold", "ocean", "flashy", "pastel", "green",
+                "bw", "gb", "aurora", "db8", "prospecal", "snuggly",
+                "ocean-reductive", "ocean-hue", "ocean-analyzed", "ocean-snuggly"};
+        int[][] pals = {null, null, null, null, null, null,
+                {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, QualityPalette.AURORA, {0x00000000, 0x000000FF, 0x55415FFF, 0x646964FF, 0xD77355FF, 0x508CD7FF, 0x64B964FF, 0xE6C86EFF, 0xDCF5FFFF}, {0x00000000, 0x6DB5BAFF, 0x26544CFF, 0x76AA3AFF, 0xFBFDBEFF, 0xD23C4FFF, 0x2B1328FF, 0x753D38FF, 0xEFAD5FFF}, QualityPalette.SNUGGLY,
+                {}, {1}, {2}, QualityPalette.SNUGGLY};
+        long[] sds = {0x123456789L, -1L, 0x1234567890L, 0x123456789L, -1L, 0x1234567890L,
+                0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L, 0x123456789L,
+                0x1234567890L, 0x1234567890L, 0x1234567890L, 0x1234567890L};
+        ShaderProgram[] shs = {shader2, shader2, shader2, shader, shader, shader,
+                shader, shader, shader, shader, shader, shader,
+                shader2, shader2, shader2, shader2
+        };
 
 //        String[] nms = {"pastel", "green", "bw", "gb", "aurora"};
 //        int[][] pals = {null, null, {0x00000000, 0x000000FF, 0xFFFFFFFF}, {0x00000000, 0x081820FF, 0x346856FF, 0x88C070FF, 0xE0F8D0FF}, PaletteReducer.AURORA};
@@ -235,11 +250,8 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
         width = Gdx.graphics.getWidth();
         height = Gdx.graphics.getHeight();
 
-        Gdx.files.local("images/gif/animated/").mkdirs();
-        Gdx.files.local("images/apng/animated/").mkdirs();
-        Gdx.files.local("images/png/animated/").mkdirs();
-//		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
-//		renderPNG8(nms, pals, sds, shs);
+		renderAPNG(nms, sds, shs); // comment this out if you aren't using the full-color animated PNGs, because this is a little slow.
+		renderPNG8(nms, pals, sds, shs);
         renderGif(nms, pals, sds, shs);
 //Analyzing each frame individually takes 137131 ms.
 //Analyzing all frames as a batch takes    31025 ms.
@@ -260,8 +272,7 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-        Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+        ScreenUtils.clear(0f, 0f, 0f, 0f);
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && UIUtils.alt()) {
             if (Gdx.graphics.isFullscreen())
                 Gdx.graphics.setWindowedMode(480, 320);
@@ -289,18 +300,20 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
             Array<Pixmap> pixmaps = new Array<>(80);
             for (int i = 1; i <= 80; i++) {
-                Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-                Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+                ScreenUtils.clear(0f, 0f, 0f, 0f);
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, 0, width, height);
                 batch.end();
-                pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+                pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             apng.write(Gdx.files.local("images/apng/animated/AnimatedPNG-" + name + "-full.png"), pixmaps, 16);
-            for (Pixmap pm : pixmaps)
+            int index = 1;
+            for (Pixmap pm : pixmaps) {
+                PixmapIO.writePNG(Gdx.files.local("images/apng/frames/"+name+"_"+ (index++) + ".png"), pm, 6, true);
                 pm.dispose();
+            }
         }
     }
 
@@ -316,40 +329,23 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
             Array<Pixmap> pixmaps = new Array<>(80);
             for (int i = 1; i <= 80; i++) {
-                Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-                Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+                ScreenUtils.clear(0f, 0f, 0f, 0f);
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, 0, width, height);
                 batch.end();
-                pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+                pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
-            if (palettes[n] == null)
-            {
+            if (palettes[n] == null) {
                 png8.palette.analyze(pixmaps);
-            }
-            else {
+            } else {
                 png8.palette.exact(palettes[n]);
             }
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-pattern.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-none.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-gradient.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-roberts.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-diffusion.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-blueNoise.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-chaoticNoise.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-scatter.png"), pixmaps, 16);
-            png8.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-neue.png"), pixmaps, 16);
+            for (Dithered.DitherAlgorithm d : DITHERS) {
+                png8.setDitherAlgorithm(d);
+                png8.write(Gdx.files.local("images/png/animated/PNG8-" + name + "-" + d + ".png"), pixmaps, 16);
+            }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }
@@ -372,46 +368,29 @@ public class ShaderCaptureDemo extends ApplicationAdapter {
             seed = ((((state = (state ^ (state << 41 | state >>> 23) ^ (state << 17 | state >>> 47) ^ 0xD1B54A32D192ED03L) * 0xAEF17502108EF2D9L) ^ state >>> 43 ^ state >>> 31 ^ state >>> 23) * 0xDB4F0B9175AE2165L) >>> 36) * 0x1.5bf0a8p-16f;
             Array<Pixmap> pixmaps = new Array<>(80);
             for (int i = 1; i <= 80; i++) {
-                Gdx.gl.glClearColor(0f, 0f, 0f, 0f);
-                Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+                ScreenUtils.clear(0f, 0f, 0f, 0f);
                 batch.begin();
                 shader.setUniformf("seed", seed);
                 shader.setUniformf("tm", i * 1.25f);
                 batch.draw(pixel, 0, 0, width, height);
                 batch.end();
-                pixmaps.add(ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+                pixmaps.add(Pixmap.createFromFrameBuffer(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
             }
             String prefix;
             if (palettes[n] == null) {
-//                pal.analyze(pixmaps, 75, 256);
                 gif.palette = null;
                 if(!(gif.fastAnalysis = !gif.fastAnalysis)) --n;
-//                prefix = "images/gif/animatedHue/AnimatedGif-";
-                prefix = "images/gif/animated"+(gif.palette != null ? "" : gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
+                prefix = "images/gif/animated"+(gif.fastAnalysis ? "Fast" : "Slow")+"/AnimatedGif-";
             }
             else {
                 pal.exact(palettes[n]);
                 gif.palette = pal;
                 prefix = "images/gif/animated/AnimatedGif-";
             }
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.PATTERN);
-            gif.write(Gdx.files.local(prefix + name + "-pattern.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NONE);
-            gif.write(Gdx.files.local(prefix + name + "-none.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.GRADIENT_NOISE);
-            gif.write(Gdx.files.local(prefix + name + "-gradient.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.ROBERTS);
-            gif.write(Gdx.files.local(prefix + name + "-roberts.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.DIFFUSION);
-            gif.write(Gdx.files.local(prefix + name + "-diffusion.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.BLUE_NOISE);
-            gif.write(Gdx.files.local(prefix + name + "-blueNoise.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.CHAOTIC_NOISE);
-            gif.write(Gdx.files.local(prefix + name + "-chaoticNoise.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.SCATTER);
-            gif.write(Gdx.files.local(prefix + name + "-scatter.gif"), pixmaps, 16);
-            gif.setDitherAlgorithm(Dithered.DitherAlgorithm.NEUE);
-            gif.write(Gdx.files.local(prefix + name + "-neue.gif"), pixmaps, 16);
+            for(Dithered.DitherAlgorithm d : DITHERS){
+                gif.setDitherAlgorithm(d);
+                gif.write(Gdx.files.local(prefix + name + "-" + d + ".gif"), pixmaps, 16);
+            }
             for (Pixmap pm : pixmaps)
                 pm.dispose();
         }

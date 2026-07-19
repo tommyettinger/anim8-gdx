@@ -11,30 +11,33 @@ buildscript {
 
 apply plugin: 'java-library'
 apply plugin: 'com.vanniktech.maven.publish'
+apply plugin: 'idea'
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+compileJava {
+    sourceCompatibility = 8
+    targetCompatibility = 8
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.release.set(8)
+    }
 }
-if(JavaVersion.current().isJava9Compatible()) {
-    allprojects {
-        tasks.withType(JavaCompile).tap {
-            configureEach {
-                options.release.set(8)
-            }
-        }
+
+compileTestJava {
+    sourceCompatibility = 8
+    targetCompatibility = 8
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.release.set(8)
     }
 }
 
 def projectName = 'anim8-gdx'
-version "$VERSION_NAME"
-group 'com.github.tommyettinger'
+version = "$VERSION_NAME"
+group = 'com.github.tommyettinger'
 
-//api "com.github.tommyettinger:anim8-gdx:0.3.7"
+//api "com.github.tommyettinger:anim8-gdx:0.6.1"
 
 def gdxVersion = '1.14.2'
 
-[compileJava, compileTestJava, javadoc]*.options*.encoding = 'ISO-8859-1'
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 // Disable JDK 8's doclint
 // http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
@@ -50,13 +53,15 @@ if (JavaVersion.current().isJava8Compatible()) {
     }
 }
 
+idea.module.excludeDirs += [file("docs/")]
+
 javadoc.destinationDir = file('docs/apidocs')
 
 //sourceSets.test.resources.srcDirs += [ file('src/test/resources').path ]
 
 jar {
     archiveBaseName.set(projectName)
-    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes 'Implementation-Title': projectName, 'Implementation-Version': archiveVersion
     }
@@ -64,7 +69,7 @@ jar {
 
 repositories {
     mavenCentral()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url = 'https://central.sonatype.com/repository/maven-snapshots/' }
 }
 
 dependencies {
