@@ -2,7 +2,7 @@ package com.github.tommyettinger.anim8;
 
 import java.util.Arrays;
 
-class AnalyzedPixmap {
+public class AnalyzedPixmap {
     private Integer index;
     private byte[] colorTab;
     private byte[] indexedPixels;

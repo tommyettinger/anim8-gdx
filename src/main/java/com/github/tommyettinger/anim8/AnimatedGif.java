@@ -155,7 +155,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
 
     protected Array<Pixmap> images; // all frames
 
-    protected ForkJoinPool pool = new ForkJoinPool();
+    protected ForkJoinPool pool = ForkJoinPool.commonPool();
 
     protected byte[] indexedPixels; // converted frame indexed to palette
 
@@ -342,11 +342,20 @@ public class AnimatedGif implements AnimationWriter, Dithered {
             Logger.getGlobal().log(Level.INFO, "Analyze: Number of active thread before invoking: " + pool.getActiveThreadCount());
             Logger.getGlobal().log(Level.INFO, "Analyze: Available Processors: " + Runtime.getRuntime().availableProcessors());
             Logger.getGlobal().log(Level.INFO, "Analyze: Pool parallelism: " + pool.getParallelism());
+            
+            // Тепер ми отримуємо результати безпосередньо з виклику задачі
             Array<AnalyzedPixmap> arr = pool.invoke(analyzeTask);
-            Logger.getGlobal().log(Level.INFO, "Analyze: Number of active thread after invoking: " + pool.getActiveThreadCount());
-            Logger.getGlobal().log(Level.INFO, "Analyze: Pool size: " + pool.getPoolSize());
+            
+            if (arr == null) {
+                Gdx.app.error("anim8", "AnalyzeTask returned null array!");
+                return false;
+            }
+            
+            Gdx.app.log("anim8", "Analyze: Received " + arr.size + " frames from pool");
+            
+            // Додаємо всі проаналізовані кадри. Вони вже у правильному порядку завдяки логіці Task.
             analyzedPixmapArray.addAll(arr);
-            analyzeTask.clearAnalyzedPixmapArrayAndSeqFromTasks();
+            
             for (int i = 0; i < analyzedPixmapArray.size; i++) {
                 if (firstFrame) {
                     writeLSD(); // logical screen description !!!! write

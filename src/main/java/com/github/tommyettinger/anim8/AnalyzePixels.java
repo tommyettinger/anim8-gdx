@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class AnalyzePixels {
+public class AnalyzePixels {
 
     Integer idx;
     Pixmap image; // current frame
