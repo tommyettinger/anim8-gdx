@@ -88,9 +88,7 @@ public class FastGif extends AnimatedGif {
         }
         if(!start(output)) return;
         setFrameRate(fps);
-        for (int i = 0; i < frames.size; i++) {
-            addFrame(frames.get(i));
-        }
+        addFrames(frames);
         finish();
         if(clearPalette)
             palette = null;

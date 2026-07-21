@@ -13,14 +13,24 @@ public class AnalyzeTaskRecursiveOptimized extends RecursiveTask<Array<AnalyzedP
     private final int left;
     private final int right;
     private final Array<Pixmap> frames;
+    private final PaletteReducer palette;
+    private final Dithered.DitherAlgorithm ditherAlgorithm;
+    private final float ditherStrength;
+    private final boolean fastAnalysis;
+    private final boolean flipY;
     
     // Поріг для послідовної обробки. 
     private static final int THRESHOLD = 4;
 
-    public AnalyzeTaskRecursiveOptimized(int left, int right, Array<Pixmap> frames) {
+    public AnalyzeTaskRecursiveOptimized(int left, int right, Array<Pixmap> frames, PaletteReducer palette, Dithered.DitherAlgorithm ditherAlgorithm, float ditherStrength, boolean fastAnalysis, boolean flipY) {
         this.left = left;
         this.right = right;
         this.frames = frames;
+        this.palette = palette;
+        this.ditherAlgorithm = ditherAlgorithm;
+        this.ditherStrength = ditherStrength;
+        this.fastAnalysis = fastAnalysis;
+        this.flipY = flipY;
     }
 
     @Override
@@ -32,14 +42,14 @@ public class AnalyzeTaskRecursiveOptimized extends RecursiveTask<Array<AnalyzedP
                 // Послідовна обробка для невеликої кількості кадрів
                 Array<AnalyzedPixmap> results = new Array<>(size);
                 for (int i = left; i < right; i++) {
-                    results.add(new AnalyzePixels(i, frames.get(i)).analyzePixels());
+                    results.add(new AnalyzePixels(i, frames.get(i), palette, ditherAlgorithm, ditherStrength, fastAnalysis, flipY).analyzePixels());
                 }
                 return results;
             } else {
                 int middle = left + (size / 2);
 
-                AnalyzeTaskRecursiveOptimized taskLeft = new AnalyzeTaskRecursiveOptimized(left, middle, frames);
-                AnalyzeTaskRecursiveOptimized taskRight = new AnalyzeTaskRecursiveOptimized(middle, right, frames);
+                AnalyzeTaskRecursiveOptimized taskLeft = new AnalyzeTaskRecursiveOptimized(left, middle, frames, palette, ditherAlgorithm, ditherStrength, fastAnalysis, flipY);
+                AnalyzeTaskRecursiveOptimized taskRight = new AnalyzeTaskRecursiveOptimized(middle, right, frames, palette, ditherAlgorithm, ditherStrength, fastAnalysis, flipY);
 
                 taskLeft.fork();
                 Array<AnalyzedPixmap> rightResult = taskRight.compute();

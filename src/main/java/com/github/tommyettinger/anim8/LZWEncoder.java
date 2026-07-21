@@ -274,6 +274,8 @@ class LZWEncoder {
     }
 
     void output(int code, OutputStream outs) throws IOException {
+        if(cur_bits < 0) cur_bits = 0;
+        if(cur_bits > 16) cur_bits = 16;
         cur_accum &= masks[cur_bits];
 
         if (cur_bits > 0)

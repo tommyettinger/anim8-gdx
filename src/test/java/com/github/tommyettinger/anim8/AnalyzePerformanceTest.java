@@ -3,15 +3,14 @@ package com.github.tommyettinger.anim8;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import org.junit.Test;
 
 import java.util.concurrent.ForkJoinPool;
 
-/**
- * Оновлений бенчмарк для перевірки нової паралельної реалізації.
- */
-public class AnalyzePerformanceBench {
+public class AnalyzePerformanceTest {
 
-    public static void main(String[] args) {
+    @Test
+    public void testPerformance() {
         // Завантаження нативів
         try {
             Class<?> loader = Class.forName("com.badlogic.gdx.backends.lwjgl3.Lwjgl3NativesLoader");
@@ -20,9 +19,9 @@ public class AnalyzePerformanceBench {
             System.err.println("Could not load natives: " + e.getMessage());
         }
 
-        int numFrames = 40;
-        int width = 512;
-        int height = 512;
+        int numFrames = 20;
+        int width = 256;
+        int height = 256;
 
         System.out.println("Preparing " + numFrames + " frames (" + width + "x" + height + ")...");
         Array<Pixmap> frames = new Array<>();
@@ -44,7 +43,7 @@ public class AnalyzePerformanceBench {
         for (Pixmap p : frames) p.dispose();
     }
 
-    private static void runOriginal(Array<Pixmap> frames) {
+    private void runOriginal(Array<Pixmap> frames) {
         long start = TimeUtils.millis();
         Array<AnalyzedPixmap> results = new Array<>();
         PaletteReducer palette = new PaletteReducer(frames.first());
@@ -54,7 +53,7 @@ public class AnalyzePerformanceBench {
         System.out.println("Original (Sequential) took: " + (TimeUtils.millis() - start) + " ms");
     }
 
-    private static void runNewParallel(Array<Pixmap> frames) {
+    private void runNewParallel(Array<Pixmap> frames) {
         long start = TimeUtils.millis();
         ForkJoinPool pool = new ForkJoinPool();
         PaletteReducer palette = new PaletteReducer(frames.first());

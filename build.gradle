@@ -79,3 +79,19 @@ dependencies {
     testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     testImplementation "junit:junit:4.13.2"
 }
+
+task runBench(type: JavaExec) {
+    doFirst {
+        println "DEBUG: Starting benchmark..."
+    }
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.github.tommyettinger.anim8.AnalyzePerformanceBench'
+    standardOutput = System.out
+    errorOutput = System.err
+}
+
+task printClasspath {
+    doLast {
+        println sourceSets.test.runtimeClasspath.asPath
+    }
+}
