@@ -885,14 +885,14 @@ public class PaletteReducer {
             }
         }
         int cs = counts.size;
-        Array<IntIntMap.Entry> es = new Array<>(cs);
+        Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
         for (IntIntMap.Entry e : counts) {
             IntIntMap.Entry e2 = new IntIntMap.Entry();
             e2.key = e.key;
             e2.value = e.value;
             es.add(e2);
         }
-        es.sort(entryComparator);
+        java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
         colorCount = Math.min(limit, es.size + 1);
         int[] colorArray = new int[colorCount];
         int i = 1;
@@ -1882,7 +1882,7 @@ public class PaletteReducer {
             }
         }
         int cs = counts.size;
-        Array<IntIntMap.Entry> es = new Array<>(cs);
+        Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
         for(IntIntMap.Entry e : counts)
         {
             IntIntMap.Entry e2 = new IntIntMap.Entry();
@@ -1890,7 +1890,7 @@ public class PaletteReducer {
             e2.value = e.value;
             es.add(e2);
         }
-        es.sort(entryComparator);
+        java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
         if (cs < limit) {
             int i = 1;
             for(IntIntMap.Entry e : es) {
@@ -1991,7 +1991,7 @@ public class PaletteReducer {
         }
         int cs = counts.size;
         if (cs < limit) {
-            Array<IntIntMap.Entry> es = new Array<>(cs);
+            Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
             for(IntIntMap.Entry e : counts)
             {
                 IntIntMap.Entry e2 = new IntIntMap.Entry();
@@ -1999,7 +1999,7 @@ public class PaletteReducer {
                 e2.value = e.value;
                 es.add(e2);
             }
-            es.sort(entryComparator);
+            java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
             int i = 1;
             for(IntIntMap.Entry e : es) {
                 color = e.key;
@@ -2125,7 +2125,7 @@ public class PaletteReducer {
             }
         }
         int cs = counts.size;
-        Array<IntIntMap.Entry> es = new Array<>(cs);
+        Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
         for(IntIntMap.Entry e : counts)
         {
             IntIntMap.Entry e2 = new IntIntMap.Entry();
@@ -2133,7 +2133,7 @@ public class PaletteReducer {
             e2.value = e.value;
             es.add(e2);
         }
-        es.sort(entryComparator);
+        java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
         if (cs < limit) {
             int i = 1;
             for(IntIntMap.Entry e : es) {
@@ -2642,7 +2642,7 @@ public class PaletteReducer {
             }
         }
         int cs = counts.size;
-        Array<IntIntMap.Entry> es = new Array<>(cs);
+        Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
         for(IntIntMap.Entry e : counts)
         {
             IntIntMap.Entry e2 = new IntIntMap.Entry();
@@ -2650,7 +2650,7 @@ public class PaletteReducer {
             e2.value = e.value;
             es.add(e2);
         }
-        es.sort(entryComparator);
+        java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
         if (cs < limit) {
             int i = 1;
             for(IntIntMap.Entry e : es) {
@@ -2834,7 +2834,7 @@ public class PaletteReducer {
             }
         }
         final int cs = counts.size;
-        Array<IntIntMap.Entry> es = new Array<>(cs);
+        Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
         for(IntIntMap.Entry e : counts)
         {
             IntIntMap.Entry e2 = new IntIntMap.Entry();
@@ -2842,7 +2842,7 @@ public class PaletteReducer {
             e2.value = e.value;
             es.add(e2);
         }
-        es.sort(entryComparator);
+        java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
         if (cs < limit) {
             int i = 1;
             for(IntIntMap.Entry e : es) {
@@ -3011,7 +3011,7 @@ public class PaletteReducer {
         }
         final int cs = counts.size;
         if (cs < limit) {
-            Array<IntIntMap.Entry> es = new Array<>(cs);
+            Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
             for(IntIntMap.Entry e : counts)
             {
                 IntIntMap.Entry e2 = new IntIntMap.Entry();
@@ -3019,7 +3019,7 @@ public class PaletteReducer {
                 e2.value = e.value;
                 es.add(e2);
             }
-            es.sort(entryComparator);
+            java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
             int i = 1;
             for(IntIntMap.Entry e : es) {
                 color = e.key;
@@ -3238,7 +3238,7 @@ public class PaletteReducer {
             }
         }
         final int cs = counts.size;
-        Array<IntIntMap.Entry> es = new Array<>(cs);
+        Array<IntIntMap.Entry> es = new Array<>(false, cs, IntIntMap.Entry.class);
         for(IntIntMap.Entry e : counts)
         {
             IntIntMap.Entry e2 = new IntIntMap.Entry();
@@ -3246,7 +3246,7 @@ public class PaletteReducer {
             e2.value = e.value;
             es.add(e2);
         }
-        es.sort(entryComparator);
+        java.util.Arrays.sort(es.items, 0, es.size, entryComparator);
         if (cs < limit) {
             int i = 1;
             for(IntIntMap.Entry e : es) {

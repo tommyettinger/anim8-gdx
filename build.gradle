@@ -5,7 +5,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.36.0'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.37.0'
     }
 }
 
@@ -34,6 +34,8 @@ version = "$VERSION_NAME"
 group = 'com.github.tommyettinger'
 
 //api "com.github.tommyettinger:anim8-gdx:0.6.1"
+
+def gdxVersion = '1.14.2'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
@@ -72,6 +74,24 @@ repositories {
 
 dependencies {
     api "com.badlogicgames.gdx:gdx:$gdxVersion"
+
     testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
     testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    testImplementation "junit:junit:4.13.2"
+}
+
+task runBench(type: JavaExec) {
+    doFirst {
+        println "DEBUG: Starting benchmark..."
+    }
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.github.tommyettinger.anim8.AnalyzePerformanceBench'
+    standardOutput = System.out
+    errorOutput = System.err
+}
+
+task printClasspath {
+    doLast {
+        println sourceSets.test.runtimeClasspath.asPath
+    }
 }
