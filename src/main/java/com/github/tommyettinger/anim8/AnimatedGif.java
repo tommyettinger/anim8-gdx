@@ -2154,9 +2154,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float str = 45f * ditherStrength * (palette.colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+        final float str = 360f * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
 
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
@@ -2169,8 +2167,8 @@ public class AnimatedGif implements AnimationWriter, Dithered {
                     // gives 3 different values for r, g, and b, without much bias toward high or low values.
                     // There is correlation between r, g, and b in certain patterns.
                     final float theta = ((px * 142 + y * 79 & 255) * 0x1p-8f);
-                    int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta         ) * str, 0), 1023)] & 255;
-                    int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta + 0.382f) * str, 0), 1023)] & 255;
+                    int rr = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 24)       ] + OtherMath.triangleWave(theta - 0.236f) * str, 0), 1023)] & 255;
+                    int gg = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 16) & 0xFF] + OtherMath.triangleWave(theta - 0.382f) * str, 0), 1023)] & 255;
                     int bb = fromLinearLUT[(int) Math.min(Math.max(toLinearLUT[(color >>> 8)  & 0xFF] + OtherMath.triangleWave(theta + 0.618f) * str, 0), 1023)] & 255;
                     usedEntry[(indexedPixels[i] = paletteMapping[((rr << 7) & 0x7C00)
                             | ((gg << 2) & 0x3E0)
