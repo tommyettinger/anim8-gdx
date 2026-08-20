@@ -23,7 +23,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.IntArray;
@@ -3691,9 +3690,7 @@ public class PaletteReducer {
 //        final float strength = Math.min(ditherStrength * (2f - (populationBias * populationBias * populationBias * populationBias - 0.1598797460796939f) * ((2f * 0.875f) / 0.8188650241570136f)), 1f);
 //        final float strength = Math.max(0.54f * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 6f);
 //        final float strength = 0.9f * (float) Math.tanh(0.16f * ditherStrength * Math.pow(populationBias, -7.00));
-        final float strength = 0.25f * ditherStrength * (colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
+        final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(colorCount, -0.4f);
 
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
@@ -3761,9 +3758,7 @@ public class PaletteReducer {
         Pixmap.Blending blending = pixmap.getBlending();
         pixmap.setBlending(Pixmap.Blending.None);
         int color;
-        final float strength = 0.25f * ditherStrength * (colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
+        final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(colorCount, -0.4f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -3907,9 +3902,7 @@ public class PaletteReducer {
 //        float str = (float) (64 * ditherStrength / Math.log(colorCount * 0.3 + 1.5));
 //        float str = 32 * ditherStrength / (populationBias * populationBias * populationBias * populationBias);
 //        final float str = Math.min(48 * ditherStrength / (populationBias * populationBias * populationBias * populationBias), 127);
-        final float str = 45f * ditherStrength * (colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
+        final float str = 200f * ditherStrength * (float) Math.pow(colorCount, -0.4f);
         for (int y = 0; y < h; y++) {
             for (int px = 0; px < lineLen; px++) {
                 color = pixmap.getPixel(px, y);
@@ -4038,9 +4031,7 @@ public class PaletteReducer {
         // usually, and one for larger counts that approaches multiplying by 1.
         // strength is at most ditherStrength * 3.1870692 when colorCount is 3.
         // strength is at its lowest ditherStrength * 1 when colorCount is 256.
-        final float strength = ditherStrength * (colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, colorCount));
+        final float strength = 7f * ditherStrength * (float) Math.pow(colorCount, -0.4f);
         for (int i = 0; i < 64; i++) {
             tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
 //            tempThresholdMatrix[i] = Math.min(Math.max(OtherMath.probitF((PaletteReducer.thresholdMatrix64[i] + 0.5f) * 0x1p-6f) * strength, -127), 127);
