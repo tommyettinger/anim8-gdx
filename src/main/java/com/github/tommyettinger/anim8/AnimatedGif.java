@@ -579,9 +579,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float strength = 0.25f * ditherStrength * (palette.colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+        final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 int color = image.getPixel(px, flipped + flipDir * y);
@@ -608,9 +606,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float strength = 0.25f * ditherStrength * (palette.colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+        final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 color = image.getPixel(px, flipped + flipDir * y);
@@ -637,9 +633,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         final byte[] paletteMapping = palette.paletteMapping;
         boolean hasTransparent = paletteArray[0] == 0;
 
-        final float str = 45f * ditherStrength * (palette.colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+        final float str = 200f * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
         for (int y = 0, i = 0; y < height && i < nPix; y++) {
             for (int px = 0; px < width & i < nPix; px++) {
                 color = image.getPixel(px, flipped + flipDir * y);
@@ -698,13 +692,7 @@ public class AnimatedGif implements AnimationWriter, Dithered {
         boolean hasTransparent = paletteArray[0] == 0;
 
         // This uses a Bayer matrix, but per-channel with different offsets, which typically weakens the effect a lot.
-        // We use a piecewise function with two simple lines, one for smaller counts that multiplies by about 2 to 3
-        // usually, and one for larger counts that approaches multiplying by 1.
-        // strength is at most ditherStrength * 3.1870692 when colorCount is 3.
-        // strength is at its lowest ditherStrength * 1 when colorCount is 256.
-        final float strength = ditherStrength * (palette.colorCount <= 128
-                ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+        final float strength = 7f * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
         for (int i = 0; i < 64; i++) {
             PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
         }
