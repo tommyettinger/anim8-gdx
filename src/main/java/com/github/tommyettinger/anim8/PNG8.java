@@ -989,9 +989,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine = curLineBytes.ensureCapacity(w);
             }
 
-            final float strength = 0.25f * ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
 
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
@@ -1095,9 +1093,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
                 curLine = curLineBytes.ensureCapacity(w);
             }
 
-            final float strength = 0.25f * ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
 
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
@@ -1169,18 +1165,15 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             deflater.reset();
 
             final int w = pixmap.getWidth(), h = pixmap.getHeight();
-//            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
             if (curLineBytes == null) {
-            curLine = (curLineBytes = new ByteArray(w)).items;
-        } else {
-            curLine = curLineBytes.ensureCapacity(w);
-        }
+                curLine = (curLineBytes = new ByteArray(w)).items;
+            } else {
+                curLine = curLineBytes.ensureCapacity(w);
+            }
 
             int color;
-            final float str = 45f * ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float str = 200f * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
             for (int y = 0; y < h; y++) {
                 int py = flipY ? (h - y - 1) : y;
                 for (int px = 0; px < w; px++) {
@@ -1369,13 +1362,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             }
 
             // This uses a Bayer matrix, but per-channel with different offsets, which typically weakens the effect a lot.
-            // We use a piecewise function with two simple lines, one for smaller counts that multiplies by about 2 to 3
-            // usually, and one for larger counts that approaches multiplying by 1.
-            // strength is at most ditherStrength * 3.1870692 when colorCount is 3.
-            // strength is at its lowest ditherStrength * 1 when colorCount is 256.
-            final float strength = ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float strength = 7f * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
             for (int i = 0; i < 64; i++) {
                 PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
             }
@@ -4421,12 +4408,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.writeInt(0);
             buffer.endChunk(dataOutput);
 
-//            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
 
-            final float strength = 0.25f * ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4559,9 +4543,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
 
             byte[] curLine;
 
-            final float strength = 0.25f * ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float strength = (0.25f * 7.5f) * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4670,12 +4652,9 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             buffer.writeInt(0);
             buffer.endChunk(dataOutput);
 
-//            byte[] lineOut, curLine, prevLine;
             byte[] curLine;
 
-            final float str = 45f * ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float str = 200f * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
 
             int seq = 0;
             for (int i = 0; i < frames.size; i++) {
@@ -4924,13 +4903,7 @@ public class PNG8 implements AnimationWriter, Dithered, Disposable {
             byte[] curLine;
 
             // This uses a Bayer matrix, but per-channel with different offsets, which typically weakens the effect a lot.
-            // We use a piecewise function with two simple lines, one for smaller counts that multiplies by about 2 to 3
-            // usually, and one for larger counts that approaches multiplying by 1.
-            // strength is at most ditherStrength * 3.1870692 when colorCount is 3.
-            // strength is at its lowest ditherStrength * 1 when colorCount is 256.
-            final float strength = ditherStrength * (palette.colorCount <= 128
-                    ? MathUtils.map(6, 180f, 3.15f, 1f, palette.colorCount)
-                    : MathUtils.map(128f, 256f, 1.6425288f, 1f, palette.colorCount));
+            final float strength = 7f * ditherStrength * (float) Math.pow(palette.colorCount, -0.4f);
             for (int i = 0; i < 64; i++) {
                 PaletteReducer.tempThresholdMatrix[i] = Math.min(Math.max((PaletteReducer.thresholdMatrix64[i] - 31.5f) * strength, -127), 127);
             }
